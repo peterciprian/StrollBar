@@ -1,8 +1,10 @@
 import { NgModule, Optional, SkipSelf, InjectionToken, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { ActivatedRouteSnapshot } from '@angular/router';
 
+import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { NotFoundModule } from './not-found';
 import { environment } from 'src/environments/environment';
@@ -17,6 +19,9 @@ export const API_ENDPOINT = new InjectionToken<string>('apiEndpoint', {
 
 export const externalUrlProvider = new InjectionToken('externalUrlRedirectResolver');
 
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http, '/i18n/');
+}
 
 /**
  * Components
@@ -54,8 +59,15 @@ const corePipes: any[] = [
     CommonModule,
     NotFoundModule,
     HttpClientModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient]
+      }
+    })
   ],
-  exports: [coreComponents],
+  exports: [coreComponents, TranslateModule],
   declarations: [corePipes, coreDirectives, coreComponents],
   providers: [coreServices]
 })

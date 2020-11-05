@@ -1,1 +1,14 @@
-<p>header works!</p>
+<nav class="navbar fixed-top justify-content-center align-items-center shadow">
+  <div class="container mt-1 mb-1 d-flex justify-content-between">
+    <div class="col-2 d-none d-lg-block">
+      <span class="d-inline-block align-middle d-inline-block text-center light-select">
+        <mat-select (selectionChange)="onChangeLanguage($event.value)" [value]="defaultLang">
+          <mat-option *ngFor="let language of languages | async" [value]="language.code">
+            {{ language.name | translate }}
+          </mat-option>
+        </mat-select>
+      </span>
+    </div>
+
+  </div>
+</nav>
