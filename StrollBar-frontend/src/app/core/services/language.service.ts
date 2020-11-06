@@ -35,7 +35,19 @@ export class LanguageService {
 
     this.languages$ = this.languagesSubject.asObservable();
     this.defaultLang = this.translate.getDefaultLang();
+
+    this.initLanguages();
   }
+
+  private initLanguages(): void {
+    const languagesConfigLocation = `assets/config/language-config.json`;
+    this.http.get(languagesConfigLocation).subscribe((result: Language[]) => {
+      this.languagesSubject.next(result);
+    }, (error) => {
+      console.log('Can not find language configuration. The default remains in use.');
+    });
+  }
+
 
   public changeLanguage(lang): void {
     this.translate.use(lang);

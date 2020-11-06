@@ -1,9 +1,9 @@
 import { NgModule, Optional, SkipSelf, InjectionToken, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ActivatedRouteSnapshot } from '@angular/router';
 
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { NotFoundModule } from './not-found';
@@ -19,8 +19,9 @@ export const API_ENDPOINT = new InjectionToken<string>('apiEndpoint', {
 
 export const externalUrlProvider = new InjectionToken('externalUrlRedirectResolver');
 
+// AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
-  return new TranslateHttpLoader(http, '/i18n/');
+  return new TranslateHttpLoader(http, '/assets/i18n/');
 }
 
 /**
@@ -64,7 +65,8 @@ const corePipes: any[] = [
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
         deps: [HttpClient]
-      }
+      },
+      defaultLanguage: 'hu'
     })
   ],
   exports: [coreComponents, TranslateModule],
