@@ -1,0 +1,10 @@
+{
+    "MENU": {
+      "HOME": "Főoldal",
+      "LANGUAGE": "Nyelv"
+    },
+    "LANGUAGE": {
+      "HU": "Magyar",
+      "EN": "Angol"
+    }
+  }

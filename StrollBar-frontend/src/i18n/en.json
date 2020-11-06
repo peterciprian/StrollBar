@@ -1,0 +1,10 @@
+{
+    "MENU": {
+      "HOME": "Home",
+      "LANGUAGE": "Language"
+    },
+    "LANGUAGE": {
+      "HU": "Hungarian",
+      "EN": "English"
+    }
+  }
