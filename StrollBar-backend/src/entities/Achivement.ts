@@ -1,0 +1,40 @@
+import mongoose, { Schema, Document, model } from 'mongoose';
+import { IStroll } from './Stroll';
+
+export interface IAchivement extends Document {
+    achivementId: string;
+    strolls: IStroll['strollId'];
+    score: number;
+    time: number;
+    completed: boolean;
+    hintsUsed: number;
+  }
+
+  const AchivementSchema = new Schema({
+    achivementId: {
+        type: Schema.Types.ObjectId,
+        required: true
+    },
+    strolls: [Schema.Types.ObjectId],
+    score: {
+        type: Number,
+        required: true
+    },
+    time: {
+        type: String,
+        required: true
+    },
+    completed: {
+        type: Boolean,
+        required: true
+    },
+    hintsUsed: {
+        type: Number,
+        required: true
+    }
+},
+    {
+        timestamps: true
+    });
+
+export default model<IAchivement>("Achivement", AchivementSchema);
