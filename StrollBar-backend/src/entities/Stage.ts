@@ -1,10 +1,9 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, model } from 'mongoose';
 import { IStroll } from './Stroll';
 
 export interface IStage extends Document {
     stageId: number;
     name: string;
-    sNumber: number;
     description: string;
     notes?: string[];
     pictureUrls?: string[];
@@ -28,3 +27,71 @@ export interface IHint {
     price: number;
     used: boolean;
 }
+
+const StageSchema = new Schema({
+    stageId: {
+        type: Schema.Types.ObjectId,
+        required: true,
+        unique: true,
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    notes: {
+        type: Schema.Types.Array,
+        required: false
+    },
+    pictureUrls: {
+        type: Schema.Types.Array,
+        required: false
+    },
+    videoUrls: {
+        type: Schema.Types.Array,
+        required: false
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    coords: {
+        x: {
+            type: Number,
+            required: true
+        },
+        y: {
+            type: Number,
+            required: true
+        }
+    },
+    task: {
+        type: String,
+        required: true
+    },
+    score: {
+        type: Number,
+        required: true
+    },
+    timeLimit: {
+        type: Number,
+        required: false
+    },
+    hints: {
+        type: Schema.Types.Array,
+        required: false
+    },
+    stroll: {
+        type: Schema.Types.ObjectId,
+        ref: 'Stroll',
+        required: true
+    }
+
+},
+    {timestamps: true}
+);
+
+export default model<IStage>('Stage', StageSchema);

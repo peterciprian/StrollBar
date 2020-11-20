@@ -8,14 +8,21 @@ export interface IAchivement extends Document {
     time: number;
     completed: boolean;
     hintsUsed: number;
-  }
+}
 
-  const AchivementSchema = new Schema({
+const AchivementSchema = new Schema({
     achivementId: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        unique: true,
     },
-    strolls: [Schema.Types.ObjectId],
+    strolls: [{
+        stroll: {
+            type: Schema.Types.ObjectId,
+            ref: 'Stroll',
+            required: true
+        }
+    }],
     score: {
         type: Number,
         required: true
@@ -32,9 +39,10 @@ export interface IAchivement extends Document {
         type: Number,
         required: true
     }
-},
-    {
-        timestamps: true
-    });
+  },
+  {
+    timestamps: true
+  }
+);
 
 export default model<IAchivement>("Achivement", AchivementSchema);

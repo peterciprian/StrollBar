@@ -27,7 +27,8 @@ export interface IPrice {
 const StrollSchema = new Schema({
     strollId: {
         type: Schema.Types.ObjectId,
-        required: true
+        required: true,
+        unique: true,
     },
     name: {
         type: Schema.Types.String,
@@ -45,7 +46,13 @@ const StrollSchema = new Schema({
         type: Schema.Types.Mixed,
         required: true
     },
-    stages: [Schema.Types.ObjectId],
+    stages: [{
+        item: {
+            type: Schema.Types.ObjectId,
+            ref: 'Stage',
+            required: true
+        }
+    }],
     recommended: {
         type: Schema.Types.Array,
         required: true
