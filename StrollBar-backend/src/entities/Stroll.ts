@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model, Types } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { IStage } from './Stage';
 import { IUser } from './User';
 
@@ -17,14 +17,14 @@ export interface IStroll extends Document {
     record: number;
     maxScore: number;
     completed: number;
-  }
-
-export interface IPrice {
-      amount: number;
-      currency: string;
 }
 
-const StrollSchema = new Schema({
+export interface IPrice {
+    amount: number;
+    currency: string;
+}
+
+const StrollSchema = new Schema<IStroll>({
     strollId: {
         type: Schema.Types.ObjectId,
         required: true,

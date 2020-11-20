@@ -13,5 +13,5 @@ try {
     fs.copySync('./src/public', './dist/public');
     fs.copySync('./src/views', './dist/views');
 } catch (err) {
-    Logger.Err(err);
+    Logger.Err(err) ;
 }

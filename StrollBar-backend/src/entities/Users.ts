@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { IAchivement } from './Achivement';
 import { IStroll } from './Stroll';
 
@@ -23,9 +23,9 @@ export interface IUser extends Document {
     active: boolean;
     confirmed: boolean;
     strolls: IStroll['strollId'][];
-    achivements: IAchivement ['achivementId'][];
+    achivements: IAchivement['achivementId'][];
 }
-const UserSchema = new Schema({
+const UserSchema = new Schema<IUser>({
     userId: {
         type: Schema.Types.ObjectId,
         required: true,

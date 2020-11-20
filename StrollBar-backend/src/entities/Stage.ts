@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { IStroll } from './Stroll';
 
 export interface IStage extends Document {
@@ -9,7 +9,7 @@ export interface IStage extends Document {
     pictureUrls?: string[];
     videoUrls?: string[];
     address?: string;
-    coords?: { 
+    coords?: {
         x: number,
         y: number
     };
@@ -28,7 +28,7 @@ export interface IHint {
     used: boolean;
 }
 
-const StageSchema = new Schema({
+const StageSchema = new Schema<IStage>({
     stageId: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -91,7 +91,7 @@ const StageSchema = new Schema({
     }
 
 },
-    {timestamps: true}
+    { timestamps: true }
 );
 
 export default model<IStage>('Stage', StageSchema);

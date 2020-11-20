@@ -21,7 +21,7 @@ const { BAD_REQUEST } = StatusCodes;
  ***********************************************************************************/
 
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser(cookieProps.secret));
 
 // Show routes called in console during development
@@ -40,11 +40,14 @@ app.use('/api', BaseRouter);
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    logger.err(err, true);
+    logger.err(err, true) ;
     return res.status(BAD_REQUEST).json({
         error: err.message,
     });
 });
+
+
+// MongoDB
 
 
 
@@ -58,7 +61,7 @@ const staticDir = path.join(__dirname, 'public');
 app.use(express.static(staticDir));
 
 app.get('/', (req: Request, res: Response) => {
-    res.sendFile('login.html', {root: viewsDir});
+    res.sendFile('login.html', { root: viewsDir });
 });
 
 app.get('/users', (req: Request, res: Response) => {
@@ -66,7 +69,7 @@ app.get('/users', (req: Request, res: Response) => {
     if (!jwt) {
         res.redirect('/');
     } else {
-        res.sendFile('users.html', {root: viewsDir});
+        res.sendFile('users.html', { root: viewsDir });
     }
 });
 

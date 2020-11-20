@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model } from 'mongoose';
 import { IStroll } from './Stroll';
 
 export interface IAchivement extends Document {
@@ -10,7 +10,7 @@ export interface IAchivement extends Document {
     hintsUsed: number;
 }
 
-const AchivementSchema = new Schema({
+const AchivementSchema = new Schema<IAchivement>({
     achivementId: {
         type: Schema.Types.ObjectId,
         required: true,
@@ -39,10 +39,10 @@ const AchivementSchema = new Schema({
         type: Number,
         required: true
     }
-  },
-  {
-    timestamps: true
-  }
+},
+    {
+        timestamps: true
+    }
 );
 
 export default model<IAchivement>("Achivement", AchivementSchema);
