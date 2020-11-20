@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import path from 'path';
 import helmet from 'helmet';
 import StatusCodes from 'http-status-codes';
+import mongoose from 'mongoose';
 import express, { NextFunction, Request, Response } from 'express';
 
 import 'express-async-errors';
@@ -40,7 +41,7 @@ app.use('/api', BaseRouter);
 // Print API errors
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-    logger.err(err, true) ;
+    logger.err(err, true);
     return res.status(BAD_REQUEST).json({
         error: err.message,
     });
@@ -48,7 +49,31 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
 // MongoDB
+// húú, ezt ne ide tedd így. ezt mindenképp ki kell szervezni valami configba!
+const uri = "mongodb+srv://Peter:jjkj@klaszter.j7gtn.mongodb.net/Teszt?retryWrites=true&w=majority";
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
 
+mongoose.connect(uri)
+    .then((con) => console.log('Db csatlakoztatva ', /*con*/))
+    .catch(err => console.error(err));
+
+const connection = mongoose.connection;
+//még nem teszteltem le rendesen de most el kell mennem kajáért mert midnen bezár mindjárt mer világvége van
+connection.on('error', e => {
+    console.error(e);
+});
+connection.on('disconnecting', e => {
+    console.log("Mongodb Disconnect meghívva");
+});
+connection.on('disconnected', e => {
+    console.log("Mongodb kapcsolat megszűnt.");
+});
+connection.once('open', () => {
+    console.log("MongoDB kapcsolat nyitva");
+})
 
 
 /************************************************************************************
