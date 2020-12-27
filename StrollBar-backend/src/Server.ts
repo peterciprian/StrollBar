@@ -4,7 +4,7 @@ import path from 'path';
 import helmet from 'helmet';
 import StatusCodes from 'http-status-codes';
 import mongoose from 'mongoose';
-import express, { NextFunction, Request, Response } from 'express';
+import express, {NextFunction, Request, Response } from 'express';
 
 import 'express-async-errors';
 
@@ -29,6 +29,7 @@ app.use(cookieParser(cookieProps.secret));
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
+console.log("ENV: "+JSON.stringify(process.env.NODE_ENV))
 
 // Security
 if (process.env.NODE_ENV === 'production') {
@@ -49,6 +50,7 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
 // MongoDB
+
 // húú, ezt ne ide tedd így. ezt mindenképp ki kell szervezni valami configba!
 const uri = "mongodb+srv://Peter:jjkj@klaszter.j7gtn.mongodb.net/Teszt?retryWrites=true&w=majority";
 mongoose.set('useNewUrlParser', true);
@@ -61,7 +63,6 @@ mongoose.connect(uri)
     .catch(err => console.error(err));
 
 const connection = mongoose.connection;
-//még nem teszteltem le rendesen de most el kell mennem kajáért mert midnen bezár mindjárt mer világvége van
 connection.on('error', e => {
     console.error(e);
 });
