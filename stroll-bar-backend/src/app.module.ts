@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StrollsModule } from './strolls/strolls.module';
+import { StagesModule } from './stages/stages.module';
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { StrollsModule } from './strolls/strolls.module';
       'mongodb+srv://Peter:jjkj@klaszter.j7gtn.mongodb.net/Teszt?retryWrites=true&w=majority',
     ),
     StrollsModule,
+    StagesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
