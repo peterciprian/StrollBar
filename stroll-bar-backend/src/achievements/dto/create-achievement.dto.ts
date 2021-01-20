@@ -6,11 +6,11 @@ import {
   IsNumber,
 } from 'class-validator';
 
-export class CreateAchivementDto {
+export class CreateAchievementDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(200)
-  readonly achivementId: string;
+  readonly achievementId: string;
 
   @IsNotEmpty()
   readonly stroll: string;

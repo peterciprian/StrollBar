@@ -45,5 +45,5 @@ export class CreateUserDto {
   strolls: string[];
 
   @IsNotEmpty()
-  achivements: string[];
+  achievements: string[];
 }

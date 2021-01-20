@@ -1,6 +1,6 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { IAchivement } from 'src/achivements/entities/achivement.entity';
+import { IAchievement } from 'src/achievements/entities/achievement.entity';
 import { IStroll } from 'src/strolls/entities/stroll.entity';
 
 export interface IUser extends Document {
@@ -13,7 +13,7 @@ export interface IUser extends Document {
   active: boolean;
   confirmed: boolean;
   strolls: IStroll['strollId'][];
-  achivements: IAchivement['achivementId'][];
+  achievements: IAchievement['achievementId'][];
 }
 export interface IBillingAddress {
   billingName: string;
@@ -55,7 +55,7 @@ export class User extends Document {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Stroll' }], required: true })
   strolls: string[];
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Achivement' }], required: true })
-  achivements: string[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Achievement' }], required: true })
+  achievements: string[];
 }
 export const UserSchema = SchemaFactory.createForClass(User);

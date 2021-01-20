@@ -2,8 +2,8 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { IStroll } from 'src/strolls/entities/stroll.entity';
 
-export interface IAchivement extends Document {
-  achivementId: string;
+export interface IAchievement extends Document {
+  achievementId: string;
   stroll: IStroll['strollId'];
   score: number;
   time: number;
@@ -12,9 +12,9 @@ export interface IAchivement extends Document {
 }
 
 @Schema()
-export class Achivement extends Document {
+export class Achievement extends Document {
   @Prop({ required: true, unique: true })
-  achivementId: string;
+  achievementId: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Stroll', required: true })
   stroll: string;
@@ -32,4 +32,4 @@ export class Achivement extends Document {
   hintsUsed: number;
 }
 
-export const AchivementSchema = SchemaFactory.createForClass(Achivement);
+export const AchievementSchema = SchemaFactory.createForClass(Achievement);

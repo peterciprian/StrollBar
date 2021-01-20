@@ -4,20 +4,27 @@ import { AppService } from './app.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StrollsModule } from './strolls/strolls.module';
 import { StagesModule } from './stages/stages.module';
-import { AchivementsModule } from './achivements/achivements.module';
+import { AchievementsModule } from './achievements/achievements.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://admin:admin@cluster0.iijhz.mongodb.net/StrollBar?retryWrites=true&w=majority',
+      'mongodb+srv://cluster0.iijhz.mongodb.net',
+      {
+        user: 'admin',
+        pass: 'admin',
+        dbName: 'StrollBar',
+        w: 'majority',
+        retryWrites: true
+      }
     ),
     StrollsModule,
     StagesModule,
-    AchivementsModule,
+    AchievementsModule,
     UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
