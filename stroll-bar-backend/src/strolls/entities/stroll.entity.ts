@@ -39,7 +39,7 @@ export class Stroll extends Document {
   @Prop({ required: true })
   active: boolean;
 
-  @Prop({ required: true })
+  @Prop({ type: Object, required: true })
   price: IPrice;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Stage' }], required: true })

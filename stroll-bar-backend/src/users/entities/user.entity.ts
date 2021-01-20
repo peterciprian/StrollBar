@@ -40,7 +40,7 @@ export class User extends Document {
   @Prop({ required: true })
   role: string;
 
-  @Prop({ required: true })
+  @Prop({ type: Object, required: true })
   billing: IBillingAddress;
 
   @Prop({ required: true })

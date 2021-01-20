@@ -10,7 +10,7 @@ import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://Peter:jjkj@klaszter.j7gtn.mongodb.net/Teszt?retryWrites=true&w=majority',
+      'mongodb+srv://admin:admin@cluster0.iijhz.mongodb.net/StrollBar?retryWrites=true&w=majority',
     ),
     StrollsModule,
     StagesModule,

@@ -51,7 +51,7 @@ export class Stage extends Document {
   @Prop()
   videoUrls: Array<string>;
 
-  @Prop()
+  @Prop({ type: Object })
   coords: ICoordinates;
 
   @Prop({ required: true })
