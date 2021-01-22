@@ -3,7 +3,6 @@ import { IStroll } from './Stroll';
 export interface IStage extends Document {
     stageId: number;
     name: string;
-    sNumber: number;
     description: string;
     notes?: string[];
     pictureUrls?: string[];
@@ -17,7 +16,6 @@ export interface IStage extends Document {
     score: number;
     timeLimit?: number;
     hints: IHint[];
-    stroll: IStroll['strollId'][];
 }
 
 export interface IHint {

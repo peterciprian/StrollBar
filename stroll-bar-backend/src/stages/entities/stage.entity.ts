@@ -1,6 +1,5 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { IStroll } from 'src/strolls/entities/stroll.entity';
+import { Document } from 'mongoose';
 
 export interface IStage extends Document {
   stageId: string;
@@ -15,7 +14,6 @@ export interface IStage extends Document {
   score: number;
   timeLimit?: number;
   hints: IHint[];
-  stroll: IStroll['strollId'][];
 }
 
 export interface IHint {
@@ -51,6 +49,9 @@ export class Stage extends Document {
   @Prop()
   videoUrls: Array<string>;
 
+  @Prop()
+  address: string;
+
   @Prop({ type: Object })
   coords: ICoordinates;
 
@@ -65,9 +66,6 @@ export class Stage extends Document {
 
   @Prop()
   hints: Array<IHint>;
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Stroll' }], required: true })
-  stroll: string[];
 }
 
 export const StageSchema = SchemaFactory.createForClass(Stage);

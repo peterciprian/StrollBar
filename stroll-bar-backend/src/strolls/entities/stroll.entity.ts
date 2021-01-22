@@ -10,8 +10,8 @@ export interface IStroll extends Document {
   active: boolean;
   price: IPrice;
   stages: IStage['stageId'][];
-  recommended: string[];
-  labels: string[];
+  recommended: recommends[];
+  labels: labels[];
   description: string;
   timeLimit: number;
   avgTime: number;
@@ -23,6 +23,28 @@ export interface IStroll extends Document {
 export interface IPrice {
   amount: number;
   currency: string;
+}
+
+export enum labels {
+  ARCHITECTURE,
+  ART,
+  COMTEMPORARY,
+  HISTORICAL,
+  GASTRO,
+  BUILDING,
+  SIGHTSEEING,
+  SCIENCE,
+  LANDSCAPE,
+  URBANISM,
+}
+
+export enum recommends {
+  CHILD,
+  ELDERLY,
+  ACCESIBLE,
+  LMBTQX,
+  DOG,
+  ADULT,
 }
 
 @Schema()

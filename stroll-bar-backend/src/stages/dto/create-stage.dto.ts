@@ -38,7 +38,4 @@ export class CreateStageDto {
   readonly timeLimit?: number;
 
   readonly hints: IHint[];
-
-  @IsNotEmpty()
-  readonly stroll: string[];
 }
