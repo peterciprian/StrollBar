@@ -1,4 +1,4 @@
-import { IAchivement } from './Achivement';
+import { IAchievement } from './Achievement';
 import { IStroll } from './Stroll';
 
 export interface IUser extends Document {
@@ -22,5 +22,5 @@ export interface IUser extends Document {
     active: boolean;
     confirmed: boolean;
     strolls: IStroll['strollId'][];
-    achivements: IAchivement ['achivementId'][];
+    achievements: IAchievement ['achievementId'][];
   }
