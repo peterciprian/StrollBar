@@ -4,7 +4,7 @@ import { Model } from 'mongoose';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { UpdateStrollDto } from './dto/update-stroll.dto';
-import { Stroll } from './entities/stroll.entity';
+import { IStroll, Stroll } from './entities/stroll.entity';
 
 @Injectable()
 export class StrollsService {
@@ -18,43 +18,39 @@ export class StrollsService {
     return await this.strollModel.find().skip(offset).limit(limit).exec();
   }
 
-  public async findOne(customerId: string): Promise<Stroll> {
-    const customer = await this.strollModel
-      .findById({ _id: customerId })
-      .exec();
+  public async findOne(strollId: string): Promise<Stroll> {
+    const stroll = await this.strollModel.findById({ _id: strollId }).exec();
 
-    if (!customer) {
-      throw new NotFoundException(`Stroll #${customerId} not found`);
+    if (!stroll) {
+      throw new NotFoundException(`Stroll #${strollId} not found`);
     }
 
-    return customer;
+    return stroll;
   }
 
-  public async create(createCustomerDto: CreateStrollDto): Promise<IStroll> {
-    const newCustomer = await new this.strollModel(createCustomerDto);
-    return newCustomer.save();
+  public async create(createStrollDto: CreateStrollDto): Promise<IStroll> {
+    const newStroll = await new this.strollModel(createStrollDto);
+    return newStroll.save();
   }
 
   public async update(
-    customerId: string,
-    updateCustomerDto: UpdateStrollDto,
+    strollId: string,
+    updateStrollDto: UpdateStrollDto,
   ): Promise<IStroll> {
-    const existingCustomer = await this.strollModel.findByIdAndUpdate(
-      { _id: customerId },
-      updateCustomerDto,
+    const existingStroll = await this.strollModel.findByIdAndUpdate(
+      { _id: strollId },
+      updateStrollDto,
     );
 
-    if (!existingCustomer) {
-      throw new NotFoundException(`Stroll #${customerId} not found`);
+    if (!existingStroll) {
+      throw new NotFoundException(`Stroll #${strollId} not found`);
     }
 
-    return existingCustomer;
+    return existingStroll;
   }
 
-  public async remove(customerId: string): Promise<any> {
-    const deletedCustomer = await this.strollModel.findByIdAndRemove(
-      customerId,
-    );
-    return deletedCustomer;
+  public async remove(strollId: string): Promise<any> {
+    const deletedStroll = await this.strollModel.findByIdAndRemove(strollId);
+    return deletedStroll;
   }
 }

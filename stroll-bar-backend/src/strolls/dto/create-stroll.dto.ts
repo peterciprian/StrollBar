@@ -27,7 +27,7 @@ export class CreateStrollDto {
   readonly price: IPrice;
 
   @IsNotEmpty()
-  readonly stages: IStage[];
+  readonly stages: string[];
 
   readonly recommended: string[];
 

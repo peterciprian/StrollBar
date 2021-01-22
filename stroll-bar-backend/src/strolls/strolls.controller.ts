@@ -21,83 +21,80 @@ export class StrollsController {
   constructor(private readonly strollsService: StrollsService) {}
 
   @Get()
-  public async getAllCustomer(
+  public async getAllStroll(
     @Res() res,
     @Query() paginationQuery: PaginationQueryDto,
   ) {
-    const customers = await this.strollsService.findAll(paginationQuery);
-    return res.status(HttpStatus.OK).json(customers);
+    const strolls = await this.strollsService.findAll(paginationQuery);
+    return res.status(HttpStatus.OK).json(strolls);
   }
 
   @Get('/:id')
-  public async getCustomer(@Res() res, @Param('id') customerId: string) {
-    const customer = await this.strollsService.findOne(customerId);
-    if (!customer) {
-      throw new NotFoundException('Customer does not exist!');
+  public async getStroll(@Res() res, @Param('id') strollId: string) {
+    const stroll = await this.strollsService.findOne(strollId);
+    if (!stroll) {
+      throw new NotFoundException('Stroll does not exist!');
     }
-    return res.status(HttpStatus.OK).json(customer);
+    return res.status(HttpStatus.OK).json(stroll);
   }
 
   @Post()
-  public async addCustomer(
-    @Res() res,
-    @Body() createCustomerDto: CreateStrollDto,
-  ) {
+  public async addStroll(@Res() res, @Body() createStrollDto: CreateStrollDto) {
     try {
-      const customer = await this.strollsService.create(createCustomerDto);
+      const stroll = await this.strollsService.create(createStrollDto);
       return res.status(HttpStatus.OK).json({
-        message: 'Customer has been created successfully',
-        customer,
+        message: 'Stroll has been created successfully',
+        stroll,
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: Customer not created!',
+        message: 'Error: Stroll not created!',
         status: 400,
       });
     }
   }
 
   @Put('/:id')
-  public async updateCustomer(
+  public async updateStroll(
     @Res() res,
-    @Param('id') customerId: string,
-    @Body() updateCustomerDto: UpdateStrollDto,
+    @Param('id') strollId: string,
+    @Body() updateStrollDto: UpdateStrollDto,
   ) {
     try {
-      const customer = await this.strollsService.update(
-        customerId,
-        updateCustomerDto,
+      const stroll = await this.strollsService.update(
+        strollId,
+        updateStrollDto,
       );
-      if (!customer) {
-        throw new NotFoundException('Customer does not exist!');
+      if (!stroll) {
+        throw new NotFoundException('Stroll does not exist!');
       }
       return res.status(HttpStatus.OK).json({
-        message: 'Customer has been successfully updated',
-        customer,
+        message: 'Stroll has been successfully updated',
+        stroll,
       });
     } catch (err) {
       return res.status(HttpStatus.BAD_REQUEST).json({
-        message: 'Error: Customer not updated!',
+        message: 'Error: Stroll not updated!',
         status: 400,
       });
     }
   }
 
   @Delete('/:id')
-  public async deleteCustomer(@Res() res, @Param('id') customerId: string) {
-    if (!customerId) {
-      throw new NotFoundException('Customer ID does not exist');
+  public async deleteStroll(@Res() res, @Param('id') strollId: string) {
+    if (!strollId) {
+      throw new NotFoundException('Stroll ID does not exist');
     }
 
-    const customer = await this.strollsService.remove(customerId);
+    const stroll = await this.strollsService.remove(strollId);
 
-    if (!customer) {
-      throw new NotFoundException('Customer does not exist');
+    if (!stroll) {
+      throw new NotFoundException('Stroll does not exist');
     }
 
     return res.status(HttpStatus.OK).json({
-      message: 'Customer has been deleted',
-      customer,
+      message: 'Stroll has been deleted',
+      stroll,
     });
   }
 }

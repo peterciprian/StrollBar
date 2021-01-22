@@ -1,5 +1,7 @@
 import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { IStage } from 'src/stages/entities/stage.entity';
+import { IUser } from 'src/users/entities/user.entity';
 
 export interface IStroll extends Document {
   strollId: string;
@@ -37,11 +39,11 @@ export class Stroll extends Document {
   @Prop({ required: true })
   active: boolean;
 
-  @Prop({ required: true })
+  @Prop({ type: Object, required: true })
   price: IPrice;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Stage' }], required: true })
-  stages: IStage[];
+  stages: string[];
 
   @Prop()
   recommended: Array<string>;
