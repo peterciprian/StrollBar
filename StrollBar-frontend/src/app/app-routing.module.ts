@@ -7,6 +7,7 @@ const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', loadChildren: () => import('./home/home.module').then(m => m.HomeModule) },
   { path: 'strolls', loadChildren: () => import('./strolls/strolls.module').then(m => m.StrollsModule) },
+  { path: 'administration', loadChildren: () => import('./administration/administration.module').then(m => m.AdministrationModule) },
   { path: '**', component: NotFoundComponent }
 ];
 
