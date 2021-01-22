@@ -7,18 +7,21 @@ import { StrollCardComponent } from './components/stroll-card/stroll-card.compon
 import { SmallStrollCardComponent } from './components/small-stroll-card/small-stroll-card.component';
 import { ResultListComponent } from './components/result-list/result-list.component';
 
+const sharedComponents = [
+  StrollCardComponent, SmallStrollCardComponent, ResultListComponent
+];
+const sharedModules = [
+  FormsModule, HttpClientModule, MaterialModule
+];
 @NgModule({
-  declarations: [StrollCardComponent, SmallStrollCardComponent, ResultListComponent],
+  declarations: [sharedComponents],
   imports: [
     CommonModule,
-    FormsModule,
-    HttpClientModule,
-    MaterialModule
+    sharedModules
   ],
   exports: [
-    FormsModule,
-    HttpClientModule,
-    MaterialModule,
+    sharedModules,
+    sharedComponents
   ]
 })
 export class SharedModule { }
