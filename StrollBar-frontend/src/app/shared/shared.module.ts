@@ -3,10 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { MaterialModule } from './material/material.module';
-import { ExternalUrlDirective } from './external-url/external-url.directive';
 
 @NgModule({
-  declarations: [ExternalUrlDirective],
+  declarations: [],
   imports: [
     CommonModule,
     FormsModule,
@@ -17,7 +16,6 @@ import { ExternalUrlDirective } from './external-url/external-url.directive';
     FormsModule,
     HttpClientModule,
     MaterialModule,
-    ExternalUrlDirective
   ]
 })
 export class SharedModule { }

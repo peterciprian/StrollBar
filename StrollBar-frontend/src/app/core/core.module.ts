@@ -17,8 +17,6 @@ export const API_ENDPOINT = new InjectionToken<string>('apiEndpoint', {
   factory: () => environment.baseApiUrl
 });
 
-export const externalUrlProvider = new InjectionToken('externalUrlRedirectResolver');
-
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
   return new TranslateHttpLoader(http, '/assets/i18n/');
@@ -27,33 +25,22 @@ export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
 /**
  * Components
  */
-const coreComponents: any[] = [
-];
+const coreComponents: any[] = [];
 
 /**
  * Services
  */
-const coreServices: any[] = [
-  {
-    provide: externalUrlProvider,
-    useValue: (route: ActivatedRouteSnapshot) => {
-      const externalUrl = route.paramMap.get('externalUrl');
-      window.open(externalUrl, '_self');
-    }
-  }
-];
+const coreServices: any[] = [];
 
 /**
  * Directives
  */
-const coreDirectives: any[] = [
-];
+const coreDirectives: any[] = [];
 
 /**
  * Pipes
  */
-const corePipes: any[] = [
-];
+const corePipes: any[] = [];
 
 @NgModule({
   imports: [
