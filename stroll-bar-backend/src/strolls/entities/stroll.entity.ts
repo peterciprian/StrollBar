@@ -68,10 +68,10 @@ export class Stroll extends Document {
   stages: string[];
 
   @Prop()
-  recommended: Array<string>;
+  recommended: Array<recommends>;
 
   @Prop()
-  labels: Array<string>;
+  labels: Array<labels>;
 
   @Prop({ required: true })
   description: string;

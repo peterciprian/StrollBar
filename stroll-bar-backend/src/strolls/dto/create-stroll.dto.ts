@@ -5,7 +5,7 @@ import {
   IsBoolean,
   IsNumber,
 } from 'class-validator';
-import { IPrice } from '../entities/stroll.entity';
+import { IPrice, labels, recommends } from '../entities/stroll.entity';
 
 export class CreateStrollDto {
   @IsString()
@@ -29,9 +29,9 @@ export class CreateStrollDto {
   @IsNotEmpty()
   readonly stages: string[];
 
-  readonly recommended: string[];
+  readonly recommended: recommends[];
 
-  readonly labels: string[];
+  readonly labels: labels[];
 
   @IsString()
   @MaxLength(2000)
