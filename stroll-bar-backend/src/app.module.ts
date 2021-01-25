@@ -7,6 +7,7 @@ import { StagesModule } from './stages/stages.module';
 import { AchievementsModule } from './achievements/achievements.module';
 import { UsersModule } from './users/users.module';
 import { FacebookStrategy } from './common/auth/facebook.strategy';
+import { GoogleStrategy } from './common/auth/google.strategy';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { FacebookStrategy } from './common/auth/facebook.strategy';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService, FacebookStrategy],
+  providers: [AppService, FacebookStrategy, GoogleStrategy],
 })
 export class AppModule {}

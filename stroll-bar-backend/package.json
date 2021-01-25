@@ -32,6 +32,7 @@
     "mongoose": "^5.11.12",
     "passport": "^0.4.1",
     "passport-facebook": "^3.0.0",
+    "passport-google-oauth20": "^2.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3"
@@ -44,6 +45,7 @@
     "@types/jest": "^26.0.15",
     "@types/node": "^14.14.6",
     "@types/passport-facebook": "^2.1.10",
+    "@types/passport-google-oauth20": "^2.0.6",
     "@types/supertest": "^2.0.10",
     "@typescript-eslint/eslint-plugin": "^4.6.1",
     "@typescript-eslint/parser": "^4.6.1",
