@@ -26,4 +26,4 @@ import { GoogleStrategy } from './common/auth/google.strategy';
   controllers: [AppController],
   providers: [AppService, FacebookStrategy, GoogleStrategy],
 })
-export class AppModule {}
+export class AppModule { }
