@@ -10,5 +10,6 @@ import { Stroll, StrollSchema } from './entities/stroll.entity';
   ],
   controllers: [StrollsController],
   providers: [StrollsService],
+  exports: [StrollsService],
 })
-export class StrollsModule {}
+export class StrollsModule { }

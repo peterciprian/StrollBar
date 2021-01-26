@@ -29,4 +29,4 @@ import { StrollsController } from 'src/strolls/strolls.controller';
     StrollsController,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }

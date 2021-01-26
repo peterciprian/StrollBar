@@ -10,5 +10,6 @@ import { Stage, StageSchema } from './entities/stage.entity';
   ],
   controllers: [StagesController],
   providers: [StagesService],
+  exports: [StagesService]
 })
-export class StagesModule {}
+export class StagesModule { }

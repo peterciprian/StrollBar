@@ -12,5 +12,6 @@ import { Achievement, AchievementSchema } from './entities/achievement.entity';
   ],
   controllers: [AchievementsController],
   providers: [AchievementsService],
+  exports: [AchievementsService]
 })
 export class AchievementsModule { }
