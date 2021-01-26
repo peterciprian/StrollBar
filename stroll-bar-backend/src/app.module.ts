@@ -6,8 +6,9 @@ import { StrollsModule } from './strolls/strolls.module';
 import { StagesModule } from './stages/stages.module';
 import { AchievementsModule } from './achievements/achievements.module';
 import { UsersModule } from './users/users.module';
-import { FacebookStrategy } from './common/auth/facebook.strategy';
-import { GoogleStrategy } from './common/auth/google.strategy';
+import { FacebookStrategy } from './auth/strategies/facebook.strategy';
+import { GoogleStrategy } from './auth/strategies/google.strategy';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -22,8 +23,9 @@ import { GoogleStrategy } from './common/auth/google.strategy';
     StagesModule,
     AchievementsModule,
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService, FacebookStrategy, GoogleStrategy],
 })
-export class AppModule { }
+export class AppModule {}

@@ -5,6 +5,7 @@ import {
   IsBoolean,
   IsNumber,
   IsEmail,
+  MinLength,
 } from 'class-validator';
 import { IBillingAddress } from '../entities/user.entity';
 
@@ -21,6 +22,10 @@ export class CreateUserDto {
   @IsNotEmpty()
   @IsEmail()
   email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;
 
   @IsNotEmpty()
   @IsString()

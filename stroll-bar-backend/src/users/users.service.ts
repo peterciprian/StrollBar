@@ -6,8 +6,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, IUser } from './entities/user.entity';
 
+import * as bcrypt from 'bcrypt';
+
 @Injectable()
 export class UsersService {
+  private saltRounds = 10;
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
@@ -18,7 +21,7 @@ export class UsersService {
     return await this.userModel.find().skip(offset).limit(limit).exec();
   }
 
-  public async findOne(userId: string): Promise<User> {
+  public async findById(userId: string): Promise<User> {
     const user = await this.userModel.findById({ _id: userId }).exec();
 
     if (!user) {
@@ -28,8 +31,19 @@ export class UsersService {
     return user;
   }
 
+  public async findByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({ email: email }).exec();
+
+    if (!user) {
+      throw new NotFoundException(`User #${email} not found`);
+    }
+
+    return user;
+  }
+
   public async create(createUserDto: CreateUserDto): Promise<IUser> {
     const newUser = await new this.userModel(createUserDto);
+    newUser.password = await this.getHash(newUser.password);
     return newUser.save();
   }
 
@@ -52,5 +66,16 @@ export class UsersService {
   public async remove(userId: string): Promise<any> {
     const deletedUser = await this.userModel.findByIdAndRemove(userId);
     return deletedUser;
+  }
+
+  async getHash(password: string | undefined): Promise<string> {
+    return bcrypt.hash(password, this.saltRounds);
+  }
+
+  async compareHash(
+    password: string | undefined,
+    hash: string | undefined,
+  ): Promise<boolean> {
+    return bcrypt.compare(password, hash);
   }
 }

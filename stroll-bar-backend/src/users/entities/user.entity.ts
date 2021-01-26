@@ -38,6 +38,9 @@ export class User extends Document {
   email: string;
 
   @Prop({ required: true })
+  password: string;
+
+  @Prop({ required: true })
   role: string;
 
   @Prop({ type: Object, required: true })
@@ -55,7 +58,10 @@ export class User extends Document {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Stroll' }], required: true })
   strolls: string[];
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Achievement' }], required: true })
+  @Prop({
+    type: [{ type: Types.ObjectId, ref: 'Achievement' }],
+    required: true,
+  })
   achievements: string[];
 }
 export const UserSchema = SchemaFactory.createForClass(User);
