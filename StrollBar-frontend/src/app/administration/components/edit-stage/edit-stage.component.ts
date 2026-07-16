@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-edit-stage',
+  standalone: false,
   templateUrl: './edit-stage.component.html',
   styleUrls: ['./edit-stage.component.scss']
 })

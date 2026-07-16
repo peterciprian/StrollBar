@@ -57,7 +57,7 @@ export class AchievementsService {
   }
 
   public async remove(achievementId: string): Promise<any> {
-    const deletedAchievement = await this.achievementModel.findByIdAndRemove(
+    const deletedAchievement = await this.achievementModel.findByIdAndDelete(
       achievementId,
     );
     return deletedAchievement;

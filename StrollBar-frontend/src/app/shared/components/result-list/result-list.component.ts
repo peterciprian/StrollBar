@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-result-list',
+  standalone: false,
   templateUrl: './result-list.component.html',
   styleUrls: ['./result-list.component.scss']
 })

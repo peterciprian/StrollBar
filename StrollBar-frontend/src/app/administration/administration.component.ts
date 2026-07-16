@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-administration',
+  standalone: false,
   templateUrl: './administration.component.html',
   styleUrls: ['./administration.component.scss']
 })

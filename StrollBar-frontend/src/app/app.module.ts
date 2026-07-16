@@ -11,7 +11,6 @@ import { CoreModule } from './core/core.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { InterceptorService } from './core/services/interceptor.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [

@@ -29,7 +29,7 @@ export class InterceptorService implements HttpInterceptor {
         retry(1),
         catchError((error: HttpErrorResponse) => {
           this.notification.showError(error.message);
-          return throwError(error);
+          return throwError(() => error);
         })
       );
     } else {
@@ -37,7 +37,7 @@ export class InterceptorService implements HttpInterceptor {
         retry(1),
         catchError((error: HttpErrorResponse) => {
           this.notification.showError(error.message);
-          return throwError(error);
+          return throwError(() => error);
         })
       );
     }

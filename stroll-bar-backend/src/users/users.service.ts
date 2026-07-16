@@ -64,7 +64,7 @@ export class UsersService {
   }
 
   public async remove(userId: string): Promise<any> {
-    const deletedUser = await this.userModel.findByIdAndRemove(userId);
+    const deletedUser = await this.userModel.findByIdAndDelete(userId);
     return deletedUser;
   }
 

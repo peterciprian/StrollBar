@@ -30,7 +30,12 @@
 
 ```bash
 $ npm install
+$ copy .env.example .env
 ```
+
+## Environment
+
+Create a `.env` file from `.env.example` and set the values for your local or deployed environment.
 
 ## Running the app
 

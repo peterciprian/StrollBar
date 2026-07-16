@@ -4,6 +4,7 @@ import { Location } from '@angular/common';
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'not-found',
+  standalone: false,
   templateUrl: './not-found.component.html'
 })
 export class NotFoundComponent implements OnInit {

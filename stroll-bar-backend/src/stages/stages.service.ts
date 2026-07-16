@@ -51,7 +51,7 @@ export class StagesService {
   }
 
   public async remove(stageId: string): Promise<any> {
-    const deletedStage = await this.stageModel.findByIdAndRemove(stageId);
+    const deletedStage = await this.stageModel.findByIdAndDelete(stageId);
     return deletedStage;
   }
 }

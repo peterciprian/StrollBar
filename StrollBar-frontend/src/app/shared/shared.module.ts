@@ -14,14 +14,14 @@ const sharedModules = [
   FormsModule, HttpClientModule, MaterialModule
 ];
 @NgModule({
-  declarations: [sharedComponents],
+  declarations: [...sharedComponents],
   imports: [
     CommonModule,
-    sharedModules
+    ...sharedModules
   ],
   exports: [
-    sharedModules,
-    sharedComponents
+    ...sharedModules,
+    ...sharedComponents
   ]
 })
 export class SharedModule { }

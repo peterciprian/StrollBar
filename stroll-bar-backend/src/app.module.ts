@@ -10,15 +10,21 @@ import { FacebookStrategy } from './auth/strategies/facebook.strategy';
 import { GoogleStrategy } from './auth/strategies/google.strategy';
 import { AuthModule } from './auth/auth.module';
 
+const socialAuthProviders = [] as Array<typeof FacebookStrategy | typeof GoogleStrategy>;
+
+if (process.env.FACEBOOK_CLIENT_ID && process.env.FACEBOOK_SECRET) {
+  socialAuthProviders.push(FacebookStrategy);
+}
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_SECRET) {
+  socialAuthProviders.push(GoogleStrategy);
+}
+
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://cluster0.iijhz.mongodb.net', {
-      user: 'admin',
-      pass: 'admin',
-      dbName: 'StrollBar',
-      w: 'majority',
-      retryWrites: true,
-    }),
+    MongooseModule.forRoot(
+      process.env.MONGODB_URI ?? 'mongodb://127.0.0.1:27017/StrollBar',
+    ),
     StrollsModule,
     StagesModule,
     AchievementsModule,
@@ -26,6 +32,6 @@ import { AuthModule } from './auth/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService, FacebookStrategy, GoogleStrategy],
+  providers: [AppService, ...socialAuthProviders],
 })
 export class AppModule {}

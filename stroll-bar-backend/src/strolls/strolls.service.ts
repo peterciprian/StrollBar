@@ -50,7 +50,7 @@ export class StrollsService {
   }
 
   public async remove(strollId: string): Promise<any> {
-    const deletedStroll = await this.strollModel.findByIdAndRemove(strollId);
+    const deletedStroll = await this.strollModel.findByIdAndDelete(strollId);
     return deletedStroll;
   }
 }

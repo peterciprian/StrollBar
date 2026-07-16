@@ -7,6 +7,7 @@ import { Language, LanguageService } from 'src/app/core/services/language.servic
 
 @Component({
   selector: 'app-header',
+  standalone: false,
   templateUrl: './header.component.html',
   styles: [
   ]

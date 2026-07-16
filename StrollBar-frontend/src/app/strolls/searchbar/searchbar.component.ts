@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-searchbar',
+  standalone: false,
   templateUrl: './searchbar.component.html',
   styleUrls: ['./searchbar.component.scss']
 })

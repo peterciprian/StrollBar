@@ -56,9 +56,9 @@ const corePipes: any[] = [];
       defaultLanguage: 'hu'
     })
   ],
-  exports: [coreComponents, TranslateModule],
-  declarations: [corePipes, coreDirectives, coreComponents],
-  providers: [coreServices]
+  exports: [...coreComponents, TranslateModule],
+  declarations: [...corePipes, ...coreDirectives, ...coreComponents],
+  providers: [...coreServices]
 })
 export class CoreModule {
 
@@ -73,7 +73,7 @@ export class CoreModule {
     return {
       ngModule: CoreModule,
       providers: [
-        coreServices
+        ...coreServices
       ]
     };
   }

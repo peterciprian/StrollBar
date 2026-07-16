@@ -15,7 +15,8 @@ const notFoundComponents: any[] = [
     CommonModule
   ],
   declarations: [
-    notFoundComponents
-  ]
+    ...notFoundComponents
+  ],
+  exports: [...notFoundComponents]
 })
 export class NotFoundModule { }

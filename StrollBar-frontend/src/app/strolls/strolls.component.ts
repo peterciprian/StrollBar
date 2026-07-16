@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-strolls',
+  standalone: false,
   templateUrl: './strolls.component.html',
   styleUrls: ['./strolls.component.scss']
 })
