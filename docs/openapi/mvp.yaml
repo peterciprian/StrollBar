@@ -1,0 +1,728 @@
+openapi: 3.0.3
+info:
+  title: StrollBar MVP API
+  version: 0.1.0
+  description: REST contract for the StrollBar MVP.
+servers:
+  - url: https://api.strollbar.local/v1
+
+tags:
+  - name: Auth
+  - name: Users
+  - name: Strolls
+  - name: Stages
+  - name: Adventures
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /users/{userId}:
+    get:
+      tags: [Users]
+      summary: Get public creator profile
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Public profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PublicUserProfile'
+
+  /strolls:
+    get:
+      tags: [Strolls]
+      summary: Browse public strolls
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: labels
+          schema:
+            type: string
+          description: Comma-separated labels
+        - in: query
+          name: authorId
+          schema:
+            type: string
+            format: uuid
+        - in: query
+          name: city
+          schema:
+            type: string
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [newest, most_used, best_rated]
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: Paginated stroll list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrollListResponse'
+
+    post:
+      tags: [Strolls]
+      summary: Create stroll
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStrollRequest'
+      responses:
+        '201':
+          description: Stroll created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stroll'
+
+  /strolls/{strollId}:
+    get:
+      tags: [Strolls]
+      summary: Get stroll details with ordered stages
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+      responses:
+        '200':
+          description: Stroll detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrollDetailResponse'
+
+    patch:
+      tags: [Strolls]
+      summary: Update stroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStrollRequest'
+      responses:
+        '200':
+          description: Stroll updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stroll'
+
+    delete:
+      tags: [Strolls]
+      summary: Delete stroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+      responses:
+        '204':
+          description: Stroll deleted
+
+  /strolls/{strollId}/stages:
+    get:
+      tags: [Stages]
+      summary: List ordered stages for a stroll
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+      responses:
+        '200':
+          description: Ordered stages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Stage'
+
+    post:
+      tags: [Stages]
+      summary: Add stage to stroll
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateStageRequest'
+      responses:
+        '201':
+          description: Stage created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stage'
+
+  /strolls/{strollId}/stages/reorder:
+    patch:
+      tags: [Stages]
+      summary: Reorder stroll stages
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReorderStagesRequest'
+      responses:
+        '200':
+          description: Stages reordered
+
+  /adventures/unlock:
+    post:
+      tags: [Adventures]
+      summary: Unlock (purchase) a stroll as a personal adventure
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnlockStrollRequest'
+      responses:
+        '201':
+          description: Adventure created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Adventure'
+
+  /adventures/{adventureId}/start:
+    post:
+      tags: [Adventures]
+      summary: Start an unlocked adventure
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AdventureId'
+      responses:
+        '200':
+          description: Adventure started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Adventure'
+
+  /adventures/{adventureId}:
+    get:
+      tags: [Adventures]
+      summary: Get current user adventure state
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AdventureId'
+      responses:
+        '200':
+          description: Adventure detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdventureDetailResponse'
+
+  /adventures/{adventureId}/stages/{stageId}/answer:
+    post:
+      tags: [Adventures]
+      summary: Submit riddle answer and progress if correct
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AdventureId'
+        - $ref: '#/components/parameters/StageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitStageAnswerRequest'
+      responses:
+        '200':
+          description: Answer evaluated and progress updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitStageAnswerResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserId:
+      in: path
+      name: userId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    StrollId:
+      in: path
+      name: strollId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    StageId:
+      in: path
+      name: stageId
+      required: true
+      schema:
+        type: string
+        format: uuid
+    AdventureId:
+      in: path
+      name: adventureId
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [username, email, password]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [accessToken, user]
+      properties:
+        accessToken:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      required: [id, username, email, isActive, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        profileImageUrl:
+          type: string
+          format: uri
+          nullable: true
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    PublicUserProfile:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        stats:
+          type: object
+          properties:
+            publishedStrolls:
+              type: integer
+            unlockCount:
+              type: integer
+            completionCount:
+              type: integer
+
+    Stroll:
+      type: object
+      required:
+        - id
+        - name
+        - authorId
+        - activeStatus
+        - labels
+        - description
+        - publicityFlag
+        - stageCount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        authorId:
+          type: string
+          format: uuid
+        activeStatus:
+          type: string
+          enum: [draft, published, archived]
+        labels:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        proposerText:
+          type: string
+          nullable: true
+        mediaUrls:
+          $ref: '#/components/schemas/MediaUrls'
+        publicityFlag:
+          type: string
+          enum: [public, unlisted, private]
+        stageCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    MediaUrls:
+      type: object
+      properties:
+        imageUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        videoUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+
+    Stage:
+      type: object
+      required:
+        - id
+        - strollId
+        - orderIndex
+        - name
+        - description
+      properties:
+        id:
+          type: string
+          format: uuid
+        strollId:
+          type: string
+          format: uuid
+        orderIndex:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+        description:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        imageUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        videoUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        address:
+          type: string
+          nullable: true
+        latitude:
+          type: number
+          nullable: true
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          nullable: true
+          minimum: -180
+          maximum: 180
+
+    Adventure:
+      type: object
+      required:
+        - id
+        - ownerUserId
+        - strollId
+        - purchaseTime
+        - progressStatus
+        - currentStageIndex
+      properties:
+        id:
+          type: string
+          format: uuid
+        ownerUserId:
+          type: string
+          format: uuid
+        strollId:
+          type: string
+          format: uuid
+        purchaseTime:
+          type: string
+          format: date-time
+        startDateTime:
+          type: string
+          format: date-time
+          nullable: true
+        completionDateTime:
+          type: string
+          format: date-time
+          nullable: true
+        progressStatus:
+          type: string
+          enum: [purchased, in_progress, completed, abandoned]
+        currentStageIndex:
+          type: integer
+          minimum: 1
+
+    CreateStrollRequest:
+      type: object
+      required: [name, description]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        proposerText:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+        imageUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        videoUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        activeStatus:
+          type: string
+          enum: [draft, published, archived]
+        publicityFlag:
+          type: string
+          enum: [public, unlisted, private]
+
+    UpdateStrollRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateStrollRequest'
+
+    StrollListResponse:
+      type: object
+      required: [items, page, limit, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stroll'
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+
+    StrollDetailResponse:
+      type: object
+      properties:
+        stroll:
+          $ref: '#/components/schemas/Stroll'
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stage'
+
+    CreateStageRequest:
+      type: object
+      required: [orderIndex, name, description]
+      properties:
+        orderIndex:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+        description:
+          type: string
+        notes:
+          type: string
+        imageUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        videoUrls:
+          type: array
+          items:
+            type: string
+            format: uri
+        address:
+          type: string
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        riddleAnswer:
+          type: string
+
+    ReorderStagesRequest:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [stageId, orderIndex]
+            properties:
+              stageId:
+                type: string
+                format: uuid
+              orderIndex:
+                type: integer
+                minimum: 1
+
+    UnlockStrollRequest:
+      type: object
+      required: [strollId]
+      properties:
+        strollId:
+          type: string
+          format: uuid
+
+    SubmitStageAnswerRequest:
+      type: object
+      required: [answer]
+      properties:
+        answer:
+          type: string
+
+    SubmitStageAnswerResponse:
+      type: object
+      required: [isCorrect, adventure]
+      properties:
+        isCorrect:
+          type: boolean
+        adventure:
+          $ref: '#/components/schemas/Adventure'
+
+    AdventureDetailResponse:
+      type: object
+      properties:
+        adventure:
+          $ref: '#/components/schemas/Adventure'
+        stroll:
+          $ref: '#/components/schemas/Stroll'
+        currentStage:
+          $ref: '#/components/schemas/Stage'
