@@ -1,41 +1,19 @@
-import { Controller, Get, HttpStatus, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { Controller, Get } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiServiceUnavailableResponse, ApiTags } from '@nestjs/swagger';
+import { ErrorResponseDto } from './common/dto/error-response.dto';
+import { HealthResponseDto } from './common/dto/health-response.dto';
 import { AppService } from './app.service';
-import { Request } from 'express';
 
+@ApiTags('Health')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-
-  @Get('/auth/facebook')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLogin(): Promise<any> {
-    return HttpStatus.OK;
-  }
-
-  @Get('/auth/facebook/redirect')
-  @UseGuards(AuthGuard('facebook'))
-  async facebookLoginRedirect(@Req() req: Request): Promise<any> {
-    return {
-      statusCode: HttpStatus.OK,
-      data: req.user,
-    };
-  }
-
-  @Get('/auth/google')
-  @UseGuards(AuthGuard('google'))
-  async googleAuth(@Req() req): Promise<any> {
-    return HttpStatus.OK;
-  }
-
-  @Get('/auth/google/redirect')
-  @UseGuards(AuthGuard('google'))
-  googleAuthRedirect(@Req() req) {
-    return this.appService.googleLogin(req);
+  @ApiOperation({ summary: 'Check PostgreSQL and object storage connectivity' })
+  @ApiOkResponse({ type: HealthResponseDto, description: 'All critical dependencies are reachable.' })
+  @ApiServiceUnavailableResponse({ type: ErrorResponseDto, description: 'One or more dependencies are unavailable.' })
+  @Get('health')
+  health() {
+    return this.appService.health();
   }
 }

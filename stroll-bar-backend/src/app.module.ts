@@ -1,31 +1,50 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { StrollsModule } from './strolls/strolls.module';
-import { StagesModule } from './stages/stages.module';
-import { AchievementsModule } from './achievements/achievements.module';
-import { UsersModule } from './users/users.module';
-import { FacebookStrategy } from './auth/strategies/facebook.strategy';
-import { GoogleStrategy } from './auth/strategies/google.strategy';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
+import { StrollsModule } from './modules/strolls/strolls.module';
+import { StagesModule } from './modules/stages/stages.module';
+import { AdventuresModule } from './modules/adventures/adventures.module';
+import { MediaModule } from './modules/media/media.module';
+import { buildDatabaseOptions } from './database/database.config';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb+srv://cluster0.iijhz.mongodb.net', {
-      user: 'admin',
-      pass: 'admin',
-      dbName: 'StrollBar',
-      w: 'majority',
-      retryWrites: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [
+        `.env.${process.env.NODE_ENV ?? 'development'}`,
+        '.env',
+      ],
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60_000,
+        limit: 20,
+      },
+    ]),
+    TypeOrmModule.forRootAsync({
+      useFactory: () => buildDatabaseOptions(),
+    }),
+    AuthModule,
+    UsersModule,
     StrollsModule,
     StagesModule,
-    AchievementsModule,
-    UsersModule,
-    AuthModule,
+    AdventuresModule,
+    MediaModule,
   ],
   controllers: [AppController],
-  providers: [AppService, FacebookStrategy, GoogleStrategy],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
