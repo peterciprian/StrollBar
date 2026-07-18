@@ -2,7 +2,7 @@
   "name": "strollbar",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["backend", "frontend"],
+  "workspaces": ["stroll-bar-backend", "stroll-bar-frontend"],
   "scripts": {
     "install:all": "npm install --workspaces",
     "dev:backend:bootstrap": "node ./scripts/dev-backend-bootstrap.mjs",
@@ -10,11 +10,11 @@
     "db:down": "docker compose -f docker-compose.postgres.yml down",
     "db:reset": "docker compose -f docker-compose.postgres.yml down -v",
     "db:logs": "docker compose -f docker-compose.postgres.yml logs -f postgres",
-    "db:migrate": "npm --workspace backend run migration:run",
-    "db:migrate:revert": "npm --workspace backend run migration:revert",
-    "start:backend": "npm --workspace backend run start:dev",
-    "start:frontend": "npm --workspace frontend run start",
-    "build:backend": "npm --workspace backend run build",
-    "build:frontend": "npm --workspace frontend run build"
+    "db:migrate": "npm --workspace stroll-bar-backend run migration:run",
+    "db:migrate:revert": "npm --workspace stroll-bar-backend run migration:revert",
+    "start:backend": "npm --workspace stroll-bar-backend run start:dev",
+    "start:frontend": "npm --workspace stroll-bar-frontend run start",
+    "build:backend": "npm --workspace stroll-bar-backend run build",
+    "build:frontend": "npm --workspace stroll-bar-frontend run build"
   }
 }
