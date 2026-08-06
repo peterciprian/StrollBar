@@ -24,4 +24,12 @@ export class AppController {
   databaseHealth() {
     return this.appService.databaseHealth();
   }
+
+  @ApiOperation({ summary: 'Check object storage connectivity only' })
+  @ApiOkResponse({ description: 'The storage connection is healthy.' })
+  @ApiServiceUnavailableResponse({ type: ErrorResponseDto, description: 'The storage connection is unavailable.' })
+  @Get('health/storage')
+  storageHealth() {
+    return this.appService.storageHealth();
+  }
 }

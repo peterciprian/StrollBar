@@ -13,7 +13,7 @@
     "incremental": true,
     "strict": true,
     "skipLibCheck": true,
-    "types": ["node"],
+    "types": ["node", "jest"],
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0"
   }

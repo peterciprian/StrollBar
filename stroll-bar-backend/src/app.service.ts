@@ -47,6 +47,10 @@ export class AppService {
     }
   }
 
+  async storageHealth(): Promise<HealthDependencyDto> {
+    return this.mediaService.checkStorageConnectivity();
+  }
+
   private async checkDatabase(): Promise<HealthResponseDto['database']> {
     return this.databaseHealth();
   }
