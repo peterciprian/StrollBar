@@ -11,6 +11,8 @@
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.840.0",
+    "@aws-sdk/s3-request-presigner": "^3.840.0",
     "@nestjs/common": "^11.1.28",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.28",
@@ -20,16 +22,13 @@
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.3",
-    "@aws-sdk/client-s3": "^3.840.0",
-    "@aws-sdk/s3-request-presigner": "^3.840.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
-    "pg": "^8.16.3",
+    "pg": "^8.22.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
-    "sql.js": "^1.13.0",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^1.1.0"
   },
@@ -43,8 +42,8 @@
     "@types/supertest": "^6.0.3",
     "jest": "^30.0.5",
     "supertest": "^7.1.1",
-    "ts-node": "^10.9.2",
     "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
     "typeorm-ts-node-commonjs": "^0.3.20",
     "typescript": "^6.0.3"
   }

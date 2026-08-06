@@ -16,4 +16,12 @@ export class AppController {
   health() {
     return this.appService.health();
   }
+
+  @ApiOperation({ summary: 'Check PostgreSQL connectivity only' })
+  @ApiOkResponse({ description: 'The database connection is healthy.' })
+  @ApiServiceUnavailableResponse({ type: ErrorResponseDto, description: 'The database connection is unavailable.' })
+  @Get('health/db')
+  databaseHealth() {
+    return this.appService.databaseHealth();
+  }
 }

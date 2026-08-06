@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -18,6 +20,13 @@ export enum AdventureProgressStatus {
 export class AdventureEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @BeforeInsert()
+  setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 
   @Column({ type: DATABASE_ID_COLUMN_TYPE })
   ownerUserId!: string;

@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -10,6 +12,13 @@ import { DATABASE_DATE_COLUMN_TYPE, DATABASE_ID_COLUMN_TYPE } from '../../../dat
 export class StageAttemptEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @BeforeInsert()
+  setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 
   @Column({ type: DATABASE_ID_COLUMN_TYPE })
   adventureId!: string;

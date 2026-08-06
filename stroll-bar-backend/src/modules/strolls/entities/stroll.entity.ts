@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -28,6 +30,13 @@ export interface StrollMediaUrls {
 export class StrollEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @BeforeInsert()
+  setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 
   @Column({ type: 'varchar', length: 150 })
   name!: string;

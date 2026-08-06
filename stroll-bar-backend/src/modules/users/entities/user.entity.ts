@@ -1,4 +1,6 @@
+import { randomUUID } from 'node:crypto';
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,6 +13,13 @@ import { DATABASE_DATE_COLUMN_TYPE } from '../../../database/column-types';
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @BeforeInsert()
+  setIdIfMissing(): void {
+    if (!this.id) {
+      this.id = randomUUID();
+    }
+  }
 
   @Column({ type: 'varchar', length: 50, unique: true })
   username!: string;

@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-class HealthDependencyDto {
+export class HealthDependencyDto {
   @ApiProperty({ example: 'up' })
   status!: 'up' | 'down';
 

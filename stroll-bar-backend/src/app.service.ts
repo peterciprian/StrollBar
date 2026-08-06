@@ -1,6 +1,6 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { HealthResponseDto } from './common/dto/health-response.dto';
+import { HealthDependencyDto, HealthResponseDto } from './common/dto/health-response.dto';
 import { MediaService } from './modules/media/media.service';
 
 @Injectable()
@@ -29,13 +29,14 @@ export class AppService {
     return response;
   }
 
-  private async checkDatabase(): Promise<HealthResponseDto['database']> {
+  async databaseHealth(): Promise<HealthDependencyDto> {
     try {
-      await this.dataSource.query('SELECT 1');
+      const result = await this.dataSource.query('SELECT current_database() AS dbname, current_user AS username');
+      const [row] = result.rows ?? [];
       return {
         status: 'up',
         provider: this.dataSource.options.type,
-        detail: 'SELECT 1',
+        detail: row ? `connected to ${row.dbname} as ${row.username}` : 'SELECT 1',
       };
     } catch (error) {
       return {
@@ -44,5 +45,9 @@ export class AppService {
         detail: error instanceof Error ? error.message : 'Database connectivity failed.',
       };
     }
+  }
+
+  private async checkDatabase(): Promise<HealthResponseDto['database']> {
+    return this.databaseHealth();
   }
 }

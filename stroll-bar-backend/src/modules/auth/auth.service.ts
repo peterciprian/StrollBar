@@ -9,9 +9,9 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserEntity } from '../users/entities/user.entity';
 
-type SafeUser = Omit<
+type SafeUser = Pick<
   UserEntity,
-  'passwordHash' | 'refreshTokenHash' | 'resetPasswordTokenHash' | 'resetPasswordExpiresAt'
+  'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'createdAt' | 'updatedAt'
 >;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
 
