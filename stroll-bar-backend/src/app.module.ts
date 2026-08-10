@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { StrollsModule } from './modules/strolls/strolls.module';
 import { StagesModule } from './modules/stages/stages.module';
+import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AdventuresModule } from './modules/adventures/adventures.module';
 import { MediaModule } from './modules/media/media.module';
 import { buildDatabaseOptions } from './database/database.config';
@@ -35,6 +36,7 @@ import { buildDatabaseOptions } from './database/database.config';
     UsersModule,
     StrollsModule,
     StagesModule,
+    AchievementsModule,
     AdventuresModule,
     MediaModule,
   ],
