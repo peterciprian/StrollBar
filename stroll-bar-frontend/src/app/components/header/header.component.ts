@@ -1,39 +1,32 @@
-import { Output, EventEmitter, Component, isDevMode, inject } from '@angular/core';
-
-import { Observable } from 'rxjs';
-import { Language, LanguageService } from '../../core/services/language.service';
-
-
+import { Component, EventEmitter, Output, Signal, isDevMode, inject } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from '../../core/services/language.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
+  imports: [],
   templateUrl: './header.component.html',
-  styles: [
-  ]
+  styles: []
 })
 export class HeaderComponent {
 
-  @Output() public clickSidenavButton: EventEmitter<any> = new EventEmitter();
+  @Output() public clickSidenavButton = new EventEmitter<void>();
 
-  public defaultLang: string;
+  protected readonly languageService = inject(LanguageService);
+  private readonly translateService = inject(TranslateService);
 
-  private languageService = inject(LanguageService);
-
-  constructor() {
-    this.defaultLang = this.languageService.defaultLang;
-  }
+  protected readonly translatedLanguages = this.languageService.languages.map(lang => ({
+    code: lang.code,
+    label: this.translateService.translate(lang.name) as Signal<string>
+  }));
 
   public openSidenav(): void {
-    this.clickSidenavButton.emit(null);
+    this.clickSidenavButton.emit();
   }
 
-  public get languages(): Observable<Language[]> {
-    return this.languageService.languages$;
-  }
-
-  public onChangeLanguage(lang: string): void {
-    this.languageService.changeLanguage(lang);
+  public onChangeLanguage(code: string): void {
+    this.languageService.changeLanguage(code);
   }
 
   public get isDevMode(): boolean {

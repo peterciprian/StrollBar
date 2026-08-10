@@ -9,7 +9,6 @@ import { FooterComponent } from './components/footer/footer.component';
 import { CoreModule } from './core/core.module';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { InterceptorService } from './core/services/interceptor.service';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [],
@@ -19,8 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     AppComponent,
     HeaderComponent,
     FooterComponent,
-    CoreModule.forRoot(),
-    BrowserAnimationsModule
+    CoreModule.forRoot()
   ],
   providers: [
     {

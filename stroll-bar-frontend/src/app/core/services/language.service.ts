@@ -1,8 +1,5 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-
+import { Injectable, inject, Signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Observable, BehaviorSubject } from 'rxjs';
 
 export interface Language {
   name: string;
@@ -14,42 +11,19 @@ export interface Language {
 })
 export class LanguageService {
 
-  private languagesSubject: BehaviorSubject<Language[]>;
-  public languages$: Observable<Language[]>;
-  public defaultLang: string;
+  private readonly translate = inject(TranslateService);
 
-  constructor(
-    private http: HttpClient,
-    private translate: TranslateService
-  ) {
-    this.languagesSubject = new BehaviorSubject<Language[]>([
-      {
-        name: 'LANGUAGE.HU',
-        code: 'hu'
-      },
-      {
-        name: 'LANGUAGE.EN',
-        code: 'en'
-      }
-    ]);
+  readonly languages: Language[] = [
+    { name: 'LANGUAGE.HU', code: 'hu' },
+    { name: 'LANGUAGE.EN', code: 'en' }
+  ];
 
-    this.languages$ = this.languagesSubject.asObservable();
-    this.defaultLang = this.translate.getDefaultLang();
-
-    this.initLanguages();
+  get currentLang(): Signal<string | null> {
+    return this.translate.currentLang;
   }
 
-  private initLanguages(): void {
-    const languagesConfigLocation = `assets/config/language-config.json`;
-    this.http.get(languagesConfigLocation).subscribe((result: Language[]) => {
-      this.languagesSubject.next(result);
-    }, (error) => {
-      console.log('Can not find language configuration. The default remains in use.');
-    });
-  }
-
-
-  public changeLanguage(lang): void {
-    this.translate.use(lang);
+  changeLanguage(code: string): void {
+    this.translate.use(code);
   }
 }
+

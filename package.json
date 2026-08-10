@@ -2,7 +2,10 @@
   "name": "strollbar",
   "version": "0.1.0",
   "private": true,
-  "workspaces": ["stroll-bar-backend", "stroll-bar-frontend"],
+  "workspaces": [
+    "stroll-bar-backend",
+    "stroll-bar-frontend"
+  ],
   "scripts": {
     "install:all": "npm install --workspaces",
     "dev:backend:bootstrap": "node ./scripts/dev-backend-bootstrap.mjs",
@@ -20,5 +23,9 @@
     "start:frontend": "npm --workspace stroll-bar-frontend run start",
     "build:backend": "npm --workspace stroll-bar-backend run build",
     "build:frontend": "npm --workspace stroll-bar-frontend run build"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "prettier-plugin-organize-imports": "^4.3.0"
   }
 }
