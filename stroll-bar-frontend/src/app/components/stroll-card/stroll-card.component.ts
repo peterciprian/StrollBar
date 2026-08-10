@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-stroll-card',
+  standalone: true,
   templateUrl: './stroll-card.component.html',
   styleUrls: ['./stroll-card.component.scss']
 })

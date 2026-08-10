@@ -1,12 +1,13 @@
-import { Output, EventEmitter, Component, isDevMode } from '@angular/core';
+import { Output, EventEmitter, Component, isDevMode, inject } from '@angular/core';
 
 import { Observable } from 'rxjs';
-import { Language, LanguageService } from 'src/app/core/services/language.service';
+import { Language, LanguageService } from '../../core/services/language.service';
 
 
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   templateUrl: './header.component.html',
   styles: [
   ]
@@ -17,10 +18,10 @@ export class HeaderComponent {
 
   public defaultLang: string;
 
-  constructor(
-    private languageService: LanguageService
-  ) {
-    this.defaultLang = languageService.defaultLang;
+  private languageService = inject(LanguageService);
+
+  constructor() {
+    this.defaultLang = this.languageService.defaultLang;
   }
 
   public openSidenav(): void {
@@ -31,7 +32,7 @@ export class HeaderComponent {
     return this.languageService.languages$;
   }
 
-  public onChangeLanguage(lang): void {
+  public onChangeLanguage(lang: string): void {
     this.languageService.changeLanguage(lang);
   }
 

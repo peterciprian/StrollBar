@@ -1,16 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Location } from '@angular/common';
 
 @Component({
   // tslint:disable-next-line:component-selector
   selector: 'not-found',
+  standalone: true,
   templateUrl: './not-found.component.html'
 })
 export class NotFoundComponent implements OnInit {
 
-  constructor(
-    private location: Location
-  ) { }
+  private location = inject(Location);
 
   public ngOnInit(): void {
     // EMPTY NOW

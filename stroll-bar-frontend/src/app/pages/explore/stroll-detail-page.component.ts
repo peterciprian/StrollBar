@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StageCardComponent } from '../../shared/components/stage-card.component';
-import { MediaGalleryComponent } from '../../shared/components/media-gallery.component';
-import { MapPreviewComponent } from '../../shared/components/map-preview.component';
+import { StageCardComponent } from '../../components/stage/stage-card.component';
+import { MediaGalleryComponent } from '../../components/media-gallery/media-gallery.component';
+import { MapPreviewComponent } from '../../components/map-preview/map-preview.component';
 
 @Component({
   selector: 'app-stroll-detail-page',

@@ -8,10 +8,12 @@ import { StrollDetailsComponent } from './stroll-details/stroll-details.componen
 
 
 @NgModule({
-  declarations: [StrollsComponent, SearchbarComponent, StrollDetailsComponent],
   imports: [
     CommonModule,
-    StrollsRoutingModule
+    StrollsRoutingModule,
+    StrollsComponent,
+    SearchbarComponent,
+    StrollDetailsComponent
   ]
 })
 export class StrollsModule { }

@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StageManagerComponent } from '../../shared/components/stage-manager.component';
+import { StageManagerComponent } from '../../components/stage/stage-manager.component';
 
 @Component({
   selector: 'app-stroll-editor-page',

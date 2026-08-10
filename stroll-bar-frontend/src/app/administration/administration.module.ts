@@ -8,10 +8,12 @@ import { EditStageComponent } from './components/edit-stage/edit-stage.component
 
 
 @NgModule({
-  declarations: [AdministrationComponent, EditStrollComponent, EditStageComponent],
   imports: [
     CommonModule,
-    AdministrationRoutingModule
+    AdministrationRoutingModule,
+    AdministrationComponent,
+    EditStrollComponent,
+    EditStageComponent
   ]
 })
 export class AdministrationModule { }

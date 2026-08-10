@@ -12,9 +12,10 @@ const notFoundComponents: any[] = [
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    notFoundComponents
   ],
-  declarations: [
+  exports: [
     notFoundComponents
   ]
 })
