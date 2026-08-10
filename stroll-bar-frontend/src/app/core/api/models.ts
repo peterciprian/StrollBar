@@ -2,6 +2,8 @@ export type StrollActiveStatus = 'draft' | 'published' | 'archived';
 export type StrollPublicityFlag = 'public' | 'unlisted' | 'private';
 export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned';
 
+// ─── Users ───────────────────────────────────────────────────────────────────
+
 export interface User {
   id: string;
   username: string;
@@ -11,6 +13,70 @@ export interface User {
   createdAt: string;
   updatedAt: string;
 }
+
+/** Reduced shape returned by GET /v1/users/:userId */
+export interface PublicUserProfileUser {
+  id: string;
+  username: string;
+  email: string;
+  profileImageUrl?: string | null;
+}
+
+export interface PublicUserProfile {
+  user: PublicUserProfileUser;
+  stats: {
+    publishedStrolls: number;
+    unlockCount: number;
+    completionCount: number;
+  };
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}
+
+export interface RefreshRequest {
+  refreshToken: string;
+}
+
+export interface LogoutRequest {
+  refreshToken?: string;
+}
+
+export interface RequestPasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetRequestResponse {
+  message: string;
+  resetToken?: string;
+}
+
+export interface ResetPasswordRequest {
+  resetToken: string;
+  newPassword: string;
+}
+
+export interface MessageResponse {
+  message: string;
+}
+
+// ─── Strolls ──────────────────────────────────────────────────────────────────
 
 export interface MediaUrls {
   imageUrls?: string[];
@@ -32,56 +98,6 @@ export interface Stroll {
   updatedAt: string;
 }
 
-export interface Stage {
-  id: string;
-  strollId: string;
-  orderIndex: number;
-  name: string;
-  description: string;
-  notes?: string | null;
-  imageUrls?: string[];
-  videoUrls?: string[];
-  address?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
-}
-
-export interface Adventure {
-  id: string;
-  ownerUserId: string;
-  strollId: string;
-  purchaseTime: string;
-  startDateTime?: string | null;
-  completionDateTime?: string | null;
-  progressStatus: AdventureProgressStatus;
-  currentStageIndex: number;
-}
-
-export interface RegisterRequest {
-  username: string;
-  email: string;
-  password: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  accessToken: string;
-  user: User;
-}
-
-export interface PublicUserProfile {
-  user: User;
-  stats: {
-    publishedStrolls?: number;
-    unlockCount?: number;
-    completionCount?: number;
-  };
-}
-
 export interface ListStrollsQuery {
   search?: string;
   labels?: string;
@@ -99,11 +115,6 @@ export interface StrollListResponse {
   total: number;
 }
 
-export interface StrollDetailResponse {
-  stroll: Stroll;
-  stages: Stage[];
-}
-
 export interface CreateStrollRequest {
   name: string;
   description: string;
@@ -116,6 +127,34 @@ export interface CreateStrollRequest {
 }
 
 export interface UpdateStrollRequest extends Partial<CreateStrollRequest> {}
+
+export interface DeleteStrollResponse {
+  id: string;
+  deleted: boolean;
+}
+
+// ─── Stages ───────────────────────────────────────────────────────────────────
+
+export interface Stage {
+  id: string;
+  strollId: string;
+  orderIndex: number;
+  name: string;
+  description: string;
+  notes?: string | null;
+  imageUrls?: string[];
+  videoUrls?: string[];
+  address?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface StrollDetailResponse {
+  stroll: Stroll;
+  stages: Stage[];
+}
 
 export interface CreateStageRequest {
   orderIndex: number;
@@ -137,6 +176,26 @@ export interface ReorderStagesRequest {
   }>;
 }
 
+export interface ReorderStagesResponse {
+  strollId: string;
+  reordered: number;
+}
+
+// ─── Adventures ───────────────────────────────────────────────────────────────
+
+export interface Adventure {
+  id: string;
+  ownerUserId: string;
+  strollId: string;
+  purchaseTime: string;
+  startDateTime?: string | null;
+  completionDateTime?: string | null;
+  progressStatus: AdventureProgressStatus;
+  currentStageIndex: number;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
 export interface UnlockStrollRequest {
   strollId: string;
 }
@@ -148,10 +207,34 @@ export interface SubmitStageAnswerRequest {
 export interface SubmitStageAnswerResponse {
   isCorrect: boolean;
   adventure: Adventure;
+  stageId: string;
 }
 
 export interface AdventureDetailResponse {
   adventure: Adventure;
   stroll: Stroll | null;
   currentStage: Stage | null;
+}
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+
+export interface Achievement {
+  id: string;
+  userId: string;
+  strollId: string;
+  score: number;
+  timeSeconds: number;
+  hintsUsed: number;
+  completed: boolean;
+  completedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateAchievementRequest {
+  strollId: string;
+  score?: number;
+  timeSeconds?: number;
+  hintsUsed?: number;
+  completed?: boolean;
 }

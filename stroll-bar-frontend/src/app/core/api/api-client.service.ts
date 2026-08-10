@@ -1,16 +1,25 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
-  Adventure,
+  Achievement,
   AdventureDetailResponse,
   AuthResponse,
+  CreateAchievementRequest,
   CreateStageRequest,
   CreateStrollRequest,
+  DeleteStrollResponse,
   ListStrollsQuery,
   LoginRequest,
+  LogoutRequest,
+  MessageResponse,
+  PasswordResetRequestResponse,
   PublicUserProfile,
+  RefreshRequest,
   RegisterRequest,
   ReorderStagesRequest,
+  ReorderStagesResponse,
+  RequestPasswordResetRequest,
+  ResetPasswordRequest,
   Stage,
   Stroll,
   StrollDetailResponse,
@@ -20,12 +29,15 @@ import {
   UnlockStrollRequest,
   UpdateStrollRequest,
   User,
+  Adventure,
 } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class ApiClientService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = '/v1';
+
+  // ─── Auth ──────────────────────────────────────────────────────────────────
 
   register(body: RegisterRequest) {
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/register`, body);
@@ -35,13 +47,33 @@ export class ApiClientService {
     return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, body);
   }
 
+  refresh(body: RefreshRequest) {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/refresh`, body);
+  }
+
+  logout(body: LogoutRequest) {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/logout`, body);
+  }
+
   me() {
     return this.http.get<User>(`${this.baseUrl}/auth/me`);
   }
 
+  requestPasswordReset(body: RequestPasswordResetRequest) {
+    return this.http.post<PasswordResetRequestResponse>(`${this.baseUrl}/auth/password-reset/request`, body);
+  }
+
+  resetPassword(body: ResetPasswordRequest) {
+    return this.http.post<MessageResponse>(`${this.baseUrl}/auth/password-reset/confirm`, body);
+  }
+
+  // ─── Users ─────────────────────────────────────────────────────────────────
+
   getPublicProfile(userId: string) {
     return this.http.get<PublicUserProfile>(`${this.baseUrl}/users/${userId}`);
   }
+
+  // ─── Strolls ───────────────────────────────────────────────────────────────
 
   listStrolls(query: ListStrollsQuery = {}) {
     let params = new HttpParams();
@@ -67,8 +99,10 @@ export class ApiClientService {
   }
 
   deleteStroll(strollId: string) {
-    return this.http.delete<void>(`${this.baseUrl}/strolls/${strollId}`);
+    return this.http.delete<DeleteStrollResponse>(`${this.baseUrl}/strolls/${strollId}`);
   }
+
+  // ─── Stages ────────────────────────────────────────────────────────────────
 
   listStages(strollId: string) {
     return this.http.get<Stage[]>(`${this.baseUrl}/strolls/${strollId}/stages`);
@@ -79,8 +113,10 @@ export class ApiClientService {
   }
 
   reorderStages(strollId: string, body: ReorderStagesRequest) {
-    return this.http.patch<void>(`${this.baseUrl}/strolls/${strollId}/stages/reorder`, body);
+    return this.http.patch<ReorderStagesResponse>(`${this.baseUrl}/strolls/${strollId}/stages/reorder`, body);
   }
+
+  // ─── Adventures ────────────────────────────────────────────────────────────
 
   unlockStroll(body: UnlockStrollRequest) {
     return this.http.post<Adventure>(`${this.baseUrl}/adventures/unlock`, body);
@@ -99,5 +135,19 @@ export class ApiClientService {
       `${this.baseUrl}/adventures/${adventureId}/stages/${stageId}/answer`,
       body,
     );
+  }
+
+  // ─── Achievements ──────────────────────────────────────────────────────────
+
+  createAchievement(body: CreateAchievementRequest) {
+    return this.http.post<Achievement>(`${this.baseUrl}/achievements`, body);
+  }
+
+  listAchievements() {
+    return this.http.get<Achievement[]>(`${this.baseUrl}/achievements`);
+  }
+
+  getAchievement(achievementId: string) {
+    return this.http.get<Achievement>(`${this.baseUrl}/achievements/${achievementId}`);
   }
 }

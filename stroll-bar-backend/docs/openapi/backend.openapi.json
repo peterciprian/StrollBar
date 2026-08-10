@@ -1,0 +1,2964 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/v1/auth/register": {
+      "post": {
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "A user with the same email or username already exists.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Registration rate limit exceeded."
+          }
+        },
+        "summary": "Register a new user account",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Login successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials."
+          },
+          "429": {
+            "description": "Login rate limit exceeded."
+          }
+        },
+        "summary": "Authenticate and issue access/refresh tokens",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Token pair refreshed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid refresh token."
+          },
+          "429": {
+            "description": "Refresh rate limit exceeded."
+          }
+        },
+        "summary": "Rotate the JWT token pair using a refresh token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/logout": {
+      "post": {
+        "operationId": "AuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LogoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Logout successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid refresh token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active user found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Logout and revoke the current refresh token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/password-reset/request": {
+      "post": {
+        "operationId": "AuthController_requestPasswordReset",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestPasswordResetDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Password reset flow triggered.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordResetRequestResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Password reset request rate limit exceeded."
+          }
+        },
+        "summary": "Request a password reset token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/password-reset/confirm": {
+      "post": {
+        "operationId": "AuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Password reset successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid or expired password reset token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Password reset confirmation rate limit exceeded."
+          }
+        },
+        "summary": "Reset a password using a reset token",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/auth/me": {
+      "get": {
+        "operationId": "AuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Authenticated user profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No active user found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the authenticated user profile",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/v1/users/{userId}": {
+      "get": {
+        "operationId": "UsersController_getPublicProfile",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public user profile with stats.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicUserProfileResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a public user profile",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/v1/strolls": {
+      "get": {
+        "operationId": "StrollsController_list",
+        "parameters": [
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Budapest",
+              "type": "string"
+            }
+          },
+          {
+            "name": "labels",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "city",
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorId",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "b1826c26-6352-4bb9-9a31-b4ecf2f40ab8",
+              "type": "string"
+            }
+          },
+          {
+            "name": "city",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "example": "Budapest",
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "newest",
+                "most_used",
+                "best_rated"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "default": 1,
+              "example": 1,
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20,
+              "example": 20,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated public stroll list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrollListResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Browse public strolls",
+        "tags": [
+          "Strolls"
+        ]
+      },
+      "post": {
+        "operationId": "StrollsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStrollDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stroll created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrollResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a stroll",
+        "tags": [
+          "Strolls"
+        ]
+      }
+    },
+    "/v1/strolls/{strollId}": {
+      "get": {
+        "operationId": "StrollsController_findOne",
+        "parameters": [
+          {
+            "name": "strollId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stroll details with ordered stages.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrollDetailResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get a stroll with its ordered stages",
+        "tags": [
+          "Strolls"
+        ]
+      },
+      "patch": {
+        "operationId": "StrollsController_update",
+        "parameters": [
+          {
+            "name": "strollId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStrollDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stroll updated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrollResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to modify this stroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update a stroll",
+        "tags": [
+          "Strolls"
+        ]
+      },
+      "delete": {
+        "operationId": "StrollsController_remove",
+        "parameters": [
+          {
+            "name": "strollId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stroll deleted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "0e86308f-78cd-4929-a7d8-9db9c3307ee6",
+                    "deleted": true
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to modify this stroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a stroll",
+        "tags": [
+          "Strolls"
+        ]
+      }
+    },
+    "/v1/strolls/{strollId}/stages": {
+      "get": {
+        "operationId": "StagesController_list",
+        "parameters": [
+          {
+            "name": "strollId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ordered stage list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StageResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "List all stages for a stroll",
+        "tags": [
+          "Stages"
+        ]
+      },
+      "post": {
+        "operationId": "StagesController_create",
+        "parameters": [
+          {
+            "name": "strollId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stage created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StageResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to modify stages in this stroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add a stage to a stroll",
+        "tags": [
+          "Stages"
+        ]
+      }
+    },
+    "/v1/strolls/{strollId}/stages/reorder": {
+      "patch": {
+        "operationId": "StagesController_reorder",
+        "parameters": [
+          {
+            "name": "strollId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReorderStagesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Stages reordered successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReorderStagesResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to modify stages in this stroll.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stage or stroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reorder stroll stages",
+        "tags": [
+          "Stages"
+        ]
+      }
+    },
+    "/v1/achievements": {
+      "post": {
+        "operationId": "AchievementsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAchievementDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Achievement recorded successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Record a new achievement for the current user",
+        "tags": [
+          "Achievements"
+        ]
+      },
+      "get": {
+        "operationId": "AchievementsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User achievement list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AchievementResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List all achievements for the current user",
+        "tags": [
+          "Achievements"
+        ]
+      }
+    },
+    "/v1/achievements/{achievementId}": {
+      "get": {
+        "operationId": "AchievementsController_findOne",
+        "parameters": [
+          {
+            "name": "achievementId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Achievement details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AchievementResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Achievement not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a single achievement by ID",
+        "tags": [
+          "Achievements"
+        ]
+      }
+    },
+    "/v1/adventures/unlock": {
+      "post": {
+        "operationId": "AdventuresController_unlock",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UnlockStrollDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Adventure unlocked successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdventureResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Stroll not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Unlock a stroll as an adventure",
+        "tags": [
+          "Adventures"
+        ]
+      }
+    },
+    "/v1/adventures/{adventureId}/start": {
+      "post": {
+        "operationId": "AdventuresController_start",
+        "parameters": [
+          {
+            "name": "adventureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Adventure started successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdventureResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to access this adventure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Adventure not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start an unlocked adventure",
+        "tags": [
+          "Adventures"
+        ]
+      }
+    },
+    "/v1/adventures/{adventureId}": {
+      "get": {
+        "operationId": "AdventuresController_get",
+        "parameters": [
+          {
+            "name": "adventureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Adventure details with current stage.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdventureDetailResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to access this adventure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Adventure not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get an adventure with its current stage",
+        "tags": [
+          "Adventures"
+        ]
+      }
+    },
+    "/v1/adventures/{adventureId}/stages/{stageId}/answer": {
+      "post": {
+        "operationId": "AdventuresController_submitAnswer",
+        "parameters": [
+          {
+            "name": "adventureId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "stageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitStageAnswerDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Stage answer processed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitStageAnswerResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "You are not allowed to access this adventure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Adventure or stage not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit a stage answer and advance progress if correct",
+        "tags": [
+          "Adventures"
+        ]
+      }
+    },
+    "/v1/media/presign-upload": {
+      "post": {
+        "operationId": "MediaController_createPresignedUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePresignedUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Presigned upload URL created successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignedUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported content type or invalid request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Referenced target entity is not accessible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Referenced stage or profile user was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a presigned upload URL for S3-compatible object storage",
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/v1/media/multipart/initiate": {
+      "post": {
+        "operationId": "MediaController_initiateMultipartUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePresignedUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Multipart upload initiated and signed part URLs created.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitiateMultipartUploadResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Unsupported content type, invalid size, or file too small for multipart.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Referenced target entity is not accessible.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Referenced stage or profile user was not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Initiate a multipart upload for large media files",
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/v1/media/multipart/complete": {
+      "post": {
+        "operationId": "MediaController_completeMultipartUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteMultipartUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Multipart upload completed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultipartUploadStatusResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Multipart payload is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The media asset is not owned by the current user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Media asset not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Complete a multipart upload after all parts are uploaded",
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/v1/media/multipart/abort": {
+      "post": {
+        "operationId": "MediaController_abortMultipartUpload",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AbortMultipartUploadDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Multipart upload aborted successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MultipartUploadStatusResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Multipart payload is invalid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The media asset is not owned by the current user.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Media asset not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Abort an in-progress multipart upload",
+        "tags": [
+          "Media"
+        ]
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "operationId": "AppController_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All critical dependencies are reachable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponseDto"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "One or more dependencies are unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check PostgreSQL and object storage connectivity",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/v1/health/db": {
+      "get": {
+        "operationId": "AppController_databaseHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The database connection is healthy."
+          },
+          "503": {
+            "description": "The database connection is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check PostgreSQL connectivity only",
+        "tags": [
+          "Health"
+        ]
+      }
+    },
+    "/v1/health/storage": {
+      "get": {
+        "operationId": "AppController_storageHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The storage connection is healthy."
+          },
+          "503": {
+            "description": "The storage connection is unavailable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check object storage connectivity only",
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "StrollBar API",
+    "description": "OpenAPI documentation for the StrollBar backend.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "description": "Paste a valid JWT access token."
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "walker",
+            "minLength": 3,
+            "maxLength": 50
+          },
+          "email": {
+            "type": "string",
+            "example": "walker@example.com",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password123!",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "AuthUserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6"
+          },
+          "username": {
+            "type": "string",
+            "example": "walker"
+          },
+          "email": {
+            "type": "string",
+            "example": "walker@example.com"
+          },
+          "profileImageUrl": {
+            "type": "object",
+            "example": "https://example.com/avatar.jpg",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-18T16:05:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "AuthResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh..."
+          },
+          "user": {
+            "$ref": "#/components/schemas/AuthUserResponseDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "user"
+        ]
+      },
+      "ErrorResponseDto": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "message": {
+            "type": "object",
+            "example": "Validation failed"
+          }
+        },
+        "required": [
+          "statusCode",
+          "error",
+          "message"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "walker@example.com",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "example": "Password123!",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "RefreshTokenDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": [
+          "refreshToken"
+        ]
+      },
+      "LogoutDto": {
+        "type": "object",
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        }
+      },
+      "MessageResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Operation completed successfully."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "RequestPasswordResetDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "walker@example.com",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "PasswordResetRequestResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "If the account exists, a password reset token has been issued."
+          },
+          "resetToken": {
+            "type": "string",
+            "example": "f3b91791b6e7d8f565d7d8f565f3b91791b6e7d8f565d7d8f565f3b91791b6"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ResetPasswordDto": {
+        "type": "object",
+        "properties": {
+          "resetToken": {
+            "type": "string",
+            "example": "f3b91791b6e7d8f565..."
+          },
+          "newPassword": {
+            "type": "string",
+            "example": "EvenBetterPass123!",
+            "minLength": 8,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "resetToken",
+          "newPassword"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6"
+          },
+          "username": {
+            "type": "string",
+            "example": "walker"
+          },
+          "email": {
+            "type": "string",
+            "example": "walker@example.com"
+          },
+          "profileImageUrl": {
+            "type": "object",
+            "example": "https://example.com/avatar.jpg",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean",
+            "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-18T16:05:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email",
+          "isActive",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "PublicUserProfileUserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6"
+          },
+          "username": {
+            "type": "string",
+            "example": "walker"
+          },
+          "email": {
+            "type": "string",
+            "example": "walker@example.com"
+          },
+          "profileImageUrl": {
+            "type": "object",
+            "example": "https://example.com/avatar.jpg",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "username",
+          "email"
+        ]
+      },
+      "PublicUserProfileStatsDto": {
+        "type": "object",
+        "properties": {
+          "publishedStrolls": {
+            "type": "number",
+            "example": 3
+          },
+          "unlockCount": {
+            "type": "number",
+            "example": 42
+          },
+          "completionCount": {
+            "type": "number",
+            "example": 17
+          }
+        },
+        "required": [
+          "publishedStrolls",
+          "unlockCount",
+          "completionCount"
+        ]
+      },
+      "PublicUserProfileResponseDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/PublicUserProfileUserDto"
+          },
+          "stats": {
+            "$ref": "#/components/schemas/PublicUserProfileStatsDto"
+          }
+        },
+        "required": [
+          "user",
+          "stats"
+        ]
+      },
+      "StrollMediaUrlsResponseDto": {
+        "type": "object",
+        "properties": {
+          "imageUrls": {
+            "example": [
+              "https://example.com/cover.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videoUrls": {
+            "example": [
+              "https://example.com/intro.mp4"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "imageUrls",
+          "videoUrls"
+        ]
+      },
+      "StrollResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6"
+          },
+          "name": {
+            "type": "string",
+            "example": "Budapest Highlights"
+          },
+          "authorId": {
+            "type": "string",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6"
+          },
+          "activeStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "example": "published"
+          },
+          "labels": {
+            "example": [
+              "city",
+              "architecture"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string",
+            "example": "A short guided route through the city center."
+          },
+          "proposerText": {
+            "type": "object",
+            "example": "Curated by locals.",
+            "nullable": true
+          },
+          "mediaUrls": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StrollMediaUrlsResponseDto"
+              }
+            ]
+          },
+          "publicityFlag": {
+            "type": "string",
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "example": "public"
+          },
+          "stageCount": {
+            "type": "number",
+            "example": 4
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-18T16:05:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "authorId",
+          "activeStatus",
+          "labels",
+          "description",
+          "publicityFlag",
+          "stageCount",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "StrollListResponseDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StrollResponseDto"
+            }
+          },
+          "page": {
+            "type": "number",
+            "example": 1
+          },
+          "limit": {
+            "type": "number",
+            "example": 20
+          },
+          "total": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "items",
+          "page",
+          "limit",
+          "total"
+        ]
+      },
+      "CreateStrollDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budapest Highlights",
+            "minLength": 3,
+            "maxLength": 150
+          },
+          "description": {
+            "type": "string",
+            "example": "A short guided route through the city center.",
+            "minLength": 10
+          },
+          "proposerText": {
+            "type": "string",
+            "example": "Curated by locals."
+          },
+          "labels": {
+            "example": [
+              "city",
+              "architecture"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "imageUrls": {
+            "example": [
+              "https://example.com/cover.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videoUrls": {
+            "example": [
+              "https://example.com/intro.mp4"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activeStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "example": "draft"
+          },
+          "publicityFlag": {
+            "type": "string",
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "example": "private"
+          }
+        },
+        "required": [
+          "name",
+          "description"
+        ]
+      },
+      "StageResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "53fd478b-8cc2-4d1c-91ca-9f69ea9d5037"
+          },
+          "strollId": {
+            "type": "string",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6"
+          },
+          "orderIndex": {
+            "type": "number",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Parliament"
+          },
+          "description": {
+            "type": "string",
+            "example": "Solve the riddle to continue."
+          },
+          "notes": {
+            "type": "object",
+            "example": "Best visited at sunset.",
+            "nullable": true
+          },
+          "imageUrls": {
+            "example": [
+              "https://example.com/stage.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videoUrls": {
+            "example": [
+              "https://example.com/stage.mp4"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "address": {
+            "type": "object",
+            "example": "Kossuth Lajos ter 1-3",
+            "nullable": true
+          },
+          "latitude": {
+            "type": "object",
+            "example": 47.5072,
+            "nullable": true
+          },
+          "longitude": {
+            "type": "object",
+            "example": 19.0456,
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-18T16:05:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "strollId",
+          "orderIndex",
+          "name",
+          "description",
+          "imageUrls",
+          "videoUrls"
+        ]
+      },
+      "StrollDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "stroll": {
+            "$ref": "#/components/schemas/StrollResponseDto"
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StageResponseDto"
+            }
+          }
+        },
+        "required": [
+          "stroll",
+          "stages"
+        ]
+      },
+      "UpdateStrollDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Budapest Highlights",
+            "minLength": 3,
+            "maxLength": 150
+          },
+          "description": {
+            "type": "string",
+            "example": "A short guided route through the city center.",
+            "minLength": 10
+          },
+          "proposerText": {
+            "type": "string",
+            "example": "Curated by locals."
+          },
+          "labels": {
+            "example": [
+              "city",
+              "architecture"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "imageUrls": {
+            "example": [
+              "https://example.com/cover.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videoUrls": {
+            "example": [
+              "https://example.com/intro.mp4"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "activeStatus": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "published",
+              "archived"
+            ],
+            "example": "published"
+          },
+          "publicityFlag": {
+            "type": "string",
+            "enum": [
+              "public",
+              "unlisted",
+              "private"
+            ],
+            "example": "public"
+          }
+        }
+      },
+      "CreateStageDto": {
+        "type": "object",
+        "properties": {
+          "orderIndex": {
+            "type": "number",
+            "example": 1,
+            "minimum": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Parliament",
+            "minLength": 2,
+            "maxLength": 150
+          },
+          "description": {
+            "type": "string",
+            "example": "Solve the riddle to continue.",
+            "minLength": 10
+          },
+          "notes": {
+            "type": "string",
+            "example": "Best visited at sunset."
+          },
+          "imageUrls": {
+            "example": [
+              "https://example.com/stage.jpg"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "videoUrls": {
+            "example": [
+              "https://example.com/stage.mp4"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "address": {
+            "type": "string",
+            "example": "Kossuth Lajos ter 1-3"
+          },
+          "latitude": {
+            "type": "number",
+            "example": 47.5072,
+            "minimum": -90,
+            "maximum": 90
+          },
+          "longitude": {
+            "type": "number",
+            "example": 19.0456,
+            "minimum": -180,
+            "maximum": 180
+          },
+          "riddleAnswer": {
+            "type": "string",
+            "example": "neo-gothic"
+          }
+        },
+        "required": [
+          "orderIndex",
+          "name",
+          "description"
+        ]
+      },
+      "StageOrderItemDto": {
+        "type": "object",
+        "properties": {
+          "stageId": {
+            "type": "string",
+            "example": "53fd478b-8cc2-4d1c-91ca-9f69ea9d5037"
+          },
+          "orderIndex": {
+            "type": "number",
+            "example": 1,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "stageId",
+          "orderIndex"
+        ]
+      },
+      "ReorderStagesDto": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StageOrderItemDto"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "ReorderStagesResponseDto": {
+        "type": "object",
+        "properties": {
+          "strollId": {
+            "type": "string",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6"
+          },
+          "reordered": {
+            "type": "number",
+            "example": 3
+          }
+        },
+        "required": [
+          "strollId",
+          "reordered"
+        ]
+      },
+      "CreateAchievementDto": {
+        "type": "object",
+        "properties": {
+          "strollId": {
+            "type": "string",
+            "description": "ID of the stroll this achievement belongs to."
+          },
+          "score": {
+            "type": "number",
+            "description": "Score earned."
+          },
+          "timeSeconds": {
+            "type": "number",
+            "description": "Time taken in seconds."
+          },
+          "hintsUsed": {
+            "type": "number",
+            "description": "Number of hints used."
+          },
+          "completed": {
+            "type": "boolean",
+            "description": "Whether the stroll was fully completed."
+          }
+        },
+        "required": [
+          "strollId"
+        ]
+      },
+      "AchievementResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "strollId": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "timeSeconds": {
+            "type": "number"
+          },
+          "hintsUsed": {
+            "type": "number"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "completedAt": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "userId",
+          "strollId",
+          "score",
+          "timeSeconds",
+          "hintsUsed",
+          "completed",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UnlockStrollDto": {
+        "type": "object",
+        "properties": {
+          "strollId": {
+            "type": "string",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6"
+          }
+        },
+        "required": [
+          "strollId"
+        ]
+      },
+      "AdventureResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "2d8f7a3e-4eb1-4181-b3fa-fc9e2fd80a57"
+          },
+          "ownerUserId": {
+            "type": "string",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6"
+          },
+          "strollId": {
+            "type": "string",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6"
+          },
+          "purchaseTime": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z"
+          },
+          "startDateTime": {
+            "type": "object",
+            "example": "2026-07-18T16:10:00.000Z",
+            "nullable": true
+          },
+          "completionDateTime": {
+            "type": "object",
+            "example": "2026-07-18T16:30:00.000Z",
+            "nullable": true
+          },
+          "progressStatus": {
+            "type": "string",
+            "enum": [
+              "purchased",
+              "in_progress",
+              "completed",
+              "abandoned"
+            ],
+            "example": "in_progress"
+          },
+          "currentStageIndex": {
+            "type": "number",
+            "example": 2
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-18T16:05:00.000Z",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "ownerUserId",
+          "strollId",
+          "purchaseTime",
+          "progressStatus",
+          "currentStageIndex"
+        ]
+      },
+      "AdventureDetailResponseDto": {
+        "type": "object",
+        "properties": {
+          "adventure": {
+            "$ref": "#/components/schemas/AdventureResponseDto"
+          },
+          "stroll": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StrollResponseDto"
+              }
+            ]
+          },
+          "currentStage": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StageResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "adventure"
+        ]
+      },
+      "SubmitStageAnswerDto": {
+        "type": "object",
+        "properties": {
+          "answer": {
+            "type": "string",
+            "example": "neo-gothic",
+            "minLength": 1,
+            "maxLength": 255
+          }
+        },
+        "required": [
+          "answer"
+        ]
+      },
+      "SubmitStageAnswerResponseDto": {
+        "type": "object",
+        "properties": {
+          "isCorrect": {
+            "type": "boolean",
+            "example": true
+          },
+          "adventure": {
+            "$ref": "#/components/schemas/AdventureResponseDto"
+          },
+          "stageId": {
+            "type": "string",
+            "example": "53fd478b-8cc2-4d1c-91ca-9f69ea9d5037"
+          }
+        },
+        "required": [
+          "isCorrect",
+          "adventure",
+          "stageId"
+        ]
+      },
+      "CreatePresignedUploadDto": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "example": "cover.jpg",
+            "minLength": 1,
+            "maxLength": 255
+          },
+          "contentType": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "example": 5242880,
+            "minimum": 1,
+            "description": "Expected file size in bytes."
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "stroll",
+              "stage",
+              "profile"
+            ],
+            "example": "stroll"
+          },
+          "entityId": {
+            "type": "string",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6"
+          }
+        },
+        "required": [
+          "fileName",
+          "contentType",
+          "sizeBytes",
+          "purpose"
+        ]
+      },
+      "UploadHeadersDto": {
+        "type": "object",
+        "properties": {
+          "Content-Type": {
+            "type": "string",
+            "example": "image/jpeg"
+          }
+        },
+        "required": [
+          "Content-Type"
+        ]
+      },
+      "PresignedUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string",
+            "example": "c91661e0-d73d-473c-a4b3-4752f9d8ca0e"
+          },
+          "objectKey": {
+            "type": "string",
+            "example": "stroll/f7f3eb6a-711b-49e8-ae60-b7af77fa35c6/2026/07/18/3d7cc2cf-cover.jpg"
+          },
+          "uploadUrl": {
+            "type": "string",
+            "example": "https://storage.example.com/presigned-upload-url"
+          },
+          "publicUrl": {
+            "type": "string",
+            "example": "https://cdn.example.com/stroll/f7f3eb6a-711b-49e8-ae60-b7af77fa35c6/2026/07/18/3d7cc2cf-cover.jpg"
+          },
+          "method": {
+            "type": "string",
+            "example": "PUT"
+          },
+          "expiresInSeconds": {
+            "type": "number",
+            "example": 900
+          },
+          "headers": {
+            "$ref": "#/components/schemas/UploadHeadersDto"
+          }
+        },
+        "required": [
+          "assetId",
+          "objectKey",
+          "uploadUrl",
+          "publicUrl",
+          "method",
+          "expiresInSeconds",
+          "headers"
+        ]
+      },
+      "MultipartUploadPartDto": {
+        "type": "object",
+        "properties": {
+          "partNumber": {
+            "type": "number",
+            "example": 1
+          },
+          "uploadUrl": {
+            "type": "string",
+            "example": "https://storage.example.com/upload-part-url"
+          }
+        },
+        "required": [
+          "partNumber",
+          "uploadUrl"
+        ]
+      },
+      "InitiateMultipartUploadResponseDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string",
+            "example": "c91661e0-d73d-473c-a4b3-4752f9d8ca0e"
+          },
+          "uploadId": {
+            "type": "string",
+            "example": "multipart-upload-id"
+          },
+          "objectKey": {
+            "type": "string",
+            "example": "stage/f7f3eb6a-711b-49e8-ae60-b7af77fa35c6/2026/07/18/video.mp4"
+          },
+          "publicUrl": {
+            "type": "string",
+            "example": "https://cdn.example.com/stage/f7f3eb6a-711b-49e8-ae60-b7af77fa35c6/2026/07/18/video.mp4"
+          },
+          "partSizeBytes": {
+            "type": "number",
+            "example": 10485760
+          },
+          "partCount": {
+            "type": "number",
+            "example": 6
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MultipartUploadPartDto"
+            }
+          },
+          "expiresInSeconds": {
+            "type": "number",
+            "example": 900
+          }
+        },
+        "required": [
+          "assetId",
+          "uploadId",
+          "objectKey",
+          "publicUrl",
+          "partSizeBytes",
+          "partCount",
+          "parts",
+          "expiresInSeconds"
+        ]
+      },
+      "CompletedPartDto": {
+        "type": "object",
+        "properties": {
+          "partNumber": {
+            "type": "number",
+            "example": 1
+          },
+          "etag": {
+            "type": "string",
+            "example": "\"etag-value\""
+          }
+        },
+        "required": [
+          "partNumber",
+          "etag"
+        ]
+      },
+      "CompleteMultipartUploadDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string",
+            "example": "c91661e0-d73d-473c-a4b3-4752f9d8ca0e"
+          },
+          "uploadId": {
+            "type": "string",
+            "example": "multipart-upload-id"
+          },
+          "parts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CompletedPartDto"
+            }
+          }
+        },
+        "required": [
+          "assetId",
+          "uploadId",
+          "parts"
+        ]
+      },
+      "MediaAssetResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "c91661e0-d73d-473c-a4b3-4752f9d8ca0e"
+          },
+          "uploadedByUserId": {
+            "type": "string",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6"
+          },
+          "strollId": {
+            "type": "object",
+            "example": "0e86308f-78cd-4929-a7d8-9db9c3307ee6",
+            "nullable": true
+          },
+          "stageId": {
+            "type": "object",
+            "example": "53fd478b-8cc2-4d1c-91ca-9f69ea9d5037",
+            "nullable": true
+          },
+          "profileUserId": {
+            "type": "object",
+            "example": "f7f3eb6a-711b-49e8-ae60-b7af77fa35c6",
+            "nullable": true
+          },
+          "storageKey": {
+            "type": "string",
+            "example": "stroll/f7f3eb6a-711b-49e8-ae60-b7af77fa35c6/2026/07/18/uuid-cover.jpg"
+          },
+          "publicUrl": {
+            "type": "string",
+            "example": "https://cdn.example.com/stroll/f7f3eb6a-711b-49e8-ae60-b7af77fa35c6/2026/07/18/uuid-cover.jpg"
+          },
+          "contentType": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "sizeBytes": {
+            "type": "number",
+            "example": 5242880
+          },
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "stroll",
+              "stage",
+              "profile"
+            ],
+            "example": "stroll"
+          },
+          "uploadStatus": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "uploaded",
+              "aborted",
+              "failed"
+            ],
+            "example": "pending"
+          },
+          "uploadMode": {
+            "type": "string",
+            "enum": [
+              "single_part",
+              "multipart"
+            ],
+            "example": "single_part"
+          },
+          "multipartUploadId": {
+            "type": "object",
+            "example": "multipart-upload-id",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2026-07-18T16:00:00.000Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2026-07-18T16:05:00.000Z"
+          }
+        },
+        "required": [
+          "id",
+          "uploadedByUserId",
+          "storageKey",
+          "publicUrl",
+          "contentType",
+          "sizeBytes",
+          "purpose",
+          "uploadStatus",
+          "uploadMode",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "MultipartUploadStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Multipart upload completed successfully."
+          },
+          "asset": {
+            "$ref": "#/components/schemas/MediaAssetResponseDto"
+          }
+        },
+        "required": [
+          "message",
+          "asset"
+        ]
+      },
+      "AbortMultipartUploadDto": {
+        "type": "object",
+        "properties": {
+          "assetId": {
+            "type": "string",
+            "example": "c91661e0-d73d-473c-a4b3-4752f9d8ca0e"
+          },
+          "uploadId": {
+            "type": "string",
+            "example": "multipart-upload-id"
+          }
+        },
+        "required": [
+          "assetId",
+          "uploadId"
+        ]
+      },
+      "HealthDependencyDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "up"
+          },
+          "provider": {
+            "type": "string",
+            "example": "postgres"
+          },
+          "detail": {
+            "type": "string",
+            "example": "SELECT 1"
+          }
+        },
+        "required": [
+          "status",
+          "provider",
+          "detail"
+        ]
+      },
+      "HealthResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          },
+          "database": {
+            "$ref": "#/components/schemas/HealthDependencyDto"
+          },
+          "storage": {
+            "$ref": "#/components/schemas/HealthDependencyDto"
+          }
+        },
+        "required": [
+          "status",
+          "database",
+          "storage"
+        ]
+      }
+    }
+  }
+}
