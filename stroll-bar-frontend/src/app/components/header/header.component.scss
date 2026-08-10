@@ -1,0 +1,35 @@
+.brand {
+	font-size: 1.25rem;
+	font-weight: 700;
+	text-decoration: none;
+	color: inherit;
+	margin-right: 16px;
+	letter-spacing: 0.5px;
+}
+
+.main-nav {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.spacer {
+	flex: 1 1 auto;
+}
+
+.lang-select {
+	width: 120px;
+	color: inherit;
+	margin-right: 8px;
+
+	// Force the select text/arrow to inherit toolbar contrast colour
+	.mat-mdc-select-value,
+	.mat-mdc-select-arrow {
+		color: inherit;
+	}
+}
+
+a.active {
+	font-weight: 600;
+	opacity: 1;
+}

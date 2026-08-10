@@ -1,0 +1,21 @@
+footer {
+	mat-toolbar {
+		font-size: 0.875rem;
+	}
+}
+
+.copyright {
+	opacity: 0.7;
+}
+
+.spacer {
+	flex: 1 1 auto;
+}
+
+.github-btn {
+	mat-icon {
+		width: 24px;
+		height: 24px;
+		fill: currentColor;
+	}
+}

@@ -1,7 +1,19 @@
-<nav>
-	<select [value]="languageService.currentLang()" (change)="onChangeLanguage($any($event.target).value)">
+<mat-toolbar color="primary">
+	<a routerLink="/explore" class="brand">StrollBar</a>
+
+	<nav class="main-nav" aria-label="Main navigation">
+		<a mat-button routerLink="/explore" routerLinkActive="active">Explore</a>
+		<a mat-button routerLink="/creator/strolls/new" routerLinkActive="active">Create</a>
+	</nav>
+
+	<span class="spacer"></span>
+
+	<mat-select class="lang-select" [value]="languageService.currentLang()" (selectionChange)="onChangeLanguage($event.value)" aria-label="Language">
 		@for (lang of translatedLanguages; track lang.code) {
-			<option [value]="lang.code">{{ lang.label() }}</option>
+			<mat-option [value]="lang.code">{{ lang.label() }}</mat-option>
 		}
-	</select>
-</nav>
+	</mat-select>
+
+	<a mat-button routerLink="/auth/login" routerLinkActive="active">Login</a>
+	<a mat-button routerLink="/auth/register" routerLinkActive="active">Register</a>
+</mat-toolbar>
