@@ -14,6 +14,11 @@
 		}
 	</mat-select>
 
-	<a mat-button routerLink="/auth/login" routerLinkActive="active">Login</a>
-	<a mat-button routerLink="/auth/register" routerLinkActive="active">Register</a>
+	@if (isLoggedIn()) {
+		<span class="current-user">{{ username() }}</span>
+		<button mat-button (click)="onLogout()">Logout</button>
+	} @else {
+		<a mat-button routerLink="/auth/login" routerLinkActive="active">Login</a>
+		<a mat-button routerLink="/auth/register" routerLinkActive="active">Register</a>
+	}
 </mat-toolbar>

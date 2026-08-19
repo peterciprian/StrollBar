@@ -4,7 +4,9 @@ import { MatButton } from '@angular/material/button';
 import { MatOption, MatSelect } from '@angular/material/select';
 import { MatToolbar } from '@angular/material/toolbar';
 import { TranslateService } from '@ngx-translate/core';
+import { Store } from '@ngrx/store';
 import { LanguageService } from '../../core/services/language.service';
+import { logout, selectIsLoggedIn, selectUsername } from '../../features/auth/auth.state';
 
 @Component({
 	selector: 'app-header',
@@ -16,6 +18,10 @@ import { LanguageService } from '../../core/services/language.service';
 export class HeaderComponent {
 	protected readonly languageService = inject(LanguageService);
 	private readonly translateService = inject(TranslateService);
+	private readonly store = inject(Store);
+
+	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
+	protected readonly username = this.store.selectSignal(selectUsername);
 
 	protected readonly translatedLanguages = this.languageService.languages.map((lang) => ({
 		code: lang.code,
@@ -24,5 +30,9 @@ export class HeaderComponent {
 
 	onChangeLanguage(code: string): void {
 		this.languageService.changeLanguage(code);
+	}
+
+	onLogout(): void {
+		this.store.dispatch(logout());
 	}
 }
