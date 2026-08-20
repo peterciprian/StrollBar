@@ -51,4 +51,6 @@ jobs:
 
             - name: Run e2e tests
               working-directory: stroll-bar-backend
+              env:
+                  NODE_ENV: test
               run: npm run test:e2e
