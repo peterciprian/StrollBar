@@ -1,0 +1,71 @@
+services:
+    - type: web
+      name: strollbar-backend
+      runtime: node
+      plan: free
+      rootDir: stroll-bar-backend
+      buildCommand: npm ci && npm run build
+      startCommand: node dist/main.js
+      healthCheckPath: /v1/health/db
+      autoDeployTrigger: commit
+      envVars:
+          - key: NODE_ENV
+            value: production
+          - key: DB_MIGRATIONS_RUN
+            value: 'true'
+          - key: DB_HOST
+            sync: false
+          - key: DB_PORT
+            sync: false
+          - key: DB_USERNAME
+            sync: false
+          - key: DB_PASSWORD
+            sync: false
+          - key: DB_NAME
+            sync: false
+          - key: DB_SSL
+            value: require
+          - key: CORS_ORIGINS
+            value: https://peterciprian.github.io
+          - key: JWT_SECRET
+            generateValue: true
+          - key: JWT_ACCESS_TOKEN_TTL
+            value: 1h
+          - key: JWT_REFRESH_SECRET
+            generateValue: true
+          - key: JWT_REFRESH_TOKEN_TTL
+            value: 7d
+          - key: PASSWORD_RESET_TOKEN_TTL_MINUTES
+            value: '15'
+          - key: AUTH_EXPOSE_RESET_TOKEN
+            value: 'false'
+          - key: S3_REGION
+            sync: false
+          - key: S3_ENDPOINT
+            sync: false
+          - key: S3_BUCKET_NAME
+            sync: false
+          - key: S3_ACCESS_KEY_ID
+            sync: false
+          - key: S3_SECRET_ACCESS_KEY
+            sync: false
+          - key: S3_PUBLIC_BASE_URL
+            sync: false
+          - key: S3_FORCE_PATH_STYLE
+            value: 'true'
+          - key: S3_PRESIGN_EXPIRES_SECONDS
+            value: '900'
+          - key: MEDIA_ALLOWED_IMAGE_MIME_TYPES
+            value: image/jpeg,image/png,image/webp,image/gif
+          - key: MEDIA_ALLOWED_VIDEO_MIME_TYPES
+            value: video/mp4,video/webm,video/quicktime
+          - key: MEDIA_MAX_IMAGE_SIZE_BYTES
+            value: '10485760'
+          - key: MEDIA_MAX_VIDEO_SIZE_BYTES
+            value: '104857600'
+          - key: MEDIA_MULTIPART_THRESHOLD_BYTES
+            value: '26214400'
+          - key: MEDIA_MULTIPART_PART_SIZE_BYTES
+            value: '10485760'
+          - key: MEDIA_MULTIPART_MAX_PARTS
+            value: '1000'
