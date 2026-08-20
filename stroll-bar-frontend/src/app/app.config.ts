@@ -1,6 +1,6 @@
 import { ApplicationConfig, inject, provideAppInitializer } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withHashLocation } from '@angular/router';
 import { routes } from './app.routes';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -13,7 +13,7 @@ import { errorNotificationInterceptor } from './core/services/error-notification
 
 export const appConfig: ApplicationConfig = {
 	providers: [
-		provideRouter(routes),
+		provideRouter(routes, withHashLocation()),
 		provideHttpClient(withInterceptors([errorNotificationInterceptor, authInterceptor])),
 		provideTranslateService({ lang: 'hu', fallbackLang: 'hu' }),
 		...provideTranslateHttpLoader(),
