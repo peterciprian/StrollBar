@@ -16,7 +16,8 @@ export const appConfig: ApplicationConfig = {
 		provideRouter(routes, withHashLocation()),
 		provideHttpClient(withInterceptors([errorNotificationInterceptor, authInterceptor])),
 		provideTranslateService({ lang: 'hu', fallbackLang: 'hu' }),
-		...provideTranslateHttpLoader(),
+		// Relative (no leading slash) so it resolves against <base href>, not the site origin root.
+		...provideTranslateHttpLoader({ prefix: 'assets/i18n/', suffix: '.json' }),
 		provideStore({ user: userReducer }),
 		provideEffects(AuthEffects),
 		provideAppInitializer(() => {

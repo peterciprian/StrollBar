@@ -385,14 +385,28 @@ describe('StrollBar API (e2e)', () => {
   });
 
   it('rate limits repeated login attempts', async () => {
+    // Use a freshly registered account so this test never depends on the password-reset
+    // flow (or any other prior test) having left 'walker@example.com' in the expected state.
+    const rateLimitEmail = 'rate-limit-check@example.com';
+    const rateLimitPassword = 'RateLimitPass123!';
+
+    await request(app.getHttpServer())
+      .post('/v1/auth/register')
+      .send({
+        username: 'ratelimitcheck',
+        email: rateLimitEmail,
+        password: rateLimitPassword,
+      })
+      .expect(201);
+
     let rateLimited = false;
 
     for (let attempt = 0; attempt < 6; attempt += 1) {
       const response = await request(app.getHttpServer())
         .post('/v1/auth/login')
         .send({
-          email: 'walker@example.com',
-          password: 'EvenBetterPass123!',
+          email: rateLimitEmail,
+          password: rateLimitPassword,
         });
 
       if (response.status === 429) {
