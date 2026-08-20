@@ -10,7 +10,10 @@ async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule);
 	app.setGlobalPrefix('v1');
 	app.enableCors({
-		origin: (process.env.CORS_ORIGINS ?? 'https://peterciprian.github.io').split(',')
+		origin: (process.env.CORS_ORIGINS ?? 'https://peterciprian.github.io')
+			.split(',')
+			.map((origin) => origin.trim())
+			.filter(Boolean)
 	});
 	app.useGlobalPipes(
 		new ValidationPipe({
