@@ -9,7 +9,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { LanguageService } from '../../core/services/language.service';
 import { logout, selectIsLoggedIn, selectUsername } from '../../features/auth/auth.state';
-import { SCREEN_DEFS, ScreensNavService, ScreenId } from '../../pages/screens/screens-nav.service';
+import { SCREEN_DEFS } from '../../pages/screens/screen-definitions';
 import { SETTINGS_SECTIONS, SettingsNavService, SettingsSectionId } from '../../pages/settings/settings-nav.service';
 
 @Component({
@@ -37,7 +37,6 @@ export class HeaderComponent {
 	private readonly translateService = inject(TranslateService);
 	private readonly store = inject(Store);
 	private readonly router = inject(Router);
-	protected readonly screensNav = inject(ScreensNavService);
 	protected readonly settingsNav = inject(SettingsNavService);
 
 	protected readonly screenDefs = SCREEN_DEFS;
@@ -50,10 +49,6 @@ export class HeaderComponent {
 		code: lang.code,
 		label: this.translateService.translate(lang.name) as Signal<string>
 	}));
-
-	onSelectScreen(screen: ScreenId): void {
-		this.screensNav.setActiveScreen(screen);
-	}
 
 	onSelectSettingsSection(section: SettingsSectionId): void {
 		this.settingsNav.setActiveSection(section);

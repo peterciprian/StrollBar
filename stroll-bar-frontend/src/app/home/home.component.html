@@ -10,7 +10,7 @@
 				<mat-icon>person_add</mat-icon>
 				{{ 'HOME.REGISTER' | translate | uppercase }}
 			</a>
-			<a mat-stroked-button class="hero__cta hero__cta--secondary" routerLink="/screens">
+			<a mat-stroked-button class="hero__cta hero__cta--secondary" routerLink="/explore">
 				<mat-icon>hiking</mat-icon>
 				{{ 'HOME.SHOW_TOURS' | translate | uppercase }}
 			</a>
@@ -39,7 +39,7 @@
 <section class="showcase">
 	<div class="showcase__header">
 		<h2>{{ 'HOME.SHOWCASE_TITLE' | translate }}</h2>
-		<a mat-button color="primary" routerLink="/screens">{{ 'HOME.SHOWCASE_LINK' | translate }}<mat-icon>arrow_forward</mat-icon></a>
+		<a mat-button color="primary" routerLink="/explore">{{ 'HOME.SHOWCASE_LINK' | translate }}<mat-icon>arrow_forward</mat-icon></a>
 	</div>
 	<div class="showcase__grid">
 		@for (tour of featuredTours; track tour.id) {
@@ -56,7 +56,7 @@
 			<mat-icon>person_add</mat-icon>
 			{{ 'HOME.REGISTER' | translate | uppercase }}
 		</a>
-		<a mat-stroked-button routerLink="/screens">
+		<a mat-stroked-button routerLink="/explore">
 			<mat-icon>hiking</mat-icon>
 			{{ 'HOME.SHOW_TOURS' | translate | uppercase }}
 		</a>

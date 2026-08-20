@@ -4,7 +4,7 @@
 
 export const environment = {
 	production: false,
-	baseApiUrl: 'http://localhost:3000/v1'
+	baseApiUrl: 'https://stroll-bar-n5zc.onrender.com/v1'
 };
 
 /*

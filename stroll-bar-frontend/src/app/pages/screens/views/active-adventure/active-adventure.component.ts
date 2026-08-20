@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -31,6 +32,9 @@ import { MediaGalleryComponent } from '../../../../components/media-gallery/medi
 	styleUrls: ['./active-adventure.component.scss']
 })
 export class ActiveAdventureScreenComponent {
+	private readonly route = inject(ActivatedRoute);
+	protected readonly adventureId = this.route.snapshot.paramMap.get('adventureId');
+
 	protected readonly totalStations = 6;
 	protected readonly currentStationIndex = 3;
 	protected readonly stationTitle = 'The Mysterious Crest';

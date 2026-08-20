@@ -3,13 +3,7 @@
 
 	<nav class="main-nav" [attr.aria-label]="'HEADER.MAIN_NAV_ARIA' | translate">
 		@for (screen of screenDefs; track screen.id) {
-			<a
-				mat-button
-				routerLink="/screens"
-				routerLinkActive="active"
-				[class.active]="screensNav.activeScreen() === screen.id"
-				(click)="onSelectScreen(screen.id)"
-			>
+			<a mat-button [routerLink]="screen.commands" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
 				{{ screen.labelKey | translate }}
 			</a>
 		}
