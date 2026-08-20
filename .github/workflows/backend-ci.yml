@@ -1,0 +1,54 @@
+name: Backend CI
+
+on:
+    push:
+        branches: [master]
+    workflow_dispatch:
+
+jobs:
+    build-and-test:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_DB: strollbar
+                    POSTGRES_USER: postgres
+                    POSTGRES_PASSWORD: postgres
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U postgres -d strollbar"
+                    --health-interval 5s
+                    --health-timeout 5s
+                    --health-retries 10
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build backend
+              working-directory: stroll-bar-backend
+              run: npm run build
+
+            - name: Run database migrations
+              working-directory: stroll-bar-backend
+              run: npm run migration:run
+
+            - name: Run unit tests
+              working-directory: stroll-bar-backend
+              run: npx jest --testPathIgnorePatterns=/test/
+
+            - name: Run e2e tests
+              working-directory: stroll-bar-backend
+              run: npm run test:e2e
