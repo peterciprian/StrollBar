@@ -1,10 +1,195 @@
 {
-    "MENU": {
-      "HOME": "Főoldal",
-      "LANGUAGE": "Nyelv"
-    },
-    "LANGUAGE": {
-      "HU": "Magyar",
-      "EN": "Angol"
-    }
-  }
+	"MENU": {
+		"HOME": "Főoldal",
+		"LANGUAGE": "Nyelv"
+	},
+	"LANGUAGE": {
+		"HU": "Magyar",
+		"EN": "Angol"
+	},
+	"COMMON": {
+		"MIN_SUFFIX": "perc",
+		"STATIONS_SUFFIX": "állomás",
+		"HUF_SUFFIX": "Ft",
+		"KM_SUFFIX": "km"
+	},
+	"HEADER": {
+		"BRAND": "StrollBar",
+		"MAIN_NAV_ARIA": "Fő navigáció",
+		"LANGUAGE_ARIA": "Nyelv",
+		"PROFILE_MENU_ARIA": "Profil menü",
+		"LOGOUT": "Kijelentkezés",
+		"LOGIN": "Bejelentkezés",
+		"REGISTER": "Regisztráció"
+	},
+	"FOOTER": {
+		"BRAND": "StrollBar",
+		"GITHUB_ARIA": "GitHub profil"
+	},
+	"HOME": {
+		"EYEBROW": "Játékos városi túrák",
+		"HERO_TITLE": "Fedezd fel Budapestet, nyomról nyomra",
+		"HERO_SUBTITLE": "Kövesd a gondosan összeállított útvonalakat rejtett udvarokon, történelmi tereken és titkos legendákon keresztül. Oldj meg rejtvényeket minden állomáson, szerezz jelvényeket, és varázsolj minden sétából igazi kalandot.",
+		"REGISTER": "Regisztráció",
+		"SHOW_TOURS": "Mutasd a túrákat",
+		"FEATURE1_TITLE": "Történelmi rejtélyek",
+		"FEATURE1_DESC": "Fedezd fel a város legikonikusabb látványosságaiba rejtett, évszázados titkokat.",
+		"FEATURE2_TITLE": "Játékos kalandok",
+		"FEATURE2_DESC": "Oldj meg rejtvényeket, küldj be válaszokat, és haladj állomásról állomásra egy élő, vezetett útvonalon.",
+		"FEATURE3_TITLE": "Szerezz jelvényeket",
+		"FEATURE3_DESC": "Kövesd nyomon a fejlődésed, gyűjts jelvényeket, és hasonlítsd össze legjobb időidet más felfedezőkkel.",
+		"SHOWCASE_TITLE": "Népszerű túrák",
+		"SHOWCASE_LINK": "Összes túra megtekintése",
+		"CTA_TITLE": "Készen állsz a következő kalandra?",
+		"CTA_SUBTITLE": "Hozz létre egy ingyenes fiókot, és kezdd el felfedezni Budapestet még ma."
+	},
+	"AUTH": {
+		"LOGIN": {
+			"TITLE": "Bejelentkezés",
+			"SUBTITLE": "Hitelesítés e-mail címmel és jelszóval.",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_ERROR": "Adj meg egy érvényes e-mail címet.",
+			"PASSWORD_LABEL": "Jelszó",
+			"PASSWORD_ERROR": "A jelszó megadása kötelező.",
+			"SUBMIT_LOADING": "Bejelentkezés…",
+			"SUBMIT": "Bejelentkezés"
+		},
+		"REGISTER": {
+			"TITLE": "Regisztráció",
+			"SUBTITLE": "Hozz létre egy StrollBar fiókot.",
+			"USERNAME_LABEL": "Felhasználónév",
+			"USERNAME_ERROR": "A felhasználónévnek legalább 3 karakter hosszúnak kell lennie.",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_ERROR": "Adj meg egy érvényes e-mail címet.",
+			"PASSWORD_LABEL": "Jelszó",
+			"PASSWORD_ERROR": "A jelszónak legalább 8 karakter hosszúnak kell lennie.",
+			"SUBMIT_LOADING": "Fiók létrehozása…",
+			"SUBMIT": "Regisztráció"
+		}
+	},
+	"EXPLORE": {
+		"FEED_TITLE": "Séták felfedezése",
+		"FEED_SUBTITLE": "Böngéssz a nyilvános séták között kereséssel és szűrőkkel.",
+		"DETAIL_TITLE": "Séta részletei"
+	},
+	"CREATOR": {
+		"EDITOR_TITLE": "Séta létrehozása vagy szerkesztése"
+	},
+	"PROGRESS": {
+		"SESSION_TITLE": "Kaland munkamenet",
+		"SESSION_SUBTITLE": "Haladj végig az állomásokon sorrendben, és küldd be a rejtvények válaszait."
+	},
+	"PROFILE": {
+		"TITLE": "Alkotói profil",
+		"SUBTITLE": "Közzétett séták és profiladatok."
+	},
+	"STAGE_MANAGER": {
+		"TITLE": "Állomáskezelő",
+		"SUBTITLE": "Állomások hozzáadása, eltávolítása és átrendezése."
+	},
+	"MEDIA_GALLERY": {
+		"EMPTY": "Még nincs médiatartalom"
+	},
+	"MAP_PREVIEW": {
+		"YOUR_LOCATION": "Jelenlegi helyzeted",
+		"TARGET_STATION": "Célállomás"
+	},
+	"NOT_FOUND": {
+		"TITLE": "404",
+		"BACK": "Vissza"
+	},
+	"SCREENS": {
+		"TOUR_BROWSER_TAB": "Túrabőngésző",
+		"ACTIVE_ADVENTURE_TAB": "Aktív kaland",
+		"ADMIN_TOUR_LIST_TAB": "Admin · Túrák",
+		"ADMIN_STATION_EDITOR_TAB": "Admin · Állomásszerkesztő",
+		"USER_DASHBOARD_TAB": "Túráim",
+		"CATEGORY_ALL": "Összes",
+		"CATEGORY_HISTORICAL": "Történelmi",
+		"CATEGORY_MYSTERY": "Rejtélyes",
+		"CATEGORY_CULTURAL": "Kulturális",
+		"TOUR_BROWSER": {
+			"SEARCH_LABEL": "Túrák és kerületek keresése",
+			"SEARCH_PLACEHOLDER": "pl. Halászbástya",
+			"CATEGORY_FILTER_ARIA": "Kategória szűrő",
+			"EMPTY_STATE": "Nincs a keresésnek megfelelő túra.",
+			"STAT_DISTANCE": "Távolság",
+			"STAT_STATIONS": "Állomások",
+			"STAT_TIME": "Becsült idő",
+			"ROUTE_PREVIEW": "Útvonal előnézet",
+			"START_ADVENTURE": "Kaland indítása"
+		},
+		"ACTIVE_ADVENTURE": {
+			"STATION_OF": "{{current}}. állomás / {{total}}",
+			"ANSWER_LABEL": "Milyen állat látható a címeren?",
+			"ANSWER_PLACEHOLDER": "Írd be a válaszod",
+			"SUBMIT": "Válasz beküldése",
+			"YOUR_TASK": "A feladatod",
+			"FEEDBACK": "A válasz rögzítve — szép munka, felfedező!",
+			"CLUE_PHOTO": "Nyom fotó: kőbe vésett címer",
+			"STORY": "A boltív fölött, a Duna szelének évszázados koptatásától megviselve, egy kőcímer őrzi titkát. Az 1487-es céhes feljegyzések egy „néma őrzőt” említenek, amelyet a kapuba véstek — hogy megvédje az utcát a bajtól.",
+			"RIDDLE": "Rejtvény: „Nem üvöltök, mégis mindig figyeltem. Találj meg a kapu fölött, kőbe vésve, és mondd meg, mi vagyok.”"
+		},
+		"ADMIN_TOUR_LIST": {
+			"HEADER_TITLE": "Túrák kezelése",
+			"CREATE_BUTTON": "Új túra létrehozása",
+			"COL_NAME": "Túra neve",
+			"COL_STATIONS": "Állomások",
+			"COL_CATEGORY": "Kategória",
+			"COL_PRICE": "Ár",
+			"COL_STATUS": "Állapot",
+			"COL_ACTIONS": "Műveletek",
+			"EDIT_TOOLTIP": "Túra szerkesztése",
+			"DELETE_TOOLTIP": "Túra törlése",
+			"STATUS_PUBLISHED": "Közzétéve",
+			"STATUS_DRAFT": "Piszkozat"
+		},
+		"ADMIN_STATION_EDITOR": {
+			"STATIONS_TITLE": "Állomások",
+			"STATION_ITEM": "{{index}}. állomás: {{title}}",
+			"ADD_STATION": "Új állomás hozzáadása",
+			"NEW_STATION_FALLBACK": "Új állomás",
+			"SAVE_CHANGES": "Változtatások mentése",
+			"SAVED": "Változtatások elmentve.",
+			"TITLE_LABEL": "Állomás neve",
+			"ADDRESS_LABEL": "Utca, házszám",
+			"LATITUDE_LABEL": "Szélességi fok",
+			"LONGITUDE_LABEL": "Hosszúsági fok",
+			"STORY_LABEL": "Történet / leírás",
+			"UPLOAD_HINT": "Húzz ide fotókat vagy videókat, vagy kattints a tallózáshoz",
+			"TASK_TYPE_LABEL": "Feladat típusa",
+			"TASK_TYPE_TEXT": "Szöveges válasz",
+			"TASK_TYPE_CHOICE": "Feleletválasztós",
+			"TASK_TYPE_PHOTO": "Fotós igazolás",
+			"CORRECT_ANSWER_LABEL": "Helyes válasz"
+		},
+		"USER_DASHBOARD": {
+			"HEADER_TITLE": "Túráim",
+			"COL_NAME": "Túra neve",
+			"COL_STATIONS": "Állomások",
+			"COL_CATEGORY": "Kategória",
+			"COL_STATUS": "Állapot",
+			"COL_ACTIONS": "Műveletek",
+			"START_TOOLTIP": "Túra indítása",
+			"CONTINUE_TOOLTIP": "Túra folytatása",
+			"SUMMARY_TOOLTIP": "Összegzés megtekintése",
+			"STATUS_UNDISCOVERED": "Felfedezetlen",
+			"STATUS_IN_PROGRESS": "Folyamatban",
+			"STATUS_COMPLETED": "Teljesítve"
+		}
+	},
+	"SETTINGS": {
+		"NAV_TITLE": "Fiók",
+		"SECTION_PROFILE": "Profil",
+		"SECTION_ACHIEVEMENTS": "Jelvények",
+		"SECTION_ANALYTICS": "Felhasználói statisztikák",
+		"SECTION_SETTINGS": "Beállítások",
+		"MEMBER_SINCE": "Tag {{date}} óta",
+		"DISPLAY_NAME_LABEL": "Megjelenített név",
+		"EMAIL_LABEL": "E-mail",
+		"SAVE_PROFILE": "Profil mentése",
+		"NOTIFICATIONS_LABEL": "E-mail értesítések",
+		"DARK_MODE_LABEL": "Sötét mód",
+		"SAVE_SETTINGS": "Beállítások mentése"
+	}
+}

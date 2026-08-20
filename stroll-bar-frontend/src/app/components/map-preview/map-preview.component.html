@@ -1,4 +1,19 @@
-<section>
-  <h3>Map Preview</h3>
-  <p>Latitude: {{ latitude }}, Longitude: {{ longitude }}</p>
+<section class="map-preview" [class.map-preview--full]="variant === 'full'">
+	<div class="map-preview__canvas">
+		<span class="map-preview__pin map-preview__pin--user" [title]="'MAP_PREVIEW.YOUR_LOCATION' | translate">
+			<mat-icon>navigation</mat-icon>
+		</span>
+		<span class="map-preview__pin map-preview__pin--target" [title]="'MAP_PREVIEW.TARGET_STATION' | translate">
+			<mat-icon>location_on</mat-icon>
+			@if (targetLabel) {
+				<span class="map-preview__label">{{ targetLabel }}</span>
+			}
+		</span>
+	</div>
+	@if (latitude !== null && longitude !== null) {
+		<div class="map-preview__coords">
+			<mat-icon>my_location</mat-icon>
+			<span>{{ latitude }}, {{ longitude }}</span>
+		</div>
+	}
 </section>

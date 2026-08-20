@@ -1,0 +1,61 @@
+<div class="user-dashboard">
+	<div class="user-dashboard__header">
+		<span class="user-dashboard__brand"><mat-icon>hiking</mat-icon>{{ 'SCREENS.USER_DASHBOARD.HEADER_TITLE' | translate }}</span>
+	</div>
+
+	<div class="user-dashboard__content">
+		<table mat-table [dataSource]="tours" class="user-dashboard__table">
+			<ng-container matColumnDef="name">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_NAME' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ tour.name }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="stations">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_STATIONS' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ tour.stationsCount }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="category">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_CATEGORY' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ categoryLabelKeys[tour.category] | translate }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="status">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_STATUS' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">
+					<mat-chip
+						[class.user-dashboard__chip--completed]="tour.status === 'Completed'"
+						[class.user-dashboard__chip--progress]="tour.status === 'In Progress'"
+						[class.user-dashboard__chip--undiscovered]="tour.status === 'Undiscovered'"
+					>
+						{{ statusLabelKeys[tour.status] | translate }}
+					</mat-chip>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="actions">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_ACTIONS' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">
+					@if (tour.status === 'Undiscovered') {
+						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.START_TOOLTIP' | translate">
+							<mat-icon>play_arrow</mat-icon>
+						</button>
+					}
+					@if (tour.status === 'In Progress') {
+						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.CONTINUE_TOOLTIP' | translate">
+							<mat-icon>navigate_next</mat-icon>
+						</button>
+					}
+					@if (tour.status === 'Completed') {
+						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.SUMMARY_TOOLTIP' | translate" disabled>
+							<mat-icon>emoji_events</mat-icon>
+						</button>
+					}
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+		</table>
+	</div>
+</div>

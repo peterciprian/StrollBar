@@ -1,27 +1,64 @@
-<div class="container-fluid">
-  <div class="row welcoming">
-    <div class="col align-items-center justify-content-center">
-      <h1 class="title">Üdvözlő szöveg címe</h1>
-      <h3 class="subtitle">Quos tenetur eum quasi, maxime culpa corrupti eveniet.</h3>
-      <div class="text">Maxime deleniti ipsam fugit eligendi, expedita tempore quo. Placeat quisquam cupiditate amet mollitia aperiam, totam neque quas? Quos, voluptate quod. Sequi, quidem.</div>
-    </div>
-  </div>
-  <div class="row introduction align-items-center justify-content-center">
-    <div class="col text-1">Non expedita dolore aspernatur aut, odio quae, eum ipsa esse, eveniet cumque numquam nesciunt velit nostrum sed facilis quod assumenda atque rerum.</div>
-    <div class="col image-1">
-      <div class="img" style="background-color: aliceblue; width: 300px; height: 200px;"></div>
-    </div>
-    <div class="col text-3">Veniam deserunt minima tenetur necessitatibus laborum! Ullam dolorem atque consectetur consequatur praesentium labore libero perspiciatis tempore voluptas quidem recusandae, sit modi ex. Fuga nostrum pariatur consectetur officiis, a porro perspiciatis ut recusandae asperiores. Voluptatibus maiores quos rerum odit autem ad necessitatibus sunt. Maxime, odio.</div>
-  </div>
-  <div class="row showroom align-items-center justify-content-center">
-    <div class="col">
-      <app-small-stroll-card></app-small-stroll-card>
-    </div>
-    <div class="col">
-      <app-small-stroll-card></app-small-stroll-card>
-    </div>
-    <div class="col">
-      <app-small-stroll-card></app-small-stroll-card>
-    </div>
-  </div>
-</div>
+<section class="hero">
+	<div class="hero__content">
+		<span class="hero__eyebrow"><mat-icon>auto_awesome</mat-icon>{{ 'HOME.EYEBROW' | translate }}</span>
+		<h1 class="hero__title">{{ 'HOME.HERO_TITLE' | translate }}</h1>
+		<p class="hero__subtitle">
+			{{ 'HOME.HERO_SUBTITLE' | translate }}
+		</p>
+		<div class="hero__actions">
+			<a mat-flat-button color="primary" class="hero__cta hero__cta--primary" routerLink="/auth/register">
+				<mat-icon>person_add</mat-icon>
+				{{ 'HOME.REGISTER' | translate | uppercase }}
+			</a>
+			<a mat-stroked-button class="hero__cta hero__cta--secondary" routerLink="/screens">
+				<mat-icon>hiking</mat-icon>
+				{{ 'HOME.SHOW_TOURS' | translate | uppercase }}
+			</a>
+		</div>
+	</div>
+</section>
+
+<section class="features">
+	<div class="features__item">
+		<mat-icon>castle</mat-icon>
+		<h3>{{ 'HOME.FEATURE1_TITLE' | translate }}</h3>
+		<p>{{ 'HOME.FEATURE1_DESC' | translate }}</p>
+	</div>
+	<div class="features__item">
+		<mat-icon>extension</mat-icon>
+		<h3>{{ 'HOME.FEATURE2_TITLE' | translate }}</h3>
+		<p>{{ 'HOME.FEATURE2_DESC' | translate }}</p>
+	</div>
+	<div class="features__item">
+		<mat-icon>emoji_events</mat-icon>
+		<h3>{{ 'HOME.FEATURE3_TITLE' | translate }}</h3>
+		<p>{{ 'HOME.FEATURE3_DESC' | translate }}</p>
+	</div>
+</section>
+
+<section class="showcase">
+	<div class="showcase__header">
+		<h2>{{ 'HOME.SHOWCASE_TITLE' | translate }}</h2>
+		<a mat-button color="primary" routerLink="/screens">{{ 'HOME.SHOWCASE_LINK' | translate }}<mat-icon>arrow_forward</mat-icon></a>
+	</div>
+	<div class="showcase__grid">
+		@for (tour of featuredTours; track tour.id) {
+			<app-stroll-card [tour]="tour"></app-stroll-card>
+		}
+	</div>
+</section>
+
+<section class="cta-banner">
+	<h2>{{ 'HOME.CTA_TITLE' | translate }}</h2>
+	<p>{{ 'HOME.CTA_SUBTITLE' | translate }}</p>
+	<div class="cta-banner__actions">
+		<a mat-flat-button color="primary" routerLink="/auth/register">
+			<mat-icon>person_add</mat-icon>
+			{{ 'HOME.REGISTER' | translate | uppercase }}
+		</a>
+		<a mat-stroked-button routerLink="/screens">
+			<mat-icon>hiking</mat-icon>
+			{{ 'HOME.SHOW_TOURS' | translate | uppercase }}
+		</a>
+	</div>
+</section>

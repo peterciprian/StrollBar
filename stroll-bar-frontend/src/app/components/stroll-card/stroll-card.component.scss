@@ -1,0 +1,66 @@
+.stroll-card {
+	cursor: pointer;
+	border-radius: 16px;
+	overflow: hidden;
+	margin-bottom: 12px;
+	border: 2px solid transparent;
+	transition:
+		box-shadow 0.2s ease,
+		border-color 0.2s ease,
+		transform 0.15s ease;
+
+	&:hover {
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+		transform: translateY(-1px);
+	}
+
+	&.selected {
+		border-color: var(--mat-sys-primary, #0891b2);
+	}
+
+	&__hero {
+		height: 96px;
+		display: flex;
+		align-items: flex-start;
+		justify-content: flex-end;
+		padding: 8px;
+		box-sizing: border-box;
+	}
+
+	&__category {
+		background: rgba(255, 255, 255, 0.9) !important;
+		font-size: 11px;
+		font-weight: 600;
+	}
+
+	&__title {
+		margin: 12px 0 8px;
+		font-size: 16px;
+		font-weight: 600;
+	}
+
+	&__meta {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 12px;
+		color: var(--mat-sys-on-surface-variant, #616161);
+		font-size: 13px;
+	}
+
+	&__meta-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+
+		mat-icon {
+			font-size: 16px;
+			width: 16px;
+			height: 16px;
+		}
+	}
+
+	&__price {
+		font-weight: 600;
+		color: var(--mat-sys-primary, #0891b2);
+	}
+}

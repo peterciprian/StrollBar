@@ -1,0 +1,47 @@
+.admin-tour-list {
+	&__header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin-bottom: 24px;
+	}
+
+	&__brand {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-weight: 700;
+		font-size: 18px;
+	}
+
+	&__create-btn {
+		border-radius: 12px;
+		font-weight: 700;
+
+		mat-icon {
+			margin-right: 4px;
+		}
+	}
+
+	&__content {
+		background: #fff;
+		border-radius: 20px;
+		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+		overflow: hidden;
+		padding: 8px;
+	}
+
+	&__table {
+		width: 100%;
+	}
+
+	&__chip--published {
+		background: #dcfce7 !important;
+		color: #166534 !important;
+	}
+
+	&__chip--draft {
+		background: #f1f5f9 !important;
+		color: #475569 !important;
+	}
+}

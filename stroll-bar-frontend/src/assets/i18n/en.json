@@ -1,10 +1,195 @@
 {
-    "MENU": {
-      "HOME": "Home",
-      "LANGUAGE": "Language"
-    },
-    "LANGUAGE": {
-      "HU": "Hungarian",
-      "EN": "English"
-    }
-  }
+	"MENU": {
+		"HOME": "Home",
+		"LANGUAGE": "Language"
+	},
+	"LANGUAGE": {
+		"HU": "Hungarian",
+		"EN": "English"
+	},
+	"COMMON": {
+		"MIN_SUFFIX": "min",
+		"STATIONS_SUFFIX": "stations",
+		"HUF_SUFFIX": "HUF",
+		"KM_SUFFIX": "km"
+	},
+	"HEADER": {
+		"BRAND": "StrollBar",
+		"MAIN_NAV_ARIA": "Main navigation",
+		"LANGUAGE_ARIA": "Language",
+		"PROFILE_MENU_ARIA": "Profile menu",
+		"LOGOUT": "Logout",
+		"LOGIN": "Login",
+		"REGISTER": "Register"
+	},
+	"FOOTER": {
+		"BRAND": "StrollBar",
+		"GITHUB_ARIA": "GitHub profile"
+	},
+	"HOME": {
+		"EYEBROW": "Gamified city tours",
+		"HERO_TITLE": "Discover Budapest, one clue at a time",
+		"HERO_SUBTITLE": "Follow curated trails through hidden courtyards, historic squares and secret legends. Solve riddles at every station, unlock achievements, and turn every stroll into an adventure.",
+		"REGISTER": "Register",
+		"SHOW_TOURS": "Show me the tours",
+		"FEATURE1_TITLE": "Historical Mysteries",
+		"FEATURE1_DESC": "Uncover centuries-old secrets hidden in plain sight across the city's most iconic landmarks.",
+		"FEATURE2_TITLE": "Gamified Adventures",
+		"FEATURE2_DESC": "Solve riddles, submit answers, and progress station by station on a live, guided route.",
+		"FEATURE3_TITLE": "Earn Achievements",
+		"FEATURE3_DESC": "Track your progress, collect badges, and compare your best times with fellow explorers.",
+		"SHOWCASE_TITLE": "Popular tours",
+		"SHOWCASE_LINK": "See all tours",
+		"CTA_TITLE": "Ready for your next adventure?",
+		"CTA_SUBTITLE": "Create a free account and start exploring Budapest today."
+	},
+	"AUTH": {
+		"LOGIN": {
+			"TITLE": "Login",
+			"SUBTITLE": "Authenticate with email and password.",
+			"EMAIL_LABEL": "Email",
+			"EMAIL_ERROR": "Enter a valid email address.",
+			"PASSWORD_LABEL": "Password",
+			"PASSWORD_ERROR": "Password is required.",
+			"SUBMIT_LOADING": "Logging in…",
+			"SUBMIT": "Login"
+		},
+		"REGISTER": {
+			"TITLE": "Register",
+			"SUBTITLE": "Create a StrollBar account.",
+			"USERNAME_LABEL": "Username",
+			"USERNAME_ERROR": "Username must be at least 3 characters.",
+			"EMAIL_LABEL": "Email",
+			"EMAIL_ERROR": "Enter a valid email address.",
+			"PASSWORD_LABEL": "Password",
+			"PASSWORD_ERROR": "Password must be at least 8 characters.",
+			"SUBMIT_LOADING": "Creating account…",
+			"SUBMIT": "Register"
+		}
+	},
+	"EXPLORE": {
+		"FEED_TITLE": "Explore Strolls",
+		"FEED_SUBTITLE": "Browse public strolls with search and filters.",
+		"DETAIL_TITLE": "Stroll Detail"
+	},
+	"CREATOR": {
+		"EDITOR_TITLE": "Create or Edit Stroll"
+	},
+	"PROGRESS": {
+		"SESSION_TITLE": "Adventure Session",
+		"SESSION_SUBTITLE": "Progress through stages in order and submit riddle answers."
+	},
+	"PROFILE": {
+		"TITLE": "Creator Profile",
+		"SUBTITLE": "Published strolls and profile details."
+	},
+	"STAGE_MANAGER": {
+		"TITLE": "Stage Manager",
+		"SUBTITLE": "Add, remove, and reorder stages."
+	},
+	"MEDIA_GALLERY": {
+		"EMPTY": "No media yet"
+	},
+	"MAP_PREVIEW": {
+		"YOUR_LOCATION": "Your location",
+		"TARGET_STATION": "Target station"
+	},
+	"NOT_FOUND": {
+		"TITLE": "404",
+		"BACK": "Back"
+	},
+	"SCREENS": {
+		"TOUR_BROWSER_TAB": "Tour Browser",
+		"ACTIVE_ADVENTURE_TAB": "Active Adventure",
+		"ADMIN_TOUR_LIST_TAB": "Admin · Tours",
+		"ADMIN_STATION_EDITOR_TAB": "Admin · Station Editor",
+		"USER_DASHBOARD_TAB": "My Tours",
+		"CATEGORY_ALL": "All",
+		"CATEGORY_HISTORICAL": "Historical",
+		"CATEGORY_MYSTERY": "Mystery",
+		"CATEGORY_CULTURAL": "Cultural",
+		"TOUR_BROWSER": {
+			"SEARCH_LABEL": "Search tours & districts",
+			"SEARCH_PLACEHOLDER": "e.g. Fisherman's Bastion",
+			"CATEGORY_FILTER_ARIA": "Category filter",
+			"EMPTY_STATE": "No tours match your search.",
+			"STAT_DISTANCE": "Distance",
+			"STAT_STATIONS": "Stations",
+			"STAT_TIME": "Est. time",
+			"ROUTE_PREVIEW": "Route preview",
+			"START_ADVENTURE": "Start adventure"
+		},
+		"ACTIVE_ADVENTURE": {
+			"STATION_OF": "Station {{current}} of {{total}}",
+			"ANSWER_LABEL": "What animal is on the crest?",
+			"ANSWER_PLACEHOLDER": "Type your answer",
+			"SUBMIT": "Submit answer",
+			"YOUR_TASK": "Your task",
+			"FEEDBACK": "Answer recorded — well done, explorer!",
+			"CLUE_PHOTO": "Clue photo: carved stone crest",
+			"STORY": "High above the archway, weathered by centuries of Danube winds, a stone crest keeps its secret. Local guild records from 1487 mention a \"silent guardian\" carved into the gate — said to protect the street from misfortune.",
+			"RIDDLE": "Riddle: \"I do not roar, yet I have always watched. Find me above the gate, carved in stone, and tell me what I am.\""
+		},
+		"ADMIN_TOUR_LIST": {
+			"HEADER_TITLE": "Manage Tours",
+			"CREATE_BUTTON": "Create new tour",
+			"COL_NAME": "Tour Name",
+			"COL_STATIONS": "Stations",
+			"COL_CATEGORY": "Category",
+			"COL_PRICE": "Price",
+			"COL_STATUS": "Status",
+			"COL_ACTIONS": "Actions",
+			"EDIT_TOOLTIP": "Edit tour",
+			"DELETE_TOOLTIP": "Delete tour",
+			"STATUS_PUBLISHED": "Published",
+			"STATUS_DRAFT": "Draft"
+		},
+		"ADMIN_STATION_EDITOR": {
+			"STATIONS_TITLE": "Stations",
+			"STATION_ITEM": "Station {{index}}: {{title}}",
+			"ADD_STATION": "Add new station",
+			"NEW_STATION_FALLBACK": "New Station",
+			"SAVE_CHANGES": "Save changes",
+			"SAVED": "Changes saved.",
+			"TITLE_LABEL": "Station Title",
+			"ADDRESS_LABEL": "Street Address",
+			"LATITUDE_LABEL": "Latitude",
+			"LONGITUDE_LABEL": "Longitude",
+			"STORY_LABEL": "Story / Description",
+			"UPLOAD_HINT": "Drag & drop photos or videos here, or click to browse",
+			"TASK_TYPE_LABEL": "Task Type",
+			"TASK_TYPE_TEXT": "Text Answer",
+			"TASK_TYPE_CHOICE": "Multiple Choice",
+			"TASK_TYPE_PHOTO": "Photo Proof",
+			"CORRECT_ANSWER_LABEL": "Correct Answer"
+		},
+		"USER_DASHBOARD": {
+			"HEADER_TITLE": "My Tours",
+			"COL_NAME": "Tour Name",
+			"COL_STATIONS": "Stations",
+			"COL_CATEGORY": "Category",
+			"COL_STATUS": "Status",
+			"COL_ACTIONS": "Actions",
+			"START_TOOLTIP": "Start tour",
+			"CONTINUE_TOOLTIP": "Continue tour",
+			"SUMMARY_TOOLTIP": "View summary",
+			"STATUS_UNDISCOVERED": "Undiscovered",
+			"STATUS_IN_PROGRESS": "In Progress",
+			"STATUS_COMPLETED": "Completed"
+		}
+	},
+	"SETTINGS": {
+		"NAV_TITLE": "Account",
+		"SECTION_PROFILE": "Profile",
+		"SECTION_ACHIEVEMENTS": "Achievements",
+		"SECTION_ANALYTICS": "User Analytics",
+		"SECTION_SETTINGS": "Settings",
+		"MEMBER_SINCE": "Member since {{date}}",
+		"DISPLAY_NAME_LABEL": "Display name",
+		"EMAIL_LABEL": "Email",
+		"SAVE_PROFILE": "Save profile",
+		"NOTIFICATIONS_LABEL": "Email notifications",
+		"DARK_MODE_LABEL": "Dark mode",
+		"SAVE_SETTINGS": "Save settings"
+	}
+}

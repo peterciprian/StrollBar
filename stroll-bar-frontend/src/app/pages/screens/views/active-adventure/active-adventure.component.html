@@ -1,0 +1,49 @@
+<div class="active-adventure">
+	<mat-progress-bar class="active-adventure__progress" mode="determinate" [value]="progressPercent"></mat-progress-bar>
+
+	<div class="active-adventure__split">
+		<div class="active-adventure__map">
+			<app-map-preview variant="full" [targetLabel]="stationTitle"></app-map-preview>
+		</div>
+
+		<div class="active-adventure__station">
+			<div class="active-adventure__header">
+				<span class="active-adventure__eyebrow">{{
+					'SCREENS.ACTIVE_ADVENTURE.STATION_OF' | translate: { current: currentStationIndex, total: totalStations }
+				}}</span>
+				<h1>{{ stationTitle }}</h1>
+				<p class="active-adventure__address"><mat-icon>near_me</mat-icon>{{ stationAddress }}</p>
+			</div>
+
+			<app-media-gallery variant="single" [captions]="['SCREENS.ACTIVE_ADVENTURE.CLUE_PHOTO' | translate]"></app-media-gallery>
+
+			<div class="active-adventure__story">
+				<p>
+					{{ 'SCREENS.ACTIVE_ADVENTURE.STORY' | translate }}
+				</p>
+				<p class="active-adventure__riddle">
+					<mat-icon>help_outline</mat-icon>
+					{{ 'SCREENS.ACTIVE_ADVENTURE.RIDDLE' | translate }}
+				</p>
+			</div>
+
+			<div class="active-adventure__task">
+				<h2><mat-icon>flag</mat-icon>{{ 'SCREENS.ACTIVE_ADVENTURE.YOUR_TASK' | translate | uppercase }}</h2>
+				<mat-form-field appearance="outline" class="active-adventure__answer-field">
+					<mat-label>{{ 'SCREENS.ACTIVE_ADVENTURE.ANSWER_LABEL' | translate }}</mat-label>
+					<input matInput [(ngModel)]="answer" [placeholder]="'SCREENS.ACTIVE_ADVENTURE.ANSWER_PLACEHOLDER' | translate" />
+				</mat-form-field>
+				<button mat-flat-button class="active-adventure__submit-btn" (click)="submitAnswer()">
+					<mat-icon>send</mat-icon>
+					{{ 'SCREENS.ACTIVE_ADVENTURE.SUBMIT' | translate | uppercase }}
+				</button>
+				@if (submitted) {
+					<p class="active-adventure__feedback">
+						<mat-icon>check_circle</mat-icon>
+						{{ 'SCREENS.ACTIVE_ADVENTURE.FEEDBACK' | translate }}
+					</p>
+				}
+			</div>
+		</div>
+	</div>
+</div>

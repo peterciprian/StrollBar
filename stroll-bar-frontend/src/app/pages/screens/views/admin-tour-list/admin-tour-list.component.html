@@ -1,0 +1,60 @@
+<div class="admin-tour-list">
+	<div class="admin-tour-list__header">
+		<span class="admin-tour-list__brand"><mat-icon>admin_panel_settings</mat-icon>{{ 'SCREENS.ADMIN_TOUR_LIST.HEADER_TITLE' | translate }}</span>
+		<button mat-flat-button color="primary" class="admin-tour-list__create-btn">
+			<mat-icon>add</mat-icon>
+			{{ 'SCREENS.ADMIN_TOUR_LIST.CREATE_BUTTON' | translate | uppercase }}
+		</button>
+	</div>
+
+	<div class="admin-tour-list__content">
+		<table mat-table [dataSource]="tours" class="admin-tour-list__table">
+			<ng-container matColumnDef="name">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_NAME' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ tour.name }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="stations">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_STATIONS' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ tour.stationsCount }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="category">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_CATEGORY' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ categoryLabelKeys[tour.category] | translate }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="price">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_PRICE' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">{{ tour.price | number }} {{ 'COMMON.HUF_SUFFIX' | translate }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="status">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_STATUS' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">
+					<mat-chip
+						[class.admin-tour-list__chip--published]="tour.status === 'Published'"
+						[class.admin-tour-list__chip--draft]="tour.status === 'Draft'"
+					>
+						{{ statusLabelKeys[tour.status] | translate }}
+					</mat-chip>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="actions">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_ACTIONS' | translate }}</th>
+				<td mat-cell *matCellDef="let tour">
+					<button mat-icon-button [matTooltip]="'SCREENS.ADMIN_TOUR_LIST.EDIT_TOOLTIP' | translate">
+						<mat-icon>edit</mat-icon>
+					</button>
+					<button mat-icon-button [matTooltip]="'SCREENS.ADMIN_TOUR_LIST.DELETE_TOOLTIP' | translate" color="warn">
+						<mat-icon>delete</mat-icon>
+					</button>
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+		</table>
+	</div>
+</div>

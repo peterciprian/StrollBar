@@ -1,6 +1,6 @@
 <footer>
 	<mat-toolbar>
-		<span class="copyright">© {{ year }} StrollBar</span>
+		<span class="copyright">© {{ year }} {{ 'FOOTER.BRAND' | translate }}</span>
 
 		<span class="spacer"></span>
 
@@ -10,7 +10,7 @@
 			href="https://github.com/peterciprian"
 			target="_blank"
 			rel="noopener noreferrer"
-			aria-label="GitHub profile"
+			[attr.aria-label]="'FOOTER.GITHUB_ARIA' | translate"
 		>
 			<mat-icon svgIcon="github" />
 		</a>

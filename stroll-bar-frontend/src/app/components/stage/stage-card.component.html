@@ -1,4 +1,22 @@
-<article>
-  <h2>{{ title }}</h2>
-  <p>{{ description }}</p>
+<article class="stage-card" [class.active]="active">
+	<div class="stage-card__marker">
+		<span class="stage-card__badge"
+			>{{ index !== null ? index : '' }}
+			@if (index === null) {
+				<mat-icon>place</mat-icon>
+			}
+		</span>
+		@if (!last) {
+			<span class="stage-card__line"></span>
+		}
+	</div>
+	<div class="stage-card__body">
+		<h2>{{ title }}</h2>
+		@if (address) {
+			<p class="stage-card__address"><mat-icon>near_me</mat-icon>{{ address }}</p>
+		}
+		@if (description) {
+			<p class="stage-card__description">{{ description }}</p>
+		}
+	</div>
 </article>

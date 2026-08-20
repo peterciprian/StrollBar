@@ -1,0 +1,73 @@
+<div class="tour-browser">
+	<div class="tour-browser__left">
+		<mat-form-field appearance="outline" class="tour-browser__search">
+			<mat-label>{{ 'SCREENS.TOUR_BROWSER.SEARCH_LABEL' | translate }}</mat-label>
+			<input matInput [(ngModel)]="searchTerm" [placeholder]="'SCREENS.TOUR_BROWSER.SEARCH_PLACEHOLDER' | translate" />
+			<mat-icon matPrefix>search</mat-icon>
+		</mat-form-field>
+
+		<mat-chip-listbox class="tour-browser__chips" [attr.aria-label]="'SCREENS.TOUR_BROWSER.CATEGORY_FILTER_ARIA' | translate">
+			@for (category of categories; track category) {
+				<mat-chip-option [selected]="activeCategory === category" (click)="selectCategory(category)">
+					{{ categoryLabelKeys[category] | translate }}
+				</mat-chip-option>
+			}
+		</mat-chip-listbox>
+
+		<div class="tour-browser__list">
+			@for (tour of filteredTours; track tour.id) {
+				<app-stroll-card [tour]="tour" [selected]="tour.id === selectedTour.id" (cardClick)="selectTourCard(tour)"></app-stroll-card>
+			}
+			@if (!filteredTours.length) {
+				<p class="tour-browser__empty">{{ 'SCREENS.TOUR_BROWSER.EMPTY_STATE' | translate }}</p>
+			}
+		</div>
+	</div>
+
+	<div class="tour-browser__right">
+		<div class="tour-browser__hero" [style.background]="selectedTour.heroGradient">
+			<mat-chip class="tour-browser__hero-chip">{{ categoryLabelKeys[selectedTour.category] | translate }}</mat-chip>
+			<h1>{{ selectedTour.title }}</h1>
+		</div>
+
+		<div class="tour-browser__content">
+			<p class="tour-browser__description">{{ selectedTour.description }}</p>
+
+			<div class="tour-browser__stats">
+				<div class="tour-browser__stat">
+					<mat-icon>straighten</mat-icon>
+					<span class="tour-browser__stat-value">{{ selectedTour.distanceKm }} {{ 'COMMON.KM_SUFFIX' | translate }}</span>
+					<span class="tour-browser__stat-label">{{ 'SCREENS.TOUR_BROWSER.STAT_DISTANCE' | translate }}</span>
+				</div>
+				<div class="tour-browser__stat">
+					<mat-icon>place</mat-icon>
+					<span class="tour-browser__stat-value">{{ selectedTour.stations.length }}</span>
+					<span class="tour-browser__stat-label">{{ 'SCREENS.TOUR_BROWSER.STAT_STATIONS' | translate }}</span>
+				</div>
+				<div class="tour-browser__stat">
+					<mat-icon>schedule</mat-icon>
+					<span class="tour-browser__stat-value">{{ selectedTour.durationMinutes }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span>
+					<span class="tour-browser__stat-label">{{ 'SCREENS.TOUR_BROWSER.STAT_TIME' | translate }}</span>
+				</div>
+			</div>
+
+			<h2 class="tour-browser__timeline-title">{{ 'SCREENS.TOUR_BROWSER.ROUTE_PREVIEW' | translate }}</h2>
+			<div class="tour-browser__timeline">
+				@for (station of selectedTour.stations; track station.id; let i = $index; let last = $last) {
+					<app-stage-card
+						[title]="station.name"
+						[address]="station.address"
+						[description]="''"
+						[index]="i + 1"
+						[last]="last"
+					></app-stage-card>
+				}
+			</div>
+
+			<button mat-flat-button color="primary" class="tour-browser__start-btn">
+				<mat-icon>hiking</mat-icon>
+				{{ 'SCREENS.TOUR_BROWSER.START_ADVENTURE' | translate | uppercase }}
+			</button>
+		</div>
+	</div>
+</div>

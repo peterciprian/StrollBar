@@ -1,1 +1,19 @@
-<p>stroll-card works!</p>
+@if (tour; as t) {
+	<mat-card class="stroll-card" [class.selected]="selected" (click)="cardClick.emit()">
+		<div class="stroll-card__hero" [style.background]="t.heroGradient || 'linear-gradient(135deg, #0891b2, #0f172a)'">
+			<mat-chip class="stroll-card__category">{{ categoryLabelKeys[t.category] | translate }}</mat-chip>
+		</div>
+		<mat-card-content>
+			<h3 class="stroll-card__title">{{ t.title }}</h3>
+			<div class="stroll-card__meta">
+				<span class="stroll-card__meta-item"><mat-icon>schedule</mat-icon>{{ t.durationMinutes }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span>
+				<span class="stroll-card__meta-item"
+					><mat-icon>place</mat-icon>{{ t.stationsCount ?? t.stations?.length ?? 0 }} {{ 'COMMON.STATIONS_SUFFIX' | translate }}</span
+				>
+				<span class="stroll-card__meta-item stroll-card__price"
+					><mat-icon>sell</mat-icon>{{ t.price | number }} {{ 'COMMON.HUF_SUFFIX' | translate }}</span
+				>
+			</div>
+		</mat-card-content>
+	</mat-card>
+}

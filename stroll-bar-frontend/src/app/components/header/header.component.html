@@ -1,14 +1,28 @@
 <mat-toolbar color="primary">
-	<a routerLink="/explore" class="brand">StrollBar</a>
+	<a routerLink="/" class="brand">{{ 'HEADER.BRAND' | translate }}</a>
 
-	<nav class="main-nav" aria-label="Main navigation">
-		<a mat-button routerLink="/explore" routerLinkActive="active">Explore</a>
-		<a mat-button routerLink="/creator/strolls/new" routerLinkActive="active">Create</a>
+	<nav class="main-nav" [attr.aria-label]="'HEADER.MAIN_NAV_ARIA' | translate">
+		@for (screen of screenDefs; track screen.id) {
+			<a
+				mat-button
+				routerLink="/screens"
+				routerLinkActive="active"
+				[class.active]="screensNav.activeScreen() === screen.id"
+				(click)="onSelectScreen(screen.id)"
+			>
+				{{ screen.labelKey | translate }}
+			</a>
+		}
 	</nav>
 
 	<span class="spacer"></span>
 
-	<mat-select class="lang-select" [value]="languageService.currentLang()" (selectionChange)="onChangeLanguage($event.value)" aria-label="Language">
+	<mat-select
+		class="lang-select"
+		[value]="languageService.currentLang()"
+		(selectionChange)="onChangeLanguage($event.value)"
+		[attr.aria-label]="'HEADER.LANGUAGE_ARIA' | translate"
+	>
 		@for (lang of translatedLanguages; track lang.code) {
 			<mat-option [value]="lang.code">{{ lang.label() }}</mat-option>
 		}
@@ -16,9 +30,20 @@
 
 	@if (isLoggedIn()) {
 		<span class="current-user">{{ username() }}</span>
-		<button mat-button (click)="onLogout()">Logout</button>
+		<button mat-icon-button [matMenuTriggerFor]="profileMenu" [attr.aria-label]="'HEADER.PROFILE_MENU_ARIA' | translate">
+			<mat-icon>account_circle</mat-icon>
+		</button>
+		<mat-menu #profileMenu="matMenu">
+			@for (section of settingsSections; track section.id) {
+				<button mat-menu-item (click)="onSelectSettingsSection(section.id)">
+					<mat-icon>{{ section.icon }}</mat-icon>
+					<span>{{ section.labelKey | translate }}</span>
+				</button>
+			}
+		</mat-menu>
+		<button mat-button (click)="onLogout()">{{ 'HEADER.LOGOUT' | translate }}</button>
 	} @else {
-		<a mat-button routerLink="/auth/login" routerLinkActive="active">Login</a>
-		<a mat-button routerLink="/auth/register" routerLinkActive="active">Register</a>
+		<a mat-button routerLink="/auth/login" routerLinkActive="active">{{ 'HEADER.LOGIN' | translate }}</a>
+		<a mat-button routerLink="/auth/register" routerLinkActive="active">{{ 'HEADER.REGISTER' | translate }}</a>
 	}
 </mat-toolbar>

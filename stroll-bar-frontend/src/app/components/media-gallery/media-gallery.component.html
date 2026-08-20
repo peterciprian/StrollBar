@@ -1,4 +1,15 @@
-<section>
-  <h3>Media Gallery</h3>
-  <p>Images and videos for the selected stroll or stage.</p>
+<section class="media-gallery" [class.media-gallery--single]="variant === 'single'">
+	@if (captions?.length) {
+		@for (caption of captions; track caption) {
+			<figure class="media-gallery__tile">
+				<mat-icon>photo_camera</mat-icon>
+				<figcaption>{{ caption }}</figcaption>
+			</figure>
+		}
+	} @else {
+		<figure class="media-gallery__tile media-gallery__tile--empty">
+			<mat-icon>image</mat-icon>
+			<figcaption>{{ 'MEDIA_GALLERY.EMPTY' | translate }}</figcaption>
+		</figure>
+	}
 </section>

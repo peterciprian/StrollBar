@@ -1,0 +1,86 @@
+<div class="station-editor">
+	<div class="station-editor__left">
+		<h2 class="station-editor__title">{{ 'SCREENS.ADMIN_STATION_EDITOR.STATIONS_TITLE' | translate }}</h2>
+		<div class="station-editor__list" cdkDropList (cdkDropListDropped)="drop($event)">
+			@for (station of stations; track station.id; let i = $index) {
+				<div
+					class="station-editor__item"
+					[class.station-editor__item--active]="station.id === selectedStationId"
+					cdkDrag
+					(click)="selectStation(station.id)"
+				>
+					<mat-icon class="station-editor__handle" cdkDragHandle>drag_indicator</mat-icon>
+					<span class="station-editor__item-text">{{
+						'SCREENS.ADMIN_STATION_EDITOR.STATION_ITEM' | translate: { index: i + 1, title: station.title }
+					}}</span>
+				</div>
+			}
+		</div>
+		<button mat-stroked-button class="station-editor__add-btn" (click)="addStation()">
+			<mat-icon>add</mat-icon>
+			{{ 'SCREENS.ADMIN_STATION_EDITOR.ADD_STATION' | translate | uppercase }}
+		</button>
+	</div>
+
+	<div class="station-editor__right">
+		<div class="station-editor__form-header">
+			<h1>{{ selectedStation.title || ('SCREENS.ADMIN_STATION_EDITOR.NEW_STATION_FALLBACK' | translate) }}</h1>
+			<button mat-flat-button color="primary" class="station-editor__save-btn" (click)="saveChanges()">
+				<mat-icon>save</mat-icon>
+				{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES' | translate | uppercase }}
+			</button>
+		</div>
+		@if (saved) {
+			<p class="station-editor__saved"><mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVED' | translate }}</p>
+		}
+
+		<form class="station-editor__form">
+			<mat-form-field appearance="outline" class="station-editor__full">
+				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.TITLE_LABEL' | translate }}</mat-label>
+				<input matInput [(ngModel)]="selectedStation.title" name="title" />
+			</mat-form-field>
+
+			<mat-form-field appearance="outline" class="station-editor__full">
+				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.ADDRESS_LABEL' | translate }}</mat-label>
+				<input matInput [(ngModel)]="selectedStation.address" name="address" />
+			</mat-form-field>
+
+			<div class="station-editor__coords">
+				<mat-form-field appearance="outline">
+					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LATITUDE_LABEL' | translate }}</mat-label>
+					<input matInput type="number" [(ngModel)]="selectedStation.latitude" name="latitude" />
+				</mat-form-field>
+				<mat-form-field appearance="outline">
+					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LONGITUDE_LABEL' | translate }}</mat-label>
+					<input matInput type="number" [(ngModel)]="selectedStation.longitude" name="longitude" />
+				</mat-form-field>
+			</div>
+
+			<mat-form-field appearance="outline" class="station-editor__full">
+				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.STORY_LABEL' | translate }}</mat-label>
+				<textarea matInput rows="6" [(ngModel)]="selectedStation.story" name="story"></textarea>
+			</mat-form-field>
+
+			<div class="station-editor__upload">
+				<mat-icon>cloud_upload</mat-icon>
+				<p>{{ 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_HINT' | translate }}</p>
+			</div>
+
+			<div class="station-editor__task-row">
+				<mat-form-field appearance="outline">
+					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.TASK_TYPE_LABEL' | translate }}</mat-label>
+					<mat-select [(ngModel)]="selectedStation.taskType" name="taskType">
+						@for (type of taskTypes; track type) {
+							<mat-option [value]="type">{{ taskTypeLabelKeys[type] | translate }}</mat-option>
+						}
+					</mat-select>
+				</mat-form-field>
+
+				<mat-form-field appearance="outline">
+					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.CORRECT_ANSWER_LABEL' | translate }}</mat-label>
+					<input matInput [(ngModel)]="selectedStation.correctAnswer" name="correctAnswer" />
+				</mat-form-field>
+			</div>
+		</form>
+	</div>
+</div>
