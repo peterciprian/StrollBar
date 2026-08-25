@@ -1,5 +1,3 @@
-import { Injectable, signal } from '@angular/core';
-
 export type SettingsSectionId = 'profile' | 'achievements' | 'analytics' | 'settings';
 
 export interface SettingsSectionDef {
@@ -14,13 +12,3 @@ export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
 	{ id: 'analytics', labelKey: 'SETTINGS.SECTION_ANALYTICS', icon: 'insights' },
 	{ id: 'settings', labelKey: 'SETTINGS.SECTION_SETTINGS', icon: 'settings' }
 ];
-
-// Shared between the header profile menu and the settings page so the left nav can reflect the clicked menu item.
-@Injectable({ providedIn: 'root' })
-export class SettingsNavService {
-	readonly activeSection = signal<SettingsSectionId>('profile');
-
-	setActiveSection(section: SettingsSectionId): void {
-		this.activeSection.set(section);
-	}
-}

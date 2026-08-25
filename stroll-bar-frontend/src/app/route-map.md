@@ -6,7 +6,6 @@
 - /adventure/:adventureId
 - /admin-tour-list
 - /user-dashboard
-- /strolls/:strollId
 - /users/:userId
 
 ## Auth Routes
@@ -20,9 +19,15 @@
 - /creator/strolls
 - /creator/strolls/:strollId/edit
 - /adventures/:adventureId
+- /settings (redirects to `/settings/profile`)
+- /settings/profile
+- /settings/achievements
+- /settings/analytics
+- /settings/settings
 
 ## Notes
 
 - Route guards should be added for authenticated routes.
-- The screen views are top-level sibling routes.
-- Adventure route powers stage-by-stage progression.
+- The tour browser is available at `/explore`.
+- Adventure sessions use `/adventure/:adventureId`.
+- Creator stroll editing is available at `/creator/strolls` and its `new`/`edit` variants.

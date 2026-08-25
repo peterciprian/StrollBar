@@ -100,7 +100,7 @@
 	},
 	"SCREENS": {
 		"TOUR_BROWSER_TAB": "Tour Browser",
-		"ACTIVE_ADVENTURE_TAB": "Active Adventure",
+		"ADVENTURE_TAB": "Adventure",
 		"ADMIN_TOUR_LIST_TAB": "Admin · Tours",
 		"ADMIN_STATION_EDITOR_TAB": "Admin · Station Editor",
 		"USER_DASHBOARD_TAB": "My Tours",
@@ -119,7 +119,7 @@
 			"ROUTE_PREVIEW": "Route preview",
 			"START_ADVENTURE": "Start adventure"
 		},
-		"ACTIVE_ADVENTURE": {
+		"ADVENTURE": {
 			"STATION_OF": "Station {{current}} of {{total}}",
 			"ANSWER_LABEL": "What animal is on the crest?",
 			"ANSWER_PLACEHOLDER": "Type your answer",

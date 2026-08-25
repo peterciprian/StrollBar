@@ -100,7 +100,7 @@
 	},
 	"SCREENS": {
 		"TOUR_BROWSER_TAB": "Túrabőngésző",
-		"ACTIVE_ADVENTURE_TAB": "Aktív kaland",
+		"ADVENTURE_TAB": "Kaland",
 		"ADMIN_TOUR_LIST_TAB": "Admin · Túrák",
 		"ADMIN_STATION_EDITOR_TAB": "Admin · Állomásszerkesztő",
 		"USER_DASHBOARD_TAB": "Túráim",
@@ -119,7 +119,7 @@
 			"ROUTE_PREVIEW": "Útvonal előnézet",
 			"START_ADVENTURE": "Kaland indítása"
 		},
-		"ACTIVE_ADVENTURE": {
+		"ADVENTURE": {
 			"STATION_OF": "{{current}}. állomás / {{total}}",
 			"ANSWER_LABEL": "Milyen állat látható a címeren?",
 			"ANSWER_PLACEHOLDER": "Írd be a válaszod",

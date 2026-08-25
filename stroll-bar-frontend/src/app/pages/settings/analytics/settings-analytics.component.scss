@@ -1,0 +1,36 @@
+.settings-page__analytics {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+	gap: 16px;
+}
+
+h1 {
+	margin: 0 0 20px;
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.settings-page__stat-card {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 20px 12px;
+	border-radius: 14px;
+	background: #f1f5f9;
+
+	mat-icon {
+		color: var(--mat-sys-primary, #0891b2);
+	}
+}
+
+.settings-page__stat-value {
+	font-size: 20px;
+	font-weight: 700;
+	color: #0f172a;
+}
+
+.settings-page__muted {
+	color: #64748b;
+	font-size: 12px;
+}

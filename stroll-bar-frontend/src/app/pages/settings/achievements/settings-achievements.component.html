@@ -1,0 +1,13 @@
+<h1>{{ 'SETTINGS.SECTION_ACHIEVEMENTS' | translate }}</h1>
+<div class="settings-page__achievements">
+	@for (achievement of achievements; track achievement.title) {
+		<div class="settings-page__achievement-card">
+			<mat-icon>{{ achievement.icon }}</mat-icon>
+			<div>
+				<h3>{{ achievement.title }}</h3>
+				<p>{{ achievement.description }}</p>
+				<span class="settings-page__muted">Earned {{ achievement.earnedOn }}</span>
+			</div>
+		</div>
+	}
+</div>

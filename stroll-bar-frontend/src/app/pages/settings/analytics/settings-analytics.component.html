@@ -1,0 +1,10 @@
+<h1>{{ 'SETTINGS.SECTION_ANALYTICS' | translate }}</h1>
+<div class="settings-page__analytics">
+	@for (stat of analyticsStats; track stat.label) {
+		<div class="settings-page__stat-card">
+			<mat-icon>{{ stat.icon }}</mat-icon>
+			<span class="settings-page__stat-value">{{ stat.value }}</span>
+			<span class="settings-page__muted">{{ stat.label }}</span>
+		</div>
+	}
+</div>

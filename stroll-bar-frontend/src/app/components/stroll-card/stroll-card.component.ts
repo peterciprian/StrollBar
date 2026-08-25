@@ -5,7 +5,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { CATEGORY_LABEL_KEYS } from '../../pages/screens/screens.models';
+import { CATEGORY_LABEL_KEYS } from '../../core/models/screens.models';
 
 export interface StrollCardData {
 	title: string;

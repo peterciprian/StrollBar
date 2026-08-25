@@ -1,0 +1,48 @@
+.settings-page__full {
+	width: 100%;
+	max-width: 420px;
+	display: block;
+}
+
+h1 {
+	margin: 0 0 20px;
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.settings-page__profile-card {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 24px;
+
+	h2 {
+		margin: 0 0 4px;
+	}
+
+	p {
+		margin: 0;
+	}
+}
+
+.settings-page__avatar {
+	width: 64px;
+	height: 64px;
+	border-radius: 50%;
+	background: #f1f5f9;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	mat-icon {
+		font-size: 40px;
+		width: 40px;
+		height: 40px;
+		color: #94a3b8;
+	}
+}
+
+.settings-page__muted {
+	color: #64748b;
+	font-size: 12px;
+}

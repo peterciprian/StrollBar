@@ -1,0 +1,10 @@
+<h1>{{ 'SETTINGS.SECTION_SETTINGS' | translate }}</h1>
+<div class="settings-page__toggle-row">
+	<span>{{ 'SETTINGS.NOTIFICATIONS_LABEL' | translate }}</span>
+	<mat-slide-toggle [(ngModel)]="notificationsEnabled"></mat-slide-toggle>
+</div>
+<div class="settings-page__toggle-row">
+	<span>{{ 'SETTINGS.DARK_MODE_LABEL' | translate }}</span>
+	<mat-slide-toggle [(ngModel)]="darkModeEnabled"></mat-slide-toggle>
+</div>
+<button mat-flat-button color="primary">{{ 'SETTINGS.SAVE_SETTINGS' | translate | uppercase }}</button>

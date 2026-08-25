@@ -29,10 +29,10 @@
 		</button>
 		<mat-menu #profileMenu="matMenu">
 			@for (section of settingsSections; track section.id) {
-				<button mat-menu-item (click)="onSelectSettingsSection(section.id)">
+				<a mat-menu-item [routerLink]="['/settings', section.id]">
 					<mat-icon>{{ section.icon }}</mat-icon>
 					<span>{{ section.labelKey | translate }}</span>
-				</button>
+				</a>
 			}
 		</mat-menu>
 		<button mat-button (click)="onLogout()">{{ 'HEADER.LOGOUT' | translate }}</button>

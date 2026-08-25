@@ -6,8 +6,9 @@
 				<a
 					mat-list-item
 					class="settings-page__nav-item"
-					[class.settings-page__nav-item--active]="nav.activeSection() === section.id"
-					(click)="nav.setActiveSection(section.id)"
+					[routerLink]="section.id"
+					routerLinkActive="settings-page__nav-item--active"
+					[routerLinkActiveOptions]="{ exact: true }"
 				>
 					<mat-icon matListItemIcon>{{ section.icon }}</mat-icon>
 					<span matListItemTitle>{{ section.labelKey | translate }}</span>
@@ -17,66 +18,6 @@
 	</aside>
 
 	<section class="settings-page__content">
-		@switch (nav.activeSection()) {
-			@case ('profile') {
-				<h1>{{ 'SETTINGS.SECTION_PROFILE' | translate }}</h1>
-				<div class="settings-page__profile-card">
-					<div class="settings-page__avatar"><mat-icon>account_circle</mat-icon></div>
-					<div>
-						<h2>Kata Szabó</h2>
-						<p>kata.szabo&#64;example.com</p>
-						<p class="settings-page__muted">{{ 'SETTINGS.MEMBER_SINCE' | translate: { date: 'March 2026' } }}</p>
-					</div>
-				</div>
-				<mat-form-field appearance="outline" class="settings-page__full">
-					<mat-label>{{ 'SETTINGS.DISPLAY_NAME_LABEL' | translate }}</mat-label>
-					<input matInput value="Kata Szabó" />
-				</mat-form-field>
-				<mat-form-field appearance="outline" class="settings-page__full">
-					<mat-label>{{ 'SETTINGS.EMAIL_LABEL' | translate }}</mat-label>
-					<input matInput value="kata.szabo@example.com" />
-				</mat-form-field>
-				<button mat-flat-button color="primary">{{ 'SETTINGS.SAVE_PROFILE' | translate | uppercase }}</button>
-			}
-			@case ('achievements') {
-				<h1>{{ 'SETTINGS.SECTION_ACHIEVEMENTS' | translate }}</h1>
-				<div class="settings-page__achievements">
-					@for (achievement of achievements; track achievement.title) {
-						<div class="settings-page__achievement-card">
-							<mat-icon>{{ achievement.icon }}</mat-icon>
-							<div>
-								<h3>{{ achievement.title }}</h3>
-								<p>{{ achievement.description }}</p>
-								<span class="settings-page__muted">Earned {{ achievement.earnedOn }}</span>
-							</div>
-						</div>
-					}
-				</div>
-			}
-			@case ('analytics') {
-				<h1>{{ 'SETTINGS.SECTION_ANALYTICS' | translate }}</h1>
-				<div class="settings-page__analytics">
-					@for (stat of analyticsStats; track stat.label) {
-						<div class="settings-page__stat-card">
-							<mat-icon>{{ stat.icon }}</mat-icon>
-							<span class="settings-page__stat-value">{{ stat.value }}</span>
-							<span class="settings-page__muted">{{ stat.label }}</span>
-						</div>
-					}
-				</div>
-			}
-			@case ('settings') {
-				<h1>{{ 'SETTINGS.SECTION_SETTINGS' | translate }}</h1>
-				<div class="settings-page__toggle-row">
-					<span>{{ 'SETTINGS.NOTIFICATIONS_LABEL' | translate }}</span>
-					<mat-slide-toggle [(ngModel)]="notificationsEnabled"></mat-slide-toggle>
-				</div>
-				<div class="settings-page__toggle-row">
-					<span>{{ 'SETTINGS.DARK_MODE_LABEL' | translate }}</span>
-					<mat-slide-toggle [(ngModel)]="darkModeEnabled"></mat-slide-toggle>
-				</div>
-				<button mat-flat-button color="primary">{{ 'SETTINGS.SAVE_SETTINGS' | translate | uppercase }}</button>
-			}
-		}
+		<router-outlet></router-outlet>
 	</section>
 </div>

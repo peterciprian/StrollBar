@@ -1,0 +1,40 @@
+.settings-page__achievements {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: 16px;
+}
+
+h1 {
+	margin: 0 0 20px;
+	font-size: 22px;
+	font-weight: 700;
+}
+
+.settings-page__achievement-card {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 16px;
+	border-radius: 14px;
+	background: #fef3c7;
+
+	mat-icon {
+		color: #b45309;
+	}
+
+	h3 {
+		margin: 0 0 4px;
+		font-size: 14px;
+	}
+
+	p {
+		margin: 0 0 4px;
+		font-size: 13px;
+		color: #475569;
+	}
+}
+
+.settings-page__muted {
+	color: #64748b;
+	font-size: 12px;
+}

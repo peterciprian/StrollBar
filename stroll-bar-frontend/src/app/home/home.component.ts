@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { StrollCardComponent } from '../components/stroll-card/stroll-card.component';
-import { MOCK_TOURS, Tour } from '../pages/screens/screens.models';
+import { MOCK_TOURS, Tour } from '../core/models/screens.models';
 
 @Component({
 	selector: 'app-home',

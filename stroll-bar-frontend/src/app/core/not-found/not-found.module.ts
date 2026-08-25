@@ -1,22 +1,9 @@
-import { NotFoundComponent } from './not-found.component';
-
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-/**
- * Components
- */
-const notFoundComponents: any[] = [
-  NotFoundComponent
-];
+import { NotFoundComponent } from './not-found.component';
 
 @NgModule({
-  imports: [
-    CommonModule,
-    notFoundComponents
-  ],
-  exports: [
-    notFoundComponents
-  ]
+	imports: [CommonModule, NotFoundComponent],
+	exports: [NotFoundComponent]
 })
-export class NotFoundModule { }
+export class NotFoundModule {}
