@@ -1,39 +1,54 @@
-<section>
-	<h1>{{ 'AUTH.LOGIN.TITLE' | translate }}</h1>
-	<p>{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
+<section class="auth-page">
+	<div class="auth-page__card">
+		<aside class="auth-page__intro" aria-hidden="true">
+			<mat-icon>explore</mat-icon>
+			<h2>{{ 'AUTH.LOGIN.INTRO_TITLE' | translate }}</h2>
+			<p>{{ 'AUTH.LOGIN.INTRO_TEXT' | translate }}</p>
+		</aside>
+		<div class="auth-page__form-panel">
+			<header class="auth-page__heading">
+				<h1>{{ 'AUTH.LOGIN.TITLE' | translate }}</h1>
+				<p>{{ 'AUTH.LOGIN.SUBTITLE' | translate }}</p>
+			</header>
 
-	<form [formGroup]="form" (ngSubmit)="onSubmit()">
-		<mat-form-field appearance="outline">
-			<mat-label>{{ 'AUTH.LOGIN.EMAIL_LABEL' | translate }}</mat-label>
-			<input matInput type="email" formControlName="email" autocomplete="email" />
-			@if (form.controls.email.invalid && form.controls.email.touched) {
-				<mat-error>{{ 'AUTH.LOGIN.EMAIL_ERROR' | translate }}</mat-error>
-			}
-		</mat-form-field>
+			<form class="auth-page__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+				<mat-form-field appearance="outline">
+					<mat-label>{{ 'AUTH.LOGIN.EMAIL_LABEL' | translate }}</mat-label>
+					<input matInput type="email" formControlName="email" autocomplete="email" />
+					@if (form.controls.email.invalid && form.controls.email.touched) {
+						<mat-error>{{ 'AUTH.LOGIN.EMAIL_ERROR' | translate }}</mat-error>
+					}
+				</mat-form-field>
 
-		<mat-form-field appearance="outline">
-			<mat-label>{{ 'AUTH.LOGIN.PASSWORD_LABEL' | translate }}</mat-label>
-			<input matInput type="password" formControlName="password" autocomplete="current-password" />
-			@if (form.controls.password.invalid && form.controls.password.touched) {
-				<mat-error>{{ 'AUTH.LOGIN.PASSWORD_ERROR' | translate }}</mat-error>
-			}
-		</mat-form-field>
+				<mat-form-field appearance="outline">
+					<mat-label>{{ 'AUTH.LOGIN.PASSWORD_LABEL' | translate }}</mat-label>
+					<input matInput type="password" formControlName="password" autocomplete="current-password" />
+					@if (form.controls.password.invalid && form.controls.password.touched) {
+						<mat-error>{{ 'AUTH.LOGIN.PASSWORD_ERROR' | translate }}</mat-error>
+					}
+				</mat-form-field>
 
-		@if (error()) {
-			<p class="auth-error">{{ error() }}</p>
-		}
+				@if (error()) {
+					<p class="auth-error">{{ error() }}</p>
+				}
 
-		<button mat-flat-button color="primary" type="submit" [disabled]="loading()">
-			{{ (loading() ? 'AUTH.LOGIN.SUBMIT_LOADING' : 'AUTH.LOGIN.SUBMIT') | translate }}
-		</button>
-	</form>
+				<button mat-flat-button color="primary" class="auth-page__submit" type="submit" [disabled]="loading()">
+					<mat-icon>login</mat-icon>
+					{{ (loading() ? 'AUTH.LOGIN.SUBMIT_LOADING' : 'AUTH.LOGIN.SUBMIT') | translate }}
+				</button>
+			</form>
 
-	<div class="social-login" aria-label="Social login options">
-		<p>{{ 'AUTH.LOGIN.SOCIAL.TITLE' | translate }}</p>
-		@for (item of socialProviders; track item.provider) {
-			<button mat-stroked-button type="button" [disabled]="!!socialProviderLoading" (click)="onSocialLogin(item.provider)">
-				{{ item.labelKey | translate }}
-			</button>
-		}
+			<div class="social-login" aria-label="Social login options">
+				<p>{{ 'AUTH.LOGIN.SOCIAL.TITLE' | translate }}</p>
+				@for (item of socialProviders; track item.provider) {
+					<button mat-stroked-button type="button" [disabled]="!!socialProviderLoading" (click)="onSocialLogin(item.provider)">
+						{{ item.labelKey | translate }}
+					</button>
+				}
+			</div>
+			<p class="auth-page__switch">
+				{{ 'AUTH.LOGIN.NO_ACCOUNT' | translate }} <a routerLink="/auth/register">{{ 'AUTH.LOGIN.CREATE_ACCOUNT' | translate }}</a>
+			</p>
+		</div>
 	</div>
 </section>

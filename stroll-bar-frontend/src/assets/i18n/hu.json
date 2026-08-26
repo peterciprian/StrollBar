@@ -48,12 +48,16 @@
 		"LOGIN": {
 			"TITLE": "Bejelentkezés",
 			"SUBTITLE": "Hitelesítés e-mail címmel és jelszóval.",
+			"INTRO_TITLE": "Vedd fel a fonalat",
+			"INTRO_TEXT": "Jelentkezz be, folytasd Budapest felfedezését, oldd meg a nyomokat, és kövesd a teljesítményeidet.",
 			"EMAIL_LABEL": "E-mail",
 			"EMAIL_ERROR": "Adj meg egy érvényes e-mail címet.",
 			"PASSWORD_LABEL": "Jelszó",
 			"PASSWORD_ERROR": "A jelszó megadása kötelező.",
 			"SUBMIT_LOADING": "Bejelentkezés…",
 			"SUBMIT": "Bejelentkezés",
+			"NO_ACCOUNT": "Új vagy a StrollBarnál?",
+			"CREATE_ACCOUNT": "Fiók létrehozása",
 			"SOCIAL": {
 				"TITLE": "Vagy folytasd közösségi fiókkal",
 				"APPLE": "Folytatás Apple-lel",
@@ -69,6 +73,8 @@
 		"REGISTER": {
 			"TITLE": "Regisztráció",
 			"SUBTITLE": "Hozz létre egy StrollBar fiókot.",
+			"INTRO_TITLE": "Kezdd el a következő sétád",
+			"INTRO_TEXT": "Hozd létre felfedezői profilodat, és alakítsd Budapestet történetek, rejtvények és felfedezések ösvényévé.",
 			"USERNAME_LABEL": "Felhasználónév",
 			"USERNAME_ERROR": "A felhasználónévnek legalább 3 karakter hosszúnak kell lennie.",
 			"EMAIL_LABEL": "E-mail",
@@ -76,7 +82,9 @@
 			"PASSWORD_LABEL": "Jelszó",
 			"PASSWORD_ERROR": "A jelszónak legalább 8 karakter hosszúnak kell lennie.",
 			"SUBMIT_LOADING": "Fiók létrehozása…",
-			"SUBMIT": "Regisztráció"
+			"SUBMIT": "Regisztráció",
+			"HAS_ACCOUNT": "Már van fiókod?",
+			"LOGIN_ACCOUNT": "Bejelentkezés"
 		}
 	},
 	"EXPLORE": {

@@ -48,12 +48,16 @@
 		"LOGIN": {
 			"TITLE": "Login",
 			"SUBTITLE": "Authenticate with email and password.",
+			"INTRO_TITLE": "Pick up the trail",
+			"INTRO_TEXT": "Sign in to continue exploring Budapest, solve clues, and track your achievements.",
 			"EMAIL_LABEL": "Email",
 			"EMAIL_ERROR": "Enter a valid email address.",
 			"PASSWORD_LABEL": "Password",
 			"PASSWORD_ERROR": "Password is required.",
 			"SUBMIT_LOADING": "Logging in…",
 			"SUBMIT": "Login",
+			"NO_ACCOUNT": "New to StrollBar?",
+			"CREATE_ACCOUNT": "Create an account",
 			"SOCIAL": {
 				"TITLE": "Or continue with a social account",
 				"APPLE": "Continue with Apple",
@@ -69,6 +73,8 @@
 		"REGISTER": {
 			"TITLE": "Register",
 			"SUBTITLE": "Create a StrollBar account.",
+			"INTRO_TITLE": "Start your next stroll",
+			"INTRO_TEXT": "Create your explorer profile and turn Budapest into a trail of stories, puzzles, and discoveries.",
 			"USERNAME_LABEL": "Username",
 			"USERNAME_ERROR": "Username must be at least 3 characters.",
 			"EMAIL_LABEL": "Email",
@@ -76,7 +82,9 @@
 			"PASSWORD_LABEL": "Password",
 			"PASSWORD_ERROR": "Password must be at least 8 characters.",
 			"SUBMIT_LOADING": "Creating account…",
-			"SUBMIT": "Register"
+			"SUBMIT": "Register",
+			"HAS_ACCOUNT": "Already have an account?",
+			"LOGIN_ACCOUNT": "Log in"
 		}
 	},
 	"EXPLORE": {

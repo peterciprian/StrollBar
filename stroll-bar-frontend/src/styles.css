@@ -48,6 +48,152 @@ main > router-outlet + * {
 	width: 100%;
 }
 
+app-login-page > section,
+app-register-page > section {
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	width: 100%;
+}
+
+.auth-page {
+	width: 100%;
+	max-width: 960px;
+	margin: 0 auto;
+	padding: 8px 0 24px;
+}
+
+.auth-page__card {
+	display: grid;
+	grid-template-columns: 1fr;
+	overflow: hidden;
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 20px;
+	box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.auth-page__intro {
+	display: none;
+	padding: 40px;
+	color: #fff;
+	background: linear-gradient(145deg, #155e75, #0f172a);
+}
+
+.auth-page__intro mat-icon {
+	font-size: 40px;
+	width: 40px;
+	height: 40px;
+	color: #fbbf24;
+}
+
+.auth-page__intro h2 {
+	margin: 24px 0 12px;
+	font-size: 28px;
+	line-height: 1.15;
+}
+
+.auth-page__intro p,
+.auth-page__heading p {
+	line-height: 1.5;
+}
+
+.auth-page__intro p {
+	margin: 0;
+	color: rgba(255, 255, 255, 0.78);
+}
+
+.auth-page__form-panel {
+	padding: 24px 20px;
+}
+
+.auth-page__heading h1 {
+	margin: 0 0 8px;
+	color: #0f172a;
+	font-size: 28px;
+	line-height: 1.15;
+}
+
+.auth-page__heading p {
+	margin: 0 0 24px;
+	color: #64748b;
+}
+
+.auth-page__form {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.auth-page__submit {
+	width: 100%;
+	min-height: 48px;
+	margin-top: 4px;
+	border-radius: 10px;
+	font-weight: 700;
+}
+
+.auth-page__switch {
+	margin: 20px 0 0;
+	color: #64748b;
+	font-size: 13px;
+	text-align: center;
+}
+
+.auth-page__switch a {
+	color: var(--mat-sys-primary, #0891b2);
+	font-weight: 700;
+	text-decoration: none;
+}
+
+.social-login {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 8px;
+	margin-top: 24px;
+	padding-top: 20px;
+	border-top: 1px solid #e2e8f0;
+}
+
+.social-login > p {
+	grid-column: 1 / -1;
+	margin: 0 0 4px;
+	color: #64748b;
+	font-size: 13px;
+	text-align: center;
+}
+
+.social-login button {
+	width: 100%;
+	min-height: 44px;
+	border-radius: 10px;
+}
+
+@media (min-width: 600px) {
+	.auth-page {
+		padding-block: 24px;
+	}
+
+	.auth-page__form-panel {
+		padding: 40px;
+	}
+
+	.social-login {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@media (min-width: 768px) {
+	.auth-page__card {
+		grid-template-columns: minmax(220px, 0.85fr) minmax(360px, 1.15fr);
+	}
+
+	.auth-page__intro {
+		display: block;
+	}
+}
+
 .lang-select-panel {
 	min-width: 180px !important;
 	width: max-content !important;
