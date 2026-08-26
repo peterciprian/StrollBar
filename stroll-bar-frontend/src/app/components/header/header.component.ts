@@ -68,7 +68,7 @@ export class HeaderComponent {
 
 		switch (screen.id) {
 			case 'tour-browser':
-				return path === '/' || path === '/explore';
+				return path === '/explore';
 			case 'admin-tour-list':
 				return path.startsWith('/admin-tour-list');
 			case 'creator-strolls':

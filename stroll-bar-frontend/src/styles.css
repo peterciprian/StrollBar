@@ -1,9 +1,76 @@
 html,
 body {
-  margin: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	height: 100%;
+	min-height: 100%;
+	margin: 0;
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 * {
-  box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.admin-tour-list,
+.station-editor,
+.tour-browser,
+.adventure,
+.settings-page,
+.user-dashboard {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+}
+
+app-root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100dvh;
+}
+
+app-header,
+app-footer {
+	flex: 0 0 auto;
+}
+
+main {
+	display: flex;
+	flex: 1 0 auto;
+	flex-direction: column;
+	width: 100%;
+	padding: 16px;
+}
+
+main > router-outlet + * {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	min-height: 0;
+	width: 100%;
+}
+
+.lang-select-panel {
+	min-width: 180px !important;
+	width: max-content !important;
+}
+
+.lang-select-panel .mat-mdc-option {
+	min-width: 180px;
+}
+
+.lang-select-panel .mdc-list-item__primary-text {
+	display: inline-flex;
+	align-items: center;
+	white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+	main {
+		padding: 24px;
+	}
+}
+
+@media (min-width: 1440px) {
+	main {
+		padding-inline: 40px;
+	}
 }

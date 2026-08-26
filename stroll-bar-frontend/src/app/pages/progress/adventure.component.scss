@@ -1,6 +1,4 @@
 .adventure {
-	display: flex;
-	flex-direction: column;
 	gap: 16px;
 
 	&__progress {
@@ -10,6 +8,7 @@
 
 	&__split {
 		display: flex;
+		flex: 1 1 auto;
 		flex-direction: column;
 		gap: 16px;
 		min-height: 0;
