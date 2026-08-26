@@ -27,4 +27,13 @@
 			{{ (loading() ? 'AUTH.LOGIN.SUBMIT_LOADING' : 'AUTH.LOGIN.SUBMIT') | translate }}
 		</button>
 	</form>
+
+	<div class="social-login" aria-label="Social login options">
+		<p>{{ 'AUTH.LOGIN.SOCIAL.TITLE' | translate }}</p>
+		@for (item of socialProviders; track item.provider) {
+			<button mat-stroked-button type="button" [disabled]="!!socialProviderLoading" (click)="onSocialLogin(item.provider)">
+				{{ item.labelKey | translate }}
+			</button>
+		}
+	</div>
 </section>

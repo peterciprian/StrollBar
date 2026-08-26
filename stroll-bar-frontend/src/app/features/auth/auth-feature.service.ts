@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { ApiClientService } from '../../core/api/api-client.service';
-import { LoginRequest, RegisterRequest } from '../../core/api/models';
+import { LoginRequest, RegisterRequest, SocialAuthProvider } from '../../core/api/models';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -24,6 +24,14 @@ export class AuthFeatureService {
 		);
 	}
 
+	startSocialLogin(provider: SocialAuthProvider) {
+		return this.api.getSocialAuthStartUrl(provider, this.getSocialCallbackUrl()).pipe(tap((response) => (window.location.href = response.url)));
+	}
+
+	completeSocialLogin(accessToken: string, refreshToken: string): void {
+		this.tokenStorage.setTokens(accessToken, refreshToken);
+	}
+
 	logout() {
 		const refreshToken = this.tokenStorage.getRefreshToken() ?? undefined;
 		this.tokenStorage.clear();
@@ -34,5 +42,9 @@ export class AuthFeatureService {
 
 	loadMe() {
 		return this.api.me();
+	}
+
+	private getSocialCallbackUrl(): string {
+		return `${window.location.origin}${window.location.pathname}#/auth/social/callback`;
 	}
 }

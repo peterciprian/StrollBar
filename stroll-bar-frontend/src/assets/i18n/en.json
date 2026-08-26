@@ -52,7 +52,18 @@
 			"PASSWORD_LABEL": "Password",
 			"PASSWORD_ERROR": "Password is required.",
 			"SUBMIT_LOADING": "Logging in…",
-			"SUBMIT": "Login"
+			"SUBMIT": "Login",
+			"SOCIAL": {
+				"TITLE": "Or continue with a social account",
+				"APPLE": "Continue with Apple",
+				"GOOGLE": "Continue with Google",
+				"FACEBOOK": "Continue with Facebook",
+				"TWITTER": "Continue with Twitter"
+			}
+		},
+		"SOCIAL_CALLBACK": {
+			"TITLE": "Processing login",
+			"MESSAGE": "One moment while we finish authentication."
 		},
 		"REGISTER": {
 			"TITLE": "Register",

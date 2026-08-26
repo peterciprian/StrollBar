@@ -8,24 +8,25 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { SocialIdentityEntity } from './entities/social-identity.entity';
 import { UserEntity } from '../users/entities/user.entity';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET') ?? 'strollbar-dev-secret',
-        signOptions: {
-          expiresIn: (configService.get<string>('JWT_ACCESS_TOKEN_TTL') ?? '1h') as StringValue,
-        },
-      }),
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard],
-  exports: [AuthService, JwtAuthGuard, PassportModule, JwtModule],
+	imports: [
+		TypeOrmModule.forFeature([UserEntity, SocialIdentityEntity]),
+		PassportModule.register({ defaultStrategy: 'jwt' }),
+		JwtModule.registerAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => ({
+				secret: configService.get<string>('JWT_SECRET') ?? 'strollbar-dev-secret',
+				signOptions: {
+					expiresIn: (configService.get<string>('JWT_ACCESS_TOKEN_TTL') ?? '1h') as StringValue
+				}
+			})
+		})
+	],
+	controllers: [AuthController],
+	providers: [AuthService, JwtStrategy, JwtAuthGuard],
+	exports: [AuthService, JwtAuthGuard, PassportModule, JwtModule]
 })
 export class AuthModule {}

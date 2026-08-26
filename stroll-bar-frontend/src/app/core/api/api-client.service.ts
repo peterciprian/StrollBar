@@ -21,6 +21,8 @@ import {
 	ReorderStagesResponse,
 	RequestPasswordResetRequest,
 	ResetPasswordRequest,
+	SocialAuthProvider,
+	SocialAuthStartResponse,
 	Stage,
 	Stroll,
 	StrollDetailResponse,
@@ -46,6 +48,11 @@ export class ApiClientService {
 
 	login(body: LoginRequest) {
 		return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, body);
+	}
+
+	getSocialAuthStartUrl(provider: SocialAuthProvider, redirectUri: string) {
+		const params = new HttpParams().set('redirectUri', redirectUri);
+		return this.http.get<SocialAuthStartResponse>(`${this.baseUrl}/auth/social/${provider}/start-url`, { params });
 	}
 
 	refresh(body: RefreshRequest) {

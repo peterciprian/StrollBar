@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { LoginPageComponent } from './pages/auth/login-page.component';
 import { RegisterPageComponent } from './pages/auth/register-page.component';
+import { SocialCallbackPageComponent } from './pages/auth/social-callback-page.component';
 import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
 import { CreatorProfilePageComponent } from './pages/profile/creator-profile-page.component';
 import { TourBrowserScreenComponent } from './pages/explore/tour-browser.component';
@@ -18,6 +19,7 @@ export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: HomeComponent },
 	{ path: 'auth/login', component: LoginPageComponent },
 	{ path: 'auth/register', component: RegisterPageComponent },
+	{ path: 'auth/social/callback', component: SocialCallbackPageComponent },
 	{ path: 'explore', component: TourBrowserScreenComponent },
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent },
 	{ path: 'admin-tour-list', component: AdminTourListScreenComponent },

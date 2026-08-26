@@ -26,6 +26,8 @@ export const logIn = createAction('[Auth] Login', props<{ user: LoginRequest }>(
 export const loginSuccess = createAction('[Auth] Login Success', props<{ user: User }>());
 export const loginFailure = createAction('[Auth] Login Failure', props<{ error: any }>());
 
+export const socialLoginFailure = createAction('[Auth] Social Login Failure', props<{ error: any }>());
+
 export const fetchMe = createAction('[Auth] Fetch Me');
 export const fetchMeSuccess = createAction('[Auth] Fetch Me Success', props<{ user: User }>());
 export const fetchMeFailure = createAction('[Auth] Fetch Me Failure', props<{ error: any }>());
@@ -72,6 +74,13 @@ export const userReducer = createReducer(
 		};
 	}),
 	on(loginFailure, (state, { error }) => {
+		return {
+			...state,
+			loading: false,
+			error
+		};
+	}),
+	on(socialLoginFailure, (state, { error }) => {
 		return {
 			...state,
 			loading: false,

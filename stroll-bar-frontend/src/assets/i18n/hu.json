@@ -52,7 +52,18 @@
 			"PASSWORD_LABEL": "Jelszó",
 			"PASSWORD_ERROR": "A jelszó megadása kötelező.",
 			"SUBMIT_LOADING": "Bejelentkezés…",
-			"SUBMIT": "Bejelentkezés"
+			"SUBMIT": "Bejelentkezés",
+			"SOCIAL": {
+				"TITLE": "Vagy folytasd közösségi fiókkal",
+				"APPLE": "Folytatás Apple-lel",
+				"GOOGLE": "Folytatás Google-lel",
+				"FACEBOOK": "Folytatás Facebookkal",
+				"TWITTER": "Folytatás Twitterrel"
+			}
+		},
+		"SOCIAL_CALLBACK": {
+			"TITLE": "Bejelentkezés feldolgozása",
+			"MESSAGE": "Egy pillanat, befejezzük a hitelesítést."
 		},
 		"REGISTER": {
 			"TITLE": "Regisztráció",
