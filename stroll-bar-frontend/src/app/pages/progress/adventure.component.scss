@@ -143,6 +143,31 @@
 		mat-icon {
 			color: #16a34a;
 		}
+
+		&--incorrect {
+			color: #b91c1c;
+
+			mat-icon {
+				color: #dc2626;
+			}
+		}
+	}
+
+	&__nav-buttons {
+		display: flex;
+		justify-content: space-between;
+		gap: 12px;
+		margin-top: 16px;
+
+		button {
+			flex: 1 1 0;
+		}
+	}
+
+	&__loading {
+		text-align: center;
+		color: #64748b;
+		padding: 48px 0;
 	}
 }
 

@@ -222,6 +222,12 @@ export interface AdventureDetailResponse {
 	currentStage: Stage | null;
 }
 
+export type AdventureNavigateDirection = 'next' | 'previous';
+
+export interface NavigateAdventureRequest {
+	direction: AdventureNavigateDirection;
+}
+
 // ─── Achievements ─────────────────────────────────────────────────────────────
 
 export interface Achievement {

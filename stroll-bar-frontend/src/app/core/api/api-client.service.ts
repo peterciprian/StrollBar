@@ -13,6 +13,7 @@ import {
 	LoginRequest,
 	LogoutRequest,
 	MessageResponse,
+	NavigateAdventureRequest,
 	PasswordResetRequestResponse,
 	PublicUserProfile,
 	RefreshRequest,
@@ -140,6 +141,10 @@ export class ApiClientService {
 
 	submitStageAnswer(adventureId: string, stageId: string, body: SubmitStageAnswerRequest) {
 		return this.http.post<SubmitStageAnswerResponse>(`${this.baseUrl}/adventures/${adventureId}/stages/${stageId}/answer`, body);
+	}
+
+	navigateAdventure(adventureId: string, body: NavigateAdventureRequest) {
+		return this.http.post<AdventureDetailResponse>(`${this.baseUrl}/adventures/${adventureId}/navigate`, body);
 	}
 
 	// ─── Achievements ──────────────────────────────────────────────────────────

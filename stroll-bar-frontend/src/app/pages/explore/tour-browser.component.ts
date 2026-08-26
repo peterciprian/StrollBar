@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,10 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslatePipe } from '@ngx-translate/core';
+import { catchError, map, of } from 'rxjs';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
 import { StageCardComponent } from '../../components/stage/stage-card.component';
 import { CATEGORY_LABEL_KEYS, MOCK_TOURS, Tour, TourCategory } from '../../core/models/screens.models';
+import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
+import { mapStageToTourStation, mapStrollToTour } from '../../features/strolls/stroll-mappers';
 
 type CategoryFilter = TourCategory | 'All';
 
@@ -33,14 +36,20 @@ type CategoryFilter = TourCategory | 'All';
 	templateUrl: './tour-browser.component.html',
 	styleUrls: ['./tour-browser.component.scss']
 })
-export class TourBrowserScreenComponent {
+export class TourBrowserScreenComponent implements OnInit {
+	private readonly strollsFeature = inject(StrollsFeatureService);
+
 	protected readonly categories: CategoryFilter[] = ['All', 'Historical', 'Mystery', 'Cultural'];
 	protected readonly categoryLabelKeys = CATEGORY_LABEL_KEYS;
-	protected readonly tours: Tour[] = MOCK_TOURS;
+	protected tours: Tour[] = MOCK_TOURS;
 
 	protected searchTerm = '';
 	protected activeCategory: CategoryFilter = 'All';
 	protected selectedTour: Tour = this.tours[0];
+
+	ngOnInit(): void {
+		this.loadTours();
+	}
 
 	protected get filteredTours(): Tour[] {
 		return this.tours.filter((tour) => {
@@ -56,5 +65,39 @@ export class TourBrowserScreenComponent {
 
 	protected selectTourCard(tour: Tour): void {
 		this.selectedTour = tour;
+		this.loadStations(tour);
+	}
+
+	private loadTours(): void {
+		// Calls the real strolls list endpoint; falls back to demo tours on error, empty, or missing response.
+		this.strollsFeature
+			.browse({ sortBy: 'most_used' })
+			.pipe(
+				map((response) => (response?.items?.length ? response.items.map((stroll, index) => mapStrollToTour(stroll, index)) : MOCK_TOURS)),
+				catchError(() => of(MOCK_TOURS))
+			)
+			.subscribe((tours) => {
+				this.tours = tours;
+				this.selectTourCard(this.tours[0]);
+			});
+	}
+
+	private loadStations(tour: Tour): void {
+		// Demo tours already carry their mock stations; only real strolls need their stages fetched.
+		if (tour.stations.length || MOCK_TOURS.some((mockTour) => mockTour.id === tour.id)) {
+			return;
+		}
+
+		this.strollsFeature
+			.getDetail(tour.id)
+			.pipe(
+				map((detail) => (detail?.stages?.length ? detail.stages.map(mapStageToTourStation) : tour.stations)),
+				catchError(() => of(tour.stations))
+			)
+			.subscribe((stations) => {
+				if (this.selectedTour.id === tour.id) {
+					this.selectedTour = { ...this.selectedTour, stations };
+				}
+			});
 	}
 }

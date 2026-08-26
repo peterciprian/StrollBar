@@ -1,49 +1,66 @@
 <div class="adventure">
 	<mat-progress-bar class="adventure__progress" mode="determinate" [value]="progressPercent"></mat-progress-bar>
 
-	<div class="adventure__split">
-		<div class="adventure__map">
-			<app-map-preview variant="full" [targetLabel]="stationTitle"></app-map-preview>
+	@if (loading) {
+		<p class="adventure__loading">{{ 'SCREENS.ADVENTURE.LOADING' | translate }}</p>
+	} @else {
+		<div class="adventure__split">
+			<div class="adventure__map">
+				<app-map-preview variant="full" [targetLabel]="currentStage?.name ?? ''"></app-map-preview>
+			</div>
+
+			<div class="adventure__station">
+				<div class="adventure__header">
+					<span class="adventure__eyebrow">{{
+						'SCREENS.ADVENTURE.STATION_OF' | translate: { current: currentStageIndex, total: totalStages }
+					}}</span>
+					<h1>{{ currentStage?.name }}</h1>
+					@if (currentStage?.address) {
+						<p class="adventure__address"><mat-icon>near_me</mat-icon>{{ currentStage!.address }}</p>
+					}
+				</div>
+
+				<app-media-gallery variant="single" [captions]="['SCREENS.ADVENTURE.CLUE_PHOTO' | translate]"></app-media-gallery>
+
+				<div class="adventure__story">
+					<p>{{ currentStage?.description }}</p>
+					@if (currentStage?.notes) {
+						<p class="adventure__riddle">
+							<mat-icon>help_outline</mat-icon>
+							{{ currentStage!.notes }}
+						</p>
+					}
+				</div>
+
+				<div class="adventure__task">
+					<h2><mat-icon>flag</mat-icon>{{ 'SCREENS.ADVENTURE.YOUR_TASK' | translate | uppercase }}</h2>
+					<mat-form-field appearance="outline" class="adventure__answer-field">
+						<mat-label>{{ 'SCREENS.ADVENTURE.ANSWER_LABEL' | translate }}</mat-label>
+						<input matInput [(ngModel)]="answer" [placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate" />
+					</mat-form-field>
+					<button mat-flat-button class="adventure__submit-btn" (click)="submitAnswer()">
+						<mat-icon>send</mat-icon>
+						{{ 'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase }}
+					</button>
+					@if (submitted) {
+						<p class="adventure__feedback" [class.adventure__feedback--incorrect]="!feedbackCorrect">
+							<mat-icon>{{ feedbackCorrect ? 'check_circle' : 'error_outline' }}</mat-icon>
+							{{ (feedbackCorrect ? 'SCREENS.ADVENTURE.FEEDBACK' : 'SCREENS.ADVENTURE.FEEDBACK_INCORRECT') | translate }}
+						</p>
+					}
+
+					<div class="adventure__nav-buttons">
+						<button mat-stroked-button [disabled]="!canGoPrevious" (click)="goToPreviousStage()">
+							<mat-icon>arrow_back</mat-icon>
+							{{ 'SCREENS.ADVENTURE.PREVIOUS_STAGE' | translate }}
+						</button>
+						<button mat-stroked-button [disabled]="!canGoNext" (click)="goToNextStage()">
+							{{ 'SCREENS.ADVENTURE.NEXT_STAGE' | translate }}
+							<mat-icon>arrow_forward</mat-icon>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
-
-		<div class="adventure__station">
-			<div class="adventure__header">
-				<span class="adventure__eyebrow">{{
-					'SCREENS.ADVENTURE.STATION_OF' | translate: { current: currentStationIndex, total: totalStations }
-				}}</span>
-				<h1>{{ stationTitle }}</h1>
-				<p class="adventure__address"><mat-icon>near_me</mat-icon>{{ stationAddress }}</p>
-			</div>
-
-			<app-media-gallery variant="single" [captions]="['SCREENS.ADVENTURE.CLUE_PHOTO' | translate]"></app-media-gallery>
-
-			<div class="adventure__story">
-				<p>
-					{{ 'SCREENS.ADVENTURE.STORY' | translate }}
-				</p>
-				<p class="adventure__riddle">
-					<mat-icon>help_outline</mat-icon>
-					{{ 'SCREENS.ADVENTURE.RIDDLE' | translate }}
-				</p>
-			</div>
-
-			<div class="adventure__task">
-				<h2><mat-icon>flag</mat-icon>{{ 'SCREENS.ADVENTURE.YOUR_TASK' | translate | uppercase }}</h2>
-				<mat-form-field appearance="outline" class="adventure__answer-field">
-					<mat-label>{{ 'SCREENS.ADVENTURE.ANSWER_LABEL' | translate }}</mat-label>
-					<input matInput [(ngModel)]="answer" [placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate" />
-				</mat-form-field>
-				<button mat-flat-button class="adventure__submit-btn" (click)="submitAnswer()">
-					<mat-icon>send</mat-icon>
-					{{ 'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase }}
-				</button>
-				@if (submitted) {
-					<p class="adventure__feedback">
-						<mat-icon>check_circle</mat-icon>
-						{{ 'SCREENS.ADVENTURE.FEEDBACK' | translate }}
-					</p>
-				}
-			</div>
-		</div>
-	</div>
+	}
 </div>

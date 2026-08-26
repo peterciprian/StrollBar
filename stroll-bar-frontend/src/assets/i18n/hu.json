@@ -209,12 +209,16 @@
 			"START_ADVENTURE": "Kaland indítása"
 		},
 		"ADVENTURE": {
+			"LOADING": "Kaland betöltése…",
 			"STATION_OF": "{{current}}. állomás / {{total}}",
-			"ANSWER_LABEL": "Milyen állat látható a címeren?",
+			"ANSWER_LABEL": "A válaszod",
 			"ANSWER_PLACEHOLDER": "Írd be a válaszod",
 			"SUBMIT": "Válasz beküldése",
 			"YOUR_TASK": "A feladatod",
 			"FEEDBACK": "A válasz rögzítve — szép munka, felfedező!",
+			"FEEDBACK_INCORRECT": "Ez nem egészen jó — próbáld meg újra.",
+			"PREVIOUS_STAGE": "Előző állomás",
+			"NEXT_STAGE": "Következő állomás",
 			"CLUE_PHOTO": "Nyom fotó: kőbe vésett címer",
 			"STORY": "A boltív fölött, a Duna szelének évszázados koptatásától megviselve, egy kőcímer őrzi titkát. Az 1487-es céhes feljegyzések egy „néma őrzőt” említenek, amelyet a kapuba véstek — hogy megvédje az utcát a bajtól.",
 			"RIDDLE": "Rejtvény: „Nem üvöltök, mégis mindig figyeltem. Találj meg a kapu fölött, kőbe vésve, és mondd meg, mi vagyok.”"

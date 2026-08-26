@@ -209,12 +209,16 @@
 			"START_ADVENTURE": "Start adventure"
 		},
 		"ADVENTURE": {
+			"LOADING": "Loading adventure…",
 			"STATION_OF": "Station {{current}} of {{total}}",
-			"ANSWER_LABEL": "What animal is on the crest?",
+			"ANSWER_LABEL": "Your answer",
 			"ANSWER_PLACEHOLDER": "Type your answer",
 			"SUBMIT": "Submit answer",
 			"YOUR_TASK": "Your task",
 			"FEEDBACK": "Answer recorded — well done, explorer!",
+			"FEEDBACK_INCORRECT": "That's not quite right — give it another try.",
+			"PREVIOUS_STAGE": "Previous stage",
+			"NEXT_STAGE": "Next stage",
 			"CLUE_PHOTO": "Clue photo: carved stone crest",
 			"STORY": "High above the archway, weathered by centuries of Danube winds, a stone crest keeps its secret. Local guild records from 1487 mention a \"silent guardian\" carved into the gate — said to protect the street from misfortune.",
 			"RIDDLE": "Riddle: \"I do not roar, yet I have always watched. Find me above the gate, carved in stone, and tell me what I am.\""
