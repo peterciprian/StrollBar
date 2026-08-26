@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TranslatePipe } from '@ngx-translate/core';
+import { CookieConsentService } from '../../core/services/cookie-consent.service';
 
 @Component({
 	selector: 'app-footer',
@@ -15,8 +16,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 })
 export class FooterComponent {
 	protected readonly year = new Date().getFullYear();
+	private readonly cookieConsent = inject(CookieConsentService);
 
 	constructor() {
 		inject(MatIconRegistry).addSvgIcon('github', inject(DomSanitizer).bypassSecurityTrustResourceUrl('assets/icons/github.svg'));
+	}
+
+	openCookiePreferences(): void {
+		this.cookieConsent.openPreferences();
 	}
 }

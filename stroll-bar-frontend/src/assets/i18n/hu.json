@@ -33,7 +33,23 @@
 		"IMPRINT": "Impresszum",
 		"PRIVACY": "Adatvédelem",
 		"TERMS": "Felhasználási feltételek",
-		"SITEMAP": "Oldaltérkép"
+		"SITEMAP": "Oldaltérkép",
+		"COOKIE_SETTINGS": "Süti beállítások"
+	},
+	"COOKIE_CONSENT": {
+		"TITLE": "Adatvédelmi beállításaid",
+		"DESCRIPTION": "A StrollBar a szolgáltatás biztonságához és a munkameneted megőrzéséhez szükséges tárhelyet használ. Az opcionális sütik a beállítások megjegyzését vagy a használat megértését segítik, és csak a hozzájárulásoddal kapcsoljuk be őket.",
+		"PRIVACY_LINK": "Adatkezelési tájékoztató megtekintése",
+		"NECESSARY_TITLE": "Szükséges",
+		"NECESSARY_TEXT": "A hitelesítéshez, biztonsághoz és az alapfunkciókhoz szükséges.",
+		"PREFERENCES_TITLE": "Beállítások",
+		"PREFERENCES_TEXT": "Megjegyzi például a nyelvi és felületi beállításokat.",
+		"ANALYTICS_TITLE": "Statisztika",
+		"ANALYTICS_TEXT": "Segít megérteni az anonim használatot és fejleszteni a StrollBart.",
+		"ACCEPT_ALL": "Összes elfogadása",
+		"REJECT": "Opcionálisak elutasítása",
+		"CUSTOMIZE": "Testreszabás",
+		"SAVE": "Beállítások mentése"
 	},
 	"LEGAL": {
 		"BACK_HOME": "Vissza a főoldalra",

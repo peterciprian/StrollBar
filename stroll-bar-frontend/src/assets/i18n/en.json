@@ -33,7 +33,23 @@
 		"IMPRINT": "Imprint",
 		"PRIVACY": "Privacy",
 		"TERMS": "Terms",
-		"SITEMAP": "Sitemap"
+		"SITEMAP": "Sitemap",
+		"COOKIE_SETTINGS": "Cookie settings"
+	},
+	"COOKIE_CONSENT": {
+		"TITLE": "Your privacy choices",
+		"DESCRIPTION": "StrollBar uses necessary storage to keep the service secure and remember your session. Optional cookies help us remember preferences or understand usage, and are only enabled with your consent.",
+		"PRIVACY_LINK": "Read the Privacy Policy",
+		"NECESSARY_TITLE": "Necessary",
+		"NECESSARY_TEXT": "Required for authentication, security, and core service functionality.",
+		"PREFERENCES_TITLE": "Preferences",
+		"PREFERENCES_TEXT": "Remember choices such as language and interface preferences.",
+		"ANALYTICS_TITLE": "Analytics",
+		"ANALYTICS_TEXT": "Help us understand anonymous usage and improve StrollBar.",
+		"ACCEPT_ALL": "Accept all",
+		"REJECT": "Reject optional",
+		"CUSTOMIZE": "Customize",
+		"SAVE": "Save choices"
 	},
 	"LEGAL": {
 		"BACK_HOME": "Back to home",

@@ -17,6 +17,9 @@
 				<a routerLink="/privacy-policy">{{ 'FOOTER.PRIVACY' | translate }}</a>
 				<a routerLink="/terms-of-service">{{ 'FOOTER.TERMS' | translate }}</a>
 				<a href="sitemap.xml">{{ 'FOOTER.SITEMAP' | translate }}</a>
+				<button type="button" class="cookie-settings-link" (click)="openCookiePreferences()">
+					{{ 'FOOTER.COOKIE_SETTINGS' | translate }}
+				</button>
 			</nav>
 			<a
 				mat-stroked-button

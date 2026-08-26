@@ -84,13 +84,23 @@ footer {
 	width: 100%;
 }
 
-.footer-links a {
+.footer-links a,
+.cookie-settings-link {
 	color: #64748b;
 	font-size: 12px;
 	text-decoration: none;
 }
 
-.footer-links a:hover {
+.cookie-settings-link {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	font: inherit;
+	cursor: pointer;
+}
+
+.footer-links a:hover,
+.cookie-settings-link:hover {
 	color: #155e75;
 	text-decoration: underline;
 }
