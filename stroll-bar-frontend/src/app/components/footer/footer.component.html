@@ -1,18 +1,34 @@
 <footer>
-	<mat-toolbar>
-		<span class="copyright">© {{ year }} {{ 'FOOTER.BRAND' | translate }}</span>
+	<div class="footer-inner">
+		<div class="footer-brand">
+			<span class="footer-brand__mark" aria-hidden="true"><mat-icon>explore</mat-icon></span>
+			<div>
+				<strong>{{ 'FOOTER.BRAND' | translate }}</strong>
+				<span>{{ 'FOOTER.TAGLINE' | translate }}</span>
+			</div>
+		</div>
 
-		<span class="spacer"></span>
-
-		<a
-			mat-icon-button
-			class="github-btn"
-			href="https://github.com/peterciprian"
-			target="_blank"
-			rel="noopener noreferrer"
-			[attr.aria-label]="'FOOTER.GITHUB_ARIA' | translate"
-		>
-			<mat-icon svgIcon="github" />
-		</a>
-	</mat-toolbar>
+		<div class="footer-meta">
+			<span class="copyright">© {{ year }} {{ 'FOOTER.BRAND' | translate }}</span>
+			<span class="footer-divider" aria-hidden="true"></span>
+			<span class="developer-credit">{{ 'FOOTER.DEVELOPED_BY' | translate }}</span>
+			<nav class="footer-links" [attr.aria-label]="'FOOTER.LEGAL_ARIA' | translate">
+				<a routerLink="/impressum">{{ 'FOOTER.IMPRINT' | translate }}</a>
+				<a routerLink="/privacy-policy">{{ 'FOOTER.PRIVACY' | translate }}</a>
+				<a routerLink="/terms-of-service">{{ 'FOOTER.TERMS' | translate }}</a>
+				<a href="sitemap.xml">{{ 'FOOTER.SITEMAP' | translate }}</a>
+			</nav>
+			<a
+				mat-stroked-button
+				class="github-btn"
+				href="https://github.com/peterciprian"
+				target="_blank"
+				rel="noopener noreferrer"
+				[attr.aria-label]="'FOOTER.GITHUB_ARIA' | translate"
+			>
+				<mat-icon svgIcon="github" />
+				{{ 'FOOTER.VIEW_GITHUB' | translate }}
+			</a>
+		</div>
+	</div>
 </footer>

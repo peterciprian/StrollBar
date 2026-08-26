@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { ApiClientService } from '../../core/api/api-client.service';
@@ -9,6 +10,7 @@ import { TokenStorageService } from '../../core/services/token-storage.service';
 export class AuthFeatureService {
 	private readonly api = inject(ApiClientService);
 	private readonly tokenStorage = inject(TokenStorageService);
+	private readonly router = inject(Router);
 
 	register(input: RegisterRequest) {
 		return this.api.register(input).pipe(
@@ -45,6 +47,13 @@ export class AuthFeatureService {
 	}
 
 	private getSocialCallbackUrl(): string {
-		return `${window.location.origin}${window.location.pathname}#/auth/social/callback`;
+		const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+		const callbackUrl = `${window.location.origin}${window.location.pathname}#/auth/social/callback`;
+
+		if (typeof returnUrl !== 'string' || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+			return callbackUrl;
+		}
+
+		return `${callbackUrl}?returnUrl=${encodeURIComponent(returnUrl)}`;
 	}
 }

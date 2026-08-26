@@ -25,7 +25,60 @@
 	},
 	"FOOTER": {
 		"BRAND": "StrollBar",
-		"GITHUB_ARIA": "GitHub profile"
+		"TAGLINE": "Story-led walks through Budapest",
+		"DEVELOPED_BY": "Developed by Peter Ciprian",
+		"GITHUB_ARIA": "Open developer GitHub profile",
+		"VIEW_GITHUB": "View GitHub",
+		"LEGAL_ARIA": "Legal information",
+		"IMPRINT": "Imprint",
+		"PRIVACY": "Privacy",
+		"TERMS": "Terms",
+		"SITEMAP": "Sitemap"
+	},
+	"LEGAL": {
+		"BACK_HOME": "Back to home",
+		"IMPRINT": {
+			"TITLE": "Imprint",
+			"UPDATED": "Last updated: August 2026",
+			"OPERATOR_HEADING": "Service operator",
+			"OPERATOR_BODY": "StrollBar is operated by Peter Ciprian. StrollBar is an independent project for discovering story-led walking tours in Budapest.",
+			"CONTACT_HEADING": "Contact",
+			"CONTACT_BODY": "For questions about StrollBar, please contact the developer through the official GitHub profile linked in the footer. The operator's postal address and tax details must be added here before a commercial public launch.",
+			"RESPONSIBLE_HEADING": "Content responsibility",
+			"RESPONSIBLE_BODY": "The operator is responsible for the content published through StrollBar within the scope required by applicable law. External links lead to third-party websites whose content is outside the operator's control."
+		},
+		"PRIVACY": {
+			"TITLE": "Privacy Policy",
+			"UPDATED": "Last updated: August 2026",
+			"SCOPE_HEADING": "Scope",
+			"SCOPE_BODY": "This policy explains how StrollBar processes information when you browse public strolls, create an account, or use an authenticated adventure.",
+			"DATA_HEADING": "Information we process",
+			"DATA_BODY": "Depending on how you use the service, this may include your username, email address, password hash, profile image, authentication tokens, stroll progress, answers, achievements, and technical request information.",
+			"PURPOSE_HEADING": "Why we use it",
+			"PURPOSE_BODY": "We use information to create and secure accounts, authenticate users, provide stroll and achievement features, protect the service, and respond to support requests. We do not use passwords in readable form.",
+			"PROVIDERS_HEADING": "Service providers",
+			"PROVIDERS_BODY": "The service may use PostgreSQL for application data, S3-compatible storage for media, Render for backend hosting, GitHub Pages for frontend hosting, and social login providers when you choose that option. Each provider may process data under its own terms.",
+			"RETENTION_HEADING": "Retention and security",
+			"RETENTION_BODY": "We retain account and progress information while it is needed to provide the service or meet legal obligations. We use hashed passwords, signed tokens, access controls, and encrypted transport, but no online service can guarantee absolute security.",
+			"RIGHTS_HEADING": "Your rights",
+			"RIGHTS_BODY": "Subject to applicable law, you may request access to, correction of, or deletion of your personal information. Contact the developer through GitHub to submit a request."
+		},
+		"TERMS": {
+			"TITLE": "Terms of Service",
+			"UPDATED": "Last updated: August 2026",
+			"SERVICE_HEADING": "The service",
+			"SERVICE_BODY": "StrollBar provides a digital platform for discovering and playing story-led walking tours. Features may change as the project develops.",
+			"ACCOUNTS_HEADING": "Accounts",
+			"ACCOUNTS_BODY": "You are responsible for keeping your account credentials private and for activity performed through your account. Provide accurate information and notify the operator if you believe your account has been compromised.",
+			"CONTENT_HEADING": "Tour content",
+			"CONTENT_BODY": "Tour descriptions, riddles, media, and other materials are provided for entertainment and orientation. Check local conditions, opening hours, traffic, weather, and accessibility before starting a stroll.",
+			"ACCEPTABLE_USE_HEADING": "Acceptable use",
+			"ACCEPTABLE_USE_BODY": "Do not misuse the service, bypass authentication, interfere with its operation, upload unlawful or harmful content, or use it in a way that puts yourself or others at risk.",
+			"AVAILABILITY_HEADING": "Availability and liability",
+			"AVAILABILITY_BODY": "The service is provided on an as-available basis. The operator is not responsible for interruption, inaccurate third-party information, route hazards, or decisions made while following a tour. Use reasonable care and follow local rules.",
+			"CHANGES_HEADING": "Changes to these terms",
+			"CHANGES_BODY": "These terms may be updated as the service changes. The latest version will be published on this page, with the update date shown above. Continued use after an update means you accept the revised terms."
+		}
 	},
 	"HOME": {
 		"EYEBROW": "Gamified city tours",

@@ -14,6 +14,8 @@ import { SettingsProfileComponent } from './pages/settings/profile/settings-prof
 import { SettingsAchievementsComponent } from './pages/settings/achievements/settings-achievements.component';
 import { SettingsAnalyticsComponent } from './pages/settings/analytics/settings-analytics.component';
 import { SettingsPreferencesComponent } from './pages/settings/preferences/settings-preferences.component';
+import { authGuard } from './core/guards/auth.guard';
+import { LegalPageComponent } from './pages/legal/legal-page.component';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: HomeComponent },
@@ -21,16 +23,20 @@ export const routes: Routes = [
 	{ path: 'auth/register', component: RegisterPageComponent },
 	{ path: 'auth/social/callback', component: SocialCallbackPageComponent },
 	{ path: 'explore', component: TourBrowserScreenComponent },
-	{ path: 'adventure/:adventureId', component: AdventureScreenComponent },
-	{ path: 'admin-tour-list', component: AdminTourListScreenComponent },
-	{ path: 'user-dashboard', component: UserDashboardScreenComponent },
-	{ path: 'creator/strolls', component: StrollEditorPageComponent },
-	{ path: 'creator/strolls/new', component: StrollEditorPageComponent },
-	{ path: 'creator/strolls/:strollId/edit', component: StrollEditorPageComponent },
-	{ path: 'users/:userId', component: CreatorProfilePageComponent },
+	{ path: 'impressum', component: LegalPageComponent, data: { document: 'imprint' } },
+	{ path: 'privacy-policy', component: LegalPageComponent, data: { document: 'privacy' } },
+	{ path: 'terms-of-service', component: LegalPageComponent, data: { document: 'terms' } },
+	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
+	{ path: 'admin-tour-list', component: AdminTourListScreenComponent, canActivate: [authGuard] },
+	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
+	{ path: 'creator/strolls', component: StrollEditorPageComponent, canActivate: [authGuard] },
+	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard] },
+	{ path: 'creator/strolls/:strollId/edit', component: StrollEditorPageComponent, canActivate: [authGuard] },
+	{ path: 'users/:userId', component: CreatorProfilePageComponent, canActivate: [authGuard] },
 	{
 		path: 'settings',
 		component: SettingsPageComponent,
+		canActivate: [authGuard],
 		children: [
 			{ path: '', pathMatch: 'full', redirectTo: 'profile' },
 			{ path: 'profile', component: SettingsProfileComponent },

@@ -1,21 +1,137 @@
 footer {
-	mat-toolbar {
-		font-size: 0.875rem;
+	border-top: 1px solid #dbe4ea;
+	background: #f8fafc;
+	color: #334155;
+}
+
+.footer-inner {
+	display: flex;
+	flex-direction: column;
+	gap: 18px;
+	width: 100%;
+	max-width: 1280px;
+	margin-inline: auto;
+	padding: 20px 16px;
+	box-sizing: border-box;
+}
+
+.footer-brand,
+.footer-meta {
+	display: flex;
+	align-items: center;
+}
+
+.footer-brand {
+	gap: 10px;
+
+	strong,
+	span {
+		display: block;
+	}
+
+	strong {
+		color: #0f172a;
+		font-size: 15px;
+	}
+
+	span {
+		margin-top: 3px;
+		color: #64748b;
+		font-size: 12px;
 	}
 }
 
-.copyright {
-	opacity: 0.7;
+.footer-brand__mark {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+	background: #155e75;
+	color: #fff;
+
+	mat-icon {
+		font-size: 20px;
+		width: 20px;
+		height: 20px;
+	}
 }
 
-.spacer {
-	flex: 1 1 auto;
+.footer-meta {
+	flex-wrap: wrap;
+	gap: 10px;
+	color: #64748b;
+	font-size: 12px;
+}
+
+.copyright,
+.developer-credit {
+	line-height: 1.4;
+}
+
+.footer-divider {
+	display: none;
+	width: 1px;
+	height: 16px;
+	background: #cbd5e1;
+}
+
+.footer-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 12px;
+	width: 100%;
+}
+
+.footer-links a {
+	color: #64748b;
+	font-size: 12px;
+	text-decoration: none;
+}
+
+.footer-links a:hover {
+	color: #155e75;
+	text-decoration: underline;
 }
 
 .github-btn {
+	min-height: 36px;
+	margin-left: auto;
+	border-color: #cbd5e1 !important;
+	border-radius: 9px;
+	color: #334155 !important;
+	font-size: 12px;
+
 	mat-icon {
-		width: 24px;
-		height: 24px;
+		width: 18px;
+		height: 18px;
 		fill: currentColor;
+	}
+}
+
+@media (min-width: 600px) {
+	.footer-inner {
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		padding-inline: 24px;
+	}
+
+	.footer-meta {
+		justify-content: flex-end;
+		width: auto;
+	}
+
+	.footer-links {
+		width: auto;
+	}
+
+	.footer-divider {
+		display: block;
+	}
+
+	.github-btn {
+		margin-left: 4px;
 	}
 }

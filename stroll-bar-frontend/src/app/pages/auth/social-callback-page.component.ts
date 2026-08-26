@@ -32,11 +32,21 @@ export class SocialCallbackPageComponent implements OnInit {
 		if (accessToken && refreshToken) {
 			this.authFeatureService.completeSocialLogin(accessToken, refreshToken);
 			this.store.dispatch(fetchMe());
-			this.router.navigateByUrl('/explore');
+			this.router.navigateByUrl(this.getReturnUrl() ?? '/explore');
 			return;
 		}
 
 		this.store.dispatch(socialLoginFailure({ error: error ?? 'Social login failed.' }));
 		this.router.navigateByUrl('/auth/login');
+	}
+
+	private getReturnUrl(): string | null {
+		const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+
+		if (!returnUrl || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+			return null;
+		}
+
+		return returnUrl;
 	}
 }

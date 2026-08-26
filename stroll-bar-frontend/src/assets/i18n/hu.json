@@ -25,7 +25,60 @@
 	},
 	"FOOTER": {
 		"BRAND": "StrollBar",
-		"GITHUB_ARIA": "GitHub profil"
+		"TAGLINE": "Történetekkel teli séták Budapesten",
+		"DEVELOPED_BY": "Fejlesztette: Peter Ciprian",
+		"GITHUB_ARIA": "A fejlesztő GitHub-profiljának megnyitása",
+		"VIEW_GITHUB": "GitHub megtekintése",
+		"LEGAL_ARIA": "Jogi információk",
+		"IMPRINT": "Impresszum",
+		"PRIVACY": "Adatvédelem",
+		"TERMS": "Felhasználási feltételek",
+		"SITEMAP": "Oldaltérkép"
+	},
+	"LEGAL": {
+		"BACK_HOME": "Vissza a főoldalra",
+		"IMPRINT": {
+			"TITLE": "Impresszum",
+			"UPDATED": "Utolsó frissítés: 2026. augusztus",
+			"OPERATOR_HEADING": "A szolgáltatás üzemeltetője",
+			"OPERATOR_BODY": "A StrollBar üzemeltetője Peter Ciprian. A StrollBar egy független projekt történetközpontú budapesti séták felfedezéséhez.",
+			"CONTACT_HEADING": "Kapcsolat",
+			"CONTACT_BODY": "A StrollBarral kapcsolatos kérdésekkel kérjük, keresd a fejlesztőt a láblécben található hivatalos GitHub-profilon keresztül. Az üzemeltető postai címét és adózási adatait a kereskedelmi nyilvános indulás előtt itt kell megadni.",
+			"RESPONSIBLE_HEADING": "Tartalmi felelősség",
+			"RESPONSIBLE_BODY": "Az üzemeltető a hatályos jogszabályok által megkövetelt körben felel a StrollBarban közzétett tartalmakért. A külső hivatkozások harmadik felek oldalaira vezetnek, amelyek tartalmáért az üzemeltető nem felel."
+		},
+		"PRIVACY": {
+			"TITLE": "Adatkezelési tájékoztató",
+			"UPDATED": "Utolsó frissítés: 2026. augusztus",
+			"SCOPE_HEADING": "Hatály",
+			"SCOPE_BODY": "Ez a tájékoztató bemutatja, hogyan kezeli a StrollBar az adatokat nyilvános séták böngészése, fiók létrehozása vagy hitelesített kaland használata során.",
+			"DATA_HEADING": "Kezelt adatok",
+			"DATA_BODY": "A használat módjától függően kezelhetjük a felhasználónevedet, e-mail-címedet, a jelszó hash-ét, profilképedet, hitelesítési tokeneket, a séta előrehaladását, válaszokat, eredményeket és technikai kérésekkel kapcsolatos adatokat.",
+			"PURPOSE_HEADING": "Az adatkezelés célja",
+			"PURPOSE_BODY": "Az adatokat fiókok létrehozására és védelmére, hitelesítésre, a séta- és eredményfunkciók biztosítására, a szolgáltatás védelmére és támogatási megkeresések megválaszolására használjuk. A jelszavakat nem kezeljük olvasható formában.",
+			"PROVIDERS_HEADING": "Szolgáltatók",
+			"PROVIDERS_BODY": "A szolgáltatás PostgreSQL-t használhat alkalmazásadatokhoz, S3-kompatibilis tárhelyet médiához, a Render szolgáltatását backend tárhelyhez, a GitHub Pages-t frontend tárhelyhez, valamint közösségi bejelentkezési szolgáltatókat, ha ezt a lehetőséget választod. A szolgáltatók saját feltételeik szerint kezelhetnek adatokat.",
+			"RETENTION_HEADING": "Megőrzés és biztonság",
+			"RETENTION_BODY": "A fiók- és előrehaladási adatokat addig őrizzük, amíg a szolgáltatás biztosításához vagy jogi kötelezettséghez szükséges. Hash-elt jelszavakat, aláírt tokeneket, hozzáférés-vezérlést és titkosított adatátvitelt használunk, de online szolgáltatás teljes biztonságot nem garantálhat.",
+			"RIGHTS_HEADING": "Az érintetti jogaid",
+			"RIGHTS_BODY": "A hatályos jogszabályok szerint kérheted személyes adataidhoz való hozzáférést, azok helyesbítését vagy törlését. Kérelmedet a GitHubon keresztül küldheted el a fejlesztőnek."
+		},
+		"TERMS": {
+			"TITLE": "Felhasználási feltételek",
+			"UPDATED": "Utolsó frissítés: 2026. augusztus",
+			"SERVICE_HEADING": "A szolgáltatás",
+			"SERVICE_BODY": "A StrollBar történetközpontú városi séták felfedezésére és játékos végigjárására szolgáló digitális platform. A funkciók a projekt fejlődésével változhatnak.",
+			"ACCOUNTS_HEADING": "Fiókok",
+			"ACCOUNTS_BODY": "Te felelsz a fiókod hozzáférési adatainak bizalmas kezeléséért és a fiókodon keresztül végzett tevékenységekért. Adj meg pontos adatokat, és jelezd az üzemeltetőnek, ha úgy gondolod, hogy a fiókod veszélybe került.",
+			"CONTENT_HEADING": "Séta tartalmak",
+			"CONTENT_BODY": "A séta leírásai, rejtvényei, médiatartalmai és egyéb anyagai szórakoztatási és tájékoztatási célt szolgálnak. Indulás előtt ellenőrizd a helyi körülményeket, nyitvatartást, forgalmat, időjárást és akadálymentességet.",
+			"ACCEPTABLE_USE_HEADING": "Elfogadható használat",
+			"ACCEPTABLE_USE_BODY": "Tilos a szolgáltatással visszaélni, a hitelesítést megkerülni, a működést akadályozni, jogellenes vagy káros tartalmat feltölteni, illetve a szolgáltatást önmagadat vagy másokat veszélyeztető módon használni.",
+			"AVAILABILITY_HEADING": "Elérhetőség és felelősség",
+			"AVAILABILITY_BODY": "A szolgáltatást rendelkezésre állás szerint biztosítjuk. Az üzemeltető nem felel a szolgáltatás megszakadásáért, harmadik felek pontatlan adataiért, útvonalveszélyekért vagy a séta követése közben hozott döntésekért. Légy körültekintő és tartsd be a helyi szabályokat.",
+			"CHANGES_HEADING": "A feltételek módosítása",
+			"CHANGES_BODY": "A feltételek a szolgáltatás változásával frissülhetnek. A mindenkor hatályos változat ezen az oldalon jelenik meg a fenti frissítési dátummal. A módosítás utáni használat a frissített feltételek elfogadását jelenti."
+		}
 	},
 	"HOME": {
 		"EYEBROW": "Játékos városi túrák",

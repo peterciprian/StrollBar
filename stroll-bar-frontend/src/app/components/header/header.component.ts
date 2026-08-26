@@ -1,5 +1,6 @@
 import { Component, Signal, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { MatToolbar } from '@angular/material/toolbar';
@@ -7,6 +8,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatMenu, MatMenuTrigger, MatMenuItem } from '@angular/material/menu';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
+import { filter, map } from 'rxjs';
 import { LanguageService } from '../../core/services/language.service';
 import { logout, selectIsLoggedIn, selectUsername } from '../../features/auth/auth.state';
 import { SCREEN_DEFS, ScreenDef } from './screen-definitions';
@@ -39,11 +41,21 @@ export class HeaderComponent {
 	private readonly store = inject(Store);
 	private readonly router = inject(Router);
 
-	protected readonly screenDefs = SCREEN_DEFS;
 	protected readonly settingsSections = SETTINGS_SECTIONS;
 
 	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
 	protected readonly username = this.store.selectSignal(selectUsername);
+	private readonly currentUrl = toSignal(
+		this.router.events.pipe(
+			filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+			map((event) => event.urlAfterRedirects)
+		),
+		{ initialValue: this.router.url }
+	);
+
+	get visibleScreenDefs(): ScreenDef[] {
+		return SCREEN_DEFS.filter((screen) => this.isLoggedIn() || screen.visibleWithoutLogin);
+	}
 
 	protected readonly translatedLanguages = this.languageService.languages.map((lang) => ({
 		code: lang.code,
@@ -63,7 +75,7 @@ export class HeaderComponent {
 	}
 
 	isActiveScreen(screen: ScreenDef): boolean {
-		const url = this.router.url;
+		const url = this.currentUrl();
 		const path = url.split('?')[0];
 
 		switch (screen.id) {
@@ -77,6 +89,8 @@ export class HeaderComponent {
 				return path.startsWith('/adventure');
 			case 'user-dashboard':
 				return path.startsWith('/user-dashboard');
+			default:
+				return false;
 		}
 	}
 }

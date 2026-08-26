@@ -2,7 +2,7 @@
 	<a routerLink="/" class="brand">{{ 'HEADER.BRAND' | translate }}</a>
 
 	<nav class="main-nav" [attr.aria-label]="'HEADER.MAIN_NAV_ARIA' | translate">
-		@for (screen of screenDefs; track screen.id) {
+		@for (screen of visibleScreenDefs; track screen.id) {
 			<a mat-button [routerLink]="screen.commands" [class.active]="isActiveScreen(screen)">
 				{{ screen.labelKey | translate }}
 			</a>
@@ -35,7 +35,7 @@
 	</button>
 
 	<mat-menu #mobileMenu="matMenu">
-		@for (screen of screenDefs; track screen.id) {
+		@for (screen of visibleScreenDefs; track screen.id) {
 			<a mat-menu-item class="mobile-menu-item" [routerLink]="screen.commands" [class.active]="isActiveScreen(screen)">
 				<span>{{ screen.labelKey | translate }}</span>
 			</a>

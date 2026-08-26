@@ -62,7 +62,16 @@ export class AuthEffects {
 	redirectAfterAuth$ = createEffect(
 		() =>
 			this.actions$.pipe(
-				ofType(loginSuccess, registerSuccess),
+				ofType(loginSuccess),
+				tap(() => this.router.navigateByUrl(this.getReturnUrl() ?? '/explore'))
+			),
+		{ dispatch: false }
+	);
+
+	redirectAfterRegister$ = createEffect(
+		() =>
+			this.actions$.pipe(
+				ofType(registerSuccess),
 				tap(() => this.router.navigateByUrl('/explore'))
 			),
 		{ dispatch: false }
@@ -81,4 +90,14 @@ export class AuthEffects {
 			),
 		{ dispatch: false }
 	);
+
+	private getReturnUrl(): string | null {
+		const returnUrl = this.router.parseUrl(this.router.url).queryParams['returnUrl'];
+
+		if (typeof returnUrl !== 'string' || !returnUrl.startsWith('/') || returnUrl.startsWith('//')) {
+			return null;
+		}
+
+		return returnUrl;
+	}
 }
