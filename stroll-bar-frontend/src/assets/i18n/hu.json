@@ -16,6 +16,7 @@
 	"HEADER": {
 		"BRAND": "StrollBar",
 		"MAIN_NAV_ARIA": "Fő navigáció",
+		"MENU": "Menü megnyitása",
 		"LANGUAGE_ARIA": "Nyelv",
 		"PROFILE_MENU_ARIA": "Profil menü",
 		"LOGOUT": "Kijelentkezés",

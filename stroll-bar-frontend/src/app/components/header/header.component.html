@@ -3,7 +3,7 @@
 
 	<nav class="main-nav" [attr.aria-label]="'HEADER.MAIN_NAV_ARIA' | translate">
 		@for (screen of screenDefs; track screen.id) {
-			<a mat-button [routerLink]="screen.commands" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+			<a mat-button [routerLink]="screen.commands" [class.active]="isActiveScreen(screen)">
 				{{ screen.labelKey | translate }}
 			</a>
 		}
@@ -13,18 +13,68 @@
 
 	<mat-select
 		class="lang-select"
+		panelClass="lang-select-panel"
+		panelWidth="180px"
 		[value]="languageService.currentLang()"
 		(selectionChange)="onChangeLanguage($event.value)"
 		[attr.aria-label]="'HEADER.LANGUAGE_ARIA' | translate"
 	>
+		<mat-select-trigger>
+			<img class="lang-flag-icon" [src]="languageFlagIcon(languageService.currentLang())" alt="" />
+		</mat-select-trigger>
 		@for (lang of translatedLanguages; track lang.code) {
-			<mat-option [value]="lang.code">{{ lang.label() }}</mat-option>
+			<mat-option [value]="lang.code">
+				<img class="lang-option-icon" [src]="languageFlagIcon(lang.code)" alt="" />
+				{{ lang.label() }}
+			</mat-option>
 		}
 	</mat-select>
 
+	<button mat-icon-button class="mobile-menu-trigger" [matMenuTriggerFor]="mobileMenu" [attr.aria-label]="'HEADER.MENU' | translate">
+		<mat-icon>menu</mat-icon>
+	</button>
+
+	<mat-menu #mobileMenu="matMenu">
+		@for (screen of screenDefs; track screen.id) {
+			<a mat-menu-item class="mobile-menu-item" [routerLink]="screen.commands" [class.active]="isActiveScreen(screen)">
+				<span>{{ screen.labelKey | translate }}</span>
+			</a>
+		}
+		@if (isLoggedIn()) {
+			<button mat-menu-item disabled>
+				<mat-icon>account_circle</mat-icon>
+				<span>{{ username() }}</span>
+			</button>
+			@for (section of settingsSections; track section.id) {
+				<a mat-menu-item routerLinkActive="active" [routerLink]="['/settings', section.id]">
+					<mat-icon>{{ section.icon }}</mat-icon>
+					<span>{{ section.labelKey | translate }}</span>
+				</a>
+			}
+			<button mat-menu-item (click)="onLogout()">
+				<mat-icon>logout</mat-icon>
+				<span>{{ 'HEADER.LOGOUT' | translate }}</span>
+			</button>
+		} @else {
+			<a mat-menu-item routerLink="/auth/login" routerLinkActive="active">
+				<mat-icon>login</mat-icon>
+				<span>{{ 'HEADER.LOGIN' | translate }}</span>
+			</a>
+			<a mat-menu-item routerLink="/auth/register" routerLinkActive="active">
+				<mat-icon>person_add</mat-icon>
+				<span>{{ 'HEADER.REGISTER' | translate }}</span>
+			</a>
+		}
+	</mat-menu>
+
 	@if (isLoggedIn()) {
-		<span class="current-user">{{ username() }}</span>
-		<button mat-icon-button [matMenuTriggerFor]="profileMenu" [attr.aria-label]="'HEADER.PROFILE_MENU_ARIA' | translate">
+		<button
+			mat-button
+			class="desktop-auth profile-trigger"
+			[matMenuTriggerFor]="profileMenu"
+			[attr.aria-label]="'HEADER.PROFILE_MENU_ARIA' | translate"
+		>
+			<span class="current-user">{{ username() }}</span>
 			<mat-icon>account_circle</mat-icon>
 		</button>
 		<mat-menu #profileMenu="matMenu">
@@ -34,10 +84,13 @@
 					<span>{{ section.labelKey | translate }}</span>
 				</a>
 			}
+			<button mat-menu-item (click)="onLogout()">
+				<mat-icon>logout</mat-icon>
+				<span>{{ 'HEADER.LOGOUT' | translate }}</span>
+			</button>
 		</mat-menu>
-		<button mat-button (click)="onLogout()">{{ 'HEADER.LOGOUT' | translate }}</button>
 	} @else {
-		<a mat-button routerLink="/auth/login" routerLinkActive="active">{{ 'HEADER.LOGIN' | translate }}</a>
-		<a mat-button routerLink="/auth/register" routerLinkActive="active">{{ 'HEADER.REGISTER' | translate }}</a>
+		<a mat-button class="desktop-auth" routerLink="/auth/login" routerLinkActive="active">{{ 'HEADER.LOGIN' | translate }}</a>
+		<a mat-button class="desktop-auth" routerLink="/auth/register" routerLinkActive="active">{{ 'HEADER.REGISTER' | translate }}</a>
 	}
 </mat-toolbar>

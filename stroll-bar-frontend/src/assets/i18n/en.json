@@ -16,6 +16,7 @@
 	"HEADER": {
 		"BRAND": "StrollBar",
 		"MAIN_NAV_ARIA": "Main navigation",
+		"MENU": "Open menu",
 		"LANGUAGE_ARIA": "Language",
 		"PROFILE_MENU_ARIA": "Profile menu",
 		"LOGOUT": "Logout",

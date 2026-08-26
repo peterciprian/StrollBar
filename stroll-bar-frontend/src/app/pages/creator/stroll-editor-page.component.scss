@@ -1,16 +1,16 @@
 .station-editor {
 	display: flex;
-	gap: 24px;
-	height: calc(100vh - 260px);
-	min-height: 560px;
+	flex-direction: column;
+	gap: 16px;
+	min-height: 0;
 
 	&__left {
-		flex: 0 0 30%;
+		flex: none;
 		min-width: 0;
 		display: flex;
 		flex-direction: column;
 		background: #fff;
-		border-radius: 20px;
+		border-radius: 16px;
 		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 		padding: 16px;
 		box-sizing: border-box;
@@ -24,14 +24,17 @@
 	}
 
 	&__list {
-		flex: 1;
-		overflow-y: auto;
+		flex: none;
+		overflow-x: auto;
+		overflow-y: visible;
+		flex-direction: row;
 		display: flex;
 		flex-direction: column;
 		gap: 8px;
 	}
 
 	&__item {
+		flex: 0 0 min(260px, 78vw);
 		display: flex;
 		align-items: center;
 		gap: 8px;
@@ -72,25 +75,27 @@
 	&__right {
 		flex: 1;
 		min-width: 0;
-		overflow-y: auto;
+		overflow-y: visible;
 		background: #fff;
-		border-radius: 20px;
+		border-radius: 16px;
 		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-		padding: 24px;
+		padding: 16px;
 		box-sizing: border-box;
 	}
 
 	&__form-header {
-		position: sticky;
-		top: -24px;
+		position: static;
+		top: auto;
 		z-index: 2;
 		background: #fff;
 		display: flex;
-		align-items: center;
+		align-items: stretch;
+		flex-direction: column;
+		gap: 12px;
 		justify-content: space-between;
 		padding-bottom: 16px;
-		margin: -24px -24px 8px;
-		padding: 24px 24px 16px;
+		margin: -16px -16px 8px;
+		padding: 16px 16px 12px;
 
 		h1 {
 			margin: 0;
@@ -133,14 +138,14 @@
 
 	&__coords {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr;
 		gap: 16px;
 	}
 
 	&__upload {
 		border: 2px dashed #cbd5e1;
 		border-radius: 16px;
-		padding: 24px;
+		padding: 18px;
 		text-align: center;
 		color: #64748b;
 		margin: 8px 0 16px;
@@ -160,7 +165,63 @@
 
 	&__task-row {
 		display: grid;
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: 1fr;
 		gap: 16px;
+	}
+}
+
+@media (min-width: 700px) {
+	.station-editor {
+		&__coords,
+		&__task-row {
+			grid-template-columns: 1fr 1fr;
+		}
+
+		&__form-header {
+			align-items: center;
+			flex-direction: row;
+		}
+	}
+}
+
+@media (min-width: 900px) {
+	.station-editor {
+		flex-direction: row;
+		gap: 24px;
+		height: calc(100vh - 260px);
+		min-height: 560px;
+
+		&__left {
+			flex: 0 0 30%;
+			border-radius: 20px;
+		}
+
+		&__list {
+			flex: 1;
+			overflow-x: visible;
+			overflow-y: auto;
+			flex-direction: column;
+		}
+
+		&__item {
+			flex: none;
+		}
+
+		&__right {
+			overflow-y: auto;
+			border-radius: 20px;
+			padding: 24px;
+		}
+
+		&__form-header {
+			position: sticky;
+			top: -24px;
+			margin: -24px -24px 8px;
+			padding: 24px 24px 16px;
+		}
+
+		&__upload {
+			padding: 24px;
+		}
 	}
 }

@@ -1,6 +1,6 @@
 .settings-page__achievements {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	grid-template-columns: 1fr;
 	gap: 16px;
 }
 
@@ -37,4 +37,10 @@ h1 {
 .settings-page__muted {
 	color: #64748b;
 	font-size: 12px;
+}
+
+@media (min-width: 600px) {
+	.settings-page__achievements {
+		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	}
 }

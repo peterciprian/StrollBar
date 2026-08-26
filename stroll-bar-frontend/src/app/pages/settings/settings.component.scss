@@ -1,16 +1,27 @@
 .settings-page {
 	display: flex;
-	gap: 24px;
-	min-height: calc(100vh - 220px);
+	flex-direction: column;
+	gap: 16px;
+	min-height: 0;
 
 	&__nav {
-		flex: 0 0 260px;
+		flex: none;
 		background: #fff;
-		border-radius: 20px;
+		border-radius: 16px;
 		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
 		padding: 16px 8px;
 		box-sizing: border-box;
 		height: fit-content;
+		mat-nav-list {
+			display: flex;
+			overflow-x: auto;
+			padding: 0 4px;
+			scrollbar-width: none;
+
+			&::-webkit-scrollbar {
+				display: none;
+			}
+		}
 	}
 
 	&__nav-title {
@@ -25,6 +36,7 @@
 	&__nav-item {
 		cursor: pointer;
 		border-radius: 12px;
+		flex: 0 0 auto;
 
 		&--active {
 			background: #ecfeff;
@@ -37,9 +49,33 @@
 		flex: 1;
 		min-width: 0;
 		background: #fff;
-		border-radius: 20px;
+		border-radius: 16px;
 		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-		padding: 24px;
+		padding: 16px;
 		box-sizing: border-box;
+	}
+}
+
+@media (min-width: 900px) {
+	.settings-page {
+		flex-direction: row;
+		gap: 24px;
+		min-height: calc(100vh - 220px);
+
+		&__nav {
+			flex: 0 0 260px;
+			border-radius: 20px;
+
+			mat-nav-list {
+				display: block;
+				overflow-x: visible;
+				padding: 8px 0;
+			}
+		}
+
+		&__content {
+			border-radius: 20px;
+			padding: 24px;
+		}
 	}
 }

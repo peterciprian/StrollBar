@@ -1,9 +1,9 @@
 .hero {
 	position: relative;
-	border-radius: 24px;
+	border-radius: 18px;
 	overflow: hidden;
-	padding: 72px 48px;
-	margin-bottom: 48px;
+	padding: 40px 20px;
+	margin-bottom: 32px;
 	background:
 		radial-gradient(circle at 15% 20%, rgba(245, 158, 11, 0.35), transparent 45%), linear-gradient(135deg, #0891b2 0%, #155e75 55%, #0f172a 100%);
 	color: #fff;
@@ -34,14 +34,14 @@
 	}
 
 	&__title {
-		font-size: 42px;
+		font-size: 30px;
 		font-weight: 800;
 		line-height: 1.15;
 		margin: 0 0 16px;
 	}
 
 	&__subtitle {
-		font-size: 16px;
+		font-size: 15px;
 		line-height: 1.6;
 		color: rgba(255, 255, 255, 0.85);
 		margin: 0 0 32px;
@@ -49,12 +49,13 @@
 
 	&__actions {
 		display: flex;
+		flex-direction: column;
 		flex-wrap: wrap;
-		gap: 16px;
+		gap: 12px;
 	}
 
 	&__cta {
-		height: 50px;
+		height: 48px;
 		padding: 0 24px;
 		border-radius: 14px;
 		font-weight: 700;
@@ -73,9 +74,9 @@
 
 .features {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 24px;
-	margin-bottom: 56px;
+	grid-template-columns: 1fr;
+	gap: 16px;
+	margin-bottom: 40px;
 
 	&__item {
 		background: #fff;
@@ -109,11 +110,13 @@
 }
 
 .showcase {
-	margin-bottom: 56px;
+	margin-bottom: 40px;
 
 	&__header {
 		display: flex;
-		align-items: center;
+		align-items: flex-start;
+		flex-direction: column;
+		gap: 8px;
 		justify-content: space-between;
 		margin-bottom: 20px;
 
@@ -132,15 +135,15 @@
 
 	&__grid {
 		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-		gap: 20px;
+		grid-template-columns: 1fr;
+		gap: 16px;
 	}
 }
 
 .cta-banner {
 	text-align: center;
-	padding: 48px 24px;
-	border-radius: 24px;
+	padding: 36px 18px;
+	border-radius: 18px;
 	background: linear-gradient(135deg, #fde68a, #fbbf24 65%, #f59e0b);
 	color: #1c1917;
 
@@ -159,6 +162,7 @@
 	&__actions {
 		display: flex;
 		justify-content: center;
+		flex-direction: column;
 		flex-wrap: wrap;
 		gap: 16px;
 
@@ -172,5 +176,55 @@
 				margin-right: 8px;
 			}
 		}
+	}
+}
+
+@media (min-width: 600px) {
+	.hero {
+		&__actions {
+			flex-direction: row;
+		}
+	}
+
+	.showcase__header,
+	.cta-banner__actions {
+		flex-direction: row;
+		align-items: center;
+	}
+}
+
+@media (min-width: 768px) {
+	.hero {
+		border-radius: 24px;
+		padding: 72px 48px;
+		margin-bottom: 48px;
+
+		&__title {
+			font-size: 42px;
+		}
+
+		&__subtitle {
+			font-size: 16px;
+		}
+	}
+
+	.features {
+		grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+		gap: 24px;
+		margin-bottom: 56px;
+	}
+
+	.showcase {
+		margin-bottom: 56px;
+
+		&__grid {
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 20px;
+		}
+	}
+
+	.cta-banner {
+		padding: 48px 24px;
+		border-radius: 24px;
 	}
 }

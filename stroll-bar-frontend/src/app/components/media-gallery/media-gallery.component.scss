@@ -1,6 +1,6 @@
 .media-gallery {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
 	gap: 12px;
 
 	&--single {
@@ -38,5 +38,11 @@
 			background: #e2e8f0;
 			color: #64748b;
 		}
+	}
+}
+
+@media (min-width: 600px) {
+	.media-gallery {
+		grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
 	}
 }
