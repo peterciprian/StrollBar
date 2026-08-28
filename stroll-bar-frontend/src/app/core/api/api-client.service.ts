@@ -2,19 +2,26 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { API_ENDPOINT } from '../core.module';
 import {
+	AbortMultipartUploadRequest,
 	Achievement,
 	AdventureDetailResponse,
 	AuthResponse,
+	CompleteMultipartUploadRequest,
+	CompleteMultipartUploadResponse,
 	CreateAchievementRequest,
+	CreatePresignedUploadRequest,
 	CreateStageRequest,
 	CreateStrollRequest,
+	DeleteStageResponse,
 	DeleteStrollResponse,
+	InitiateMultipartUploadResponse,
 	ListStrollsQuery,
 	LoginRequest,
 	LogoutRequest,
 	MessageResponse,
 	NavigateAdventureRequest,
 	PasswordResetRequestResponse,
+	PresignedUploadResponse,
 	PublicUserProfile,
 	RefreshRequest,
 	RegisterRequest,
@@ -31,6 +38,7 @@ import {
 	SubmitStageAnswerRequest,
 	SubmitStageAnswerResponse,
 	UnlockStrollRequest,
+	UpdateStageRequest,
 	UpdateStrollRequest,
 	User,
 	Adventure
@@ -124,7 +132,13 @@ export class ApiClientService {
 	reorderStages(strollId: string, body: ReorderStagesRequest) {
 		return this.http.patch<ReorderStagesResponse>(`${this.baseUrl}/strolls/${strollId}/stages/reorder`, body);
 	}
+	updateStage(strollId: string, stageId: string, body: UpdateStageRequest) {
+		return this.http.patch<Stage>(`${this.baseUrl}/strolls/${strollId}/stages/${stageId}`, body);
+	}
 
+	deleteStage(strollId: string, stageId: string) {
+		return this.http.delete<DeleteStageResponse>(`${this.baseUrl}/strolls/${strollId}/stages/${stageId}`);
+	}
 	// ─── Adventures ────────────────────────────────────────────────────────────
 
 	unlockStroll(body: UnlockStrollRequest) {
@@ -159,5 +173,23 @@ export class ApiClientService {
 
 	getAchievement(achievementId: string) {
 		return this.http.get<Achievement>(`${this.baseUrl}/achievements/${achievementId}`);
+	}
+
+	// ─── Media ────────────────────────────────────────────────────────────────────
+
+	presignUpload(body: CreatePresignedUploadRequest) {
+		return this.http.post<PresignedUploadResponse>(`${this.baseUrl}/media/presign-upload`, body);
+	}
+
+	initiateMultipartUpload(body: CreatePresignedUploadRequest) {
+		return this.http.post<InitiateMultipartUploadResponse>(`${this.baseUrl}/media/multipart/initiate`, body);
+	}
+
+	completeMultipartUpload(body: CompleteMultipartUploadRequest) {
+		return this.http.post<CompleteMultipartUploadResponse>(`${this.baseUrl}/media/multipart/complete`, body);
+	}
+
+	abortMultipartUpload(body: AbortMultipartUploadRequest) {
+		return this.http.post<CompleteMultipartUploadResponse>(`${this.baseUrl}/media/multipart/abort`, body);
 	}
 }

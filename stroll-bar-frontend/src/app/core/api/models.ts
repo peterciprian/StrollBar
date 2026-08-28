@@ -187,6 +187,13 @@ export interface ReorderStagesResponse {
 	reordered: number;
 }
 
+export interface UpdateStageRequest extends Partial<CreateStageRequest> {}
+
+export interface DeleteStageResponse {
+	id: string;
+	deleted: boolean;
+}
+
 // ─── Adventures ───────────────────────────────────────────────────────────────
 
 export interface Adventure {
@@ -249,4 +256,52 @@ export interface CreateAchievementRequest {
 	timeSeconds?: number;
 	hintsUsed?: number;
 	completed?: boolean;
+}
+
+// ─── Media ────────────────────────────────────────────────────────────────────
+
+export type MediaUploadPurpose = 'stroll' | 'stage' | 'profile';
+
+export interface CreatePresignedUploadRequest {
+	fileName: string;
+	contentType: string;
+	sizeBytes: number;
+	purpose: MediaUploadPurpose;
+	entityId?: string;
+}
+
+export interface PresignedUploadResponse {
+	assetId: string;
+	objectKey: string;
+	uploadUrl: string;
+	publicUrl: string;
+	method: 'PUT';
+	expiresInSeconds: number;
+	headers: Record<string, string>;
+}
+
+export interface InitiateMultipartUploadResponse {
+	assetId: string;
+	uploadId: string;
+	objectKey: string;
+	publicUrl: string;
+	partSizeBytes: number;
+	partCount: number;
+	parts: Array<{ partNumber: number; uploadUrl: string }>;
+	expiresInSeconds: number;
+}
+
+export interface CompleteMultipartUploadRequest {
+	assetId: string;
+	uploadId: string;
+	parts: Array<{ partNumber: number; etag: string }>;
+}
+
+export interface CompleteMultipartUploadResponse {
+	message: string;
+}
+
+export interface AbortMultipartUploadRequest {
+	assetId: string;
+	uploadId: string;
 }

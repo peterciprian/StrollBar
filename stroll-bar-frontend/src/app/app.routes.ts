@@ -29,9 +29,8 @@ export const routes: Routes = [
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
 	{ path: 'admin-tour-list', component: AdminTourListScreenComponent, canActivate: [authGuard] },
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
-	{ path: 'creator/strolls', component: StrollEditorPageComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard] },
-	{ path: 'creator/strolls/:strollId/edit', component: StrollEditorPageComponent, canActivate: [authGuard] },
+	{ path: 'creator/strolls/:strollId', component: StrollEditorPageComponent, canActivate: [authGuard] },
 	{ path: 'users/:userId', component: CreatorProfilePageComponent, canActivate: [authGuard] },
 	{
 		path: 'settings',
