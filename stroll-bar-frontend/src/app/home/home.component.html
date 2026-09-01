@@ -42,8 +42,14 @@
 		<a mat-button color="primary" routerLink="/explore">{{ 'HOME.SHOWCASE_LINK' | translate }}<mat-icon>arrow_forward</mat-icon></a>
 	</div>
 	<div class="showcase__grid">
-		@for (tour of featuredTours; track tour.id) {
-			<app-stroll-card [tour]="tour"></app-stroll-card>
+		@if (toursState.loading()) {
+			<p>{{ 'COMMON.LOADING' | translate }}</p>
+		} @else if (toursState.error()) {
+			<p class="error">{{ 'COMMON.ERROR_LOADING' | translate }}</p>
+		} @else if (toursState.data() && toursState.data()!.length > 0) {
+			@for (tour of toursState.data(); track tour.id) {
+				<app-stroll-card [tour]="tour"></app-stroll-card>
+			}
 		}
 	</div>
 </section>
