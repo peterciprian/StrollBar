@@ -13,6 +13,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateStageDto } from './dto/create-stage.dto';
 import { ReorderStagesDto } from './dto/reorder-stages.dto';
@@ -29,9 +30,10 @@ export class StagesController {
 	@ApiOperation({ summary: 'List all stages for a stroll' })
 	@ApiParam({ name: 'strollId' })
 	@ApiOkResponse({ type: [StageResponseDto], description: 'Ordered stage list.' })
+	@UseGuards(OptionalJwtAuthGuard)
 	@Get()
-	list(@Param('strollId') strollId: string) {
-		return this.stagesService.list(strollId);
+	list(@Param('strollId') strollId: string, @CurrentUser() user?: AuthenticatedUser) {
+		return this.stagesService.list(strollId, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -44,7 +46,7 @@ export class StagesController {
 	@UseGuards(JwtAuthGuard)
 	@Post()
 	create(@Param('strollId') strollId: string, @Body() dto: CreateStageDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.stagesService.create(strollId, dto, user.userId);
+		return this.stagesService.create(strollId, dto, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -57,7 +59,7 @@ export class StagesController {
 	@UseGuards(JwtAuthGuard)
 	@Patch('reorder')
 	reorder(@Param('strollId') strollId: string, @Body() dto: ReorderStagesDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.stagesService.reorder(strollId, dto, user.userId);
+		return this.stagesService.reorder(strollId, dto, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -76,7 +78,7 @@ export class StagesController {
 		@Body() dto: UpdateStageDto,
 		@CurrentUser() user: AuthenticatedUser
 	) {
-		return this.stagesService.update(strollId, stageId, dto, user.userId);
+		return this.stagesService.update(strollId, stageId, dto, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -89,6 +91,6 @@ export class StagesController {
 	@UseGuards(JwtAuthGuard)
 	@Delete(':stageId')
 	remove(@Param('strollId') strollId: string, @Param('stageId') stageId: string, @CurrentUser() user: AuthenticatedUser) {
-		return this.stagesService.remove(strollId, stageId, user.userId);
+		return this.stagesService.remove(strollId, stageId, user);
 	}
 }

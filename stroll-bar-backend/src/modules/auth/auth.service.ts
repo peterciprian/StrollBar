@@ -12,7 +12,7 @@ import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
 import { UserEntity } from '../users/entities/user.entity';
 
-type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
+type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
 type RegisterResponse = AuthResponse & { verificationToken?: string };
 type SocialState = {
@@ -766,7 +766,8 @@ export class AuthService {
 		return this.jwtService.sign({
 			sub: user.id,
 			email: user.email,
-			username: user.username
+			username: user.username,
+			role: user.role
 		});
 	}
 
@@ -775,7 +776,8 @@ export class AuthService {
 			{
 				sub: user.id,
 				email: user.email,
-				username: user.username
+				username: user.username,
+				role: user.role
 			},
 			{
 				secret: this.getRefreshSecret(),

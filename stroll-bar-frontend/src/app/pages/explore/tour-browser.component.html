@@ -42,6 +42,9 @@
 		</div>
 
 		<div class="tour-browser__content">
+			@if (selectedTour.publicityFlag === 'private') {
+				<p class="tour-browser__privacy"><mat-icon>lock</mat-icon>{{ 'SCREENS.TOUR_BROWSER.PRIVATE' | translate }}</p>
+			}
 			<p class="tour-browser__description">{{ selectedTour.description }}</p>
 
 			<div class="tour-browser__stats">
@@ -52,7 +55,7 @@
 				</div>
 				<div class="tour-browser__stat">
 					<mat-icon>place</mat-icon>
-					<span class="tour-browser__stat-value">{{ selectedTour.stations.length }}</span>
+					<span class="tour-browser__stat-value">{{ selectedTour.stationsCount ?? selectedTour.stations.length }}</span>
 					<span class="tour-browser__stat-label">{{ 'SCREENS.TOUR_BROWSER.STAT_STATIONS' | translate }}</span>
 				</div>
 				<div class="tour-browser__stat">
@@ -60,19 +63,6 @@
 					<span class="tour-browser__stat-value">{{ selectedTour.durationMinutes }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span>
 					<span class="tour-browser__stat-label">{{ 'SCREENS.TOUR_BROWSER.STAT_TIME' | translate }}</span>
 				</div>
-			</div>
-
-			<h2 class="tour-browser__timeline-title">{{ 'SCREENS.TOUR_BROWSER.ROUTE_PREVIEW' | translate }}</h2>
-			<div class="tour-browser__timeline">
-				@for (station of selectedTour.stations; track station.id; let i = $index; let last = $last) {
-					<app-stage-card
-						[title]="station.name"
-						[address]="station.address"
-						[description]="''"
-						[index]="i + 1"
-						[last]="last"
-					></app-stage-card>
-				}
 			</div>
 
 			@if (startAdventureError()) {

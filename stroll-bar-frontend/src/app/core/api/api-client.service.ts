@@ -6,6 +6,7 @@ import {
 	Achievement,
 	AdventureDetailResponse,
 	AuthResponse,
+	BrowseStrollsResponse,
 	ChangePasswordRequest,
 	CompleteMultipartUploadRequest,
 	CompleteMultipartUploadResponse,
@@ -120,7 +121,7 @@ export class ApiClientService {
 			}
 		});
 
-		return this.http.get<StrollListResponse>(`${this.baseUrl}/strolls`, { params });
+		return this.http.get<BrowseStrollsResponse>(`${this.baseUrl}/strolls`, { params });
 	}
 
 	listOwnedStrolls(query: ListStrollsQuery = {}) {

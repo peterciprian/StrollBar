@@ -11,10 +11,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
-import { StageCardComponent } from '../../components/stage/stage-card.component';
 import { CATEGORY_LABEL_KEYS, MOCK_TOURS, Tour, TourCategory } from '../../core/models/screens.models';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
-import { mapStageToTourStation, mapStrollToTour } from '../../features/strolls/stroll-mappers';
+import { mapStrollToTour } from '../../features/strolls/stroll-mappers';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { MockPaymentDialogComponent } from './mock-payment-dialog.component';
@@ -34,8 +33,7 @@ type CategoryFilter = TourCategory | 'All';
 		MatButtonModule,
 		MatDialogModule,
 		TranslatePipe,
-		StrollCardComponent,
-		StageCardComponent
+		StrollCardComponent
 	],
 	templateUrl: './tour-browser.component.html',
 	styleUrls: ['./tour-browser.component.scss']
@@ -76,7 +74,6 @@ export class TourBrowserScreenComponent implements OnInit {
 	protected selectTourCard(tour: Tour): void {
 		this.selectedTour = tour;
 		this.startAdventureError.set(false);
-		this.loadStations(tour);
 	}
 
 	protected async startAdventure(): Promise<void> {
@@ -128,25 +125,6 @@ export class TourBrowserScreenComponent implements OnInit {
 			.subscribe((tours) => {
 				this.tours = tours;
 				this.selectTourCard(this.tours[0]);
-			});
-	}
-
-	private loadStations(tour: Tour): void {
-		// Demo tours already carry their mock stations; only real strolls need their stages fetched.
-		if (tour.stations.length || MOCK_TOURS.some((mockTour) => mockTour.id === tour.id)) {
-			return;
-		}
-
-		this.strollsFeature
-			.getDetail(tour.id)
-			.pipe(
-				map((detail) => (detail?.stages?.length ? detail.stages.map(mapStageToTourStation) : tour.stations)),
-				catchError(() => of(tour.stations))
-			)
-			.subscribe((stations) => {
-				if (this.selectedTour.id === tour.id) {
-					this.selectedTour = { ...this.selectedTour, stations };
-				}
 			});
 	}
 }

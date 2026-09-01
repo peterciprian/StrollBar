@@ -16,6 +16,7 @@ const initialState: UserState = {
 	email: '',
 	profileImageUrl: null,
 	isActive: false,
+	role: 'simple',
 	emailVerified: false,
 	createdAt: '',
 	updatedAt: '',

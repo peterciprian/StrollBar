@@ -4,6 +4,9 @@
 			@if (t.coverImageUrl) {
 				<img [src]="t.coverImageUrl" alt="" />
 			}
+			@if (t.publicityFlag === 'private') {
+				<span class="stroll-card__private"><mat-icon>lock</mat-icon>{{ 'SCREENS.TOUR_BROWSER.PRIVATE' | translate }}</span>
+			}
 			<span class="stroll-card__category">{{ categoryLabelKeys[t.category] | translate }}</span>
 		</div>
 		<mat-card-content>

@@ -54,6 +54,27 @@
 		z-index: 1;
 	}
 
+	&__private {
+		align-items: center;
+		background: rgba(15, 23, 42, 0.88);
+		border-radius: 4px;
+		color: #fff;
+		display: inline-flex;
+		font-size: 10px;
+		font-weight: 700;
+		gap: 3px;
+		line-height: 20px;
+		margin-right: auto;
+		padding: 0 7px;
+		z-index: 1;
+
+		mat-icon {
+			font-size: 13px;
+			height: 13px;
+			width: 13px;
+		}
+	}
+
 	&__title {
 		margin: 12px 0 8px;
 		font-size: 16px;

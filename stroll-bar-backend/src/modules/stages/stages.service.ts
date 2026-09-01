@@ -6,6 +6,10 @@ import { ReorderStagesDto } from './dto/reorder-stages.dto';
 import { UpdateStageDto } from './dto/update-stage.dto';
 import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { StageEntity } from './entities/stage.entity';
+import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { StrollActiveStatus, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
+import { UserRole } from '../users/entities/user.entity';
 
 @Injectable()
 export class StagesService {
@@ -13,18 +17,28 @@ export class StagesService {
 		@InjectRepository(StageEntity)
 		private readonly stagesRepository: Repository<StageEntity>,
 		@InjectRepository(StrollEntity)
-		private readonly strollsRepository: Repository<StrollEntity>
+		private readonly strollsRepository: Repository<StrollEntity>,
+		@InjectRepository(AdventureEntity)
+		private readonly adventuresRepository: Repository<AdventureEntity>
 	) {}
 
-	async list(strollId: string) {
+	async list(strollId: string, currentUser?: AuthenticatedUser) {
+		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+
+		if (!stroll) {
+			throw new NotFoundException(`Stroll ${strollId} was not found.`);
+		}
+
+		await this.assertCanRead(stroll, currentUser);
+
 		return this.stagesRepository.find({
 			where: { strollId },
 			order: { orderIndex: 'ASC' }
 		});
 	}
 
-	async create(strollId: string, dto: CreateStageDto, currentUserId: string) {
-		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUserId);
+	async create(strollId: string, dto: CreateStageDto, currentUser: AuthenticatedUser) {
+		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
 
 		const stage = this.stagesRepository.create({
 			strollId,
@@ -47,8 +61,8 @@ export class StagesService {
 		return savedStage;
 	}
 
-	async reorder(strollId: string, dto: ReorderStagesDto, currentUserId: string) {
-		await this.getOwnedStrollOrThrow(strollId, currentUserId);
+	async reorder(strollId: string, dto: ReorderStagesDto, currentUser: AuthenticatedUser) {
+		await this.getOwnedStrollOrThrow(strollId, currentUser);
 		const stages = await this.stagesRepository.find({ where: { strollId } });
 		const stagesById = new Map(stages.map((stage) => [stage.id, stage]));
 
@@ -70,8 +84,8 @@ export class StagesService {
 		};
 	}
 
-	async update(strollId: string, stageId: string, dto: UpdateStageDto, currentUserId: string) {
-		await this.getOwnedStrollOrThrow(strollId, currentUserId);
+	async update(strollId: string, stageId: string, dto: UpdateStageDto, currentUser: AuthenticatedUser) {
+		await this.getOwnedStrollOrThrow(strollId, currentUser);
 		const stage = await this.stagesRepository.findOne({ where: { id: stageId, strollId } });
 
 		if (!stage) {
@@ -92,8 +106,8 @@ export class StagesService {
 		return this.stagesRepository.save(stage);
 	}
 
-	async remove(strollId: string, stageId: string, currentUserId: string) {
-		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUserId);
+	async remove(strollId: string, stageId: string, currentUser: AuthenticatedUser) {
+		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
 		const stage = await this.stagesRepository.findOne({ where: { id: stageId, strollId } });
 
 		if (!stage) {
@@ -107,17 +121,40 @@ export class StagesService {
 		return { id: stageId, deleted: true };
 	}
 
-	private async getOwnedStrollOrThrow(strollId: string, currentUserId: string): Promise<StrollEntity> {
+	private async getOwnedStrollOrThrow(strollId: string, currentUser: AuthenticatedUser): Promise<StrollEntity> {
 		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
 
 		if (!stroll) {
 			throw new NotFoundException(`Stroll ${strollId} was not found.`);
 		}
 
-		if (stroll.authorId !== currentUserId) {
+		if (stroll.authorId !== currentUser.userId && currentUser.role !== UserRole.ADMIN) {
 			throw new ForbiddenException('You are not allowed to modify stages in this stroll.');
 		}
 
 		return stroll;
+	}
+
+	private async assertCanRead(stroll: StrollEntity, currentUser?: AuthenticatedUser): Promise<void> {
+		if (stroll.activeStatus === StrollActiveStatus.PUBLISHED && stroll.publicityFlag === StrollPublicityFlag.PUBLIC) {
+			return;
+		}
+
+		if (currentUser && (stroll.authorId === currentUser.userId || currentUser.role === UserRole.ADMIN)) {
+			return;
+		}
+
+		if (currentUser && stroll.activeStatus === StrollActiveStatus.PUBLISHED) {
+			const purchase = await this.adventuresRepository.findOne({
+				select: { id: true },
+				where: { strollId: stroll.id, ownerUserId: currentUser.userId }
+			});
+
+			if (purchase) {
+				return;
+			}
+		}
+
+		throw new ForbiddenException('Purchase this stroll to view its stages.');
 	}
 }

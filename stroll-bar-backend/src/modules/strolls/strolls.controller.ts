@@ -14,6 +14,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
@@ -22,13 +23,14 @@ import { StrollListResponseDto } from './dto/stroll-list-response.dto';
 import { StrollResponseDto } from './dto/stroll-response.dto';
 import { UpdateStrollDto } from './dto/update-stroll.dto';
 import { StrollsService } from './strolls.service';
+import { BrowseStrollsResponseDto } from './dto/browse-strolls-response.dto';
 
 @ApiTags('Strolls')
 @Controller('strolls')
 export class StrollsController {
 	constructor(private readonly strollsService: StrollsService) {}
 
-	@ApiOperation({ summary: 'Browse public strolls' })
+	@ApiOperation({ summary: 'Browse published public and private stroll summaries' })
 	@ApiQuery({ name: 'search', required: false })
 	@ApiQuery({ name: 'labels', required: false })
 	@ApiQuery({ name: 'authorId', required: false })
@@ -36,9 +38,10 @@ export class StrollsController {
 	@ApiQuery({ name: 'sortBy', required: false, enum: ['newest', 'most_used', 'best_rated'] })
 	@ApiQuery({ name: 'page', required: false, type: Number })
 	@ApiQuery({ name: 'limit', required: false, type: Number })
-	@ApiOkResponse({ type: StrollListResponseDto, description: 'Paginated public stroll list.' })
+	@ApiOkResponse({ type: BrowseStrollsResponseDto, description: 'Paginated product-preview summaries.' })
+	@UseGuards(OptionalJwtAuthGuard)
 	@Get()
-	list(@Query() query: ListStrollsQueryDto) {
+	list(@Query() query: ListStrollsQueryDto, @CurrentUser() user?: AuthenticatedUser) {
 		return this.strollsService.list(query);
 	}
 
@@ -63,7 +66,7 @@ export class StrollsController {
 	@UseGuards(JwtAuthGuard)
 	@Get('mine/:strollId')
 	findOwnedOne(@Param('strollId') strollId: string, @CurrentUser() user: AuthenticatedUser) {
-		return this.strollsService.findOwnedOne(strollId, user.userId);
+		return this.strollsService.findOwnedOne(strollId, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -73,16 +76,17 @@ export class StrollsController {
 	@UseGuards(JwtAuthGuard)
 	@Post()
 	create(@Body() dto: CreateStrollDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.strollsService.create(dto, user.userId);
+		return this.strollsService.create(dto, user);
 	}
 
 	@ApiOperation({ summary: 'Get a stroll with its ordered stages' })
 	@ApiParam({ name: 'strollId' })
 	@ApiOkResponse({ type: StrollDetailResponseDto, description: 'Stroll details with ordered stages.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll not found.' })
+	@UseGuards(OptionalJwtAuthGuard)
 	@Get(':strollId')
-	findOne(@Param('strollId') strollId: string) {
-		return this.strollsService.findOne(strollId);
+	findOne(@Param('strollId') strollId: string, @CurrentUser() user?: AuthenticatedUser) {
+		return this.strollsService.findOne(strollId, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -94,7 +98,7 @@ export class StrollsController {
 	@UseGuards(JwtAuthGuard)
 	@Patch(':strollId')
 	update(@Param('strollId') strollId: string, @Body() dto: UpdateStrollDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.strollsService.update(strollId, dto, user.userId);
+		return this.strollsService.update(strollId, dto, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -109,6 +113,6 @@ export class StrollsController {
 	@UseGuards(JwtAuthGuard)
 	@Delete(':strollId')
 	remove(@Param('strollId') strollId: string, @CurrentUser() user: AuthenticatedUser) {
-		return this.strollsService.remove(strollId, user.userId);
+		return this.strollsService.remove(strollId, user);
 	}
 }

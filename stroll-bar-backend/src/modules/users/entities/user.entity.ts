@@ -2,6 +2,13 @@ import { randomUUID } from 'node:crypto';
 import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { DATABASE_DATE_COLUMN_TYPE } from '../../../database/column-types';
 
+export enum UserRole {
+	SIMPLE = 'simple',
+	PREMIUM = 'premium',
+	CREATOR = 'creator',
+	ADMIN = 'admin'
+}
+
 @Entity('users')
 export class UserEntity {
 	@PrimaryGeneratedColumn('uuid')
@@ -37,6 +44,9 @@ export class UserEntity {
 
 	@Column({ type: 'boolean', default: true })
 	isActive!: boolean;
+
+	@Column({ type: 'varchar', length: 20, default: UserRole.SIMPLE })
+	role!: UserRole;
 
 	@Column({ type: 'boolean', default: false })
 	emailVerified!: boolean;

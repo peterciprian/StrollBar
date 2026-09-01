@@ -40,6 +40,8 @@ export interface Tour {
 	price: number;
 	distanceKm: number;
 	description: string;
+	publicityFlag?: 'public' | 'unlisted' | 'private';
+	stationsCount?: number;
 	coverImageUrl?: string;
 	coverFallback: string;
 	stations: TourStation[];

@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { UserRole } from '../entities/user.entity';
 
 export class UserResponseDto {
 	@ApiProperty({ example: 'f7f3eb6a-711b-49e8-ae60-b7af77fa35c6' })
@@ -15,6 +16,9 @@ export class UserResponseDto {
 
 	@ApiProperty({ example: true })
 	isActive!: boolean;
+
+	@ApiProperty({ enum: UserRole, example: UserRole.SIMPLE })
+	role!: UserRole;
 
 	@ApiProperty({ example: false })
 	emailVerified!: boolean;

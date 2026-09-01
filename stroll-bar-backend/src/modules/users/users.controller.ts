@@ -1,5 +1,14 @@
 import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiConflictResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import {
+	ApiBearerAuth,
+	ApiConflictResponse,
+	ApiForbiddenResponse,
+	ApiNotFoundResponse,
+	ApiOkResponse,
+	ApiOperation,
+	ApiParam,
+	ApiTags
+} from '@nestjs/swagger';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -8,6 +17,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { PublicUserProfileResponseDto } from './dto/public-user-profile-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
+import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 
 @ApiTags('Users')
 @Controller('users')
@@ -23,6 +33,17 @@ export class UsersController {
 	@Patch('me')
 	updateMe(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateUserDto) {
 		return this.usersService.updateMe(user.userId, dto);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Assign a user role (admin only)' })
+	@ApiOkResponse({ type: UserResponseDto, description: 'Updated user role.' })
+	@ApiForbiddenResponse({ description: 'Administrator access required.', type: ErrorResponseDto })
+	@ApiNotFoundResponse({ description: 'User not found.', type: ErrorResponseDto })
+	@UseGuards(JwtAuthGuard)
+	@Patch(':userId/role')
+	updateRole(@Param('userId') userId: string, @Body() dto: UpdateUserRoleDto, @CurrentUser() user: AuthenticatedUser) {
+		return this.usersService.updateRole(userId, dto.role, user);
 	}
 
 	@ApiOperation({ summary: 'Get a public user profile' })

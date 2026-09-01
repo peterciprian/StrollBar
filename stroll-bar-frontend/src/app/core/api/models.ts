@@ -1,6 +1,7 @@
 export type StrollActiveStatus = 'draft' | 'published' | 'archived';
 export type StrollPublicityFlag = 'public' | 'unlisted' | 'private';
 export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned';
+export type UserRole = 'simple' | 'premium' | 'creator' | 'admin';
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 
@@ -10,6 +11,7 @@ export interface User {
 	email: string;
 	profileImageUrl?: string | null;
 	isActive: boolean;
+	role: UserRole;
 	emailVerified: boolean;
 	createdAt: string;
 	updatedAt: string;
@@ -125,6 +127,17 @@ export interface Stroll {
 	updatedAt: string;
 }
 
+export interface StrollSummary {
+	id: string;
+	name: string;
+	authorId: string;
+	labels: string[];
+	description: string;
+	mediaUrls?: MediaUrls | null;
+	publicityFlag: StrollPublicityFlag;
+	stageCount: number;
+}
+
 export interface ListStrollsQuery {
 	search?: string;
 	labels?: string;
@@ -137,6 +150,13 @@ export interface ListStrollsQuery {
 
 export interface StrollListResponse {
 	items: Stroll[];
+	page: number;
+	limit: number;
+	total: number;
+}
+
+export interface BrowseStrollsResponse {
+	items: StrollSummary[];
 	page: number;
 	limit: number;
 	total: number;

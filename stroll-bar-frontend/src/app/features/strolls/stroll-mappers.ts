@@ -1,10 +1,10 @@
 // Maps backend Stroll/Stage responses onto the richer Tour shape used by the /screens demo UI.
-import { Stage, Stroll } from '../../core/api/models';
-import { Tour, TourCategory, TourStation } from '../../core/models/screens.models';
+import { StrollSummary } from '../../core/api/models';
+import { Tour, TourCategory } from '../../core/models/screens.models';
 
 const KNOWN_CATEGORIES: TourCategory[] = ['Historical', 'Mystery', 'Cultural'];
 
-export function mapStrollToTour(stroll: Stroll): Tour {
+export function mapStrollToTour(stroll: StrollSummary): Tour {
 	const category = KNOWN_CATEGORIES.find((known) => stroll.labels.includes(known)) ?? 'Cultural';
 
 	return {
@@ -15,6 +15,8 @@ export function mapStrollToTour(stroll: Stroll): Tour {
 		price: 0,
 		distanceKm: 0,
 		description: stroll.description,
+		publicityFlag: stroll.publicityFlag,
+		stationsCount: stroll.stageCount,
 		coverImageUrl: stroll.mediaUrls?.imageUrls?.[0],
 		coverFallback: createCoverFallback(stroll.id),
 		stations: []
@@ -36,14 +38,4 @@ function createCoverFallback(strollId: string): string {
 	const angle = 115 + ((unsignedHash >>> 24) % 51);
 
 	return `linear-gradient(${angle}deg, hsl(${primaryHue} 58% 42%) 0%, hsl(${secondaryHue} 52% 28%) 62%, hsl(${deepHue} 42% 16%) 100%)`;
-}
-
-export function mapStageToTourStation(stage: Stage): TourStation {
-	return {
-		id: stage.id,
-		name: stage.name,
-		address: stage.address ?? '',
-		latitude: stage.latitude ?? 0,
-		longitude: stage.longitude ?? 0
-	};
 }

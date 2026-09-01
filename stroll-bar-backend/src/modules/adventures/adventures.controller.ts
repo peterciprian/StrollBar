@@ -33,7 +33,7 @@ export class AdventuresController {
 	@UseGuards(JwtAuthGuard)
 	@Get()
 	list(@CurrentUser() user: AuthenticatedUser) {
-		return this.adventuresService.list(user.userId);
+		return this.adventuresService.list(user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -43,7 +43,7 @@ export class AdventuresController {
 	@UseGuards(JwtAuthGuard)
 	@Post('unlock')
 	unlock(@Body() dto: UnlockStrollDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.adventuresService.unlock(dto, user.userId);
+		return this.adventuresService.unlock(dto, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -55,7 +55,7 @@ export class AdventuresController {
 	@UseGuards(JwtAuthGuard)
 	@Post(':adventureId/start')
 	start(@Param('adventureId') adventureId: string, @CurrentUser() user: AuthenticatedUser) {
-		return this.adventuresService.start(adventureId, user.userId);
+		return this.adventuresService.start(adventureId, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -67,7 +67,7 @@ export class AdventuresController {
 	@UseGuards(JwtAuthGuard)
 	@Get(':adventureId')
 	get(@Param('adventureId') adventureId: string, @CurrentUser() user: AuthenticatedUser) {
-		return this.adventuresService.get(adventureId, user.userId);
+		return this.adventuresService.get(adventureId, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -86,7 +86,7 @@ export class AdventuresController {
 		@Body() dto: SubmitStageAnswerDto,
 		@CurrentUser() user: AuthenticatedUser
 	) {
-		return this.adventuresService.submitAnswer(adventureId, stageId, dto, user.userId);
+		return this.adventuresService.submitAnswer(adventureId, stageId, dto, user);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -99,6 +99,6 @@ export class AdventuresController {
 	@UseGuards(JwtAuthGuard)
 	@Post(':adventureId/navigate')
 	navigate(@Param('adventureId') adventureId: string, @Body() dto: NavigateAdventureDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.adventuresService.navigate(adventureId, dto, user.userId);
+		return this.adventuresService.navigate(adventureId, dto, user);
 	}
 }

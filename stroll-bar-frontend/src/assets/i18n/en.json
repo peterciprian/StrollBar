@@ -216,6 +216,7 @@
 			"STAT_STATIONS": "Stations",
 			"STAT_TIME": "Est. time",
 			"ROUTE_PREVIEW": "Route preview",
+			"PRIVATE": "Private",
 			"START_ADVENTURE": "Start adventure",
 			"STARTING": "Starting adventure",
 			"START_ERROR": "The adventure could not be started. Please try again."

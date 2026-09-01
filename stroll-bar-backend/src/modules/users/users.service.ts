@@ -1,10 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AdventureProgressStatus, AdventureEntity } from '../adventures/entities/adventure.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserEntity } from './entities/user.entity';
+import { UserEntity, UserRole } from './entities/user.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 
 @Injectable()
 export class UsersService {
@@ -86,6 +87,35 @@ export class UsersService {
 			email: savedUser.email,
 			profileImageUrl: savedUser.profileImageUrl ?? null,
 			isActive: savedUser.isActive,
+			role: savedUser.role,
+			emailVerified: savedUser.emailVerified,
+			createdAt: savedUser.createdAt,
+			updatedAt: savedUser.updatedAt
+		};
+	}
+
+	async updateRole(userId: string, role: UserRole, currentUser: AuthenticatedUser) {
+		if (currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('Only administrators can assign user roles.');
+		}
+
+		const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+		if (!user) {
+			throw new NotFoundException(`User ${userId} was not found.`);
+		}
+
+		user.role = role;
+		const savedUser = await this.usersRepository.save(user);
+
+		return {
+			id: savedUser.id,
+			username: savedUser.username,
+			email: savedUser.email,
+			profileImageUrl: savedUser.profileImageUrl ?? null,
+			isActive: savedUser.isActive,
+			role: savedUser.role,
+			emailVerified: savedUser.emailVerified,
 			createdAt: savedUser.createdAt,
 			updatedAt: savedUser.updatedAt
 		};

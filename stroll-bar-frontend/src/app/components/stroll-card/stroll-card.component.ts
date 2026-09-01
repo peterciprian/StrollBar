@@ -13,6 +13,7 @@ export interface StrollCardData {
 	price: number;
 	stationsCount?: number;
 	stations?: unknown[];
+	publicityFlag?: 'public' | 'unlisted' | 'private';
 	coverImageUrl?: string;
 	coverFallback?: string;
 }
