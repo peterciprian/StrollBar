@@ -3,6 +3,7 @@ import { HomeComponent } from './home/home.component';
 import { LoginPageComponent } from './pages/auth/login-page.component';
 import { RegisterPageComponent } from './pages/auth/register-page.component';
 import { SocialCallbackPageComponent } from './pages/auth/social-callback-page.component';
+import { VerifyEmailPageComponent } from './pages/auth/verify-email-page.component';
 import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
 import { CreatorProfilePageComponent } from './pages/profile/creator-profile-page.component';
 import { TourBrowserScreenComponent } from './pages/explore/tour-browser.component';
@@ -22,6 +23,7 @@ export const routes: Routes = [
 	{ path: 'auth/login', component: LoginPageComponent },
 	{ path: 'auth/register', component: RegisterPageComponent },
 	{ path: 'auth/social/callback', component: SocialCallbackPageComponent },
+	{ path: 'auth/verify-email', component: VerifyEmailPageComponent },
 	{ path: 'explore', component: TourBrowserScreenComponent },
 	{ path: 'impressum', component: LegalPageComponent, data: { document: 'imprint' } },
 	{ path: 'privacy-policy', component: LegalPageComponent, data: { document: 'privacy' } },

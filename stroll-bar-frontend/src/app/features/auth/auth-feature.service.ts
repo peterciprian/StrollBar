@@ -3,7 +3,14 @@ import { Router } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { ApiClientService } from '../../core/api/api-client.service';
-import { LoginRequest, RegisterRequest, SocialAuthProvider } from '../../core/api/models';
+import {
+	ChangePasswordRequest,
+	LoginRequest,
+	RegisterRequest,
+	SocialAuthProvider,
+	UpdateUserRequest,
+	VerifyEmailRequest
+} from '../../core/api/models';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 
 @Injectable({ providedIn: 'root' })
@@ -44,6 +51,22 @@ export class AuthFeatureService {
 
 	loadMe() {
 		return this.api.me();
+	}
+
+	updateProfile(input: UpdateUserRequest) {
+		return this.api.updateMe(input);
+	}
+
+	changePassword(input: ChangePasswordRequest) {
+		return this.api.changePassword(input);
+	}
+
+	verifyEmail(input: VerifyEmailRequest) {
+		return this.api.verifyEmail(input);
+	}
+
+	resendVerificationEmail() {
+		return this.api.resendVerificationEmail();
 	}
 
 	private getSocialCallbackUrl(): string {

@@ -139,6 +139,16 @@
 			"TITLE": "Bejelentkezés feldolgozása",
 			"MESSAGE": "Egy pillanat, befejezzük a hitelesítést."
 		},
+		"VERIFY_EMAIL": {
+			"PENDING_TITLE": "E-mail cím megerősítése",
+			"PENDING_MESSAGE": "Egy pillanat, megerősítjük az e-mail címedet.",
+			"SUCCESS_TITLE": "E-mail cím megerősítve",
+			"SUCCESS_MESSAGE": "Az e-mail címed sikeresen megerősítésre került.",
+			"CONTINUE_LINK": "Tovább a StrollBarra",
+			"ERROR_TITLE": "Megerősítés sikertelen",
+			"MISSING_TOKEN": "Ebből a megerősítő linkből hiányzik a token.",
+			"BACK_TO_LOGIN_LINK": "Vissza a bejelentkezéshez"
+		},
 		"REGISTER": {
 			"TITLE": "Regisztráció",
 			"SUBTITLE": "Hozz létre egy StrollBar fiókot.",
@@ -338,7 +348,18 @@
 		"MEMBER_SINCE": "Tag {{date}} óta",
 		"DISPLAY_NAME_LABEL": "Megjelenített név",
 		"EMAIL_LABEL": "E-mail",
+		"EMAIL_VERIFIED": "Megerősítve",
+		"EMAIL_NOT_VERIFIED": "Nincs megerősítve",
+		"RESEND_VERIFICATION": "Megerősítő e-mail újraküldése",
 		"SAVE_PROFILE": "Profil mentése",
+		"SAVING": "Mentés...",
+		"CHANGE_PASSWORD_TITLE": "Jelszó megváltoztatása",
+		"CURRENT_PASSWORD_LABEL": "Jelenlegi jelszó",
+		"NEW_PASSWORD_LABEL": "Új jelszó",
+		"CONFIRM_PASSWORD_LABEL": "Új jelszó megerősítése",
+		"PASSWORD_TOO_SHORT": "A jelszónak legalább 8 karakter hosszúnak kell lennie.",
+		"PASSWORDS_DO_NOT_MATCH": "A jelszavak nem egyeznek.",
+		"SAVE_PASSWORD": "Jelszó megváltoztatása",
 		"NOTIFICATIONS_LABEL": "E-mail értesítések",
 		"DARK_MODE_LABEL": "Sötét mód",
 		"SAVE_SETTINGS": "Beállítások mentése"

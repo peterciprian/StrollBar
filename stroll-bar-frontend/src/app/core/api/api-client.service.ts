@@ -6,6 +6,7 @@ import {
 	Achievement,
 	AdventureDetailResponse,
 	AuthResponse,
+	ChangePasswordRequest,
 	CompleteMultipartUploadRequest,
 	CompleteMultipartUploadResponse,
 	CreateAchievementRequest,
@@ -28,6 +29,7 @@ import {
 	ReorderStagesRequest,
 	ReorderStagesResponse,
 	RequestPasswordResetRequest,
+	ResendVerificationResponse,
 	ResetPasswordRequest,
 	SocialAuthProvider,
 	SocialAuthStartResponse,
@@ -40,7 +42,9 @@ import {
 	UnlockStrollRequest,
 	UpdateStageRequest,
 	UpdateStrollRequest,
+	UpdateUserRequest,
 	User,
+	VerifyEmailRequest,
 	Adventure
 } from './models';
 
@@ -84,7 +88,23 @@ export class ApiClientService {
 		return this.http.post<MessageResponse>(`${this.baseUrl}/auth/password-reset/confirm`, body);
 	}
 
+	changePassword(body: ChangePasswordRequest) {
+		return this.http.post<MessageResponse>(`${this.baseUrl}/auth/change-password`, body);
+	}
+
+	verifyEmail(body: VerifyEmailRequest) {
+		return this.http.post<MessageResponse>(`${this.baseUrl}/auth/verify-email`, body);
+	}
+
+	resendVerificationEmail() {
+		return this.http.post<ResendVerificationResponse>(`${this.baseUrl}/auth/resend-verification`, {});
+	}
+
 	// ─── Users ─────────────────────────────────────────────────────────────────
+
+	updateMe(body: UpdateUserRequest) {
+		return this.http.patch<User>(`${this.baseUrl}/users/me`, body);
+	}
 
 	getPublicProfile(userId: string) {
 		return this.http.get<PublicUserProfile>(`${this.baseUrl}/users/${userId}`);

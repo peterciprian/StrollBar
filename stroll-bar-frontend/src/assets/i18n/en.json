@@ -139,6 +139,16 @@
 			"TITLE": "Processing login",
 			"MESSAGE": "One moment while we finish authentication."
 		},
+		"VERIFY_EMAIL": {
+			"PENDING_TITLE": "Verifying your email",
+			"PENDING_MESSAGE": "One moment while we confirm your email address.",
+			"SUCCESS_TITLE": "Email verified",
+			"SUCCESS_MESSAGE": "Your email address has been verified successfully.",
+			"CONTINUE_LINK": "Continue to StrollBar",
+			"ERROR_TITLE": "Verification failed",
+			"MISSING_TOKEN": "This verification link is missing a token.",
+			"BACK_TO_LOGIN_LINK": "Back to login"
+		},
 		"REGISTER": {
 			"TITLE": "Register",
 			"SUBTITLE": "Create a StrollBar account.",
@@ -338,7 +348,18 @@
 		"MEMBER_SINCE": "Member since {{date}}",
 		"DISPLAY_NAME_LABEL": "Display name",
 		"EMAIL_LABEL": "Email",
+		"EMAIL_VERIFIED": "Verified",
+		"EMAIL_NOT_VERIFIED": "Not verified",
+		"RESEND_VERIFICATION": "Resend verification email",
 		"SAVE_PROFILE": "Save profile",
+		"SAVING": "Saving...",
+		"CHANGE_PASSWORD_TITLE": "Change password",
+		"CURRENT_PASSWORD_LABEL": "Current password",
+		"NEW_PASSWORD_LABEL": "New password",
+		"CONFIRM_PASSWORD_LABEL": "Confirm new password",
+		"PASSWORD_TOO_SHORT": "Password must be at least 8 characters long.",
+		"PASSWORDS_DO_NOT_MATCH": "Passwords do not match.",
+		"SAVE_PASSWORD": "Change password",
 		"NOTIFICATIONS_LABEL": "Email notifications",
 		"DARK_MODE_LABEL": "Dark mode",
 		"SAVE_SETTINGS": "Save settings"

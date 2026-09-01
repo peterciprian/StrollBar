@@ -18,6 +18,9 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { RegisterDto } from './dto/register.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
+import { VerifyEmailDto } from './dto/verify-email.dto';
+import { ResendVerificationResponseDto } from './dto/resend-verification-response.dto';
 import { AuthService } from './auth.service';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthResponseDto } from './dto/auth-response.dto';
@@ -141,6 +144,29 @@ export class AuthController {
 		return this.authService.resetPassword(dto.resetToken, dto.newPassword);
 	}
 
+	@ApiOperation({ summary: 'Verify an email address using a verification token' })
+	@ApiCreatedResponse({ type: MessageResponseDto, description: 'Email verified successfully.' })
+	@ApiTooManyRequestsResponse({ description: 'Email verification rate limit exceeded.' })
+	@ApiUnauthorizedResponse({ description: 'Invalid or expired email verification token.', type: ErrorResponseDto })
+	@Throttle({ default: { limit: 5, ttl: 60_000 } })
+	@Post('verify-email')
+	verifyEmail(@Body() dto: VerifyEmailDto) {
+		return this.authService.verifyEmail(dto.token);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: "Resend the authenticated user's email verification token" })
+	@ApiCreatedResponse({ type: ResendVerificationResponseDto, description: 'Verification email reissued.' })
+	@ApiBadRequestResponse({ description: 'Email address is already verified.', type: ErrorResponseDto })
+	@ApiNotFoundResponse({ description: 'No active user found.', type: ErrorResponseDto })
+	@ApiTooManyRequestsResponse({ description: 'Resend verification rate limit exceeded.' })
+	@Throttle({ default: { limit: 3, ttl: 60_000 } })
+	@UseGuards(JwtAuthGuard)
+	@Post('resend-verification')
+	resendVerification(@CurrentUser() user: AuthenticatedUser) {
+		return this.authService.resendVerificationEmail(user.userId);
+	}
+
 	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'Get the authenticated user profile' })
 	@ApiOkResponse({ type: UserResponseDto, description: 'Authenticated user profile.' })
@@ -149,5 +175,17 @@ export class AuthController {
 	@Get('me')
 	me(@CurrentUser() user: AuthenticatedUser) {
 		return this.authService.me(user.userId);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: "Change the authenticated user's password" })
+	@ApiCreatedResponse({ type: MessageResponseDto, description: 'Password changed successfully.' })
+	@ApiUnauthorizedResponse({ description: 'Current password is incorrect.', type: ErrorResponseDto })
+	@ApiNotFoundResponse({ description: 'No active user found.', type: ErrorResponseDto })
+	@Throttle({ default: { limit: 5, ttl: 60_000 } })
+	@UseGuards(JwtAuthGuard)
+	@Post('change-password')
+	changePassword(@CurrentUser() user: AuthenticatedUser, @Body() dto: ChangePasswordDto) {
+		return this.authService.changePassword(user.userId, dto.currentPassword, dto.newPassword);
 	}
 }

@@ -10,8 +10,14 @@ export interface User {
 	email: string;
 	profileImageUrl?: string | null;
 	isActive: boolean;
+	emailVerified: boolean;
 	createdAt: string;
 	updatedAt: string;
+}
+
+export interface UpdateUserRequest {
+	username?: string;
+	profileImageUrl?: string;
 }
 
 /** Reduced shape returned by GET /v1/users/:userId */
@@ -54,6 +60,7 @@ export interface AuthResponse {
 	accessToken: string;
 	refreshToken: string;
 	user: User;
+	verificationToken?: string;
 }
 
 export interface RefreshRequest {
@@ -76,6 +83,20 @@ export interface PasswordResetRequestResponse {
 export interface ResetPasswordRequest {
 	resetToken: string;
 	newPassword: string;
+}
+
+export interface ChangePasswordRequest {
+	currentPassword: string;
+	newPassword: string;
+}
+
+export interface VerifyEmailRequest {
+	token: string;
+}
+
+export interface ResendVerificationResponse {
+	message: string;
+	verificationToken?: string;
 }
 
 export interface MessageResponse {

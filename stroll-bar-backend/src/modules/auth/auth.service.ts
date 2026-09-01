@@ -12,8 +12,9 @@ import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
 import { UserEntity } from '../users/entities/user.entity';
 
-type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'createdAt' | 'updatedAt'>;
+type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
+type RegisterResponse = AuthResponse & { verificationToken?: string };
 type SocialState = {
 	provider: SocialAuthProvider;
 	frontendRedirectUri: string;
@@ -43,7 +44,7 @@ export class AuthService {
 		private readonly configService: ConfigService
 	) {}
 
-	async register(dto: RegisterDto): Promise<AuthResponse> {
+	async register(dto: RegisterDto): Promise<RegisterResponse> {
 		const existingUser = await this.usersRepository.findOne({
 			where: [{ email: dto.email }, { username: dto.username }]
 		});
@@ -56,16 +57,21 @@ export class AuthService {
 			username: dto.username,
 			email: dto.email,
 			passwordHash: this.hashPassword(dto.password),
-			isActive: true
+			isActive: true,
+			emailVerified: false
 		});
 
 		const savedUser = await this.usersRepository.save(user);
+		const verificationToken = await this.issueEmailVerificationToken(savedUser);
 		const tokens = await this.issueTokens(savedUser);
+
+		const shouldExposeVerificationToken = (this.configService.get<string>('AUTH_EXPOSE_VERIFICATION_TOKEN') ?? 'false').toLowerCase() === 'true';
 
 		return {
 			accessToken: tokens.accessToken,
 			refreshToken: tokens.refreshToken,
-			user: this.sanitizeUser(savedUser)
+			user: this.sanitizeUser(savedUser),
+			...(shouldExposeVerificationToken ? { verificationToken } : {})
 		};
 	}
 
@@ -268,6 +274,66 @@ export class AuthService {
 		return this.sanitizeUser(user);
 	}
 
+	async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
+		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
+
+		if (!user) {
+			throw new NotFoundException('No active user found.');
+		}
+
+		if (!this.verifyPassword(currentPassword, user.passwordHash)) {
+			throw new UnauthorizedException('Current password is incorrect.');
+		}
+
+		user.passwordHash = this.hashPassword(newPassword);
+		user.refreshTokenHash = null;
+		await this.usersRepository.save(user);
+
+		return { message: 'Password updated successfully.' };
+	}
+
+	async verifyEmail(token: string): Promise<{ message: string }> {
+		const users = await this.usersRepository.find({ where: { isActive: true, emailVerified: false } });
+		const user = users.find(
+			(candidate) =>
+				!!candidate.emailVerificationTokenHash &&
+				!!candidate.emailVerificationExpiresAt &&
+				candidate.emailVerificationExpiresAt.getTime() > Date.now() &&
+				this.verifyPassword(token, candidate.emailVerificationTokenHash)
+		);
+
+		if (!user) {
+			throw new UnauthorizedException('Invalid or expired email verification token.');
+		}
+
+		user.emailVerified = true;
+		user.emailVerificationTokenHash = null;
+		user.emailVerificationExpiresAt = null;
+		await this.usersRepository.save(user);
+
+		return { message: 'Email verified successfully.' };
+	}
+
+	async resendVerificationEmail(userId: string): Promise<{ message: string; verificationToken?: string }> {
+		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
+
+		if (!user) {
+			throw new NotFoundException('No active user found.');
+		}
+
+		if (user.emailVerified) {
+			throw new BadRequestException('This email address is already verified.');
+		}
+
+		const verificationToken = await this.issueEmailVerificationToken(user);
+		const shouldExposeVerificationToken = (this.configService.get<string>('AUTH_EXPOSE_VERIFICATION_TOKEN') ?? 'false').toLowerCase() === 'true';
+
+		return {
+			message: 'A new verification email has been issued.',
+			...(shouldExposeVerificationToken ? { verificationToken } : {})
+		};
+	}
+
 	private async loginWithSocialProfile(profile: SocialProfile): Promise<AuthResponse> {
 		const identity = await this.socialIdentitiesRepository.findOne({
 			where: { provider: profile.provider, providerUserId: profile.providerUserId },
@@ -290,7 +356,9 @@ export class AuthService {
 				email: profile.email ?? this.createSyntheticSocialEmail(profile),
 				passwordHash: this.hashPassword(randomBytes(48).toString('hex')),
 				profileImageUrl: profile.profileImageUrl ?? null,
-				isActive: true
+				isActive: true,
+				// The provider already verified the email address, so no extra step is needed.
+				emailVerified: !!profile.email && profile.emailVerified !== false
 			});
 			user = await this.usersRepository.save(user);
 		} else if (!user.profileImageUrl && profile.profileImageUrl) {
@@ -730,12 +798,25 @@ export class AuthService {
 		return { accessToken, refreshToken };
 	}
 
+	private async issueEmailVerificationToken(user: UserEntity): Promise<string> {
+		const verificationToken = randomBytes(32).toString('hex');
+		const ttlMinutes = Number(this.configService.get<string>('EMAIL_VERIFICATION_TOKEN_TTL_MINUTES') ?? '1440');
+
+		user.emailVerificationTokenHash = this.hashPassword(verificationToken);
+		user.emailVerificationExpiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
+		await this.usersRepository.save(user);
+
+		return verificationToken;
+	}
+
 	private sanitizeUser(user: UserEntity): SafeUser {
 		const {
 			passwordHash: _passwordHash,
 			refreshTokenHash: _refreshTokenHash,
 			resetPasswordTokenHash: _resetPasswordTokenHash,
 			resetPasswordExpiresAt: _resetPasswordExpiresAt,
+			emailVerificationTokenHash: _emailVerificationTokenHash,
+			emailVerificationExpiresAt: _emailVerificationExpiresAt,
 			...safeUser
 		} = user;
 		return safeUser;
