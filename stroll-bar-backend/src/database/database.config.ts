@@ -5,6 +5,8 @@ import { InitialSchema1752864000000 } from './migrations/1752864000000-initial-s
 import { AuthTokensAndPasswordReset1752885000000 } from './migrations/1752885000000-auth-tokens-and-password-reset';
 import { MediaAssets1752896000000 } from './migrations/1752896000000-media-assets';
 import { SocialAuthIdentities1752907000000 } from './migrations/1752907000000-social-auth-identities';
+import { EmailVerification1752918000000 } from './migrations/1752918000000-email-verification';
+import { UserRoles1752929000000 } from './migrations/1752929000000-user-roles';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -49,7 +51,9 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			InitialSchema1752864000000,
 			AuthTokensAndPasswordReset1752885000000,
 			MediaAssets1752896000000,
-			SocialAuthIdentities1752907000000
+			SocialAuthIdentities1752907000000,
+			EmailVerification1752918000000,
+			UserRoles1752929000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,
