@@ -6,7 +6,7 @@ import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypt
 import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import type { StringValue } from 'ms';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
@@ -232,7 +232,7 @@ export class AuthService {
 		const resetToken = randomBytes(32).toString('hex');
 		const ttlMinutes = Number(this.configService.get<string>('PASSWORD_RESET_TOKEN_TTL_MINUTES') ?? '15');
 
-		user.resetPasswordTokenHash = this.hashPassword(resetToken);
+		user.resetPasswordTokenHash = this.hashToken(resetToken);
 		user.resetPasswordExpiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
 		await this.usersRepository.save(user);
 
@@ -245,14 +245,14 @@ export class AuthService {
 	}
 
 	async resetPassword(resetToken: string, newPassword: string): Promise<{ message: string }> {
-		const users = await this.usersRepository.find({ where: { isActive: true } });
-		const user = users.find(
-			(candidate) =>
-				!!candidate.resetPasswordTokenHash &&
-				!!candidate.resetPasswordExpiresAt &&
-				candidate.resetPasswordExpiresAt.getTime() > Date.now() &&
-				this.verifyPassword(resetToken, candidate.resetPasswordTokenHash)
-		);
+		const tokenHash = this.hashToken(resetToken);
+		const user = await this.usersRepository.findOne({
+			where: {
+				isActive: true,
+				resetPasswordTokenHash: tokenHash,
+				resetPasswordExpiresAt: MoreThan(new Date())
+			}
+		});
 
 		if (!user) {
 			throw new UnauthorizedException('Invalid or expired password reset token.');
@@ -296,14 +296,15 @@ export class AuthService {
 	}
 
 	async verifyEmail(token: string): Promise<{ message: string }> {
-		const users = await this.usersRepository.find({ where: { isActive: true, emailVerified: false } });
-		const user = users.find(
-			(candidate) =>
-				!!candidate.emailVerificationTokenHash &&
-				!!candidate.emailVerificationExpiresAt &&
-				candidate.emailVerificationExpiresAt.getTime() > Date.now() &&
-				this.verifyPassword(token, candidate.emailVerificationTokenHash)
-		);
+		const tokenHash = this.hashToken(token);
+		const user = await this.usersRepository.findOne({
+			where: {
+				isActive: true,
+				emailVerified: false,
+				emailVerificationTokenHash: tokenHash,
+				emailVerificationExpiresAt: MoreThan(new Date())
+			}
+		});
 
 		if (!user) {
 			throw new UnauthorizedException('Invalid or expired email verification token.');
@@ -749,6 +750,10 @@ export class AuthService {
 		return undefined;
 	}
 
+	private hashToken(token: string): string {
+		return createHash('sha256').update(token).digest('hex');
+	}
+
 	private hashPassword(password: string): string {
 		const salt = randomBytes(16).toString('hex');
 		const hash = scryptSync(password, salt, 64).toString('hex');
@@ -808,7 +813,7 @@ export class AuthService {
 		const verificationToken = randomBytes(32).toString('hex');
 		const ttlMinutes = Number(this.configService.get<string>('EMAIL_VERIFICATION_TOKEN_TTL_MINUTES') ?? '1440');
 
-		user.emailVerificationTokenHash = this.hashPassword(verificationToken);
+		user.emailVerificationTokenHash = this.hashToken(verificationToken);
 		user.emailVerificationExpiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
 		await this.usersRepository.save(user);
 
