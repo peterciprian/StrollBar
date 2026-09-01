@@ -353,33 +353,31 @@ export class MediaService {
           throw new BadRequestException('entityId is required for stage media uploads.');
         }
 
-        const stage = await this.stagesRepository.findOne({ where: { id: dto.entityId } });
+        const [stage, stroll] = await Promise.all([
+          this.stagesRepository.findOne({ where: { id: dto.entityId } }),
+          null // Placeholder; we'll load stroll only if stage exists
+        ]);
 
         if (!stage) {
           throw new NotFoundException('The referenced stage does not exist.');
         }
 
-        const stroll = await this.strollsRepository.findOne({ where: { id: stage.strollId, authorId: userId } });
+        const strollOwned = await this.strollsRepository.findOne({ where: { id: stage.strollId, authorId: userId } });
 
-        if (!stroll) {
+        if (!strollOwned) {
           throw new ForbiddenException('The referenced stage is not attached to a stroll owned by the current user.');
         }
 
-        return { strollId: stroll.id, stageId: stage.id, profileUserId: null };
+        return { strollId: strollOwned.id, stageId: stage.id, profileUserId: null };
       }
       case 'profile': {
         const targetUserId = dto.entityId ?? userId;
-        const user = await this.usersRepository.findOne({ where: { id: targetUserId } });
-
-        if (!user) {
-          throw new NotFoundException('The referenced profile user does not exist.');
-        }
 
         if (targetUserId !== userId) {
           throw new ForbiddenException('You may only upload media for your own profile.');
         }
 
-        return { strollId: null, stageId: null, profileUserId: user.id };
+        return { strollId: null, stageId: null, profileUserId: targetUserId };
       }
       default:
         throw new BadRequestException('Unsupported media upload purpose.');
