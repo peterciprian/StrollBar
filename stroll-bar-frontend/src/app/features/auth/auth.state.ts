@@ -3,11 +3,11 @@ import { ChangePasswordRequest, LoginRequest, RegisterRequest, UpdateUserRequest
 
 export type UserState = User & {
 	loading: boolean;
-	error: any;
+	error: string | null;
 	profileSaving: boolean;
-	profileSaveError: any;
+	profileSaveError: string | null;
 	passwordSaving: boolean;
-	passwordSaveError: any;
+	passwordSaveError: string | null;
 };
 
 const initialState: UserState = {
@@ -30,27 +30,27 @@ const initialState: UserState = {
 
 export const register = createAction('[Auth] Register', props<{ user: RegisterRequest }>());
 export const registerSuccess = createAction('[Auth] Register Success', props<{ user: User }>());
-export const registerFailure = createAction('[Auth] Register Failure', props<{ error: any }>());
+export const registerFailure = createAction('[Auth] Register Failure', props<{ error: string }>());
 
 export const logIn = createAction('[Auth] Login', props<{ user: LoginRequest }>());
 export const loginSuccess = createAction('[Auth] Login Success', props<{ user: User }>());
-export const loginFailure = createAction('[Auth] Login Failure', props<{ error: any }>());
+export const loginFailure = createAction('[Auth] Login Failure', props<{ error: string }>());
 
-export const socialLoginFailure = createAction('[Auth] Social Login Failure', props<{ error: any }>());
+export const socialLoginFailure = createAction('[Auth] Social Login Failure', props<{ error: string }>());
 
 export const fetchMe = createAction('[Auth] Fetch Me');
 export const fetchMeSuccess = createAction('[Auth] Fetch Me Success', props<{ user: User }>());
-export const fetchMeFailure = createAction('[Auth] Fetch Me Failure', props<{ error: any }>());
+export const fetchMeFailure = createAction('[Auth] Fetch Me Failure', props<{ error: string }>());
 
 export const logout = createAction('[Auth] Logout');
 
 export const updateProfile = createAction('[Auth] Update Profile', props<{ user: UpdateUserRequest }>());
 export const updateProfileSuccess = createAction('[Auth] Update Profile Success', props<{ user: User }>());
-export const updateProfileFailure = createAction('[Auth] Update Profile Failure', props<{ error: any }>());
+export const updateProfileFailure = createAction('[Auth] Update Profile Failure', props<{ error: string }>());
 
 export const changePassword = createAction('[Auth] Change Password', props<{ payload: ChangePasswordRequest }>());
 export const changePasswordSuccess = createAction('[Auth] Change Password Success');
-export const changePasswordFailure = createAction('[Auth] Change Password Failure', props<{ error: any }>());
+export const changePasswordFailure = createAction('[Auth] Change Password Failure', props<{ error: string }>());
 
 export const userReducer = createReducer(
 	initialState,

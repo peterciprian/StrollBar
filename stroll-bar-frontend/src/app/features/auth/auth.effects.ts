@@ -37,7 +37,7 @@ export class AuthEffects {
 			switchMap(() =>
 				this.authFeatureService.loadMe().pipe(
 					map((user) => fetchMeSuccess({ user })),
-					catchError((error) => of(fetchMeFailure({ error })))
+					catchError((error) => of(fetchMeFailure({ error: extractErrorMessage(error) })))
 				)
 			)
 		)
