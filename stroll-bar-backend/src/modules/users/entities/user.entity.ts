@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BeforeInsert, Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { DATABASE_DATE_COLUMN_TYPE } from '../../../database/column-types';
 
 export enum UserRole {
@@ -10,6 +10,8 @@ export enum UserRole {
 }
 
 @Entity('users')
+@Index(['isActive', 'resetPasswordTokenHash', 'resetPasswordExpiresAt'])
+@Index(['isActive', 'emailVerified', 'emailVerificationTokenHash', 'emailVerificationExpiresAt'])
 export class UserEntity {
 	@PrimaryGeneratedColumn('uuid')
 	id!: string;
