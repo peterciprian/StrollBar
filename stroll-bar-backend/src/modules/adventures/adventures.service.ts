@@ -101,13 +101,7 @@ export class AdventuresService {
 
 	async get(adventureId: string, currentUser: AuthenticatedUser) {
 		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
-		const stroll = await this.strollsRepository.findOne({ where: { id: adventure.strollId } });
-		const currentStage = await this.stagesRepository.findOne({
-			where: {
-				strollId: adventure.strollId,
-				orderIndex: adventure.currentStageIndex
-			}
-		});
+		const { stroll, currentStage } = await this.getStrollAndCurrentStage(adventure.strollId, adventure.currentStageIndex);
 
 		return {
 			adventure,
@@ -180,13 +174,7 @@ export class AdventuresService {
 
 		await this.adventuresRepository.save(adventure);
 
-		const stroll = await this.strollsRepository.findOne({ where: { id: adventure.strollId } });
-		const currentStage = await this.stagesRepository.findOne({
-			where: {
-				strollId: adventure.strollId,
-				orderIndex: adventure.currentStageIndex
-			}
-		});
+		const { stroll, currentStage } = await this.getStrollAndCurrentStage(adventure.strollId, adventure.currentStageIndex);
 
 		return {
 			adventure,
@@ -211,5 +199,26 @@ export class AdventuresService {
 		}
 
 		return adventure;
+	}
+
+	/**
+	 * Batch-load the stroll and its current stage to avoid repeated queries.
+	 * Used by methods that need both pieces of data for a user's adventure progress.
+	 */
+	private async getStrollAndCurrentStage(
+		strollId: string,
+		stageIndex: number
+	): Promise<{ stroll: StrollEntity | null; currentStage: StageEntity | null }> {
+		const [stroll, currentStage] = await Promise.all([
+			this.strollsRepository.findOne({ where: { id: strollId } }),
+			this.stagesRepository.findOne({
+				where: {
+					strollId,
+					orderIndex: stageIndex
+				}
+			})
+		]);
+
+		return { stroll, currentStage };
 	}
 }
