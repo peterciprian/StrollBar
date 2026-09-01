@@ -309,7 +309,7 @@ describe('StrollBar API (e2e)', () => {
 					id: strollId,
 					authorId: userId,
 					activeStatus: 'draft',
-					publicityFlag: 'private'
+					publicityFlag: 'public'
 				})
 			])
 		);
@@ -344,6 +344,12 @@ describe('StrollBar API (e2e)', () => {
 			expect(ownedDetailResponse.body.stroll).toEqual(expect.objectContaining({ id: strollId, authorId: userId, activeStatus }));
 			expect(ownedDetailResponse.body.stages).toEqual(expect.arrayContaining([expect.objectContaining({ id: stageId })]));
 		}
+
+		await request(app.getHttpServer())
+			.patch(`/v1/strolls/${strollId}`)
+			.set('Authorization', `Bearer ${accessToken}`)
+			.send({ activeStatus: 'published' })
+			.expect(200);
 
 		const unlockResponse = await request(app.getHttpServer())
 			.post('/v1/adventures/unlock')
