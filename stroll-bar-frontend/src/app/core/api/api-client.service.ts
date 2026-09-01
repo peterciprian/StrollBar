@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { API_ENDPOINT } from '../core.module';
+import { API_ENDPOINT } from './api-endpoint.token';
 import {
 	AbortMultipartUploadRequest,
 	Achievement,
