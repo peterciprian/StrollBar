@@ -1,24 +1,70 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { CATEGORY_LABEL_KEYS, MOCK_USER_TOURS, USER_TOUR_STATUS_LABEL_KEYS, UserTourRow } from '../../../core/models/screens.models';
+import { AdventureDetailResponse } from '../../../core/api/models';
+import { AdventuresFeatureService } from '../../../features/adventures/adventures-feature.service';
 
 @Component({
 	selector: 'app-user-dashboard-screen',
 	standalone: true,
-	imports: [CommonModule, MatButtonModule, MatIconModule, MatTableModule, MatChipsModule, MatTooltipModule, TranslatePipe],
+	imports: [CommonModule, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
 	templateUrl: './user-dashboard.component.html',
 	styleUrls: ['./user-dashboard.component.scss']
 })
-export class UserDashboardScreenComponent {
-	protected readonly displayedColumns = ['name', 'stations', 'category', 'status', 'actions'];
-	protected readonly tours: UserTourRow[] = MOCK_USER_TOURS;
-	protected readonly categoryLabelKeys = CATEGORY_LABEL_KEYS;
-	protected readonly statusLabelKeys = USER_TOUR_STATUS_LABEL_KEYS;
+export class UserDashboardScreenComponent implements OnInit {
+	private readonly router = inject(Router);
+	private readonly adventuresFeature = inject(AdventuresFeatureService);
+
+	protected readonly displayedColumns = ['name', 'status', 'progress', 'currentStage', 'purchased', 'activity', 'actions'];
+	protected readonly adventures = signal<AdventureDetailResponse[]>([]);
+	protected readonly loading = signal(true);
+	protected readonly loadError = signal(false);
+	protected readonly activeCount = computed(() => this.adventures().filter(({ adventure }) => adventure.progressStatus === 'in_progress').length);
+	protected readonly completedCount = computed(() => this.adventures().filter(({ adventure }) => adventure.progressStatus === 'completed').length);
+	protected readonly totalStages = computed(() => this.adventures().reduce((total, { stroll }) => total + (stroll?.stageCount ?? 0), 0));
+
+	ngOnInit(): void {
+		this.adventuresFeature.list().subscribe({
+			next: (adventures) => {
+				this.adventures.set(adventures);
+				this.loading.set(false);
+			},
+			error: () => {
+				this.loadError.set(true);
+				this.loading.set(false);
+			}
+		});
+	}
+
+	protected progressPercent(detail: AdventureDetailResponse): number {
+		const stageCount = detail.stroll?.stageCount ?? 0;
+
+		if (!stageCount) {
+			return 0;
+		}
+
+		if (detail.adventure.progressStatus === 'completed') {
+			return 100;
+		}
+
+		return Math.round(((detail.adventure.currentStageIndex - 1) / stageCount) * 100);
+	}
+
+	protected openAdventure(detail: AdventureDetailResponse): void {
+		if (detail.adventure.progressStatus === 'purchased') {
+			this.adventuresFeature.start(detail.adventure.id).subscribe({
+				next: () => this.router.navigate(['/adventure', detail.adventure.id]),
+				error: () => this.loadError.set(true)
+			});
+			return;
+		}
+
+		this.router.navigate(['/adventure', detail.adventure.id]);
+	}
 }

@@ -10,6 +10,10 @@ export class AdventuresFeatureService {
 		return this.api.unlockStroll({ strollId });
 	}
 
+	list() {
+		return this.api.listAdventures();
+	}
+
 	start(adventureId: string) {
 		return this.api.startAdventure(adventureId);
 	}

@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
 import { UnlockStrollDto } from './dto/unlock-stroll.dto';
@@ -42,6 +42,31 @@ export class AdventuresService {
 		});
 
 		return this.adventuresRepository.save(adventure);
+	}
+
+	async list(currentUserId: string) {
+		const adventures = await this.adventuresRepository.find({
+			where: { ownerUserId: currentUserId },
+			order: { updatedAt: 'DESC' }
+		});
+
+		if (!adventures.length) {
+			return [];
+		}
+
+		const strollIds = [...new Set(adventures.map((adventure) => adventure.strollId))];
+		const [strolls, stages] = await Promise.all([
+			this.strollsRepository.find({ where: { id: In(strollIds) } }),
+			this.stagesRepository.find({ where: { strollId: In(strollIds) } })
+		]);
+		const strollsById = new Map(strolls.map((stroll) => [stroll.id, stroll]));
+		const stagesByPosition = new Map(stages.map((stage) => [`${stage.strollId}:${stage.orderIndex}`, stage]));
+
+		return adventures.map((adventure) => ({
+			adventure,
+			stroll: strollsById.get(adventure.strollId) ?? null,
+			currentStage: stagesByPosition.get(`${adventure.strollId}:${adventure.currentStageIndex}`) ?? null
+		}));
 	}
 
 	async start(adventureId: string, currentUserId: string) {

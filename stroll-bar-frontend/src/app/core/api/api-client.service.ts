@@ -160,6 +160,10 @@ export class ApiClientService {
 		return this.http.post<Adventure>(`${this.baseUrl}/adventures/unlock`, body);
 	}
 
+	listAdventures() {
+		return this.http.get<AdventureDetailResponse[]>(`${this.baseUrl}/adventures`);
+	}
+
 	startAdventure(adventureId: string) {
 		return this.http.post<Adventure>(`${this.baseUrl}/adventures/${adventureId}/start`, {});
 	}

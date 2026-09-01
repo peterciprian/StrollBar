@@ -28,6 +28,15 @@ export class AdventuresController {
 	constructor(private readonly adventuresService: AdventuresService) {}
 
 	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'List adventures owned by the authenticated user' })
+	@ApiOkResponse({ type: [AdventureDetailResponseDto], description: 'Owned adventures with stroll and current-stage details.' })
+	@UseGuards(JwtAuthGuard)
+	@Get()
+	list(@CurrentUser() user: AuthenticatedUser) {
+		return this.adventuresService.list(user.userId);
+	}
+
+	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'Unlock a stroll as an adventure' })
 	@ApiCreatedResponse({ type: AdventureResponseDto, description: 'Adventure unlocked successfully.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll not found.' })
