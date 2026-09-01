@@ -112,4 +112,17 @@ describe('AuthService token validation', () => {
 			}
 		});
 	});
+
+	it('creates a deterministic social username without polling the database for collisions', async () => {
+		const uniqueUsername = await (service as any).createUniqueSocialUsername({
+			provider: 'google',
+			providerUserId: 'google-user-42',
+			email: 'alice@example.com',
+			displayName: 'Alice Example',
+			emailVerified: true
+		});
+
+		expect(uniqueUsername).toMatch(/^alice_example_[a-f0-9]{12}$/i);
+		expect(usersRepository.findOne).not.toHaveBeenCalled();
+	});
 });

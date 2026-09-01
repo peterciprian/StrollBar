@@ -625,19 +625,11 @@ export class AuthService {
 				.toLowerCase()
 				.replace(/[^a-z0-9_]+/g, '_')
 				.replace(/^_+|_+$/g, '')
-				.slice(0, 36) || `${profile.provider}_user`;
+				.slice(0, 24) || `${profile.provider}_user`;
 
-		for (let attempt = 0; attempt < 20; attempt += 1) {
-			const suffix = attempt === 0 ? '' : `_${attempt}`;
-			const username = `${normalizedBase}${suffix}`.slice(0, 50);
-			const existingUser = await this.usersRepository.findOne({ where: { username } });
+		const suffix = createHash('sha256').update(`${profile.provider}:${profile.providerUserId}`).digest('hex').slice(0, 12);
 
-			if (!existingUser) {
-				return username;
-			}
-		}
-
-		return `${normalizedBase.slice(0, 25)}_${randomBytes(6).toString('hex')}`;
+		return `${normalizedBase}_${suffix}`.slice(0, 50);
 	}
 
 	private createSyntheticSocialEmail(profile: SocialProfile): string {
