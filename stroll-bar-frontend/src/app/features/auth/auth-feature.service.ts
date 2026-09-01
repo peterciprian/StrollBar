@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, finalize, map, tap } from 'rxjs/operators';
 import { ApiClientService } from '../../core/api/api-client.service';
 import {
 	ChangePasswordRequest,
@@ -43,10 +43,11 @@ export class AuthFeatureService {
 
 	logout() {
 		const refreshToken = this.tokenStorage.getRefreshToken() ?? undefined;
-		this.tokenStorage.clear();
 
-		// Best-effort revoke: the client-side session is already cleared regardless of the outcome.
-		return this.api.logout({ refreshToken }).pipe(catchError(() => of(null)));
+		return this.api.logout({ refreshToken }).pipe(
+			catchError(() => of(null)),
+			finalize(() => this.tokenStorage.clear())
+		);
 	}
 
 	loadMe() {

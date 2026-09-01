@@ -5,9 +5,9 @@ import { Store } from '@ngrx/store';
 import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthRefreshService } from './auth-refresh.service';
 import { TokenStorageService } from './token-storage.service';
-import { logout } from '../../features/auth/auth.state';
+import { sessionExpired } from '../../features/auth/auth.state';
 
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh'];
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout'];
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
 	const tokenStorage = inject(TokenStorageService);
@@ -21,13 +21,13 @@ export const authInterceptor: HttpInterceptorFn = (request, next) => {
 
 	const handleSessionExpired = (): void => {
 		refreshService.clearRefreshState();
-		store.dispatch(logout());
+		store.dispatch(sessionExpired());
 		router.navigateByUrl('/auth/login');
 	};
 
 	return next(authorizedRequest).pipe(
 		catchError((error: unknown) => {
-			if (isAuthEndpoint || !(error instanceof HttpErrorResponse) || error.status !== 401) {
+			if (isAuthEndpoint || !accessToken || !(error instanceof HttpErrorResponse) || error.status !== 401) {
 				return throwError(() => error);
 			}
 
