@@ -151,6 +151,19 @@ Relevant backend env vars:
 - `MEDIA_MAX_VIDEO_SIZE_BYTES`
 - `S3_PRESIGN_EXPIRES_SECONDS`
 
+## Verification email delivery
+
+The backend sends verification links over SMTP after password registration and when an unverified user requests a resend. Configure:
+
+- `EMAIL_DELIVERY_ENABLED=true`
+- `EMAIL_VERIFICATION_URL`, for example `https://example.com/#/auth/verify-email`
+- `SMTP_HOST` and `SMTP_PORT`
+- `SMTP_SECURE=true` for implicit TLS (normally port 465), or `false` for STARTTLS (normally port 587)
+- `SMTP_USER` and `SMTP_PASSWORD` when the server requires authentication
+- `SMTP_FROM`, for example `StrollBar <no-reply@example.com>`
+
+For local development without SMTP, keep delivery disabled and set `AUTH_EXPOSE_VERIFICATION_TOKEN=true`. Never expose verification tokens in production.
+
 ## Run frontend
 
 npm run start:frontend

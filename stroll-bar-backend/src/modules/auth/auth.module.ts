@@ -11,10 +11,12 @@ import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SocialIdentityEntity } from './entities/social-identity.entity';
 import { UserEntity } from '../users/entities/user.entity';
+import { EmailModule } from '../email/email.module';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([UserEntity, SocialIdentityEntity]),
+		EmailModule,
 		PassportModule.register({ defaultStrategy: 'jwt' }),
 		JwtModule.registerAsync({
 			inject: [ConfigService],

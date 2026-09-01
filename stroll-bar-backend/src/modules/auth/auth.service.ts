@@ -11,6 +11,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
 import { UserEntity } from '../users/entities/user.entity';
+import { EmailService } from '../email/email.service';
 
 type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
@@ -41,7 +42,8 @@ export class AuthService {
 		@InjectRepository(SocialIdentityEntity)
 		private readonly socialIdentitiesRepository: Repository<SocialIdentityEntity>,
 		private readonly jwtService: JwtService,
-		private readonly configService: ConfigService
+		private readonly configService: ConfigService,
+		private readonly emailService: EmailService
 	) {}
 
 	async register(dto: RegisterDto): Promise<RegisterResponse> {
@@ -63,6 +65,7 @@ export class AuthService {
 
 		const savedUser = await this.usersRepository.save(user);
 		const verificationToken = await this.issueEmailVerificationToken(savedUser);
+		await this.emailService.sendVerificationEmail(savedUser.email, savedUser.username, verificationToken);
 		const tokens = await this.issueTokens(savedUser);
 
 		const shouldExposeVerificationToken = (this.configService.get<string>('AUTH_EXPOSE_VERIFICATION_TOKEN') ?? 'false').toLowerCase() === 'true';
@@ -326,6 +329,7 @@ export class AuthService {
 		}
 
 		const verificationToken = await this.issueEmailVerificationToken(user);
+		await this.emailService.sendVerificationEmail(user.email, user.username, verificationToken);
 		const shouldExposeVerificationToken = (this.configService.get<string>('AUTH_EXPOSE_VERIFICATION_TOKEN') ?? 'false').toLowerCase() === 'true';
 
 		return {

@@ -133,6 +133,7 @@ describe('StrollBar API (e2e)', () => {
 		process.env.S3_SECRET_ACCESS_KEY = 'test-secret-key';
 		process.env.S3_PUBLIC_BASE_URL = 'https://cdn.test.example.com/strollbar-media';
 		process.env.S3_FORCE_PATH_STYLE = 'true';
+		process.env.EMAIL_DELIVERY_ENABLED = 'false';
 		// Set explicitly so this suite doesn't depend on NODE_ENV/.env.test being picked up correctly by ConfigModule.
 		process.env.AUTH_EXPOSE_RESET_TOKEN = 'true';
 
