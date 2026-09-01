@@ -1,10 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHash } from 'node:crypto';
 import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import type { SocialAuthProvider } from '../entities/social-identity.entity';
+import { withTimeoutAndRetry, withTimeout } from '../../../common/utils/retry.util';
+import { normalizeExternalApiError, logExternalApiError, externalApiErrorToHttpException } from '../../../common/utils/external-api-error.util';
 
 export type SocialProfile = {
 	provider: SocialAuthProvider;
@@ -32,15 +34,23 @@ type JwtVerifyOptions = {
  * Handles OAuth provider-specific logic: building authorization URLs,
  * exchanging authorization codes for tokens, and fetching user profiles.
  * Centralizes provider implementations and reduces coupling in the main auth service.
+ *
+ * Includes resilience patterns: timeouts, retries, and error normalization.
  */
 @Injectable()
 export class OAuthProviderService {
 	private readonly jwksClients: Map<string, any> = new Map();
+	private readonly logger = new Logger(OAuthProviderService.name);
+	private readonly oauthTimeoutMs: number;
+	private readonly oauthRetryAttempts: number;
 
 	constructor(
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService
-	) {}
+	) {
+		this.oauthTimeoutMs = Number(this.configService.get<string>('OAUTH_REQUEST_TIMEOUT_MS') ?? '10000');
+		this.oauthRetryAttempts = Number(this.configService.get<string>('OAUTH_REQUEST_RETRY_ATTEMPTS') ?? '3');
+	}
 
 	/**
 	 * Create an authorization URL for the given OAuth provider.
@@ -266,27 +276,65 @@ export class OAuthProviderService {
 
 	private async postForm<T>(url: string, data: Record<string, string>): Promise<T> {
 		const body = new URLSearchParams(data).toString();
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-			body
-		});
+		const providerName = new URL(url).hostname;
 
-		if (!response.ok) {
-			throw new UnauthorizedException(`OAuth provider error: ${response.statusText}`);
+		try {
+			const result = await withTimeoutAndRetry(
+				async () => {
+					const response = await fetch(url, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+						body
+					});
+
+					if (!response.ok) {
+						const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+						(error as any).status = response.status;
+						(error as any).statusText = response.statusText;
+						throw error;
+					}
+
+					return response.json() as Promise<T>;
+				},
+				this.oauthTimeoutMs,
+				{ maxAttempts: this.oauthRetryAttempts }
+			);
+
+			return result;
+		} catch (error) {
+			const normalized = normalizeExternalApiError(error, `OAuth provider (${providerName}) token exchange`);
+			logExternalApiError(normalized, 'OAuthProviderService.postForm', this.logger);
+			throw externalApiErrorToHttpException(normalized, 401);
 		}
-
-		return response.json();
 	}
 
 	private async getJson<T>(url: string, headers?: Record<string, string>): Promise<T> {
-		const response = await fetch(url, { headers });
+		const providerName = new URL(url).hostname;
 
-		if (!response.ok) {
-			throw new UnauthorizedException(`OAuth provider error: ${response.statusText}`);
+		try {
+			const result = await withTimeoutAndRetry(
+				async () => {
+					const response = await fetch(url, { headers });
+
+					if (!response.ok) {
+						const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+						(error as any).status = response.status;
+						(error as any).statusText = response.statusText;
+						throw error;
+					}
+
+					return response.json() as Promise<T>;
+				},
+				this.oauthTimeoutMs,
+				{ maxAttempts: this.oauthRetryAttempts }
+			);
+
+			return result;
+		} catch (error) {
+			const normalized = normalizeExternalApiError(error, `OAuth provider (${providerName}) user fetch`);
+			logExternalApiError(normalized, 'OAuthProviderService.getJson', this.logger);
+			throw externalApiErrorToHttpException(normalized, 401);
 		}
-
-		return response.json();
 	}
 
 	private async verifyProviderJwt(token: string, options: JwtVerifyOptions): Promise<any> {
@@ -301,26 +349,34 @@ export class OAuthProviderService {
 			throw new UnauthorizedException('Missing key ID in JWT header.');
 		}
 
-		if (!this.jwksClients.has(options.jwksUri)) {
-			this.jwksClients.set(options.jwksUri, jwksClient({ jwksUri: options.jwksUri }));
+		try {
+			if (!this.jwksClients.has(options.jwksUri)) {
+				this.jwksClients.set(options.jwksUri, jwksClient({ jwksUri: options.jwksUri }));
+			}
+
+			const client = this.jwksClients.get(options.jwksUri)!;
+			// Add timeout to JWKS key fetching
+			const key = (await withTimeout(() => client.getSigningKey(kid), this.oauthTimeoutMs)) as any;
+			const signingKey = key.getPublicKey();
+
+			return new Promise((resolve, reject) => {
+				const issuer = Array.isArray(options.issuer) ? (options.issuer as any) : (options.issuer as any);
+				jwt.verify(
+					token,
+					signingKey,
+					{ audience: options.audience, issuer } as any,
+					(err: jwt.VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
+						if (err) reject(new UnauthorizedException(`JWT verification failed: ${err.message}`));
+						else resolve(decoded);
+					}
+				);
+			});
+		} catch (error) {
+			if (error instanceof UnauthorizedException) throw error;
+			const normalized = normalizeExternalApiError(error, 'JWKS key verification');
+			logExternalApiError(normalized, 'OAuthProviderService.verifyProviderJwt', this.logger);
+			throw externalApiErrorToHttpException(normalized, 401);
 		}
-
-		const client = this.jwksClients.get(options.jwksUri)!;
-		const key = await client.getSigningKey(kid);
-		const signingKey = key.getPublicKey();
-
-		return new Promise((resolve, reject) => {
-			const issuer = Array.isArray(options.issuer) ? (options.issuer as any) : (options.issuer as any);
-			jwt.verify(
-				token,
-				signingKey,
-				{ audience: options.audience, issuer } as any,
-				(err: jwt.VerifyErrors | null, decoded: string | jwt.JwtPayload | undefined) => {
-					if (err) reject(new UnauthorizedException(`JWT verification failed: ${err.message}`));
-					else resolve(decoded);
-				}
-			);
-		});
 	}
 
 	private getJwtString(payload: any, path: string): string {

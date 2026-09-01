@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
 	AbortMultipartUploadCommand,
@@ -24,6 +24,7 @@ import { MediaAssetEntity, MediaUploadMode, MediaUploadStatus } from './entities
 
 @Injectable()
 export class MediaService {
+	private readonly logger = new Logger(MediaService.name);
 	private readonly bucketName: string;
 	private readonly publicBaseUrl: string;
 	private readonly uploadExpirySeconds: number;
@@ -66,6 +67,7 @@ export class MediaService {
 				accessKeyId: this.requireConfig('S3_ACCESS_KEY_ID'),
 				secretAccessKey: this.requireConfig('S3_SECRET_ACCESS_KEY')
 			}
+			// Note: AWS SDK v3 S3Client uses HTTP agent defaults; configure timeouts via request handler if needed
 		});
 	}
 
