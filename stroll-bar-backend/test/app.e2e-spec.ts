@@ -110,6 +110,9 @@ describe('StrollBar API (e2e)', () => {
 	let stageId = '';
 	let adventureId = '';
 	let userId = '';
+	const testRunId = Date.now().toString(36);
+	const testUsername = `walker-${testRunId}`;
+	const testEmail = `walker-${testRunId}@example.com`;
 
 	beforeAll(async () => {
 		const envFilePath = join(process.cwd(), '.env.production');
@@ -210,15 +213,15 @@ describe('StrollBar API (e2e)', () => {
 		const registerResponse = await request(app.getHttpServer())
 			.post('/v1/auth/register')
 			.send({
-				username: 'walker',
-				email: 'walker@example.com',
+				username: testUsername,
+				email: testEmail,
 				password: 'Password123!'
 			})
 			.expect(201);
 
 		expect(registerResponse.body.accessToken).toBeDefined();
 		expect(registerResponse.body.refreshToken).toBeDefined();
-		expect(registerResponse.body.user.email).toBe('walker@example.com');
+		expect(registerResponse.body.user.email).toBe(testEmail);
 		expect(registerResponse.body.user.passwordHash).toBeUndefined();
 		expect(registerResponse.body.user.refreshTokenHash).toBeUndefined();
 		userId = registerResponse.body.user.id;
@@ -226,7 +229,7 @@ describe('StrollBar API (e2e)', () => {
 		const loginResponse = await request(app.getHttpServer())
 			.post('/v1/auth/login')
 			.send({
-				email: 'walker@example.com',
+				email: testEmail,
 				password: 'Password123!'
 			})
 			.expect(201);
@@ -265,7 +268,7 @@ describe('StrollBar API (e2e)', () => {
 		const loginResponse = await request(app.getHttpServer())
 			.post('/v1/auth/login')
 			.send({
-				email: 'walker@example.com',
+				email: testEmail,
 				password: 'Password123!'
 			})
 			.expect(201);
@@ -295,6 +298,22 @@ describe('StrollBar API (e2e)', () => {
 		expect(createStrollResponse.body.authorId).toBe(userId);
 		strollId = createStrollResponse.body.id;
 
+		const ownedStrollsResponse = await request(app.getHttpServer())
+			.get('/v1/strolls/mine')
+			.set('Authorization', `Bearer ${accessToken}`)
+			.expect(200);
+
+		expect(ownedStrollsResponse.body.items).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					id: strollId,
+					authorId: userId,
+					activeStatus: 'draft',
+					publicityFlag: 'private'
+				})
+			])
+		);
+
 		const createStageResponse = await request(app.getHttpServer())
 			.post(`/v1/strolls/${strollId}/stages`)
 			.set('Authorization', `Bearer ${accessToken}`)
@@ -309,6 +328,22 @@ describe('StrollBar API (e2e)', () => {
 
 		expect(createStageResponse.body.strollId).toBe(strollId);
 		stageId = createStageResponse.body.id;
+
+		for (const activeStatus of ['draft', 'published', 'archived']) {
+			await request(app.getHttpServer())
+				.patch(`/v1/strolls/${strollId}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.send({ activeStatus })
+				.expect(200);
+
+			const ownedDetailResponse = await request(app.getHttpServer())
+				.get(`/v1/strolls/mine/${strollId}`)
+				.set('Authorization', `Bearer ${accessToken}`)
+				.expect(200);
+
+			expect(ownedDetailResponse.body.stroll).toEqual(expect.objectContaining({ id: strollId, authorId: userId, activeStatus }));
+			expect(ownedDetailResponse.body.stages).toEqual(expect.arrayContaining([expect.objectContaining({ id: stageId })]));
+		}
 
 		const unlockResponse = await request(app.getHttpServer())
 			.post('/v1/adventures/unlock')
@@ -332,7 +367,7 @@ describe('StrollBar API (e2e)', () => {
 	it('requests a password reset, confirms it, and allows login with the new password', async () => {
 		const requestResetResponse = await request(app.getHttpServer())
 			.post('/v1/auth/password-reset/request')
-			.send({ email: 'walker@example.com' })
+			.send({ email: testEmail })
 			.expect(201);
 
 		expect(requestResetResponse.body.message).toContain('password reset token');
@@ -349,7 +384,7 @@ describe('StrollBar API (e2e)', () => {
 		await request(app.getHttpServer())
 			.post('/v1/auth/login')
 			.send({
-				email: 'walker@example.com',
+				email: testEmail,
 				password: 'Password123!'
 			})
 			.expect(401);
@@ -357,7 +392,7 @@ describe('StrollBar API (e2e)', () => {
 		const loginResponse = await request(app.getHttpServer())
 			.post('/v1/auth/login')
 			.send({
-				email: 'walker@example.com',
+				email: testEmail,
 				password: 'EvenBetterPass123!'
 			})
 			.expect(201);
@@ -370,14 +405,14 @@ describe('StrollBar API (e2e)', () => {
 
 	it('rate limits repeated login attempts', async () => {
 		// Use a freshly registered account so this test never depends on the password-reset
-		// flow (or any other prior test) having left 'walker@example.com' in the expected state.
-		const rateLimitEmail = 'rate-limit-check@example.com';
+		// flow (or any other prior test) having left the primary account in the expected state.
+		const rateLimitEmail = `rate-limit-${testRunId}@example.com`;
 		const rateLimitPassword = 'RateLimitPass123!';
 
 		await request(app.getHttpServer())
 			.post('/v1/auth/register')
 			.send({
-				username: 'ratelimitcheck',
+				username: `ratelimit-${testRunId}`,
 				email: rateLimitEmail,
 				password: rateLimitPassword
 			})

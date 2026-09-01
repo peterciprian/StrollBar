@@ -226,8 +226,13 @@
 		"ADMIN_TOUR_LIST": {
 			"HEADER_TITLE": "Manage Tours",
 			"CREATE_BUTTON": "Create new tour",
+			"LOADING": "Loading your strolls…",
+			"LOAD_ERROR": "Your strolls could not be loaded.",
+			"EMPTY": "You have not created any strolls yet.",
 			"COL_NAME": "Tour Name",
 			"COL_STATIONS": "Stations",
+			"COL_LABELS": "Labels",
+			"COL_VISIBILITY": "Visibility",
 			"COL_CATEGORY": "Category",
 			"COL_PRICE": "Price",
 			"COL_STATUS": "Status",

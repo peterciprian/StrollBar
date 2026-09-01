@@ -17,8 +17,16 @@ export class StrollsFeatureService {
 		return this.api.listStrolls(query);
 	}
 
+	listOwned(query: ListStrollsQuery = {}) {
+		return this.api.listOwnedStrolls(query);
+	}
+
 	getDetail(strollId: string) {
 		return this.api.getStroll(strollId);
+	}
+
+	getOwnedDetail(strollId: string) {
+		return this.api.getOwnedStroll(strollId);
 	}
 
 	create(payload: CreateStrollRequest) {

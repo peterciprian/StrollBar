@@ -103,12 +103,27 @@ export class ApiClientService {
 		return this.http.get<StrollListResponse>(`${this.baseUrl}/strolls`, { params });
 	}
 
+	listOwnedStrolls(query: ListStrollsQuery = {}) {
+		let params = new HttpParams();
+		Object.entries(query).forEach(([key, value]) => {
+			if (value !== undefined && value !== null) {
+				params = params.set(key, String(value));
+			}
+		});
+
+		return this.http.get<StrollListResponse>(`${this.baseUrl}/strolls/mine`, { params });
+	}
+
 	createStroll(body: CreateStrollRequest) {
 		return this.http.post<Stroll>(`${this.baseUrl}/strolls`, body);
 	}
 
 	getStroll(strollId: string) {
 		return this.http.get<StrollDetailResponse>(`${this.baseUrl}/strolls/${strollId}`);
+	}
+
+	getOwnedStroll(strollId: string) {
+		return this.http.get<StrollDetailResponse>(`${this.baseUrl}/strolls/mine/${strollId}`);
 	}
 
 	updateStroll(strollId: string, body: UpdateStrollRequest) {

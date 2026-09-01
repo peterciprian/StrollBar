@@ -10,143 +10,183 @@ import { UserEntity } from '../users/entities/user.entity';
 
 @Injectable()
 export class StrollsService {
-  constructor(
-    @InjectRepository(StrollEntity)
-    private readonly strollsRepository: Repository<StrollEntity>,
-    @InjectRepository(StageEntity)
-    private readonly stagesRepository: Repository<StageEntity>,
-  ) {}
+	constructor(
+		@InjectRepository(StrollEntity)
+		private readonly strollsRepository: Repository<StrollEntity>,
+		@InjectRepository(StageEntity)
+		private readonly stagesRepository: Repository<StageEntity>
+	) {}
 
-  async list(query: ListStrollsQueryDto) {
-    const page = query.page ?? 1;
-    const limit = query.limit ?? 20;
-    const where: Record<string, unknown> = {
-      publicityFlag: StrollPublicityFlag.PUBLIC,
-      activeStatus: StrollActiveStatus.PUBLISHED,
-    };
+	async list(query: ListStrollsQueryDto) {
+		const page = query.page ?? 1;
+		const limit = query.limit ?? 20;
+		const where: Record<string, unknown> = {
+			publicityFlag: StrollPublicityFlag.PUBLIC,
+			activeStatus: StrollActiveStatus.PUBLISHED
+		};
 
-    if (query.search) {
-      where.name = ILike(`%${query.search}%`);
-    }
+		if (query.search) {
+			where.name = ILike(`%${query.search}%`);
+		}
 
-    if (query.authorId) {
-      where.authorId = query.authorId;
-    }
+		if (query.authorId) {
+			where.authorId = query.authorId;
+		}
 
-    if (query.labels) {
-      where.labels = ILike(`%${query.labels.toLowerCase()}%`);
-    }
+		if (query.labels) {
+			where.labels = ILike(`%${query.labels.toLowerCase()}%`);
+		}
 
-    const [items, total] = await this.strollsRepository.findAndCount({
-      where,
-      order: { createdAt: 'DESC' },
-      skip: (page - 1) * limit,
-      take: limit,
-    });
+		const [items, total] = await this.strollsRepository.findAndCount({
+			where,
+			order: { createdAt: 'DESC' },
+			skip: (page - 1) * limit,
+			take: limit
+		});
 
-    return {
-      items,
-      page,
-      limit,
-      total,
-    };
-  }
+		return {
+			items,
+			page,
+			limit,
+			total
+		};
+	}
 
-  async create(dto: CreateStrollDto, authorId: string) {
-    const stroll = this.strollsRepository.create({
-      name: dto.name,
-      authorId,
-      activeStatus: dto.activeStatus ?? StrollActiveStatus.DRAFT,
-      labels: (dto.labels ?? []).map((label) => label.trim().toLowerCase()),
-      description: dto.description,
-      proposerText: dto.proposerText ?? null,
-      mediaUrls: {
-        imageUrls: dto.imageUrls ?? [],
-        videoUrls: dto.videoUrls ?? [],
-      },
-      publicityFlag: dto.publicityFlag ?? StrollPublicityFlag.PRIVATE,
-      stageCount: 0,
-    });
+	async listOwned(query: ListStrollsQueryDto, authorId: string) {
+		const page = query.page ?? 1;
+		const limit = query.limit ?? 20;
+		const where: Record<string, unknown> = { authorId };
 
-    return this.strollsRepository.save(stroll);
-  }
+		if (query.search) {
+			where.name = ILike(`%${query.search}%`);
+		}
 
-  async findOne(strollId: string) {
-    const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+		if (query.labels) {
+			where.labels = ILike(`%${query.labels.toLowerCase()}%`);
+		}
 
-    if (!stroll) {
-      throw new NotFoundException(`Stroll ${strollId} was not found.`);
-    }
+		const [items, total] = await this.strollsRepository.findAndCount({
+			where,
+			order: { createdAt: 'DESC' },
+			skip: (page - 1) * limit,
+			take: limit
+		});
 
-    const stages = await this.stagesRepository.find({
-      where: { strollId },
-      order: { orderIndex: 'ASC' },
-    });
+		return {
+			items,
+			page,
+			limit,
+			total
+		};
+	}
 
-    return {
-      stroll,
-      stages,
-    };
-  }
+	async create(dto: CreateStrollDto, authorId: string) {
+		const stroll = this.strollsRepository.create({
+			name: dto.name,
+			authorId,
+			activeStatus: dto.activeStatus ?? StrollActiveStatus.DRAFT,
+			labels: (dto.labels ?? []).map((label) => label.trim().toLowerCase()),
+			description: dto.description,
+			proposerText: dto.proposerText ?? null,
+			mediaUrls: {
+				imageUrls: dto.imageUrls ?? [],
+				videoUrls: dto.videoUrls ?? []
+			},
+			publicityFlag: dto.publicityFlag ?? StrollPublicityFlag.PRIVATE,
+			stageCount: 0
+		});
 
-  async update(strollId: string, dto: UpdateStrollDto, currentUserId: string) {
-    const stroll = await this.getOwnedStrollOrThrow(strollId, currentUserId);
+		return this.strollsRepository.save(stroll);
+	}
 
-    if (dto.name !== undefined) {
-      stroll.name = dto.name;
-    }
+	async findOne(strollId: string) {
+		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
 
-    if (dto.description !== undefined) {
-      stroll.description = dto.description;
-    }
+		if (!stroll) {
+			throw new NotFoundException(`Stroll ${strollId} was not found.`);
+		}
 
-    if (dto.proposerText !== undefined) {
-      stroll.proposerText = dto.proposerText;
-    }
+		return this.getDetail(stroll);
+	}
 
-    if (dto.labels !== undefined) {
-      stroll.labels = dto.labels.map((label) => label.trim().toLowerCase());
-    }
+	async findOwnedOne(strollId: string, currentUserId: string) {
+		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUserId);
 
-    if (dto.activeStatus !== undefined) {
-      stroll.activeStatus = dto.activeStatus;
-    }
+		return this.getDetail(stroll);
+	}
 
-    if (dto.publicityFlag !== undefined) {
-      stroll.publicityFlag = dto.publicityFlag;
-    }
+	private async getDetail(stroll: StrollEntity) {
+		const strollId = stroll.id;
 
-    if (dto.imageUrls !== undefined || dto.videoUrls !== undefined) {
-      const currentMedia = stroll.mediaUrls ?? { imageUrls: [], videoUrls: [] };
-      stroll.mediaUrls = {
-        imageUrls: dto.imageUrls ?? currentMedia.imageUrls ?? [],
-        videoUrls: dto.videoUrls ?? currentMedia.videoUrls ?? [],
-      };
-    }
+		const stages = await this.stagesRepository.find({
+			where: { strollId },
+			order: { orderIndex: 'ASC' }
+		});
 
-    return this.strollsRepository.save(stroll);
-  }
+		return {
+			stroll,
+			stages
+		};
+	}
 
-  async remove(strollId: string, currentUserId: string) {
-    await this.getOwnedStrollOrThrow(strollId, currentUserId);
+	async update(strollId: string, dto: UpdateStrollDto, currentUserId: string) {
+		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUserId);
 
-    await this.stagesRepository.delete({ strollId });
-    await this.strollsRepository.delete({ id: strollId });
+		if (dto.name !== undefined) {
+			stroll.name = dto.name;
+		}
 
-    return { id: strollId, deleted: true };
-  }
+		if (dto.description !== undefined) {
+			stroll.description = dto.description;
+		}
 
-  private async getOwnedStrollOrThrow(strollId: string, currentUserId: string): Promise<StrollEntity> {
-    const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+		if (dto.proposerText !== undefined) {
+			stroll.proposerText = dto.proposerText;
+		}
 
-    if (!stroll) {
-      throw new NotFoundException(`Stroll ${strollId} was not found.`);
-    }
+		if (dto.labels !== undefined) {
+			stroll.labels = dto.labels.map((label) => label.trim().toLowerCase());
+		}
 
-    if (stroll.authorId !== currentUserId) {
-      throw new ForbiddenException('You are not allowed to modify this stroll.');
-    }
+		if (dto.activeStatus !== undefined) {
+			stroll.activeStatus = dto.activeStatus;
+		}
 
-    return stroll;
-  }
+		if (dto.publicityFlag !== undefined) {
+			stroll.publicityFlag = dto.publicityFlag;
+		}
+
+		if (dto.imageUrls !== undefined || dto.videoUrls !== undefined) {
+			const currentMedia = stroll.mediaUrls ?? { imageUrls: [], videoUrls: [] };
+			stroll.mediaUrls = {
+				imageUrls: dto.imageUrls ?? currentMedia.imageUrls ?? [],
+				videoUrls: dto.videoUrls ?? currentMedia.videoUrls ?? []
+			};
+		}
+
+		return this.strollsRepository.save(stroll);
+	}
+
+	async remove(strollId: string, currentUserId: string) {
+		await this.getOwnedStrollOrThrow(strollId, currentUserId);
+
+		await this.stagesRepository.delete({ strollId });
+		await this.strollsRepository.delete({ id: strollId });
+
+		return { id: strollId, deleted: true };
+	}
+
+	private async getOwnedStrollOrThrow(strollId: string, currentUserId: string): Promise<StrollEntity> {
+		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+
+		if (!stroll) {
+			throw new NotFoundException(`Stroll ${strollId} was not found.`);
+		}
+
+		if (stroll.authorId !== currentUserId) {
+			throw new ForbiddenException('You are not allowed to modify this stroll.');
+		}
+
+		return stroll;
+	}
 }

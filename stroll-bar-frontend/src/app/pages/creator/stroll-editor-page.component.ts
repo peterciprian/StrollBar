@@ -85,7 +85,7 @@ export class StrollEditorPageComponent implements OnInit {
 			return;
 		}
 
-		this.strollsFeature.getDetail(strollId).subscribe({
+		this.strollsFeature.getOwnedDetail(strollId).subscribe({
 			next: (detail) => this.applyStrollDetail(detail),
 			error: () => this.initializeBlankStroll()
 		});

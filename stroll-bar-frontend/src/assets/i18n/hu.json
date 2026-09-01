@@ -226,8 +226,13 @@
 		"ADMIN_TOUR_LIST": {
 			"HEADER_TITLE": "Túrák kezelése",
 			"CREATE_BUTTON": "Új túra létrehozása",
+			"LOADING": "Sétáid betöltése…",
+			"LOAD_ERROR": "A sétáidat nem sikerült betölteni.",
+			"EMPTY": "Még nem hoztál létre sétát.",
 			"COL_NAME": "Túra neve",
 			"COL_STATIONS": "Állomások",
+			"COL_LABELS": "Címkék",
+			"COL_VISIBILITY": "Láthatóság",
 			"COL_CATEGORY": "Kategória",
 			"COL_PRICE": "Ár",
 			"COL_STATUS": "Állapot",

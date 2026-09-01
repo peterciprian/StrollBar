@@ -48,6 +48,21 @@
 		background: #f1f5f9 !important;
 		color: #475569 !important;
 	}
+
+	&__chip--archived {
+		background: #fee2e2 !important;
+		color: #991b1b !important;
+	}
+
+	&__message {
+		margin: 0;
+		padding: 24px;
+		text-align: center;
+
+		&--error {
+			color: #b91c1c;
+		}
+	}
 }
 
 @media (min-width: 700px) {
