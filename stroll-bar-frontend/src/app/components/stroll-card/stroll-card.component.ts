@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -14,13 +13,14 @@ export interface StrollCardData {
 	price: number;
 	stationsCount?: number;
 	stations?: unknown[];
-	heroGradient?: string;
+	coverImageUrl?: string;
+	coverFallback?: string;
 }
 
 @Component({
 	selector: 'app-stroll-card',
 	standalone: true,
-	imports: [CommonModule, MatCardModule, MatChipsModule, MatIconModule, TranslatePipe],
+	imports: [CommonModule, MatCardModule, MatIconModule, TranslatePipe],
 	templateUrl: './stroll-card.component.html',
 	styleUrls: ['./stroll-card.component.scss']
 })

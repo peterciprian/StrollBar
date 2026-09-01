@@ -1,16 +1,16 @@
-<section class="hero">
-	<div class="hero__content">
-		<span class="hero__eyebrow"><mat-icon>auto_awesome</mat-icon>{{ 'HOME.EYEBROW' | translate }}</span>
-		<h1 class="hero__title">{{ 'HOME.HERO_TITLE' | translate }}</h1>
-		<p class="hero__subtitle">
-			{{ 'HOME.HERO_SUBTITLE' | translate }}
+<section class="welcome">
+	<div class="welcome__content">
+		<span class="welcome__eyebrow"><mat-icon>auto_awesome</mat-icon>{{ 'HOME.EYEBROW' | translate }}</span>
+		<h1 class="welcome__title">{{ 'HOME.WELCOME_TITLE' | translate }}</h1>
+		<p class="welcome__subtitle">
+			{{ 'HOME.WELCOME_SUBTITLE' | translate }}
 		</p>
-		<div class="hero__actions">
-			<a mat-flat-button color="primary" class="hero__cta hero__cta--primary" routerLink="/auth/register">
+		<div class="welcome__actions">
+			<a mat-flat-button color="primary" class="welcome__cta welcome__cta--primary" routerLink="/auth/register">
 				<mat-icon>person_add</mat-icon>
 				{{ 'HOME.REGISTER' | translate | uppercase }}
 			</a>
-			<a mat-stroked-button class="hero__cta hero__cta--secondary" routerLink="/explore">
+			<a mat-stroked-button class="welcome__cta welcome__cta--secondary" routerLink="/explore">
 				<mat-icon>hiking</mat-icon>
 				{{ 'HOME.SHOW_TOURS' | translate | uppercase }}
 			</a>

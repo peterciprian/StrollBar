@@ -98,8 +98,8 @@
 	},
 	"HOME": {
 		"EYEBROW": "Játékos városi túrák",
-		"HERO_TITLE": "Fedezd fel Budapestet, nyomról nyomra",
-		"HERO_SUBTITLE": "Kövesd a gondosan összeállított útvonalakat rejtett udvarokon, történelmi tereken és titkos legendákon keresztül. Oldj meg rejtvényeket minden állomáson, szerezz jelvényeket, és varázsolj minden sétából igazi kalandot.",
+		"WELCOME_TITLE": "Fedezd fel Budapestet, nyomról nyomra",
+		"WELCOME_SUBTITLE": "Kövesd a gondosan összeállított útvonalakat rejtett udvarokon, történelmi tereken és titkos legendákon keresztül. Oldj meg rejtvényeket minden állomáson, szerezz jelvényeket, és varázsolj minden sétából igazi kalandot.",
 		"REGISTER": "Regisztráció",
 		"SHOW_TOURS": "Mutasd a túrákat",
 		"FEATURE1_TITLE": "Történelmi rejtélyek",
@@ -206,7 +206,20 @@
 			"STAT_STATIONS": "Állomások",
 			"STAT_TIME": "Becsült idő",
 			"ROUTE_PREVIEW": "Útvonal előnézet",
-			"START_ADVENTURE": "Kaland indítása"
+			"START_ADVENTURE": "Kaland indítása",
+			"STARTING": "Kaland indítása",
+			"START_ERROR": "A kalandot nem sikerült elindítani. Próbáld újra."
+		},
+		"MOCK_PAYMENT": {
+			"BADGE": "Fizetési előnézet",
+			"TITLE": "Kaland megerősítése",
+			"DESCRIPTION": "Ez a pénztár a későbbi fizetési szolgáltató helyőrzője.",
+			"TOUR": "Kiválasztott túra",
+			"METHOD": "Demókártya",
+			"METHOD_DETAIL": "•••• 4242 · Automatikusan jóváhagyva",
+			"NO_CHARGE": "Nem történik valódi fizetés, és bankkártyát sem terhelünk meg.",
+			"CANCEL": "Mégse",
+			"CONFIRM": "Próbafizetés és indítás"
 		},
 		"ADVENTURE": {
 			"LOADING": "Kaland betöltése…",

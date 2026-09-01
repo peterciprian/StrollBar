@@ -40,7 +40,8 @@ export interface Tour {
 	price: number;
 	distanceKm: number;
 	description: string;
-	heroGradient: string;
+	coverImageUrl?: string;
+	coverFallback: string;
 	stations: TourStation[];
 }
 
@@ -71,7 +72,7 @@ export const MOCK_TOURS: Tour[] = [
 		distanceKm: 2.4,
 		description:
 			"Uncover the hidden legends of Buda Castle district. Follow cryptic riddles left by medieval guild members through the fairy-tale turrets of Fisherman's Bastion, into the shadows of Matthias Church, and beyond.",
-		heroGradient: 'linear-gradient(135deg, #0891b2 0%, #155e75 60%, #0f172a 100%)',
+		coverFallback: 'linear-gradient(135deg, #0891b2 0%, #155e75 60%, #0f172a 100%)',
 		stations: [
 			{ id: 's1', name: "Fisherman's Bastion", address: 'Szentháromság tér 2, Budapest', latitude: 47.5022, longitude: 19.0347 },
 			{ id: 's2', name: 'Matthias Church', address: 'Szentháromság tér 2, Budapest', latitude: 47.5023, longitude: 19.0352 },
@@ -90,7 +91,7 @@ export const MOCK_TOURS: Tour[] = [
 		distanceKm: 1.8,
 		description:
 			'Walk through the cobbled streets of the historic Jewish Quarter, from the Dohány Street Synagogue to the vibrant ruin bars, tracing a century of resilience, culture and revival.',
-		heroGradient: 'linear-gradient(135deg, #b45309 0%, #92400e 55%, #1c1917 100%)',
+		coverFallback: 'linear-gradient(135deg, #b45309 0%, #92400e 55%, #1c1917 100%)',
 		stations: [
 			{ id: 's1', name: 'Dohány Street Synagogue', address: 'Dohány utca 2, Budapest', latitude: 47.4952, longitude: 19.0598 },
 			{ id: 's2', name: 'Holocaust Memorial Garden', address: 'Wesselényi utca 6, Budapest', latitude: 47.4954, longitude: 19.0601 },
@@ -108,7 +109,7 @@ export const MOCK_TOURS: Tour[] = [
 		distanceKm: 3.1,
 		description:
 			'Stroll along the Danube promenade to discover the stories behind the Chain Bridge, the Shoes Memorial, and the grand facades of Pest, set against the backdrop of the Buda hills.',
-		heroGradient: 'linear-gradient(135deg, #0e7490 0%, #164e63 55%, #082f49 100%)',
+		coverFallback: 'linear-gradient(135deg, #0e7490 0%, #164e63 55%, #082f49 100%)',
 		stations: [
 			{ id: 's1', name: 'Shoes on the Danube Bank', address: 'Id. Antall József rakpart, Budapest', latitude: 47.5017, longitude: 19.0453 },
 			{ id: 's2', name: 'Széchenyi Chain Bridge', address: 'Széchenyi Lánchíd, Budapest', latitude: 47.4989, longitude: 19.0433 },

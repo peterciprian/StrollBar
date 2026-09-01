@@ -1,19 +1,23 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
-import { catchError, map, of } from 'rxjs';
+import { catchError, firstValueFrom, map, of } from 'rxjs';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
 import { StageCardComponent } from '../../components/stage/stage-card.component';
 import { CATEGORY_LABEL_KEYS, MOCK_TOURS, Tour, TourCategory } from '../../core/models/screens.models';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import { mapStageToTourStation, mapStrollToTour } from '../../features/strolls/stroll-mappers';
+import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
+import { TokenStorageService } from '../../core/services/token-storage.service';
+import { MockPaymentDialogComponent } from './mock-payment-dialog.component';
 
 type CategoryFilter = TourCategory | 'All';
 
@@ -27,8 +31,8 @@ type CategoryFilter = TourCategory | 'All';
 		MatFormFieldModule,
 		MatInputModule,
 		MatIconModule,
-		MatChipsModule,
 		MatButtonModule,
+		MatDialogModule,
 		TranslatePipe,
 		StrollCardComponent,
 		StageCardComponent
@@ -38,6 +42,10 @@ type CategoryFilter = TourCategory | 'All';
 })
 export class TourBrowserScreenComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
+	private readonly adventuresFeature = inject(AdventuresFeatureService);
+	private readonly tokenStorage = inject(TokenStorageService);
+	private readonly dialog = inject(MatDialog);
+	private readonly router = inject(Router);
 
 	protected readonly categories: CategoryFilter[] = ['All', 'Historical', 'Mystery', 'Cultural'];
 	protected readonly categoryLabelKeys = CATEGORY_LABEL_KEYS;
@@ -46,6 +54,8 @@ export class TourBrowserScreenComponent implements OnInit {
 	protected searchTerm = '';
 	protected activeCategory: CategoryFilter = 'All';
 	protected selectedTour: Tour = this.tours[0];
+	protected readonly startingAdventure = signal(false);
+	protected readonly startAdventureError = signal(false);
 
 	ngOnInit(): void {
 		this.loadTours();
@@ -65,7 +75,46 @@ export class TourBrowserScreenComponent implements OnInit {
 
 	protected selectTourCard(tour: Tour): void {
 		this.selectedTour = tour;
+		this.startAdventureError.set(false);
 		this.loadStations(tour);
+	}
+
+	protected async startAdventure(): Promise<void> {
+		if (this.startingAdventure()) {
+			return;
+		}
+
+		if (!this.tokenStorage.getAccessToken()) {
+			await this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/explore' } });
+			return;
+		}
+
+		const confirmed = await firstValueFrom(
+			this.dialog
+				.open(MockPaymentDialogComponent, {
+					data: { tourName: this.selectedTour.title, price: this.selectedTour.price },
+					maxWidth: 'calc(100vw - 32px)',
+					width: '420px'
+				})
+				.afterClosed()
+		);
+
+		if (!confirmed) {
+			return;
+		}
+
+		this.startingAdventure.set(true);
+		this.startAdventureError.set(false);
+
+		try {
+			const adventure = await firstValueFrom(this.adventuresFeature.unlock(this.selectedTour.id));
+			await firstValueFrom(this.adventuresFeature.start(adventure.id));
+			await this.router.navigate(['/adventure', adventure.id]);
+		} catch {
+			this.startAdventureError.set(true);
+		} finally {
+			this.startingAdventure.set(false);
+		}
 	}
 
 	private loadTours(): void {
@@ -73,7 +122,7 @@ export class TourBrowserScreenComponent implements OnInit {
 		this.strollsFeature
 			.browse({ sortBy: 'most_used' })
 			.pipe(
-				map((response) => (response?.items?.length ? response.items.map((stroll, index) => mapStrollToTour(stroll, index)) : MOCK_TOURS)),
+				map((response) => (response?.items?.length ? response.items.map((stroll) => mapStrollToTour(stroll)) : MOCK_TOURS)),
 				catchError(() => of(MOCK_TOURS))
 			)
 			.subscribe((tours) => {

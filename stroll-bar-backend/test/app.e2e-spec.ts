@@ -354,6 +354,14 @@ describe('StrollBar API (e2e)', () => {
 		expect(unlockResponse.body.ownerUserId).toBe(userId);
 		adventureId = unlockResponse.body.id;
 
+		const repeatedUnlockResponse = await request(app.getHttpServer())
+			.post('/v1/adventures/unlock')
+			.set('Authorization', `Bearer ${accessToken}`)
+			.send({ strollId })
+			.expect(201);
+
+		expect(repeatedUnlockResponse.body.id).toBe(adventureId);
+
 		const answerResponse = await request(app.getHttpServer())
 			.post(`/v1/adventures/${adventureId}/stages/${stageId}/answer`)
 			.set('Authorization', `Bearer ${accessToken}`)

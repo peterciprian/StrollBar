@@ -98,8 +98,8 @@
 	},
 	"HOME": {
 		"EYEBROW": "Gamified city tours",
-		"HERO_TITLE": "Discover Budapest, one clue at a time",
-		"HERO_SUBTITLE": "Follow curated trails through hidden courtyards, historic squares and secret legends. Solve riddles at every station, unlock achievements, and turn every stroll into an adventure.",
+		"WELCOME_TITLE": "Discover Budapest, one clue at a time",
+		"WELCOME_SUBTITLE": "Follow curated trails through hidden courtyards, historic squares and secret legends. Solve riddles at every station, unlock achievements, and turn every stroll into an adventure.",
 		"REGISTER": "Register",
 		"SHOW_TOURS": "Show me the tours",
 		"FEATURE1_TITLE": "Historical Mysteries",
@@ -206,7 +206,20 @@
 			"STAT_STATIONS": "Stations",
 			"STAT_TIME": "Est. time",
 			"ROUTE_PREVIEW": "Route preview",
-			"START_ADVENTURE": "Start adventure"
+			"START_ADVENTURE": "Start adventure",
+			"STARTING": "Starting adventure",
+			"START_ERROR": "The adventure could not be started. Please try again."
+		},
+		"MOCK_PAYMENT": {
+			"BADGE": "Payment preview",
+			"TITLE": "Confirm your adventure",
+			"DESCRIPTION": "This checkout is a placeholder for the future payment provider.",
+			"TOUR": "Selected tour",
+			"METHOD": "Demo card",
+			"METHOD_DETAIL": "•••• 4242 · Approved automatically",
+			"NO_CHARGE": "No payment will be processed and no card will be charged.",
+			"CANCEL": "Cancel",
+			"CONFIRM": "Mock payment and start"
 		},
 		"ADVENTURE": {
 			"LOADING": "Loading adventure…",

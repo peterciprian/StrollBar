@@ -1,4 +1,4 @@
-.hero,
+.welcome,
 .features,
 .showcase,
 .cta-banner {
@@ -7,7 +7,7 @@
 	margin-inline: auto;
 }
 
-.hero {
+.welcome {
 	position: relative;
 	border-radius: 18px;
 	overflow: hidden;
@@ -190,7 +190,7 @@
 }
 
 @media (min-width: 600px) {
-	.hero {
+	.welcome {
 		&__actions {
 			flex-direction: row;
 		}
@@ -204,7 +204,7 @@
 }
 
 @media (min-width: 768px) {
-	.hero {
+	.welcome {
 		border-radius: 24px;
 		padding: 72px 48px;
 		margin-bottom: 48px;

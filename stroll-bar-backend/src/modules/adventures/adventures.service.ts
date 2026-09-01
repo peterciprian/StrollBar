@@ -31,6 +31,19 @@ export class AdventuresService {
 			throw new NotFoundException(`Stroll ${dto.strollId} was not found.`);
 		}
 
+		const existingAdventure = await this.adventuresRepository.findOne({
+			where: {
+				ownerUserId: currentUserId,
+				strollId: dto.strollId,
+				progressStatus: In([AdventureProgressStatus.PURCHASED, AdventureProgressStatus.IN_PROGRESS])
+			},
+			order: { updatedAt: 'DESC' }
+		});
+
+		if (existingAdventure) {
+			return existingAdventure;
+		}
+
 		const adventure = this.adventuresRepository.create({
 			ownerUserId: currentUserId,
 			strollId: dto.strollId,

@@ -2,15 +2,9 @@
 import { Stage, Stroll } from '../../core/api/models';
 import { Tour, TourCategory, TourStation } from '../../core/models/screens.models';
 
-const HERO_GRADIENTS = [
-	'linear-gradient(135deg, #0891b2 0%, #155e75 60%, #0f172a 100%)',
-	'linear-gradient(135deg, #b45309 0%, #92400e 55%, #1c1917 100%)',
-	'linear-gradient(135deg, #0e7490 0%, #164e63 55%, #082f49 100%)'
-];
-
 const KNOWN_CATEGORIES: TourCategory[] = ['Historical', 'Mystery', 'Cultural'];
 
-export function mapStrollToTour(stroll: Stroll, index = 0): Tour {
+export function mapStrollToTour(stroll: Stroll): Tour {
 	const category = KNOWN_CATEGORIES.find((known) => stroll.labels.includes(known)) ?? 'Cultural';
 
 	return {
@@ -21,9 +15,27 @@ export function mapStrollToTour(stroll: Stroll, index = 0): Tour {
 		price: 0,
 		distanceKm: 0,
 		description: stroll.description,
-		heroGradient: HERO_GRADIENTS[index % HERO_GRADIENTS.length],
+		coverImageUrl: stroll.mediaUrls?.imageUrls?.[0],
+		coverFallback: createCoverFallback(stroll.id),
 		stations: []
 	};
+}
+
+function createCoverFallback(strollId: string): string {
+	let hash = 2166136261;
+
+	for (let index = 0; index < strollId.length; index += 1) {
+		hash ^= strollId.charCodeAt(index);
+		hash = Math.imul(hash, 16777619);
+	}
+
+	const unsignedHash = hash >>> 0;
+	const primaryHue = unsignedHash % 720;
+	const secondaryHue = (primaryHue + 30 + ((unsignedHash >>> 8) % 61)) % 360;
+	const deepHue = (secondaryHue + 15 + ((unsignedHash >>> 16) % 31)) % 360;
+	const angle = 115 + ((unsignedHash >>> 24) % 51);
+
+	return `linear-gradient(${angle}deg, hsl(${primaryHue} 58% 42%) 0%, hsl(${secondaryHue} 52% 28%) 62%, hsl(${deepHue} 42% 16%) 100%)`;
 }
 
 export function mapStageToTourStation(stage: Stage): TourStation {

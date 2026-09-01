@@ -28,9 +28,7 @@ export class HomeComponent implements OnInit {
 		this.strollsFeature
 			.browse({ sortBy: 'most_used', limit: 3 })
 			.pipe(
-				map((response) =>
-					response?.items?.length ? response.items.map((stroll, index) => mapStrollToTour(stroll, index)) : MOCK_TOURS.slice(0, 3)
-				),
+				map((response) => (response?.items?.length ? response.items.map((stroll) => mapStrollToTour(stroll)) : MOCK_TOURS.slice(0, 3))),
 				catchError(() => of(MOCK_TOURS.slice(0, 3)))
 			)
 			.subscribe((tours) => {

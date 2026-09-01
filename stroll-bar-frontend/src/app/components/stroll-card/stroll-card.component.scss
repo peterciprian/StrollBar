@@ -18,19 +18,40 @@
 		border-color: var(--mat-sys-primary, #0891b2);
 	}
 
-	&__hero {
+	&__cover {
 		height: 96px;
 		display: flex;
 		align-items: flex-start;
 		justify-content: flex-end;
 		padding: 8px;
 		box-sizing: border-box;
+		background: #155e75;
+		background-position: center;
+		background-size: cover;
+		position: relative;
+
+		img {
+			height: 100%;
+			inset: 0;
+			object-fit: cover;
+			position: absolute;
+			width: 100%;
+		}
 	}
 
 	&__category {
-		background: rgba(255, 255, 255, 0.9) !important;
-		font-size: 11px;
-		font-weight: 600;
+		backdrop-filter: blur(8px);
+		background: rgba(255, 255, 255, 0.8);
+		border: 1px solid rgba(255, 255, 255, 0.6);
+		border-radius: 999px;
+		box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+		color: #164e63;
+		font-size: 10px;
+		font-weight: 700;
+		line-height: 20px;
+		padding: 0 8px;
+		white-space: nowrap;
+		z-index: 1;
 	}
 
 	&__title {

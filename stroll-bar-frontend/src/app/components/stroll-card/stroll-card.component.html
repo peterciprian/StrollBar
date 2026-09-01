@@ -1,7 +1,10 @@
 @if (tour; as t) {
 	<mat-card class="stroll-card" [class.selected]="selected" (click)="cardClick.emit()">
-		<div class="stroll-card__hero" [style.background]="t.heroGradient || 'linear-gradient(135deg, #0891b2, #0f172a)'">
-			<mat-chip class="stroll-card__category">{{ categoryLabelKeys[t.category] | translate }}</mat-chip>
+		<div class="stroll-card__cover" [style.background-image]="t.coverImageUrl ? null : t.coverFallback">
+			@if (t.coverImageUrl) {
+				<img [src]="t.coverImageUrl" alt="" />
+			}
+			<span class="stroll-card__category">{{ categoryLabelKeys[t.category] | translate }}</span>
 		</div>
 		<mat-card-content>
 			<h3 class="stroll-card__title">{{ t.title }}</h3>

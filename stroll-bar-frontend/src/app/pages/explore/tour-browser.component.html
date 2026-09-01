@@ -6,13 +6,21 @@
 			<mat-icon matPrefix>search</mat-icon>
 		</mat-form-field>
 
-		<mat-chip-listbox class="tour-browser__chips" [attr.aria-label]="'SCREENS.TOUR_BROWSER.CATEGORY_FILTER_ARIA' | translate">
+		<div class="tour-browser__chips" role="radiogroup" [attr.aria-label]="'SCREENS.TOUR_BROWSER.CATEGORY_FILTER_ARIA' | translate">
 			@for (category of categories; track category) {
-				<mat-chip-option [selected]="activeCategory === category" (click)="selectCategory(category)">
+				<button
+					type="button"
+					class="tour-browser__category-chip"
+					[class.tour-browser__category-chip--active]="activeCategory === category"
+					role="radio"
+					[attr.aria-checked]="activeCategory === category"
+					(click)="selectCategory(category)"
+				>
+					<span class="tour-browser__category-marker" aria-hidden="true"></span>
 					{{ categoryLabelKeys[category] | translate }}
-				</mat-chip-option>
+				</button>
 			}
-		</mat-chip-listbox>
+		</div>
 
 		<div class="tour-browser__list">
 			@for (tour of filteredTours; track tour.id) {
@@ -25,8 +33,11 @@
 	</div>
 
 	<div class="tour-browser__right">
-		<div class="tour-browser__hero" [style.background]="selectedTour.heroGradient">
-			<mat-chip class="tour-browser__hero-chip">{{ categoryLabelKeys[selectedTour.category] | translate }}</mat-chip>
+		<div class="tour-browser__cover" [style.background-image]="selectedTour.coverImageUrl ? null : selectedTour.coverFallback">
+			@if (selectedTour.coverImageUrl) {
+				<img [src]="selectedTour.coverImageUrl" alt="" />
+			}
+			<span class="tour-browser__cover-category">{{ categoryLabelKeys[selectedTour.category] | translate }}</span>
 			<h1>{{ selectedTour.title }}</h1>
 		</div>
 
@@ -64,9 +75,12 @@
 				}
 			</div>
 
-			<button mat-flat-button color="primary" class="tour-browser__start-btn">
-				<mat-icon>hiking</mat-icon>
-				{{ 'SCREENS.TOUR_BROWSER.START_ADVENTURE' | translate | uppercase }}
+			@if (startAdventureError()) {
+				<p class="tour-browser__start-error"><mat-icon>error_outline</mat-icon>{{ 'SCREENS.TOUR_BROWSER.START_ERROR' | translate }}</p>
+			}
+			<button mat-flat-button color="primary" class="tour-browser__start-btn" [disabled]="startingAdventure()" (click)="startAdventure()">
+				<mat-icon>{{ startingAdventure() ? 'hourglass_top' : 'hiking' }}</mat-icon>
+				{{ (startingAdventure() ? 'SCREENS.TOUR_BROWSER.STARTING' : 'SCREENS.TOUR_BROWSER.START_ADVENTURE') | translate | uppercase }}
 			</button>
 		</div>
 	</div>
