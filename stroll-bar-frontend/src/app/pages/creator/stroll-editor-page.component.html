@@ -1,5 +1,5 @@
 <div class="stroll-editor-page">
-	@if (loading) {
+	@if (loading()) {
 		<p class="stroll-editor-page__loading">{{ 'SCREENS.ADMIN_STATION_EDITOR.LOADING' | translate }}</p>
 	} @else {
 		<section class="stroll-editor-page__stroll-fields">

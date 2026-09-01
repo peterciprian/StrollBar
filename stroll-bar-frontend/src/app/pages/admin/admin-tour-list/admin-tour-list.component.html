@@ -8,13 +8,13 @@
 	</div>
 
 	<div class="admin-tour-list__content">
-		@if (loading) {
+		@if (loading()) {
 			<p class="admin-tour-list__message">{{ 'SCREENS.ADMIN_TOUR_LIST.LOADING' | translate }}</p>
-		} @else if (loadError) {
+		} @else if (loadError()) {
 			<p class="admin-tour-list__message admin-tour-list__message--error">{{ 'SCREENS.ADMIN_TOUR_LIST.LOAD_ERROR' | translate }}</p>
 		}
 
-		<table mat-table [dataSource]="tours" class="admin-tour-list__table" [hidden]="loading || loadError">
+		<table mat-table [dataSource]="tours()" class="admin-tour-list__table" [hidden]="loading() || loadError()">
 			<ng-container matColumnDef="name">
 				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_TOUR_LIST.COL_NAME' | translate }}</th>
 				<td mat-cell *matCellDef="let tour">{{ tour.name }}</td>

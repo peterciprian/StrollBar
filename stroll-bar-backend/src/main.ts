@@ -10,7 +10,7 @@ async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule);
 	app.setGlobalPrefix('v1');
 	app.enableCors({
-		origin: (process.env.CORS_ORIGINS ?? 'https://peterciprian.github.io')
+		origin: (process.env.CORS_ORIGINS ?? 'https://peterciprian.github.io,http://localhost:4200,http://127.0.0.1:4200')
 			.split(',')
 			.map((origin) => origin.trim())
 			.filter(Boolean)

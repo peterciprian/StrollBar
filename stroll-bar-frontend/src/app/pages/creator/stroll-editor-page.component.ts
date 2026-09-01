@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -55,7 +55,7 @@ export class StrollEditorPageComponent implements OnInit {
 	protected readonly activeStatuses: StrollActiveStatus[] = ['draft', 'published', 'archived'];
 	protected readonly publicityFlags: StrollPublicityFlag[] = ['private', 'unlisted', 'public'];
 
-	protected loading = true;
+	protected readonly loading = signal(true);
 	protected strollId: string | null = null;
 	protected isNewStroll = true;
 
@@ -276,7 +276,7 @@ export class StrollEditorPageComponent implements OnInit {
 			.sort((a, b) => a.orderIndex - b.orderIndex)
 			.map((stage) => this.toEditableStage(stage));
 		this.selectedStageId = this.stages[0]?.id ?? null;
-		this.loading = false;
+		this.loading.set(false);
 	}
 
 	private initializeBlankStroll(): void {
@@ -290,7 +290,7 @@ export class StrollEditorPageComponent implements OnInit {
 		this.strollImageUrls = [];
 		this.stages = [];
 		this.selectedStageId = null;
-		this.loading = false;
+		this.loading.set(false);
 	}
 
 	private toEditableStage(stage: Stage): EditableStage {

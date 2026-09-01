@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,19 +23,19 @@ export class AdminTourListScreenComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
 
 	protected readonly displayedColumns = ['name', 'stations', 'labels', 'visibility', 'status', 'actions'];
-	protected tours: Stroll[] = [];
-	protected loading = true;
-	protected loadError = false;
+	protected readonly tours = signal<Stroll[]>([]);
+	protected readonly loading = signal(true);
+	protected readonly loadError = signal(false);
 
 	ngOnInit(): void {
 		this.strollsFeature.listOwned({ limit: 100 }).subscribe({
 			next: (response) => {
-				this.tours = response.items;
-				this.loading = false;
+				this.tours.set(response.items);
+				this.loading.set(false);
 			},
 			error: () => {
-				this.loadError = true;
-				this.loading = false;
+				this.loadError.set(true);
+				this.loading.set(false);
 			}
 		});
 	}
@@ -50,8 +50,8 @@ export class AdminTourListScreenComponent implements OnInit {
 
 	protected deleteStroll(strollId: string): void {
 		this.strollsFeature.remove(strollId).subscribe({
-			next: () => (this.tours = this.tours.filter((tour) => tour.id !== strollId)),
-			error: () => (this.loadError = true)
+			next: () => this.tours.update((tours) => tours.filter((tour) => tour.id !== strollId)),
+			error: () => this.loadError.set(true)
 		});
 	}
 }
