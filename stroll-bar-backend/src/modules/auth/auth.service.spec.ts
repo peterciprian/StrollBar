@@ -2,6 +2,8 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHash } from 'node:crypto';
 import { AuthService } from './auth.service';
+import { OAuthProviderService } from './services/oauth-provider.service';
+import { SocialUserService } from './services/social-user.service';
 
 describe('AuthService token validation', () => {
 	let usersRepository: any;
@@ -9,6 +11,8 @@ describe('AuthService token validation', () => {
 	let jwtService: any;
 	let configService: ConfigService;
 	let emailService: any;
+	let oauthProviderService: any;
+	let socialUserService: any;
 	let service: AuthService;
 
 	beforeEach(() => {
@@ -50,7 +54,24 @@ describe('AuthService token validation', () => {
 			sendVerificationEmail: jest.fn()
 		};
 
-		service = new AuthService(usersRepository, socialIdentitiesRepository, jwtService, configService, emailService);
+		oauthProviderService = {
+			createAuthorizationUrl: jest.fn(),
+			fetchUserProfile: jest.fn()
+		};
+
+		socialUserService = {
+			findOrCreateUserFromProfile: jest.fn()
+		};
+
+		service = new AuthService(
+			usersRepository,
+			socialIdentitiesRepository,
+			jwtService,
+			configService,
+			emailService,
+			oauthProviderService,
+			socialUserService
+		);
 	});
 
 	it('resetPassword validates the token with a direct lookup instead of scanning all users', async () => {
@@ -113,16 +134,4 @@ describe('AuthService token validation', () => {
 		});
 	});
 
-	it('creates a deterministic social username without polling the database for collisions', async () => {
-		const uniqueUsername = await (service as any).createUniqueSocialUsername({
-			provider: 'google',
-			providerUserId: 'google-user-42',
-			email: 'alice@example.com',
-			displayName: 'Alice Example',
-			emailVerified: true
-		});
-
-		expect(uniqueUsername).toMatch(/^alice_example_[a-f0-9]{12}$/i);
-		expect(usersRepository.findOne).not.toHaveBeenCalled();
-	});
 });
