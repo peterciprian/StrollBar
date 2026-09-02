@@ -26,6 +26,16 @@ export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
 	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'List all users (admin only)' })
+	@ApiOkResponse({ type: [UserResponseDto], description: 'All registered users.' })
+	@ApiForbiddenResponse({ description: 'Administrator access required.', type: ErrorResponseDto })
+	@UseGuards(JwtAuthGuard)
+	@Get()
+	listUsers(@CurrentUser() user: AuthenticatedUser) {
+		return this.usersService.listAll(user);
+	}
+
+	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: "Update the authenticated user's profile" })
 	@ApiOkResponse({ type: UserResponseDto, description: 'Updated user profile.' })
 	@ApiNotFoundResponse({ description: 'No active user found.', type: ErrorResponseDto })

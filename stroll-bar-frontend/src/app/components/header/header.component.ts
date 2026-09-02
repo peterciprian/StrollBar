@@ -10,7 +10,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { filter, map } from 'rxjs';
 import { LanguageService } from '../../core/services/language.service';
-import { logout, selectIsLoggedIn, selectUsername } from '../../features/auth/auth.state';
+import { logout, selectIsAdmin, selectIsLoggedIn, selectUsername } from '../../features/auth/auth.state';
 import { SCREEN_DEFS, ScreenDef } from './screen-definitions';
 import { SETTINGS_SECTIONS } from '../../pages/settings/settings-nav.service';
 
@@ -44,6 +44,7 @@ export class HeaderComponent {
 	protected readonly settingsSections = SETTINGS_SECTIONS;
 
 	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
+	protected readonly isAdmin = this.store.selectSignal(selectIsAdmin);
 	protected readonly username = this.store.selectSignal(selectUsername);
 	private readonly currentUrl = toSignal(
 		this.router.events.pipe(
@@ -54,7 +55,7 @@ export class HeaderComponent {
 	);
 
 	get visibleScreenDefs(): ScreenDef[] {
-		return SCREEN_DEFS.filter((screen) => this.isLoggedIn() || screen.visibleWithoutLogin);
+		return SCREEN_DEFS.filter((screen) => (this.isLoggedIn() || screen.visibleWithoutLogin) && (!screen.adminOnly || this.isAdmin()));
 	}
 
 	protected readonly translatedLanguages = this.languageService.languages.map((lang) => ({
@@ -82,7 +83,9 @@ export class HeaderComponent {
 			case 'tour-browser':
 				return path === '/explore';
 			case 'admin-tour-list':
-				return path.startsWith('/admin-tour-list');
+				return path.startsWith('/admin/tour-list');
+			case 'admin-user-list':
+				return path.startsWith('/admin/user-list');
 			case 'creator-strolls':
 				return path.startsWith('/creator/strolls');
 			case 'adventure':

@@ -8,7 +8,7 @@ import { MoreThan, Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
-import { UserEntity } from '../users/entities/user.entity';
+import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { EmailService } from '../email/email.service';
 import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialUserService } from './services/social-user.service';
@@ -56,6 +56,7 @@ export class AuthService {
 			email: dto.email,
 			passwordHash: this.hashPassword(dto.password),
 			isActive: true,
+			role: UserRole.SIMPLE,
 			emailVerified: false
 		});
 

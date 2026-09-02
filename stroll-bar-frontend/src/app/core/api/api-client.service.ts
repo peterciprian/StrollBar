@@ -44,6 +44,7 @@ import {
 	UpdateStageRequest,
 	UpdateStrollRequest,
 	UpdateUserRequest,
+	UpdateUserRoleRequest,
 	User,
 	VerifyEmailRequest,
 	Adventure
@@ -103,8 +104,16 @@ export class ApiClientService {
 
 	// ─── Users ─────────────────────────────────────────────────────────────────
 
+	listUsers() {
+		return this.http.get<User[]>(`${this.baseUrl}/users`);
+	}
+
 	updateMe(body: UpdateUserRequest) {
 		return this.http.patch<User>(`${this.baseUrl}/users/me`, body);
+	}
+
+	updateUserRole(userId: string, body: UpdateUserRoleRequest) {
+		return this.http.patch<User>(`${this.baseUrl}/users/${userId}/role`, body);
 	}
 
 	getPublicProfile(userId: string) {

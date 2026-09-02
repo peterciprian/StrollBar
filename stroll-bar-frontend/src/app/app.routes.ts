@@ -9,6 +9,7 @@ import { CreatorProfilePageComponent } from './pages/profile/creator-profile-pag
 import { TourBrowserScreenComponent } from './pages/explore/tour-browser.component';
 import { AdventureScreenComponent } from './pages/progress/adventure.component';
 import { AdminTourListScreenComponent } from './pages/admin/admin-tour-list/admin-tour-list.component';
+import { AdminUserListScreenComponent } from './pages/admin/admin-user-list/admin-user-list.component';
 import { UserDashboardScreenComponent } from './pages/user/user-dashboard/user-dashboard.component';
 import { SettingsPageComponent } from './pages/settings/settings.component';
 import { SettingsProfileComponent } from './pages/settings/profile/settings-profile.component';
@@ -16,6 +17,7 @@ import { SettingsAchievementsComponent } from './pages/settings/achievements/set
 import { SettingsAnalyticsComponent } from './pages/settings/analytics/settings-analytics.component';
 import { SettingsPreferencesComponent } from './pages/settings/preferences/settings-preferences.component';
 import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { LegalPageComponent } from './pages/legal/legal-page.component';
 
 export const routes: Routes = [
@@ -29,7 +31,8 @@ export const routes: Routes = [
 	{ path: 'privacy-policy', component: LegalPageComponent, data: { document: 'privacy' } },
 	{ path: 'terms-of-service', component: LegalPageComponent, data: { document: 'terms' } },
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
-	{ path: 'admin-tour-list', component: AdminTourListScreenComponent, canActivate: [authGuard] },
+	{ path: 'admin/tour-list', component: AdminTourListScreenComponent, canActivate: [adminGuard] },
+	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/:strollId', component: StrollEditorPageComponent, canActivate: [authGuard] },

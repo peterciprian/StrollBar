@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { randomBytes } from 'node:crypto';
 import { Repository } from 'typeorm';
 import { SocialIdentityEntity, SocialAuthProvider } from '../entities/social-identity.entity';
-import { UserEntity } from '../../users/entities/user.entity';
+import { UserEntity, UserRole } from '../../users/entities/user.entity';
 import type { SocialProfile } from './oauth-provider.service';
 
 type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
@@ -86,6 +86,7 @@ export class SocialUserService {
 			passwordHash: this.hashRandomPassword(),
 			profileImageUrl: profile.profileImageUrl ?? null,
 			isActive: true,
+			role: UserRole.SIMPLE,
 			// The provider already verified the email address, so no extra verification step is needed.
 			emailVerified: !!profile.email && profile.emailVerified !== false
 		});

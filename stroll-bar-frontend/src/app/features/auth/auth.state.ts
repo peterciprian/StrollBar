@@ -177,6 +177,10 @@ export const selectIsLoggedIn = createSelector(selectUser, (user) => !!user.id);
 
 export const selectUsername = createSelector(selectUser, (user) => user.username);
 
+export const selectUserRole = createSelector(selectUser, (user) => user.role);
+
+export const selectIsAdmin = createSelector(selectUser, (user) => !!user.id && user.role === 'admin');
+
 export const selectAuthLoading = createSelector(selectUser, (user) => user.loading);
 
 export const selectAuthError = createSelector(selectUser, (user) => user.error);

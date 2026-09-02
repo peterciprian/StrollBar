@@ -4,7 +4,8 @@
 
 - /explore (tour browser)
 - /adventure/:adventureId
-- /admin-tour-list
+- /admin/tour-list (admin role only)
+- /admin/user-list (admin role only)
 - /user-dashboard
 - /users/:userId
 

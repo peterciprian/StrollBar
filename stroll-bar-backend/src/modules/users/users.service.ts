@@ -63,6 +63,14 @@ export class UsersService {
 		};
 	}
 
+	async listAll(currentUser: AuthenticatedUser) {
+		this.assertAdmin(currentUser);
+
+		const users = await this.usersRepository.find({ order: { createdAt: 'DESC' } });
+
+		return users.map((user) => this.toUserResponse(user));
+	}
+
 	async updateMe(userId: string, dto: UpdateUserDto) {
 		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
 
@@ -84,23 +92,11 @@ export class UsersService {
 
 		const savedUser = await this.usersRepository.save(user);
 
-		return {
-			id: savedUser.id,
-			username: savedUser.username,
-			email: savedUser.email,
-			profileImageUrl: savedUser.profileImageUrl ?? null,
-			isActive: savedUser.isActive,
-			role: savedUser.role,
-			emailVerified: savedUser.emailVerified,
-			createdAt: savedUser.createdAt,
-			updatedAt: savedUser.updatedAt
-		};
+		return this.toUserResponse(savedUser);
 	}
 
 	async updateRole(userId: string, role: UserRole, currentUser: AuthenticatedUser, ipAddress?: string) {
-		if (currentUser.role !== UserRole.ADMIN) {
-			throw new ForbiddenException('Only administrators can assign user roles.');
-		}
+		this.assertAdmin(currentUser);
 
 		const user = await this.usersRepository.findOne({ where: { id: userId } });
 
@@ -119,16 +115,26 @@ export class UsersService {
 			metadata: { role }
 		});
 
+		return this.toUserResponse(savedUser);
+	}
+
+	private assertAdmin(currentUser: AuthenticatedUser): void {
+		if (currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('Administrator access required.');
+		}
+	}
+
+	private toUserResponse(user: UserEntity) {
 		return {
-			id: savedUser.id,
-			username: savedUser.username,
-			email: savedUser.email,
-			profileImageUrl: savedUser.profileImageUrl ?? null,
-			isActive: savedUser.isActive,
-			role: savedUser.role,
-			emailVerified: savedUser.emailVerified,
-			createdAt: savedUser.createdAt,
-			updatedAt: savedUser.updatedAt
+			id: user.id,
+			username: user.username,
+			email: user.email,
+			profileImageUrl: user.profileImageUrl ?? null,
+			isActive: user.isActive,
+			role: user.role,
+			emailVerified: user.emailVerified,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt
 		};
 	}
 }

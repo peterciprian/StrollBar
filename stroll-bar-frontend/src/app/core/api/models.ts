@@ -22,6 +22,10 @@ export interface UpdateUserRequest {
 	profileImageUrl?: string;
 }
 
+export interface UpdateUserRoleRequest {
+	role: UserRole;
+}
+
 /** Reduced shape returned by GET /v1/users/:userId */
 export interface PublicUserProfileUser {
 	id: string;
