@@ -12,7 +12,8 @@ describe('buildDatabaseOptions', () => {
 			'MediaAssets1752896000000',
 			'SocialAuthIdentities1752907000000',
 			'EmailVerification1752918000000',
-			'UserRoles1752929000000'
+			'UserRoles1752929000000',
+			'QueryPerformanceIndexes1753000000000'
 		]);
 	});
 });

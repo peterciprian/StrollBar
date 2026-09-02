@@ -216,7 +216,7 @@ describe('StrollBar API (e2e)', () => {
 			.send({
 				username: testUsername,
 				email: testEmail,
-				password: 'Password123!'
+				password: 'StrollWalk!2026'
 			})
 			.expect(201);
 
@@ -231,7 +231,7 @@ describe('StrollBar API (e2e)', () => {
 			.post('/v1/auth/login')
 			.send({
 				email: testEmail,
-				password: 'Password123!'
+				password: 'StrollWalk!2026'
 			})
 			.expect(201);
 
@@ -270,7 +270,7 @@ describe('StrollBar API (e2e)', () => {
 			.post('/v1/auth/login')
 			.send({
 				email: testEmail,
-				password: 'Password123!'
+				password: 'StrollWalk!2026'
 			})
 			.expect(201);
 
@@ -400,7 +400,7 @@ describe('StrollBar API (e2e)', () => {
 			.post('/v1/auth/login')
 			.send({
 				email: testEmail,
-				password: 'Password123!'
+				password: 'StrollWalk!2026'
 			})
 			.expect(401);
 

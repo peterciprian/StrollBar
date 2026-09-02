@@ -12,6 +12,7 @@ import { StagesModule } from './modules/stages/stages.module';
 import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AdventuresModule } from './modules/adventures/adventures.module';
 import { MediaModule } from './modules/media/media.module';
+import { EmailModule } from './modules/email/email.module';
 import { buildDatabaseOptions } from './database/database.config';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 import { RequestLoggingMiddleware } from './common/middleware/request-logging.middleware';
@@ -37,7 +38,8 @@ import { RequestLoggingMiddleware } from './common/middleware/request-logging.mi
 		StagesModule,
 		AchievementsModule,
 		AdventuresModule,
-		MediaModule
+		MediaModule,
+		EmailModule
 	],
 	controllers: [AppController],
 	providers: [
