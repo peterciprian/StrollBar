@@ -8,6 +8,7 @@
 		"EN": "English"
 	},
 	"COMMON": {
+		"OFFLINE_MESSAGE": "You are offline. Cached public content remains available.",
 		"MIN_SUFFIX": "min",
 		"STATIONS_SUFFIX": "stations",
 		"HUF_SUFFIX": "HUF",

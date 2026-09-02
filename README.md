@@ -211,6 +211,15 @@ npm run start:frontend
 
 Frontend starts on Angular dev server (default http://localhost:4200).
 
+In production, the frontend registers a service worker. It caches the application shell and
+static same-origin assets, and uses network-first caching for unauthenticated public `GET`
+responses. Authenticated responses and all mutations remain network-only, so stale private data
+and offline writes are never replayed. When connectivity is lost, the app displays an offline
+status banner and cached public pages remain available where previously visited.
+
+Unexpected Angular runtime errors are reported through the global error handler with a reload
+action. HTTP failures continue through the existing API notification interceptor.
+
 ## Build
 
 npm run build:backend

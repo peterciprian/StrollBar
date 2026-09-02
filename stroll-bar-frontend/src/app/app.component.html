@@ -1,5 +1,12 @@
 <app-header></app-header>
 
+@if (!connectivity.isOnline()) {
+	<div class="offline-banner" role="status">
+		<mat-icon>cloud_off</mat-icon>
+		<span>{{ 'COMMON.OFFLINE_MESSAGE' | translate }}</span>
+	</div>
+}
+
 <main>
 	<router-outlet></router-outlet>
 </main>

@@ -1,0 +1,40 @@
+{
+	"$schema": "./node_modules/@angular/service-worker/config/schema.json",
+	"index": "/index.html",
+	"appData": {
+		"name": "StrollBar",
+		"version": "1.0.0"
+	},
+	"assetGroups": [
+		{
+			"name": "app-shell",
+			"installMode": "prefetch",
+			"updateMode": "prefetch",
+			"resources": {
+				"files": ["/favicon.ico", "/index.html", "/*.css", "/*.js", "/*.woff2"],
+				"urls": ["https://fonts.googleapis.com/**", "https://fonts.gstatic.com/**"]
+			}
+		},
+		{
+			"name": "static-assets",
+			"installMode": "lazy",
+			"updateMode": "prefetch",
+			"resources": {
+				"files": ["/assets/**", "/*.(svg|png|jpg|jpeg|webp|gif|ico)"]
+			}
+		}
+	],
+	"dataGroups": [
+		{
+			"name": "public-stroll-list",
+			"urls": ["https://stroll-bar-n5zc.onrender.com/v1/strolls"],
+			"cacheConfig": {
+				"strategy": "freshness",
+				"timeout": "5s",
+				"maxSize": 50,
+				"maxAge": "10m"
+			}
+		}
+	],
+	"navigationUrls": ["/**", "!/**/*.*", "!/**/*__*"]
+}

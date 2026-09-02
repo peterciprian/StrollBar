@@ -11,6 +11,18 @@ body {
 	font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+.offline-banner {
+	align-items: center;
+	background: #7a2e2e;
+	color: #fff;
+	display: flex;
+	font-size: 0.875rem;
+	gap: 0.5rem;
+	justify-content: center;
+	padding: 0.55rem 1rem;
+	text-align: center;
+}
+
 .lang-select-panel {
 	min-width: 180px !important;
 	width: max-content !important;

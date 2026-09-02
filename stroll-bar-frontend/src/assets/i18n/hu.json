@@ -8,6 +8,7 @@
 		"EN": "Angol"
 	},
 	"COMMON": {
+		"OFFLINE_MESSAGE": "Offline vagy. A gyorsítótárazott nyilvános tartalmak továbbra is elérhetők.",
 		"MIN_SUFFIX": "perc",
 		"STATIONS_SUFFIX": "állomás",
 		"HUF_SUFFIX": "Ft",
