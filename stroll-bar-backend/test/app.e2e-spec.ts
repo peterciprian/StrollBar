@@ -119,6 +119,7 @@ describe('StrollBar API (e2e)', () => {
 		const productionEnv = parseEnvFile(envFilePath);
 
 		process.env.JWT_SECRET = 'test-secret';
+		process.env.JWT_REFRESH_SECRET = 'test-refresh-secret';
 		process.env.DB_HOST = process.env.DB_HOST ?? productionEnv.DB_HOST ?? '127.0.0.1';
 		process.env.DB_PORT = process.env.DB_PORT ?? productionEnv.DB_PORT ?? '5432';
 		process.env.DB_USERNAME = process.env.DB_USERNAME ?? productionEnv.DB_USERNAME ?? 'postgres';
