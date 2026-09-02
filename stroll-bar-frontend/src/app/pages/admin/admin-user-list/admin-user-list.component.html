@@ -84,10 +84,10 @@
 							[value]="user.role"
 							[disabled]="savingUserId() === user.id"
 							[attr.aria-label]="'SCREENS.ADMIN_USER_LIST.ROLE_SELECT_ARIA' | translate"
-							(selectionChange)="changeRole(user, $event.value)"
+							(selectionChange)="changeRole(user, $event)"
 						>
-							@for (role of roles; track role) {
-								<mat-option [value]="role">{{ 'SCREENS.ADMIN_USER_LIST.ROLE_' + (role | uppercase) | translate }}</mat-option>
+							@for (option of roleOptions; track option.value) {
+								<mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
 							}
 						</mat-select>
 					</mat-form-field>

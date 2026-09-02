@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { ApiClientService } from '../../core/api/api-client.service';
-import { UserRole } from '../../core/api/models';
+import { UserRole } from '../../core/models/user-role.enum';
 
 @Injectable({ providedIn: 'root' })
 export class UsersFeatureService {

@@ -3,6 +3,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { filter, map, take } from 'rxjs';
 import { selectUser } from '../../features/auth/auth.state';
+import { UserRole } from '../models/user-role.enum';
 import { TokenStorageService } from '../services/token-storage.service';
 
 export const adminGuard: CanActivateFn = (_route, state) => {
@@ -25,7 +26,7 @@ export const adminGuard: CanActivateFn = (_route, state) => {
 				return loginRedirect();
 			}
 
-			return user.role === 'admin' ? true : router.createUrlTree(['/explore']);
+			return user.role === UserRole.ADMIN ? true : router.createUrlTree(['/explore']);
 		})
 	);
 };

@@ -1,5 +1,6 @@
 import { createAction, props, createReducer, on, createFeatureSelector, createSelector } from '@ngrx/store';
 import { ChangePasswordRequest, LoginRequest, RegisterRequest, UpdateUserRequest, User } from '../../core/api/models';
+import { UserRole } from '../../core/models/user-role.enum';
 
 export type UserState = User & {
 	loading: boolean;
@@ -16,7 +17,7 @@ const initialState: UserState = {
 	email: '',
 	profileImageUrl: null,
 	isActive: false,
-	role: 'simple',
+	role: UserRole.SIMPLE,
 	emailVerified: false,
 	createdAt: '',
 	updatedAt: '',
@@ -179,7 +180,7 @@ export const selectUsername = createSelector(selectUser, (user) => user.username
 
 export const selectUserRole = createSelector(selectUser, (user) => user.role);
 
-export const selectIsAdmin = createSelector(selectUser, (user) => !!user.id && user.role === 'admin');
+export const selectIsAdmin = createSelector(selectUser, (user) => !!user.id && user.role === UserRole.ADMIN);
 
 export const selectAuthLoading = createSelector(selectUser, (user) => user.loading);
 

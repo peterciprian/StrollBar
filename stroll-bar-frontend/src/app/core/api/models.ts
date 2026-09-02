@@ -1,7 +1,10 @@
+import { UserRole } from '../models/user-role.enum';
+
 export type StrollActiveStatus = 'draft' | 'published' | 'archived';
 export type StrollPublicityFlag = 'public' | 'unlisted' | 'private';
 export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned';
-export type UserRole = 'simple' | 'premium' | 'creator' | 'admin';
+
+export { UserRole };
 
 // ─── Users ───────────────────────────────────────────────────────────────────
 
