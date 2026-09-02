@@ -13,7 +13,8 @@ describe('buildDatabaseOptions', () => {
 			'SocialAuthIdentities1752907000000',
 			'EmailVerification1752918000000',
 			'UserRoles1752929000000',
-			'QueryPerformanceIndexes1753000000000'
+			'QueryPerformanceIndexes1753000000000',
+			'AuditEvents1753100000000'
 		]);
 	});
 });

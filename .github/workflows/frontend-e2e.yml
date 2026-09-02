@@ -1,0 +1,31 @@
+name: Frontend E2E
+
+on:
+    push:
+        branches: [master]
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+    playwright:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 22
+                  cache: npm
+            - name: Install dependencies
+              run: npm ci
+            - name: Install Playwright browser
+              working-directory: stroll-bar-frontend
+              run: npx playwright install --with-deps chromium
+            - name: Start frontend
+              run: npm run start:frontend -- --host 0.0.0.0 > frontend.log 2>&1 &
+            - name: Wait for frontend
+              run: npx --yes wait-on http://127.0.0.1:4200
+            - name: Run browser tests
+              working-directory: stroll-bar-frontend
+              run: npm run test:e2e

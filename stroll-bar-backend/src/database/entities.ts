@@ -6,6 +6,7 @@ import { SocialIdentityEntity } from '../modules/auth/entities/social-identity.e
 import { StageEntity } from '../modules/stages/entities/stage.entity';
 import { StrollEntity } from '../modules/strolls/entities/stroll.entity';
 import { UserEntity } from '../modules/users/entities/user.entity';
+import { AuditEventEntity } from '../common/audit.entity';
 
 export const DATABASE_ENTITIES = [
 	AchievementEntity,
@@ -15,5 +16,6 @@ export const DATABASE_ENTITIES = [
 	AdventureEntity,
 	StageAttemptEntity,
 	MediaAssetEntity,
-	SocialIdentityEntity
+	SocialIdentityEntity,
+	AuditEventEntity
 ] as const;

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 import {
 	ApiBearerAuth,
 	ApiConflictResponse,
@@ -42,8 +43,8 @@ export class UsersController {
 	@ApiNotFoundResponse({ description: 'User not found.', type: ErrorResponseDto })
 	@UseGuards(JwtAuthGuard)
 	@Patch(':userId/role')
-	updateRole(@Param('userId') userId: string, @Body() dto: UpdateUserRoleDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.usersService.updateRole(userId, dto.role, user);
+	updateRole(@Param('userId') userId: string, @Body() dto: UpdateUserRoleDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+		return this.usersService.updateRole(userId, dto.role, user, request.ip);
 	}
 
 	@ApiOperation({ summary: 'Get a public user profile' })

@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AdventureProgressStatus, AdventureEntity } from '../adventures/entities/adventure.entity';
@@ -6,6 +6,8 @@ import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../stroll
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { AuditAction } from '../../common/audit.entity';
+import { AuditService } from '../../common/audit.service';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +17,8 @@ export class UsersService {
 		@InjectRepository(StrollEntity)
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(AdventureEntity)
-		private readonly adventuresRepository: Repository<AdventureEntity>
+		private readonly adventuresRepository: Repository<AdventureEntity>,
+		@Optional() private readonly auditService?: AuditService
 	) {}
 
 	async getPublicProfile(userId: string) {
@@ -94,7 +97,7 @@ export class UsersService {
 		};
 	}
 
-	async updateRole(userId: string, role: UserRole, currentUser: AuthenticatedUser) {
+	async updateRole(userId: string, role: UserRole, currentUser: AuthenticatedUser, ipAddress?: string) {
 		if (currentUser.role !== UserRole.ADMIN) {
 			throw new ForbiddenException('Only administrators can assign user roles.');
 		}
@@ -107,6 +110,14 @@ export class UsersService {
 
 		user.role = role;
 		const savedUser = await this.usersRepository.save(user);
+		await this.auditService?.record({
+			action: AuditAction.ROLE_CHANGE,
+			userId: savedUser.id,
+			actorUserId: currentUser.userId,
+			success: true,
+			ipAddress,
+			metadata: { role }
+		});
 
 		return {
 			id: savedUser.id,

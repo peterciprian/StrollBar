@@ -8,6 +8,7 @@ import { SocialAuthIdentities1752907000000 } from './migrations/1752907000000-so
 import { EmailVerification1752918000000 } from './migrations/1752918000000-email-verification';
 import { UserRoles1752929000000 } from './migrations/1752929000000-user-roles';
 import { QueryPerformanceIndexes1753000000000 } from './migrations/1753000000000-query-performance-indexes';
+import { AuditEvents1753100000000 } from './migrations/1753100000000-audit-events';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -62,7 +63,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			SocialAuthIdentities1752907000000,
 			EmailVerification1752918000000,
 			UserRoles1752929000000,
-			QueryPerformanceIndexes1753000000000
+			QueryPerformanceIndexes1753000000000,
+			AuditEvents1753100000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

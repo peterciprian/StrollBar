@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +12,8 @@ import { UserEntity } from '../users/entities/user.entity';
 import { EmailService } from '../email/email.service';
 import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialUserService } from './services/social-user.service';
+import { AuditAction } from '../../common/audit.entity';
+import { AuditService } from '../../common/audit.service';
 
 type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
@@ -36,7 +38,8 @@ export class AuthService {
 		private readonly configService: ConfigService,
 		private readonly emailService: EmailService,
 		private readonly oauthProviderService: OAuthProviderService,
-		private readonly socialUserService: SocialUserService
+		private readonly socialUserService: SocialUserService,
+		@Optional() private readonly auditService?: AuditService
 	) {}
 
 	async register(dto: RegisterDto): Promise<RegisterResponse> {
@@ -71,12 +74,20 @@ export class AuthService {
 		};
 	}
 
-	async login(dto: LoginDto): Promise<AuthResponse> {
+	async login(dto: LoginDto, ipAddress?: string): Promise<AuthResponse> {
 		const user = await this.usersRepository.findOne({ where: { email: dto.email } });
 
 		if (!user || !this.verifyPassword(dto.password, user.passwordHash)) {
+			await this.auditService?.record({
+				action: AuditAction.LOGIN,
+				userId: user?.id,
+				success: false,
+				ipAddress,
+				metadata: { email: dto.email }
+			});
 			throw new UnauthorizedException('Invalid email or password.');
 		}
+		await this.auditService?.record({ action: AuditAction.LOGIN, userId: user.id, success: true, ipAddress });
 
 		const tokens = await this.issueTokens(user);
 
@@ -163,7 +174,7 @@ export class AuthService {
 		};
 	}
 
-	async logout(userId: string, refreshToken?: string): Promise<{ message: string }> {
+	async logout(userId: string, refreshToken?: string, ipAddress?: string): Promise<{ message: string }> {
 		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
 
 		if (!user) {
@@ -176,6 +187,7 @@ export class AuthService {
 
 		user.refreshTokenHash = null;
 		await this.usersRepository.save(user);
+		await this.auditService?.record({ action: AuditAction.LOGOUT, userId, success: true, ipAddress });
 
 		return { message: 'Logged out successfully.' };
 	}
@@ -221,6 +233,7 @@ export class AuthService {
 		user.resetPasswordTokenHash = null;
 		user.resetPasswordExpiresAt = null;
 		await this.usersRepository.save(user);
+		await this.auditService?.record({ action: AuditAction.PASSWORD_RESET, userId: user.id, success: true });
 
 		return { message: 'Password updated successfully.' };
 	}
@@ -235,7 +248,7 @@ export class AuthService {
 		return this.sanitizeUser(user);
 	}
 
-	async changePassword(userId: string, currentPassword: string, newPassword: string): Promise<{ message: string }> {
+	async changePassword(userId: string, currentPassword: string, newPassword: string, ipAddress?: string): Promise<{ message: string }> {
 		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
 
 		if (!user) {
@@ -249,6 +262,7 @@ export class AuthService {
 		user.passwordHash = this.hashPassword(newPassword);
 		user.refreshTokenHash = null;
 		await this.usersRepository.save(user);
+		await this.auditService?.record({ action: AuditAction.PASSWORD_CHANGE, userId, success: true, ipAddress });
 
 		return { message: 'Password updated successfully.' };
 	}

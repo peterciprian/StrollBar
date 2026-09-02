@@ -55,6 +55,10 @@ services:
             value: '15'
           - key: AUTH_EXPOSE_RESET_TOKEN
             value: 'false'
+          - key: AUDIT_RETENTION_DAYS
+            value: '365'
+          - key: AUDIT_RETENTION_INTERVAL_MS
+            value: '86400000'
           - key: EMAIL_VERIFICATION_TOKEN_TTL_MINUTES
             value: '1440'
           - key: AUTH_EXPOSE_VERIFICATION_TOKEN

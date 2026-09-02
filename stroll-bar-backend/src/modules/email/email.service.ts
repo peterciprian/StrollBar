@@ -6,6 +6,9 @@ import { withRetry, withTimeoutAndRetry } from '../../common/utils/retry.util';
 @Injectable()
 export class EmailService {
 	private transporter?: Transporter;
+	private deliveryAttempts = 0;
+	private deliverySuccesses = 0;
+	private deliveryFailures = 0;
 
 	constructor(private readonly configService: ConfigService) {}
 
@@ -26,7 +29,11 @@ export class EmailService {
 				backoffMultiplier: 4,
 				jitterFactor: 0
 			});
-			return { status: 'up', provider: 'smtp', detail: 'SMTP server is reachable.' };
+			return {
+				status: 'up',
+				provider: 'smtp',
+				detail: `SMTP server is reachable. Delivery attempts: ${this.deliveryAttempts}; successes: ${this.deliverySuccesses}; failures: ${this.deliveryFailures}.`
+			};
 		} catch (error) {
 			return {
 				status: 'down',
@@ -48,8 +55,9 @@ export class EmailService {
 
 		try {
 			await withRetry(
-				() =>
-					this.getTransporter().sendMail({
+				() => {
+					this.deliveryAttempts += 1;
+					return this.getTransporter().sendMail({
 						from: this.getRequiredConfig('SMTP_FROM'),
 						to: recipient,
 						subject: 'Verify your StrollBar email address',
@@ -67,7 +75,8 @@ export class EmailService {
 							`<p><a href="${safeVerificationUrl}">Verify email address</a></p>`,
 							'<p>For your security, this link will expire. If you did not create this account, you can ignore this email.</p>'
 						].join('')
-					}),
+					});
+				},
 				{
 					maxAttempts: 3,
 					initialDelayMs: 1000,
@@ -78,7 +87,9 @@ export class EmailService {
 						(error?.responseCode >= 500 && error?.responseCode < 600)
 				}
 			);
+			this.deliverySuccesses += 1;
 		} catch {
+			this.deliveryFailures += 1;
 			throw new ServiceUnavailableException('The verification email could not be delivered. Please try again.');
 		}
 	}

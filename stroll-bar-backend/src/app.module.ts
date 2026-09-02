@@ -16,11 +16,14 @@ import { EmailModule } from './modules/email/email.module';
 import { buildDatabaseOptions } from './database/database.config';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 import { RequestLoggingMiddleware } from './common/middleware/request-logging.middleware';
+import { validateEnvironment } from './config/env.validation';
+import { AuditModule } from './common/audit.module';
 
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
+			validate: validateEnvironment,
 			envFilePath: [`.env.${process.env.NODE_ENV ?? 'development'}`, '.env']
 		}),
 		ThrottlerModule.forRoot([
@@ -39,7 +42,8 @@ import { RequestLoggingMiddleware } from './common/middleware/request-logging.mi
 		AchievementsModule,
 		AdventuresModule,
 		MediaModule,
-		EmailModule
+		EmailModule,
+		AuditModule
 	],
 	controllers: [AppController],
 	providers: [

@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Post, Query, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
 import {
 	ApiCreatedResponse,
 	ApiBearerAuth,
@@ -54,8 +55,8 @@ export class AuthController {
 	@ApiUnauthorizedResponse({ description: 'Invalid credentials.' })
 	@Throttle({ default: { limit: 5, ttl: 60_000 } })
 	@Post('login')
-	login(@Body() dto: LoginDto) {
-		return this.authService.login(dto);
+	login(@Body() dto: LoginDto, @Req() request: Request) {
+		return this.authService.login(dto, request.ip);
 	}
 
 	@ApiOperation({ summary: 'Create a provider authorization URL for social login' })
@@ -121,8 +122,8 @@ export class AuthController {
 	@ApiUnauthorizedResponse({ description: 'Invalid refresh token.', type: ErrorResponseDto })
 	@UseGuards(JwtAuthGuard)
 	@Post('logout')
-	logout(@CurrentUser() user: AuthenticatedUser, @Body() dto: LogoutDto) {
-		return this.authService.logout(user.userId, dto.refreshToken);
+	logout(@CurrentUser() user: AuthenticatedUser, @Body() dto: LogoutDto, @Req() request: Request) {
+		return this.authService.logout(user.userId, dto.refreshToken, request.ip);
 	}
 
 	@ApiOperation({ summary: 'Request a password reset token' })
@@ -185,7 +186,7 @@ export class AuthController {
 	@Throttle({ default: { limit: 5, ttl: 60_000 } })
 	@UseGuards(JwtAuthGuard)
 	@Post('change-password')
-	changePassword(@CurrentUser() user: AuthenticatedUser, @Body() dto: ChangePasswordDto) {
-		return this.authService.changePassword(user.userId, dto.currentPassword, dto.newPassword);
+	changePassword(@CurrentUser() user: AuthenticatedUser, @Body() dto: ChangePasswordDto, @Req() request: Request) {
+		return this.authService.changePassword(user.userId, dto.currentPassword, dto.newPassword, request.ip);
 	}
 }

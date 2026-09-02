@@ -187,6 +187,16 @@ Requests receive an `x-request-id` response header. Backend request and exceptio
 JSON records containing that ID, HTTP method, path, status, duration, and error stack when
 available, which can be ingested by ELK, Splunk, or a hosted log service.
 
+Security audit events are stored in the append-only PostgreSQL `audit_events` table. Administrators
+can query them at `GET /v1/audit/events`; records are retained for 365 days by default and are
+purged by the scheduled retention task. Configure `AUDIT_RETENTION_DAYS` and
+`AUDIT_RETENTION_INTERVAL_MS` as needed.
+
+Rate limits: general API traffic defaults to 100 requests/minute per user or client IP.
+Authentication routes use route-specific limits: login/register 5/minute, refresh 5/minute,
+password-reset request 3/minute, and verification resend 3/minute. Responses expose
+`RateLimit-Limit`, `RateLimit-Remaining`, `RateLimit-Reset`, and `Retry-After` when throttled.
+
 Existing `v1` clients retain their current response shapes. Clients that send
 `Accept: application/vnd.strollbar.v2+json` receive the versioned envelope
 `{ status, data, meta }` for success and `{ status, error, meta }` for failures; the Angular
