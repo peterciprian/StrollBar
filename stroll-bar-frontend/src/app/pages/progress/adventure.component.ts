@@ -1,4 +1,4 @@
-import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe } from '@ngx-translate/core';
 import { map } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MapPreviewComponent } from '../../components/map-preview/map-preview.component';
 import { MediaGalleryComponent } from '../../components/media-gallery/media-gallery.component';
@@ -39,6 +40,7 @@ export class AdventureScreenComponent implements OnInit {
 	private readonly route = inject(ActivatedRoute);
 	private readonly adventuresFeature = inject(AdventuresFeatureService);
 	private readonly cdr = inject(ChangeDetectorRef);
+	private readonly destroyRef = inject(DestroyRef);
 
 	protected readonly adventureId = this.route.snapshot.paramMap.get('adventureId') ?? '';
 
@@ -78,7 +80,10 @@ export class AdventureScreenComponent implements OnInit {
 
 		this.adventuresFeature
 			.submitAnswer(this.adventureId, this.currentStage.id, this.answer)
-			.pipe(map((result) => (this.isUsableAnswerResult(result) ? result : this.demoSubmitAnswer())))
+			.pipe(
+				takeUntilDestroyed(this.destroyRef),
+				map((result) => (this.isUsableAnswerResult(result) ? result : this.demoSubmitAnswer()))
+			)
 			.subscribe({
 				next: (result) => this.applyAnswerResult(result),
 				error: () => this.applyAnswerResult(this.demoSubmitAnswer())
@@ -106,7 +111,10 @@ export class AdventureScreenComponent implements OnInit {
 	private navigateStage(direction: AdventureNavigateDirection): void {
 		this.adventuresFeature
 			.navigate(this.adventureId, direction)
-			.pipe(map((detail) => (this.isUsableDetail(detail) ? detail : this.demoNavigate(direction))))
+			.pipe(
+				takeUntilDestroyed(this.destroyRef),
+				map((detail) => (this.isUsableDetail(detail) ? detail : this.demoNavigate(direction)))
+			)
 			.subscribe({
 				next: (detail) => this.applyDetail(detail),
 				error: () => this.applyDetail(this.demoNavigate(direction))
@@ -120,7 +128,10 @@ export class AdventureScreenComponent implements OnInit {
 		// Both next and error are handled explicitly so the loading flag always clears, even if the fallback itself fails.
 		this.adventuresFeature
 			.get(this.adventureId)
-			.pipe(map((detail) => (this.isUsableDetail(detail) ? detail : this.buildDemoDetail())))
+			.pipe(
+				takeUntilDestroyed(this.destroyRef),
+				map((detail) => (this.isUsableDetail(detail) ? detail : this.buildDemoDetail()))
+			)
 			.subscribe({
 				next: (detail) => {
 					this.loading = false;
@@ -136,7 +147,10 @@ export class AdventureScreenComponent implements OnInit {
 	private reloadCurrentStage(): void {
 		this.adventuresFeature
 			.get(this.adventureId)
-			.pipe(map((detail) => (this.isUsableDetail(detail) ? detail : this.buildDemoDetail())))
+			.pipe(
+				takeUntilDestroyed(this.destroyRef),
+				map((detail) => (this.isUsableDetail(detail) ? detail : this.buildDemoDetail()))
+			)
 			.subscribe({
 				next: (detail) => this.applyDetail(detail),
 				error: () => this.applyDetail(this.buildDemoDetail())

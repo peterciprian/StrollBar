@@ -19,6 +19,11 @@
 		"/^Set-Location 'C:\\\\P\\\\__DEV\\\\__stuff\\\\StrollBar\\\\stroll-bar-backend'; node -r ts-node/register -e \"const \\{withRetry\\}=require\\('\\./src/common/utils/retry\\.util'\\); let calls=0; withRetry\\(async\\(\\)=>\\{calls\\+\\+; if\\(calls===1\\) throw Object\\.assign\\(new Error\\('reset'\\),\\{code:'ECONNRESET'\\}\\); return 'ok'\\}, \\{initialDelayMs:1, maxDelayMs:1, isRetryable:error=>\\['ECONNRESET'\\]\\.includes\\(error\\?\\.code\\)\\}\\)\\.then\\(value=>console\\.log\\(value,calls\\)\\)\\.catch\\(error=>console\\.error\\(error,calls\\)\\)\"$/": {
 			"approve": true,
 			"matchCommandLine": true
-		}
+		},
+		"/^Set-Location 'C:\\\\P\\\\__DEV\\\\__stuff\\\\StrollBar'; node -e \"for \\(const p of \\['@nestjs/cache-manager','cache-manager','cache-manager-redis-yet'\\]\\) \\{ try \\{ console\\.log\\(p,require\\('\\./node_modules/'\\+p\\+'/package\\.json'\\)\\.version\\) \\} catch\\(e\\) \\{ console\\.log\\(p,'missing'\\) \\}\\}\"$/": {
+			"approve": true,
+			"matchCommandLine": true
+		},
+		"npm run lint": true
 	}
 }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
@@ -14,6 +14,7 @@ import { AdventuresModule } from './modules/adventures/adventures.module';
 import { MediaModule } from './modules/media/media.module';
 import { buildDatabaseOptions } from './database/database.config';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
+import { RequestLoggingMiddleware } from './common/middleware/request-logging.middleware';
 
 @Module({
 	imports: [
@@ -47,4 +48,8 @@ import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 		}
 	]
 })
-export class AppModule {}
+export class AppModule {
+	configure(consumer: MiddlewareConsumer): void {
+		consumer.apply(RequestLoggingMiddleware).forRoutes('*');
+	}
+}

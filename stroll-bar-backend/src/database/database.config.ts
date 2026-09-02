@@ -46,6 +46,13 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 		password: process.env.DB_PASSWORD ?? 'postgres',
 		database: process.env.DB_NAME ?? 'strollbar',
 		ssl: resolveSslOption(),
+		extra: {
+			max: Number(process.env.DB_POOL_MAX ?? '50'),
+			min: Number(process.env.DB_POOL_MIN ?? '2'),
+			idleTimeoutMillis: Number(process.env.DB_POOL_IDLE_TIMEOUT_MS ?? '30000'),
+			connectionTimeoutMillis: Number(process.env.DB_POOL_CONNECTION_TIMEOUT_MS ?? '10000'),
+			statement_timeout: Number(process.env.DB_STATEMENT_TIMEOUT_MS ?? '30000')
+		},
 		autoLoadEntities: true,
 		entities: [...DATABASE_ENTITIES],
 		migrations: [

@@ -5,6 +5,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
+import { StructuredExceptionFilter } from './common/filters/structured-exception.filter';
+import { VersionedResponseInterceptor } from './common/interceptors/versioned-response.interceptor';
 
 async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule);
@@ -22,6 +24,8 @@ async function bootstrap(): Promise<void> {
 			forbidNonWhitelisted: true
 		})
 	);
+	app.useGlobalFilters(new StructuredExceptionFilter());
+	app.useGlobalInterceptors(new VersionedResponseInterceptor());
 
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle('StrollBar API')

@@ -9,9 +9,11 @@ import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entitie
 import { UserRole } from '../users/entities/user.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 const SIMPLE_PUBLIC_STROLL_LIMIT = 3;
 const PRIVATE_STROLL_EXTRACT_LENGTH = 240;
+type StrollListResponse = { items: ReturnType<StrollsService['createSummary']>[]; page: number; limit: number; total: number };
 
 @Injectable()
 export class StrollsService {
@@ -21,7 +23,8 @@ export class StrollsService {
 		@InjectRepository(StageEntity)
 		private readonly stagesRepository: Repository<StageEntity>,
 		@InjectRepository(AdventureEntity)
-		private readonly adventuresRepository: Repository<AdventureEntity>
+		private readonly adventuresRepository: Repository<AdventureEntity>,
+		private readonly cache: RedisCacheService
 	) {}
 
 	async list(query: ListStrollsQueryDto) {
@@ -30,9 +33,14 @@ export class StrollsService {
 		const filters: Record<string, unknown> = {
 			activeStatus: StrollActiveStatus.PUBLISHED
 		};
+		const cacheKey = `strolls:list:${JSON.stringify(query)}`;
+		if (!query.authorId) {
+			const cached = await this.cache.get<StrollListResponse>(cacheKey);
+			if (cached) return cached;
+		}
 
 		if (query.search) {
-			filters.name = ILike(`%${query.search}%`);
+			filters.name = ILike(`${query.search}%`);
 		}
 
 		if (query.authorId) {
@@ -40,7 +48,7 @@ export class StrollsService {
 		}
 
 		if (query.labels) {
-			filters.labels = ILike(`%${query.labels.toLowerCase()}%`);
+			filters.labels = ILike(`${query.labels.toLowerCase()}%`);
 		}
 
 		const [items, total] = await this.strollsRepository.findAndCount({
@@ -52,12 +60,14 @@ export class StrollsService {
 			skip: (page - 1) * limit,
 			take: limit
 		});
-		return {
+		const response = {
 			items: items.map((stroll) => this.createSummary(stroll)),
 			page,
 			limit,
 			total
 		};
+		if (!query.authorId) await this.cache.set(cacheKey, response, 600);
+		return response;
 	}
 
 	async listOwned(query: ListStrollsQueryDto, authorId: string) {
@@ -66,11 +76,11 @@ export class StrollsService {
 		const where: Record<string, unknown> = { authorId };
 
 		if (query.search) {
-			where.name = ILike(`%${query.search}%`);
+			where.name = ILike(`${query.search}%`);
 		}
 
 		if (query.labels) {
-			where.labels = ILike(`%${query.labels.toLowerCase()}%`);
+			where.labels = ILike(`${query.labels.toLowerCase()}%`);
 		}
 
 		const [items, total] = await this.strollsRepository.findAndCount({
@@ -106,7 +116,9 @@ export class StrollsService {
 			stageCount: 0
 		});
 
-		return this.strollsRepository.save(stroll);
+		const saved = await this.strollsRepository.save(stroll);
+		await this.cache.deleteByPrefix('strolls:list:');
+		return saved;
 	}
 
 	async findOne(strollId: string, currentUser?: AuthenticatedUser) {
@@ -180,7 +192,9 @@ export class StrollsService {
 			};
 		}
 
-		return this.strollsRepository.save(stroll);
+		const saved = await this.strollsRepository.save(stroll);
+		await this.cache.deleteByPrefix('strolls:list:');
+		return saved;
 	}
 
 	async remove(strollId: string, currentUser: AuthenticatedUser) {
@@ -188,6 +202,7 @@ export class StrollsService {
 
 		await this.stagesRepository.delete({ strollId });
 		await this.strollsRepository.delete({ id: strollId });
+		await this.cache.deleteByPrefix('strolls:list:');
 
 		return { id: strollId, deleted: true };
 	}

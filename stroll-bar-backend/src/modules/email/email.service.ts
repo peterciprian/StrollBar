@@ -1,4 +1,4 @@
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { BadRequestException, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createTransport, Transporter } from 'nodemailer';
 import { withRetry, withTimeoutAndRetry } from '../../common/utils/retry.util';
@@ -40,6 +40,7 @@ export class EmailService {
 		if (!this.isDeliveryEnabled()) {
 			return;
 		}
+		this.validateEmailParameters(recipient, username, token);
 
 		const verificationUrl = this.buildVerificationUrl(token);
 		const safeUsername = this.escapeHtml(username);
@@ -104,7 +105,36 @@ export class EmailService {
 
 	private buildVerificationUrl(token: string): string {
 		const baseUrl = this.configService.get<string>('EMAIL_VERIFICATION_URL') ?? 'http://localhost:4200/#/auth/verify-email';
-		return `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}token=${encodeURIComponent(token)}`;
+		let url: URL;
+		try {
+			url = new URL(baseUrl);
+		} catch {
+			throw new ServiceUnavailableException('EMAIL_VERIFICATION_URL is invalid.');
+		}
+
+		if (!['http:', 'https:'].includes(url.protocol)) {
+			throw new ServiceUnavailableException('EMAIL_VERIFICATION_URL must use HTTP or HTTPS.');
+		}
+
+		if (url.hash) {
+			const hashSeparator = url.hash.includes('?') ? '&' : '?';
+			url.hash = `${url.hash}${hashSeparator}token=${encodeURIComponent(token)}`;
+		} else {
+			url.searchParams.set('token', token);
+		}
+		return url.toString();
+	}
+
+	private validateEmailParameters(recipient: string, username: string, token: string): void {
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient) || recipient.length > 254) {
+			throw new BadRequestException('A valid recipient email address is required.');
+		}
+		if (!username.trim() || username.length > 50) {
+			throw new BadRequestException('A valid username is required.');
+		}
+		if (!/^[a-f0-9]{64}$/i.test(token)) {
+			throw new BadRequestException('The verification token has an invalid format.');
+		}
 	}
 
 	private getRequiredConfig(key: string): string {

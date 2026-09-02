@@ -56,6 +56,15 @@ OAuth requests default to a 10-second timeout and three attempts. S3 requests de
 30-second timeout and three attempts; these can be tuned with `OAUTH_REQUEST_TIMEOUT_MS`,
 `OAUTH_REQUEST_RETRY_ATTEMPTS`, `S3_REQUEST_TIMEOUT_MS`, and `S3_RETRY_ATTEMPTS`.
 
+The PostgreSQL pool defaults to a maximum of 50 connections, a minimum of 2 idle
+connections, a 30-second idle timeout, a 10-second connection timeout, and a 30-second
+statement timeout. Tune these with `DB_POOL_MAX`, `DB_POOL_MIN`,
+`DB_POOL_IDLE_TIMEOUT_MS`, `DB_POOL_CONNECTION_TIMEOUT_MS`, and `DB_STATEMENT_TIMEOUT_MS`.
+
+Set `REDIS_URL` to enable the distributed stroll-list cache. Public stroll listings use a
+10-minute cache-aside TTL, fall back to PostgreSQL when Redis is unavailable, and are
+invalidated after stroll writes. Cache reads and misses are counted for operational metrics.
+
 ## Local PostgreSQL
 
 Backend development defaults to PostgreSQL via [stroll-bar-backend/.env.development](stroll-bar-backend/.env.development).
@@ -173,6 +182,16 @@ The backend sends verification links over SMTP after password registration and w
 The health endpoint reports SMTP reachability when delivery is enabled. Failed SMTP sends are
 retried with 1-second and 4-second backoff before returning a temporary-unavailable response;
 users can request another verification email from Account settings.
+
+Requests receive an `x-request-id` response header. Backend request and exception logs are
+JSON records containing that ID, HTTP method, path, status, duration, and error stack when
+available, which can be ingested by ELK, Splunk, or a hosted log service.
+
+Existing `v1` clients retain their current response shapes. Clients that send
+`Accept: application/vnd.strollbar.v2+json` receive the versioned envelope
+`{ status, data, meta }` for success and `{ status, error, meta }` for failures; the Angular
+client requests and unwraps this format centrally. Prefix searches use `term%` semantics for
+index-friendly database queries.
 
 For local development without SMTP, keep delivery disabled and set `AUTH_EXPOSE_VERIFICATION_TOKEN=true`. Never expose verification tokens in production.
 

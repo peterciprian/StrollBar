@@ -1,4 +1,4 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { AdventureDetailResponse } from '../../../core/api/models';
 import { AdventuresFeatureService } from '../../../features/adventures/adventures-feature.service';
@@ -20,6 +21,7 @@ import { AdventuresFeatureService } from '../../../features/adventures/adventure
 export class UserDashboardScreenComponent implements OnInit {
 	private readonly router = inject(Router);
 	private readonly adventuresFeature = inject(AdventuresFeatureService);
+	private readonly destroyRef = inject(DestroyRef);
 
 	protected readonly displayedColumns = ['name', 'status', 'progress', 'currentStage', 'purchased', 'activity', 'actions'];
 	protected readonly adventures = signal<AdventureDetailResponse[]>([]);
@@ -30,16 +32,19 @@ export class UserDashboardScreenComponent implements OnInit {
 	protected readonly totalStages = computed(() => this.adventures().reduce((total, { stroll }) => total + (stroll?.stageCount ?? 0), 0));
 
 	ngOnInit(): void {
-		this.adventuresFeature.list().subscribe({
-			next: (adventures) => {
-				this.adventures.set(adventures);
-				this.loading.set(false);
-			},
-			error: () => {
-				this.loadError.set(true);
-				this.loading.set(false);
-			}
-		});
+		this.adventuresFeature
+			.list()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe({
+				next: (adventures) => {
+					this.adventures.set(adventures);
+					this.loading.set(false);
+				},
+				error: () => {
+					this.loadError.set(true);
+					this.loading.set(false);
+				}
+			});
 	}
 
 	protected progressPercent(detail: AdventureDetailResponse): number {
@@ -58,10 +63,13 @@ export class UserDashboardScreenComponent implements OnInit {
 
 	protected openAdventure(detail: AdventureDetailResponse): void {
 		if (detail.adventure.progressStatus === 'purchased') {
-			this.adventuresFeature.start(detail.adventure.id).subscribe({
-				next: () => this.router.navigate(['/adventure', detail.adventure.id]),
-				error: () => this.loadError.set(true)
-			});
+			this.adventuresFeature
+				.start(detail.adventure.id)
+				.pipe(takeUntilDestroyed(this.destroyRef))
+				.subscribe({
+					next: () => this.router.navigate(['/adventure', detail.adventure.id]),
+					error: () => this.loadError.set(true)
+				});
 			return;
 		}
 

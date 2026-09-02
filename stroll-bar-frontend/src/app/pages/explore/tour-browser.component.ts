@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
 import { CATEGORY_LABEL_KEYS, MOCK_TOURS, Tour, TourCategory } from '../../core/models/screens.models';
@@ -44,6 +45,7 @@ export class TourBrowserScreenComponent implements OnInit {
 	private readonly tokenStorage = inject(TokenStorageService);
 	private readonly dialog = inject(MatDialog);
 	private readonly router = inject(Router);
+	private readonly destroyRef = inject(DestroyRef);
 
 	protected readonly categories: CategoryFilter[] = ['All', 'Historical', 'Mystery', 'Cultural'];
 	protected readonly categoryLabelKeys = CATEGORY_LABEL_KEYS;
@@ -119,6 +121,7 @@ export class TourBrowserScreenComponent implements OnInit {
 		this.strollsFeature
 			.browse({ sortBy: 'most_used' })
 			.pipe(
+				takeUntilDestroyed(this.destroyRef),
 				map((response) => (response?.items?.length ? response.items.map((stroll) => mapStrollToTour(stroll)) : MOCK_TOURS)),
 				catchError(() => of(MOCK_TOURS))
 			)

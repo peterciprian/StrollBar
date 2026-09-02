@@ -24,10 +24,16 @@ describe('StrollsService authorization', () => {
 		find: jest.fn(),
 		findOne: jest.fn()
 	};
+	const cache = {
+		get: jest.fn(),
+		set: jest.fn(),
+		deleteByPrefix: jest.fn()
+	};
 	const service = new StrollsService(
 		strollsRepository as unknown as Repository<StrollEntity>,
 		stagesRepository as unknown as Repository<StageEntity>,
-		adventuresRepository as unknown as Repository<AdventureEntity>
+		adventuresRepository as unknown as Repository<AdventureEntity>,
+		cache as never
 	);
 	const createDto = {
 		name: 'A stroll',
