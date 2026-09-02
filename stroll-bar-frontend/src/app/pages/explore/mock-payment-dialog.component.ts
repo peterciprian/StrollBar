@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 export interface MockPaymentDialogData {
-	tourName: string;
+	strollName: string;
 	price: number;
 }
 
@@ -22,8 +22,8 @@ export interface MockPaymentDialogData {
 				<p class="mock-payment__intro">{{ 'SCREENS.MOCK_PAYMENT.DESCRIPTION' | translate }}</p>
 				<div class="mock-payment__order">
 					<div>
-						<span>{{ 'SCREENS.MOCK_PAYMENT.TOUR' | translate }}</span
-						><strong>{{ data.tourName }}</strong>
+						<span>{{ 'SCREENS.MOCK_PAYMENT.STROLL' | translate }}</span
+						><strong>{{ data.strollName }}</strong>
 					</div>
 					<strong>{{ data.price | number }} {{ 'COMMON.HUF_SUFFIX' | translate }}</strong>
 				</div>

@@ -1,8 +1,8 @@
 // Static mock data used only by the /screens views (UI/UX demo, no backend calls).
 
-export type TourCategory = 'Historical' | 'Mystery' | 'Cultural';
-export type TourStatus = 'Published' | 'Draft';
-export type UserTourStatus = 'Undiscovered' | 'In Progress' | 'Completed';
+export type StrollCategory = 'Historical' | 'Mystery' | 'Cultural';
+export type StrollStatus = 'Published' | 'Draft';
+export type UserStrollStatus = 'Undiscovered' | 'In Progress' | 'Completed';
 
 // Translation keys for the enum-like values above, keyed by their canonical (English) data value.
 // Typed as Record<string, string> so template lookups (which report the row type as `any`) type-check cleanly.
@@ -13,18 +13,18 @@ export const CATEGORY_LABEL_KEYS: Record<string, string> = {
 	Cultural: 'SCREENS.CATEGORY_CULTURAL'
 };
 
-export const TOUR_STATUS_LABEL_KEYS: Record<string, string> = {
-	Published: 'SCREENS.ADMIN_TOUR_LIST.STATUS_PUBLISHED',
-	Draft: 'SCREENS.ADMIN_TOUR_LIST.STATUS_DRAFT'
+export const STROLL_STATUS_LABEL_KEYS: Record<string, string> = {
+	Published: 'SCREENS.ADMIN_STROLL_LIST.STATUS_PUBLISHED',
+	Draft: 'SCREENS.ADMIN_STROLL_LIST.STATUS_DRAFT'
 };
 
-export const USER_TOUR_STATUS_LABEL_KEYS: Record<string, string> = {
+export const USER_STROLL_STATUS_LABEL_KEYS: Record<string, string> = {
 	Undiscovered: 'SCREENS.USER_DASHBOARD.STATUS_UNDISCOVERED',
 	'In Progress': 'SCREENS.USER_DASHBOARD.STATUS_IN_PROGRESS',
 	Completed: 'SCREENS.USER_DASHBOARD.STATUS_COMPLETED'
 };
 
-export interface TourStation {
+export interface StrollStation {
 	id: string;
 	name: string;
 	address: string;
@@ -32,10 +32,10 @@ export interface TourStation {
 	longitude: number;
 }
 
-export interface Tour {
+export interface Stroll {
 	id: string;
 	title: string;
-	category: TourCategory;
+	category: StrollCategory;
 	durationMinutes: number;
 	price: number;
 	distanceKm: number;
@@ -44,27 +44,27 @@ export interface Tour {
 	stationsCount?: number;
 	coverImageUrl?: string;
 	coverFallback: string;
-	stations: TourStation[];
+	stations: StrollStation[];
 }
 
-export interface AdminTourRow {
+export interface AdminStrollRow {
 	id: string;
 	name: string;
 	stationsCount: number;
-	category: TourCategory;
+	category: StrollCategory;
 	price: number;
-	status: TourStatus;
+	status: StrollStatus;
 }
 
-export interface UserTourRow {
+export interface UserStrollRow {
 	id: string;
 	name: string;
 	stationsCount: number;
-	category: TourCategory;
-	status: UserTourStatus;
+	category: StrollCategory;
+	status: UserStrollStatus;
 }
 
-export const MOCK_TOURS: Tour[] = [
+export const MOCK_STROLLS: Stroll[] = [
 	{
 		id: 'fishermans-bastion-mystery',
 		title: "Fisherman's Bastion Mystery",
@@ -121,7 +121,7 @@ export const MOCK_TOURS: Tour[] = [
 	}
 ];
 
-export const MOCK_ADMIN_TOURS: AdminTourRow[] = [
+export const MOCK_ADMIN_STROLLS: AdminStrollRow[] = [
 	{ id: 't1', name: "Fisherman's Bastion Mystery", stationsCount: 6, category: 'Mystery', price: 3500, status: 'Published' },
 	{ id: 't2', name: 'Jewish Quarter Heritage Walk', stationsCount: 5, category: 'Historical', price: 2900, status: 'Published' },
 	{ id: 't3', name: 'Danube Legends & Chain Bridge', stationsCount: 4, category: 'Cultural', price: 2500, status: 'Published' },
@@ -130,7 +130,7 @@ export const MOCK_ADMIN_TOURS: AdminTourRow[] = [
 	{ id: 't6', name: 'Great Market Hall Flavours', stationsCount: 3, category: 'Cultural', price: 1900, status: 'Published' }
 ];
 
-export const MOCK_USER_TOURS: UserTourRow[] = [
+export const MOCK_USER_STROLLS: UserStrollRow[] = [
 	{ id: 'u1', name: "Fisherman's Bastion Mystery", stationsCount: 6, category: 'Mystery', status: 'In Progress' },
 	{ id: 'u2', name: 'Jewish Quarter Heritage Walk', stationsCount: 5, category: 'Historical', status: 'Completed' },
 	{ id: 'u3', name: 'Danube Legends & Chain Bridge', stationsCount: 4, category: 'Cultural', status: 'Completed' },

@@ -80,10 +80,10 @@ export class HeaderComponent {
 		const path = url.split('?')[0];
 
 		switch (screen.id) {
-			case 'tour-browser':
+			case 'stroll-browser':
 				return path === '/explore';
-			case 'admin-tour-list':
-				return path.startsWith('/admin/tour-list');
+			case 'admin-stroll-list':
+				return path.startsWith('/admin/stroll-list');
 			case 'admin-user-list':
 				return path.startsWith('/admin/user-list');
 			case 'creator-strolls':

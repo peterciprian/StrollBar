@@ -1,7 +1,7 @@
 ## StrollBar Product Rules
 
 ### 1. Vision
-StrollBar is a social sightseeing platform where users can discover and publish ordered walking tours ("strolls") around cities, landmarks, districts, and famous buildings.
+StrollBar is a social sightseeing platform where users can discover and publish ordered walking strolls ("strolls") around cities, landmarks, districts, and famous buildings.
 
 The core experience combines:
 - Social content (user-generated strolls)

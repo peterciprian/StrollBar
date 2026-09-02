@@ -1,0 +1,77 @@
+<div class="stroll-browser">
+	<div class="stroll-browser__left">
+		<mat-form-field appearance="outline" class="stroll-browser__search">
+			<mat-label>{{ 'SCREENS.STROLL_BROWSER.SEARCH_LABEL' | translate }}</mat-label>
+			<input matInput [(ngModel)]="searchTerm" [placeholder]="'SCREENS.STROLL_BROWSER.SEARCH_PLACEHOLDER' | translate" />
+			<mat-icon matPrefix>search</mat-icon>
+		</mat-form-field>
+
+		<div class="stroll-browser__chips" role="radiogroup" [attr.aria-label]="'SCREENS.STROLL_BROWSER.CATEGORY_FILTER_ARIA' | translate">
+			@for (category of categories; track category) {
+				<button
+					type="button"
+					class="stroll-browser__category-chip"
+					[class.stroll-browser__category-chip--active]="activeCategory === category"
+					role="radio"
+					[attr.aria-checked]="activeCategory === category"
+					(click)="selectCategory(category)"
+				>
+					<span class="stroll-browser__category-marker" aria-hidden="true"></span>
+					{{ categoryLabelKeys[category] | translate }}
+				</button>
+			}
+		</div>
+
+		<div class="stroll-browser__list">
+			@for (stroll of filteredStrolls; track stroll.id) {
+				<app-stroll-card [stroll]="stroll" [selected]="stroll.id === selectedStroll.id" (cardClick)="selectStrollCard(stroll)"></app-stroll-card>
+			}
+			@if (!filteredStrolls.length) {
+				<p class="stroll-browser__empty">{{ 'SCREENS.STROLL_BROWSER.EMPTY_STATE' | translate }}</p>
+			}
+		</div>
+	</div>
+
+	<div class="stroll-browser__right">
+		<div class="stroll-browser__cover" [style.background-image]="selectedStroll.coverImageUrl ? null : selectedStroll.coverFallback">
+			@if (selectedStroll.coverImageUrl) {
+				<img [src]="selectedStroll.coverImageUrl" alt="" />
+			}
+			<span class="stroll-browser__cover-category">{{ categoryLabelKeys[selectedStroll.category] | translate }}</span>
+			<h1>{{ selectedStroll.title }}</h1>
+		</div>
+
+		<div class="stroll-browser__content">
+			@if (selectedStroll.publicityFlag === 'private') {
+				<p class="stroll-browser__privacy"><mat-icon>lock</mat-icon>{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</p>
+			}
+			<p class="stroll-browser__description">{{ selectedStroll.description }}</p>
+
+			<div class="stroll-browser__stats">
+				<div class="stroll-browser__stat">
+					<mat-icon>straighten</mat-icon>
+					<span class="stroll-browser__stat-value">{{ selectedStroll.distanceKm }} {{ 'COMMON.KM_SUFFIX' | translate }}</span>
+					<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_DISTANCE' | translate }}</span>
+				</div>
+				<div class="stroll-browser__stat">
+					<mat-icon>place</mat-icon>
+					<span class="stroll-browser__stat-value">{{ selectedStroll.stationsCount ?? selectedStroll.stations.length }}</span>
+					<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_STATIONS' | translate }}</span>
+				</div>
+				<div class="stroll-browser__stat">
+					<mat-icon>schedule</mat-icon>
+					<span class="stroll-browser__stat-value">{{ selectedStroll.durationMinutes }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span>
+					<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_TIME' | translate }}</span>
+				</div>
+			</div>
+
+			@if (startAdventureError()) {
+				<p class="stroll-browser__start-error"><mat-icon>error_outline</mat-icon>{{ 'SCREENS.STROLL_BROWSER.START_ERROR' | translate }}</p>
+			}
+			<button mat-flat-button color="primary" class="stroll-browser__start-btn" [disabled]="startingAdventure()" (click)="startAdventure()">
+				<mat-icon>{{ startingAdventure() ? 'hourglass_top' : 'hiking' }}</mat-icon>
+				{{ (startingAdventure() ? 'SCREENS.STROLL_BROWSER.STARTING' : 'SCREENS.STROLL_BROWSER.START_ADVENTURE') | translate | uppercase }}
+			</button>
+		</div>
+	</div>
+</div>

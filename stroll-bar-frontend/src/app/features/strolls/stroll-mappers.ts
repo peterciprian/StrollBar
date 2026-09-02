@@ -1,10 +1,10 @@
-// Maps backend Stroll/Stage responses onto the richer Tour shape used by the /screens demo UI.
+// Maps backend Stroll/Stage responses onto the richer Stroll shape used by the /screens demo UI.
 import { StrollSummary } from '../../core/api/models';
-import { Tour, TourCategory } from '../../core/models/screens.models';
+import { Stroll, StrollCategory } from '../../core/models/screens.models';
 
-const KNOWN_CATEGORIES: TourCategory[] = ['Historical', 'Mystery', 'Cultural'];
+const KNOWN_CATEGORIES: StrollCategory[] = ['Historical', 'Mystery', 'Cultural'];
 
-export function mapStrollToTour(stroll: StrollSummary): Tour {
+export function mapStrollToStroll(stroll: StrollSummary): Stroll {
 	const category = KNOWN_CATEGORIES.find((known) => stroll.labels.includes(known)) ?? 'Cultural';
 
 	return {

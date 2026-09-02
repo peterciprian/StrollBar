@@ -88,39 +88,39 @@ protected async submitAnswer(): Promise<void> {
 
 ### Pattern 3: List Loading with Filtering
 
-**Scenario**: Fetch a list on initialization, with client-side filtering (e.g., tour browser)
+**Scenario**: Fetch a list on initialization, with client-side filtering (e.g., stroll browser)
 
 ```typescript
-export class TourBrowserComponent implements OnInit {
+export class StrollBrowserComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
 
-	protected tours = signal<Tour[]>([]);
+	protected strolls = signal<Stroll[]>([]);
 	protected loading = signal(true);
 	protected error = signal<string | null>(null);
 	protected searchTerm = '';
 	protected activeCategory = 'All';
 
 	// Computed filter results - runs reactively as signals change
-	protected filteredTours = computed(() => {
-		return this.tours().filter((tour) => this.matchesCategory(tour) && this.matchesSearch(tour));
+	protected filteredStrolls = computed(() => {
+		return this.strolls().filter((stroll) => this.matchesCategory(stroll) && this.matchesSearch(stroll));
 	});
 
 	ngOnInit(): void {
-		this.loadTours();
+		this.loadStrolls();
 	}
 
-	private loadTours(): void {
+	private loadStrolls(): void {
 		this.loading.set(true);
 		this.error.set(null);
 
 		this.strollsFeature.browse({ sortBy: 'most_used' }).subscribe({
 			next: (response) => {
-				this.tours.set(response?.items || []);
+				this.strolls.set(response?.items || []);
 				this.loading.set(false);
 			},
 			error: () => {
-				this.error.set('Failed to load tours');
-				this.tours.set([]);
+				this.error.set('Failed to load strolls');
+				this.strolls.set([]);
 				this.loading.set(false);
 			}
 		});

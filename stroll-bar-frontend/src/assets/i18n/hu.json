@@ -102,7 +102,7 @@
 		"WELCOME_TITLE": "Fedezd fel Budapestet, nyomról nyomra",
 		"WELCOME_SUBTITLE": "Kövesd a gondosan összeállított útvonalakat rejtett udvarokon, történelmi tereken és titkos legendákon keresztül. Oldj meg rejtvényeket minden állomáson, szerezz jelvényeket, és varázsolj minden sétából igazi kalandot.",
 		"REGISTER": "Regisztráció",
-		"SHOW_TOURS": "Mutasd a túrákat",
+		"SHOW_STROLLS": "Mutasd a túrákat",
 		"FEATURE1_TITLE": "Történelmi rejtélyek",
 		"FEATURE1_DESC": "Fedezd fel a város legikonikusabb látványosságaiba rejtett, évszázados titkokat.",
 		"FEATURE2_TITLE": "Játékos kalandok",
@@ -201,17 +201,17 @@
 		"BACK": "Vissza"
 	},
 	"SCREENS": {
-		"TOUR_BROWSER_TAB": "Túrabőngésző",
+		"STROLL_BROWSER_TAB": "Túrabőngésző",
 		"ADVENTURE_TAB": "Kaland",
-		"ADMIN_TOUR_LIST_TAB": "Admin · Túrák",
+		"ADMIN_STROLL_LIST_TAB": "Admin · Túrák",
 		"ADMIN_USER_LIST_TAB": "Admin · Felhasználók",
-		"ADMIN_STATION_EDITOR_TAB": "Admin · Állomásszerkesztő",
-		"USER_DASHBOARD_TAB": "Túráim",
+		"STATION_EDITOR_TAB": "Állomásszerkesztő",
+		"USER_DASHBOARD_TAB": "Sétáim",
 		"CATEGORY_ALL": "Összes",
 		"CATEGORY_HISTORICAL": "Történelmi",
 		"CATEGORY_MYSTERY": "Rejtélyes",
 		"CATEGORY_CULTURAL": "Kulturális",
-		"TOUR_BROWSER": {
+		"STROLL_BROWSER": {
 			"SEARCH_LABEL": "Túrák és kerületek keresése",
 			"SEARCH_PLACEHOLDER": "pl. Halászbástya",
 			"CATEGORY_FILTER_ARIA": "Kategória szűrő",
@@ -229,7 +229,7 @@
 			"BADGE": "Fizetési előnézet",
 			"TITLE": "Kaland megerősítése",
 			"DESCRIPTION": "Ez a pénztár a későbbi fizetési szolgáltató helyőrzője.",
-			"TOUR": "Kiválasztott túra",
+			"STROLL": "Kiválasztott túra",
 			"METHOD": "Demókártya",
 			"METHOD_DETAIL": "•••• 4242 · Automatikusan jóváhagyva",
 			"NO_CHARGE": "Nem történik valódi fizetés, és bankkártyát sem terhelünk meg.",
@@ -251,7 +251,7 @@
 			"STORY": "A boltív fölött, a Duna szelének évszázados koptatásától megviselve, egy kőcímer őrzi titkát. Az 1487-es céhes feljegyzések egy „néma őrzőt” említenek, amelyet a kapuba véstek — hogy megvédje az utcát a bajtól.",
 			"RIDDLE": "Rejtvény: „Nem üvöltök, mégis mindig figyeltem. Találj meg a kapu fölött, kőbe vésve, és mondd meg, mi vagyok.”"
 		},
-		"ADMIN_TOUR_LIST": {
+		"ADMIN_STROLL_LIST": {
 			"HEADER_TITLE": "Túrák kezelése",
 			"SUBTITLE": "Publikálás, láthatóság, tartalom és legutóbbi aktivitás egy helyen.",
 			"CREATE_BUTTON": "Új túra létrehozása",

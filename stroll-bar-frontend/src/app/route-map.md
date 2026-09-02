@@ -2,9 +2,9 @@
 
 ## Public Routes
 
-- /explore (tour browser)
+- /explore (stroll browser)
 - /adventure/:adventureId
-- /admin/tour-list (admin role only)
+- /admin/stroll-list (admin role only)
 - /admin/user-list (admin role only)
 - /user-dashboard
 - /users/:userId
@@ -29,6 +29,6 @@
 ## Notes
 
 - Route guards should be added for authenticated routes.
-- The tour browser is available at `/explore`.
+- The stroll browser is available at `/explore`.
 - Adventure sessions use `/adventure/:adventureId`.
 - Creator stroll editing is available at `/creator/strolls` and its `new`/`edit` variants.

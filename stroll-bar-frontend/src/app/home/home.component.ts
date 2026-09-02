@@ -6,9 +6,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { StrollCardComponent } from '../components/stroll-card/stroll-card.component';
-import { MOCK_TOURS, Tour } from '../core/models/screens.models';
+import { MOCK_STROLLS, Stroll } from '../core/models/screens.models';
 import { StrollsFeatureService } from '../features/strolls/strolls-feature.service';
-import { mapStrollToTour } from '../features/strolls/stroll-mappers';
+import { mapStrollToStroll } from '../features/strolls/stroll-mappers';
 import { AsyncLoadingState } from '../core/utils/async-loading-state.util';
 
 @Component({
@@ -21,23 +21,23 @@ import { AsyncLoadingState } from '../core/utils/async-loading-state.util';
 export class HomeComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
 
-	/** Async state for featured tours loading */
-	protected readonly toursState = new AsyncLoadingState<Tour[]>();
+	/** Async state for featured strolls loading */
+	protected readonly strollsState = new AsyncLoadingState<Stroll[]>();
 
 	ngOnInit(): void {
-		this.loadFeaturedTours();
+		this.loadFeaturedStrolls();
 	}
 
-	private loadFeaturedTours(): void {
-		// Fetch featured tours from API; falls back to mock tours on error or empty response.
+	private loadFeaturedStrolls(): void {
+		// Fetch featured strolls from API; falls back to mock strolls on error or empty response.
 		// Using AsyncLoadingState to manage loading/error/data state consistently.
 		this.strollsFeature.browse({ sortBy: 'most_used', limit: 3 }).subscribe({
 			next: (response) => {
-				const tours = response?.items?.length ? response.items.map((stroll) => mapStrollToTour(stroll)) : MOCK_TOURS.slice(0, 3);
-				this.toursState.setSuccess(tours);
+				const strolls = response?.items?.length ? response.items.map((stroll) => mapStrollToStroll(stroll)) : MOCK_STROLLS.slice(0, 3);
+				this.strollsState.setSuccess(strolls);
 			},
 			error: () => {
-				this.toursState.setSuccess(MOCK_TOURS.slice(0, 3));
+				this.strollsState.setSuccess(MOCK_STROLLS.slice(0, 3));
 			}
 		});
 	}

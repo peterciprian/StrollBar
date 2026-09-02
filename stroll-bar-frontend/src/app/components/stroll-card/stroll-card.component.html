@@ -1,11 +1,11 @@
-@if (tour; as t) {
+@if (stroll; as t) {
 	<mat-card class="stroll-card" [class.selected]="selected" (click)="cardClick.emit()">
 		<div class="stroll-card__cover" [style.background-image]="t.coverImageUrl ? null : t.coverFallback">
 			@if (t.coverImageUrl) {
 				<img [src]="t.coverImageUrl" alt="" />
 			}
 			@if (t.publicityFlag === 'private') {
-				<span class="stroll-card__private"><mat-icon>lock</mat-icon>{{ 'SCREENS.TOUR_BROWSER.PRIVATE' | translate }}</span>
+				<span class="stroll-card__private"><mat-icon>lock</mat-icon>{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</span>
 			}
 			<span class="stroll-card__category">{{ categoryLabelKeys[t.category] | translate }}</span>
 		</div>

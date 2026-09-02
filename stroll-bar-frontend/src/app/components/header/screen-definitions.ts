@@ -1,4 +1,4 @@
-export type ScreenId = 'tour-browser' | 'admin-tour-list' | 'admin-user-list' | 'creator-strolls' | 'adventure' | 'user-dashboard';
+export type ScreenId = 'stroll-browser' | 'admin-stroll-list' | 'admin-user-list' | 'creator-strolls' | 'adventure' | 'user-dashboard';
 
 export interface ScreenDef {
 	id: ScreenId;
@@ -9,8 +9,8 @@ export interface ScreenDef {
 }
 
 export const SCREEN_DEFS: ScreenDef[] = [
-	{ id: 'tour-browser', commands: ['/', 'explore'], labelKey: 'SCREENS.TOUR_BROWSER_TAB', visibleWithoutLogin: true },
-	{ id: 'admin-tour-list', commands: ['/', 'admin', 'tour-list'], labelKey: 'SCREENS.ADMIN_TOUR_LIST_TAB', visibleWithoutLogin: false },
+	{ id: 'stroll-browser', commands: ['/', 'explore'], labelKey: 'SCREENS.STROLL_BROWSER_TAB', visibleWithoutLogin: true },
+	{ id: 'admin-stroll-list', commands: ['/', 'admin', 'stroll-list'], labelKey: 'SCREENS.ADMIN_STROLL_LIST_TAB', visibleWithoutLogin: false },
 	{
 		id: 'admin-user-list',
 		commands: ['/', 'admin', 'user-list'],
@@ -18,7 +18,7 @@ export const SCREEN_DEFS: ScreenDef[] = [
 		visibleWithoutLogin: false,
 		adminOnly: true
 	},
-	{ id: 'creator-strolls', commands: ['/', 'creator', 'strolls', 'new'], labelKey: 'SCREENS.ADMIN_STATION_EDITOR_TAB', visibleWithoutLogin: false },
+	{ id: 'creator-strolls', commands: ['/', 'creator', 'strolls', 'new'], labelKey: 'SCREENS.STATION_EDITOR_TAB', visibleWithoutLogin: false },
 	{ id: 'adventure', commands: ['/', 'adventure', 'demo-adventure'], labelKey: 'SCREENS.ADVENTURE_TAB', visibleWithoutLogin: false },
 	{ id: 'user-dashboard', commands: ['/', 'user-dashboard'], labelKey: 'SCREENS.USER_DASHBOARD_TAB', visibleWithoutLogin: false }
 ];

@@ -18,9 +18,9 @@ interface Achievement {
 })
 export class SettingsAchievementsComponent {
 	protected readonly achievements: Achievement[] = [
-		{ icon: 'castle', title: 'Bastion Explorer', description: "Completed the Fisherman's Bastion Mystery tour", earnedOn: '12 May 2026' },
+		{ icon: 'castle', title: 'Bastion Explorer', description: "Completed the Fisherman's Bastion Mystery stroll", earnedOn: '12 May 2026' },
 		{ icon: 'psychology', title: 'Riddle Master', description: 'Solved 10 station riddles without a hint', earnedOn: '28 May 2026' },
-		{ icon: 'water', title: 'Danube Wanderer', description: 'Completed the Danube Legends & Chain Bridge tour', earnedOn: '3 June 2026' },
-		{ icon: 'hiking', title: 'Weekend Wanderer', description: 'Completed 3 tours in a single weekend', earnedOn: '15 June 2026' }
+		{ icon: 'water', title: 'Danube Wanderer', description: 'Completed the Danube Legends & Chain Bridge stroll', earnedOn: '3 June 2026' },
+		{ icon: 'hiking', title: 'Weekend Wanderer', description: 'Completed 3 strolls in a single weekend', earnedOn: '15 June 2026' }
 	];
 }

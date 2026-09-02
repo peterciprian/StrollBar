@@ -14,8 +14,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MapPreviewComponent } from '../../components/map-preview/map-preview.component';
 import { MediaGalleryComponent } from '../../components/media-gallery/media-gallery.component';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
-import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage, Stroll } from '../../core/api/models';
-import { MOCK_TOURS, Tour } from '../../core/models/screens.models';
+import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage, Stroll as ApiStroll } from '../../core/api/models';
+import { MOCK_STROLLS, Stroll as ScreenStroll } from '../../core/models/screens.models';
 
 @Component({
 	selector: 'app-adventure-screen',
@@ -45,7 +45,7 @@ export class AdventureScreenComponent implements OnInit {
 	protected readonly adventureId = this.route.snapshot.paramMap.get('adventureId') ?? '';
 
 	// Stand-in stroll/adventure used only while the real endpoints have no seeded data for this id.
-	private readonly demoTour: Tour = MOCK_TOURS[0];
+	private readonly demoStroll: ScreenStroll = MOCK_STROLLS[0];
 	private readonly demoAdventure: Adventure = this.createDemoAdventure();
 
 	protected loading = true;
@@ -180,7 +180,7 @@ export class AdventureScreenComponent implements OnInit {
 
 	private demoSubmitAnswer(): { isCorrect: boolean; adventure: Adventure; stageId: string } {
 		// The demo stage has no stored riddle answer, so any non-empty answer is accepted, matching backend behavior.
-		const stageCount = this.demoTour.stations.length;
+		const stageCount = this.demoStroll.stations.length;
 
 		if (this.demoAdventure.currentStageIndex < stageCount) {
 			this.demoAdventure.currentStageIndex += 1;
@@ -193,7 +193,7 @@ export class AdventureScreenComponent implements OnInit {
 	}
 
 	private demoNavigate(direction: AdventureNavigateDirection): AdventureDetailResponse {
-		const stageCount = this.demoTour.stations.length;
+		const stageCount = this.demoStroll.stations.length;
 
 		this.demoAdventure.currentStageIndex =
 			direction === 'next'
@@ -204,27 +204,27 @@ export class AdventureScreenComponent implements OnInit {
 	}
 
 	private buildDemoDetail(): AdventureDetailResponse {
-		const clampedIndex = Math.min(Math.max(this.demoAdventure.currentStageIndex, 1), this.demoTour.stations.length);
-		const station = this.demoTour.stations[clampedIndex - 1];
+		const clampedIndex = Math.min(Math.max(this.demoAdventure.currentStageIndex, 1), this.demoStroll.stations.length);
+		const station = this.demoStroll.stations[clampedIndex - 1];
 		const currentStage: Stage = {
 			id: station.id,
-			strollId: this.demoTour.id,
+			strollId: this.demoStroll.id,
 			orderIndex: clampedIndex,
 			name: station.name,
-			description: this.demoTour.description,
+			description: this.demoStroll.description,
 			address: station.address,
 			latitude: station.latitude,
 			longitude: station.longitude
 		};
-		const stroll: Stroll = {
-			id: this.demoTour.id,
-			name: this.demoTour.title,
+		const stroll: ApiStroll = {
+			id: this.demoStroll.id,
+			name: this.demoStroll.title,
 			authorId: 'demo-author',
 			activeStatus: 'published',
-			labels: [this.demoTour.category],
-			description: this.demoTour.description,
+			labels: [this.demoStroll.category],
+			description: this.demoStroll.description,
 			publicityFlag: 'public',
-			stageCount: this.demoTour.stations.length,
+			stageCount: this.demoStroll.stations.length,
 			createdAt: this.demoAdventure.purchaseTime,
 			updatedAt: this.demoAdventure.purchaseTime
 		};
@@ -238,7 +238,7 @@ export class AdventureScreenComponent implements OnInit {
 		return {
 			id: this.adventureId || 'demo-adventure',
 			ownerUserId: 'demo-user',
-			strollId: this.demoTour.id,
+			strollId: this.demoStroll.id,
 			purchaseTime: now,
 			startDateTime: now,
 			completionDateTime: null,

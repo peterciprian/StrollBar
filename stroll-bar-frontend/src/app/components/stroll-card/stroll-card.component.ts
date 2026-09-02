@@ -26,7 +26,7 @@ export interface StrollCardData {
 	styleUrls: ['./stroll-card.component.scss']
 })
 export class StrollCardComponent {
-	@Input() tour: StrollCardData | null = null;
+	@Input() stroll: StrollCardData | null = null;
 	@Input() selected = false;
 	@Output() cardClick = new EventEmitter<void>();
 

@@ -11,7 +11,7 @@ test.describe('critical browser flows', () => {
 		await expect(page.getByRole('button', { name: /register/i })).toBeEnabled();
 	});
 
-	test('public tour browser renders and supports search', async ({ page }) => {
+	test('public stroll browser renders and supports search', async ({ page }) => {
 		await page.goto('/#/explore');
 		await expect(page.getByRole('heading', { name: /explore/i })).toBeVisible();
 		const search = page.getByRole('textbox').first();

@@ -6,9 +6,9 @@ import { SocialCallbackPageComponent } from './pages/auth/social-callback-page.c
 import { VerifyEmailPageComponent } from './pages/auth/verify-email-page.component';
 import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
 import { CreatorProfilePageComponent } from './pages/profile/creator-profile-page.component';
-import { TourBrowserScreenComponent } from './pages/explore/tour-browser.component';
+import { StrollBrowserScreenComponent } from './pages/explore/stroll-browser.component';
 import { AdventureScreenComponent } from './pages/progress/adventure.component';
-import { AdminTourListScreenComponent } from './pages/admin/admin-tour-list/admin-tour-list.component';
+import { AdminStrollListScreenComponent } from './pages/admin/admin-stroll-list/admin-stroll-list.component';
 import { AdminUserListScreenComponent } from './pages/admin/admin-user-list/admin-user-list.component';
 import { UserDashboardScreenComponent } from './pages/user/user-dashboard/user-dashboard.component';
 import { SettingsPageComponent } from './pages/settings/settings.component';
@@ -26,12 +26,12 @@ export const routes: Routes = [
 	{ path: 'auth/register', component: RegisterPageComponent },
 	{ path: 'auth/social/callback', component: SocialCallbackPageComponent },
 	{ path: 'auth/verify-email', component: VerifyEmailPageComponent },
-	{ path: 'explore', component: TourBrowserScreenComponent },
+	{ path: 'explore', component: StrollBrowserScreenComponent },
 	{ path: 'impressum', component: LegalPageComponent, data: { document: 'imprint' } },
 	{ path: 'privacy-policy', component: LegalPageComponent, data: { document: 'privacy' } },
 	{ path: 'terms-of-service', component: LegalPageComponent, data: { document: 'terms' } },
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
-	{ path: 'admin/tour-list', component: AdminTourListScreenComponent, canActivate: [adminGuard] },
+	{ path: 'admin/stroll-list', component: AdminStrollListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard] },

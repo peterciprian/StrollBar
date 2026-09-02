@@ -11,28 +11,28 @@ import { Stroll } from '../../../core/api/models';
 import { StrollsFeatureService } from '../../../features/strolls/strolls-feature.service';
 
 @Component({
-	selector: 'app-admin-tour-list-screen',
+	selector: 'app-admin-stroll-list-screen',
 	standalone: true,
 	imports: [CommonModule, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
-	templateUrl: './admin-tour-list.component.html',
-	styleUrls: ['./admin-tour-list.component.scss']
+	templateUrl: './admin-stroll-list.component.html',
+	styleUrls: ['./admin-stroll-list.component.scss']
 })
-export class AdminTourListScreenComponent implements OnInit {
+export class AdminStrollListScreenComponent implements OnInit {
 	private readonly router = inject(Router);
 	private readonly strollsFeature = inject(StrollsFeatureService);
 
 	protected readonly displayedColumns = ['name', 'status', 'visibility', 'stations', 'labels', 'media', 'updated', 'actions'];
-	protected readonly tours = signal<Stroll[]>([]);
+	protected readonly strolls = signal<Stroll[]>([]);
 	protected readonly loading = signal(true);
 	protected readonly loadError = signal(false);
-	protected readonly publishedCount = computed(() => this.tours().filter((tour) => tour.activeStatus === 'published').length);
-	protected readonly draftCount = computed(() => this.tours().filter((tour) => tour.activeStatus === 'draft').length);
-	protected readonly totalStages = computed(() => this.tours().reduce((total, tour) => total + tour.stageCount, 0));
+	protected readonly publishedCount = computed(() => this.strolls().filter((stroll) => stroll.activeStatus === 'published').length);
+	protected readonly draftCount = computed(() => this.strolls().filter((stroll) => stroll.activeStatus === 'draft').length);
+	protected readonly totalStages = computed(() => this.strolls().reduce((total, stroll) => total + stroll.stageCount, 0));
 
 	ngOnInit(): void {
 		this.strollsFeature.listOwned({ limit: 100 }).subscribe({
 			next: (response) => {
-				this.tours.set(response.items);
+				this.strolls.set(response.items);
 				this.loading.set(false);
 			},
 			error: () => {
@@ -50,13 +50,13 @@ export class AdminTourListScreenComponent implements OnInit {
 		this.router.navigate(['/creator/strolls', strollId]);
 	}
 
-	protected mediaCount(tour: Stroll): number {
-		return (tour.mediaUrls?.imageUrls?.length ?? 0) + (tour.mediaUrls?.videoUrls?.length ?? 0);
+	protected mediaCount(stroll: Stroll): number {
+		return (stroll.mediaUrls?.imageUrls?.length ?? 0) + (stroll.mediaUrls?.videoUrls?.length ?? 0);
 	}
 
 	protected deleteStroll(strollId: string): void {
 		this.strollsFeature.remove(strollId).subscribe({
-			next: () => this.tours.update((tours) => tours.filter((tour) => tour.id !== strollId)),
+			next: () => this.strolls.update((strolls) => strolls.filter((stroll) => stroll.id !== strollId)),
 			error: () => this.loadError.set(true)
 		});
 	}

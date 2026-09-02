@@ -1,11 +1,11 @@
 # StrollBar Workspace
 
-StrollBar is a gamified city-tour app: users follow curated walking "strolls," solve
+StrollBar is a gamified city-stroll app: users follow curated walking "strolls," solve
 riddles station by station, and unlock achievements. The workspace is an npm-workspaces
 monorepo with two apps:
 
-- `stroll-bar-frontend` — Angular 22 + Angular Material client (tour browser, active
-  adventure/navigation view, admin tour & station management, user dashboard, and an
+- `stroll-bar-frontend` — Angular 22 + Angular Material client (stroll browser, active
+  adventure/navigation view, admin stroll & station management, user dashboard, and an
   account settings page). Supports Hungarian (default) and English via `@ngx-translate`.
 - `stroll-bar-backend` — NestJS 11 API (auth, strolls, stages, adventures, achievements,
   media uploads) backed by PostgreSQL and S3-compatible object storage.

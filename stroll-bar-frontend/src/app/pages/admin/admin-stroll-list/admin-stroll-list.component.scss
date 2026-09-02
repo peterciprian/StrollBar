@@ -1,4 +1,4 @@
-.admin-tour-list {
+.admin-stroll-list {
 	&__header {
 		display: flex;
 		align-items: stretch;
@@ -221,7 +221,7 @@
 }
 
 @media (min-width: 700px) {
-	.admin-tour-list {
+	.admin-stroll-list {
 		&__header {
 			align-items: center;
 			flex-direction: row;
