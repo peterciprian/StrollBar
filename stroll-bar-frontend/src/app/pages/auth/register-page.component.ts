@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { register, selectAuthError, selectAuthLoading } from '../../features/auth/auth.state';
+import { passwordPolicyValidator } from '../../core/validators/password-policy.validator';
 
 @Component({
 	selector: 'app-register-page',
@@ -26,7 +27,7 @@ export class RegisterPageComponent {
 	protected readonly form = this.fb.nonNullable.group({
 		username: ['', [Validators.required, Validators.minLength(3)]],
 		email: ['', [Validators.required, Validators.email]],
-		password: ['', [Validators.required, Validators.minLength(8)]]
+		password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordPolicyValidator]]
 	});
 
 	onSubmit(): void {

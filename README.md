@@ -48,6 +48,14 @@ npm run start:backend
 Backend starts on http://localhost:3000 with API prefix /v1.
 Health endpoint: http://localhost:3000/v1/health
 
+The general API rate limit is 100 requests per minute per client by default and can be
+changed with `API_RATE_LIMIT`. Authentication endpoints use stricter route-specific limits.
+
+Production requires an explicitly managed `JWT_SECRET`; the backend has no fallback secret.
+OAuth requests default to a 10-second timeout and three attempts. S3 requests default to a
+30-second timeout and three attempts; these can be tuned with `OAUTH_REQUEST_TIMEOUT_MS`,
+`OAUTH_REQUEST_RETRY_ATTEMPTS`, `S3_REQUEST_TIMEOUT_MS`, and `S3_RETRY_ATTEMPTS`.
+
 ## Local PostgreSQL
 
 Backend development defaults to PostgreSQL via [stroll-bar-backend/.env.development](stroll-bar-backend/.env.development).
@@ -161,6 +169,10 @@ The backend sends verification links over SMTP after password registration and w
 - `SMTP_SECURE=true` for implicit TLS (normally port 465), or `false` for STARTTLS (normally port 587)
 - `SMTP_USER` and `SMTP_PASSWORD` when the server requires authentication
 - `SMTP_FROM`, for example `StrollBar <no-reply@example.com>`
+
+The health endpoint reports SMTP reachability when delivery is enabled. Failed SMTP sends are
+retried with 1-second and 4-second backoff before returning a temporary-unavailable response;
+users can request another verification email from Account settings.
 
 For local development without SMTP, keep delivery disabled and set `AUTH_EXPOSE_VERIFICATION_TOKEN=true`. Never expose verification tokens in production.
 

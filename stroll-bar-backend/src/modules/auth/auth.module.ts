@@ -23,7 +23,7 @@ import { SocialUserService } from './services/social-user.service';
 		JwtModule.registerAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => ({
-				secret: configService.get<string>('JWT_SECRET') ?? 'strollbar-dev-secret',
+				secret: configService.getOrThrow<string>('JWT_SECRET'),
 				signOptions: {
 					expiresIn: (configService.get<string>('JWT_ACCESS_TOKEN_TTL') ?? '1h') as StringValue
 				}

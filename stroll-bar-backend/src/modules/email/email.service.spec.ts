@@ -11,6 +11,7 @@ describe('EmailService', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		sendMail.mockReset();
 		mockedCreateTransport.mockReturnValue({ sendMail } as never);
 		sendMail.mockResolvedValue({ messageId: 'message-id' });
 	});

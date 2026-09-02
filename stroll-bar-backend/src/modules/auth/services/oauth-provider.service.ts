@@ -1,11 +1,11 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, ServiceUnavailableException, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { createHash } from 'node:crypto';
 import * as jwt from 'jsonwebtoken';
 import jwksClient from 'jwks-rsa';
 import type { SocialAuthProvider } from '../entities/social-identity.entity';
-import { withTimeoutAndRetry, withTimeout } from '../../../common/utils/retry.util';
+import { withTimeoutAndRetry } from '../../../common/utils/retry.util';
 import { normalizeExternalApiError, logExternalApiError, externalApiErrorToHttpException } from '../../../common/utils/external-api-error.util';
 
 export type SocialProfile = {
@@ -30,6 +30,11 @@ type JwtVerifyOptions = {
 	issuer: string | string[];
 };
 
+type CircuitState = {
+	failureCount: number;
+	openedAt?: number;
+};
+
 /**
  * Handles OAuth provider-specific logic: building authorization URLs,
  * exchanging authorization codes for tokens, and fetching user profiles.
@@ -43,6 +48,8 @@ export class OAuthProviderService {
 	private readonly logger = new Logger(OAuthProviderService.name);
 	private readonly oauthTimeoutMs: number;
 	private readonly oauthRetryAttempts: number;
+	private readonly circuitStates: Map<SocialAuthProvider, CircuitState> = new Map();
+	private readonly circuitOpenDurationMs = 30_000;
 
 	constructor(
 		private readonly jwtService: JwtService,
@@ -108,19 +115,31 @@ export class OAuthProviderService {
 	 * Fetch the user profile from the OAuth provider using the authorization code.
 	 */
 	async fetchUserProfile(provider: SocialAuthProvider, code: string, codeVerifier: string): Promise<SocialProfile> {
-		if (provider === 'google') {
-			return this.fetchGoogleProfile(code, codeVerifier);
-		}
+		this.assertCircuitClosed(provider);
 
-		if (provider === 'apple') {
-			return this.fetchAppleProfile(code);
+		try {
+			const profile =
+				provider === 'google'
+					? await this.fetchGoogleProfile(code, codeVerifier)
+					: provider === 'apple'
+						? await this.fetchAppleProfile(code)
+						: provider === 'facebook'
+							? await this.fetchFacebookProfile(code)
+							: await this.fetchTwitterProfile(code, codeVerifier);
+			this.circuitStates.delete(provider);
+			return profile;
+		} catch (error) {
+			if (this.isTransientProviderFailure(error)) {
+				const state = this.circuitStates.get(provider) ?? { failureCount: 0 };
+				state.failureCount += 1;
+				if (state.failureCount >= 3) {
+					state.openedAt = Date.now();
+					this.logger.warn(`OAuth circuit opened for ${provider} after ${state.failureCount} consecutive failures.`);
+				}
+				this.circuitStates.set(provider, state);
+			}
+			throw error;
 		}
-
-		if (provider === 'facebook') {
-			return this.fetchFacebookProfile(code);
-		}
-
-		return this.fetchTwitterProfile(code, codeVerifier);
 	}
 
 	private async fetchGoogleProfile(code: string, codeVerifier: string): Promise<SocialProfile> {
@@ -297,7 +316,13 @@ export class OAuthProviderService {
 					return response.json() as Promise<T>;
 				},
 				this.oauthTimeoutMs,
-				{ maxAttempts: this.oauthRetryAttempts }
+				{
+					maxAttempts: this.oauthRetryAttempts,
+					initialDelayMs: 1000,
+					maxDelayMs: 10000,
+					backoffMultiplier: 4,
+					jitterFactor: 0
+				}
 			);
 
 			return result;
@@ -326,7 +351,13 @@ export class OAuthProviderService {
 					return response.json() as Promise<T>;
 				},
 				this.oauthTimeoutMs,
-				{ maxAttempts: this.oauthRetryAttempts }
+				{
+					maxAttempts: this.oauthRetryAttempts,
+					initialDelayMs: 1000,
+					maxDelayMs: 10000,
+					backoffMultiplier: 4,
+					jitterFactor: 0
+				}
 			);
 
 			return result;
@@ -356,7 +387,13 @@ export class OAuthProviderService {
 
 			const client = this.jwksClients.get(options.jwksUri)!;
 			// Add timeout to JWKS key fetching
-			const key = (await withTimeout(() => client.getSigningKey(kid), this.oauthTimeoutMs)) as any;
+			const key = (await withTimeoutAndRetry(() => client.getSigningKey(kid), this.oauthTimeoutMs, {
+				maxAttempts: this.oauthRetryAttempts,
+				initialDelayMs: 1000,
+				maxDelayMs: 10000,
+				backoffMultiplier: 4,
+				jitterFactor: 0
+			})) as any;
 			const signingKey = key.getPublicKey();
 
 			return new Promise((resolve, reject) => {
@@ -377,6 +414,24 @@ export class OAuthProviderService {
 			logExternalApiError(normalized, 'OAuthProviderService.verifyProviderJwt', this.logger);
 			throw externalApiErrorToHttpException(normalized, 401);
 		}
+	}
+
+	private assertCircuitClosed(provider: SocialAuthProvider): void {
+		const state = this.circuitStates.get(provider);
+		if (!state?.openedAt) {
+			return;
+		}
+
+		if (Date.now() - state.openedAt < this.circuitOpenDurationMs) {
+			throw new ServiceUnavailableException('The social login provider is temporarily unavailable. Please try again shortly.');
+		}
+
+		this.circuitStates.delete(provider);
+	}
+
+	private isTransientProviderFailure(error: any): boolean {
+		const statusCode = error?.getStatus?.() ?? error?.statusCode ?? error?.response?.status;
+		return statusCode === 429 || statusCode >= 500 || error?.message?.includes('timed out');
 	}
 
 	private getJwtString(payload: any, path: string): string {

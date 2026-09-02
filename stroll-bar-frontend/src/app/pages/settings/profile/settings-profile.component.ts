@@ -20,6 +20,7 @@ import {
 	selectUser,
 	updateProfile
 } from '../../../features/auth/auth.state';
+import { passwordPolicyValidator } from '../../../core/validators/password-policy.validator';
 
 function matchesNewPasswordValidator(control: AbstractControl): ValidationErrors | null {
 	const newPassword = control.parent?.get('newPassword')?.value;
@@ -58,7 +59,7 @@ export class SettingsProfileComponent {
 
 	protected readonly passwordForm = this.fb.nonNullable.group({
 		currentPassword: ['', [Validators.required]],
-		newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128)]],
+		newPassword: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), passwordPolicyValidator]],
 		confirmPassword: ['', [Validators.required, matchesNewPasswordValidator]]
 	});
 

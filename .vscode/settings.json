@@ -12,5 +12,13 @@
 	},
 	"[json]": {
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"chat.tools.terminal.autoApprove": {
+		"npm run build": true,
+		"npx jest": true,
+		"/^Set-Location 'C:\\\\P\\\\__DEV\\\\__stuff\\\\StrollBar\\\\stroll-bar-backend'; node -r ts-node/register -e \"const \\{withRetry\\}=require\\('\\./src/common/utils/retry\\.util'\\); let calls=0; withRetry\\(async\\(\\)=>\\{calls\\+\\+; if\\(calls===1\\) throw Object\\.assign\\(new Error\\('reset'\\),\\{code:'ECONNRESET'\\}\\); return 'ok'\\}, \\{initialDelayMs:1, maxDelayMs:1, isRetryable:error=>\\['ECONNRESET'\\]\\.includes\\(error\\?\\.code\\)\\}\\)\\.then\\(value=>console\\.log\\(value,calls\\)\\)\\.catch\\(error=>console\\.error\\(error,calls\\)\\)\"$/": {
+			"approve": true,
+			"matchCommandLine": true
+		}
 	}
 }

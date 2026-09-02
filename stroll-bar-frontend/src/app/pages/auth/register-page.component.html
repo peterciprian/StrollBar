@@ -32,7 +32,16 @@
 					<mat-label>{{ 'AUTH.REGISTER.PASSWORD_LABEL' | translate }}</mat-label>
 					<input matInput type="password" formControlName="password" autocomplete="new-password" />
 					@if (form.controls.password.invalid && form.controls.password.touched) {
-						<mat-error>{{ 'AUTH.REGISTER.PASSWORD_ERROR' | translate }}</mat-error>
+						<mat-error>
+							@if (form.controls.password.hasError('commonPassword')) {
+								{{ 'AUTH.REGISTER.PASSWORD_COMMON_ERROR' | translate }}
+							} @else {
+								{{ 'AUTH.REGISTER.PASSWORD_ERROR' | translate }}
+							}
+						</mat-error>
+					}
+					@if (form.controls.password.value && !form.controls.password.invalid) {
+						<mat-hint>{{ 'AUTH.REGISTER.PASSWORD_ACCEPTED' | translate }}</mat-hint>
 					}
 				</mat-form-field>
 

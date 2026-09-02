@@ -2,56 +2,60 @@ import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { HealthDependencyDto, HealthResponseDto } from './common/dto/health-response.dto';
 import { MediaService } from './modules/media/media.service';
+import { EmailService } from './modules/email/email.service';
 
 @Injectable()
 export class AppService {
-  constructor(
-    private readonly dataSource: DataSource,
-    private readonly mediaService: MediaService,
-  ) {}
+	constructor(
+		private readonly dataSource: DataSource,
+		private readonly mediaService: MediaService,
+		private readonly emailService: EmailService
+	) {}
 
-  async health(): Promise<HealthResponseDto> {
-    const [database, storage] = await Promise.all([
-      this.checkDatabase(),
-      this.mediaService.checkStorageConnectivity(),
-    ]);
+	async health(): Promise<HealthResponseDto> {
+		const [database, storage, email] = await Promise.all([
+			this.checkDatabase(),
+			this.mediaService.checkStorageConnectivity(),
+			this.emailService.checkDeliveryConnectivity()
+		]);
 
-    const response: HealthResponseDto = {
-      status: database.status === 'up' && storage.status === 'up' ? 'ok' : 'degraded',
-      database,
-      storage,
-    };
+		const response: HealthResponseDto = {
+			status: database.status === 'up' && storage.status === 'up' && email.status === 'up' ? 'ok' : 'degraded',
+			database,
+			storage,
+			email
+		};
 
-    if (response.status !== 'ok') {
-      throw new ServiceUnavailableException(response);
-    }
+		if (response.status !== 'ok') {
+			throw new ServiceUnavailableException(response);
+		}
 
-    return response;
-  }
+		return response;
+	}
 
-  async databaseHealth(): Promise<HealthDependencyDto> {
-    try {
-      const result = await this.dataSource.query('SELECT current_database() AS dbname, current_user AS username');
-      const [row] = result.rows ?? [];
-      return {
-        status: 'up',
-        provider: this.dataSource.options.type,
-        detail: row ? `connected to ${row.dbname} as ${row.username}` : 'SELECT 1',
-      };
-    } catch (error) {
-      return {
-        status: 'down',
-        provider: this.dataSource.options.type,
-        detail: error instanceof Error ? error.message : 'Database connectivity failed.',
-      };
-    }
-  }
+	async databaseHealth(): Promise<HealthDependencyDto> {
+		try {
+			const result = await this.dataSource.query('SELECT current_database() AS dbname, current_user AS username');
+			const [row] = result.rows ?? [];
+			return {
+				status: 'up',
+				provider: this.dataSource.options.type,
+				detail: row ? `connected to ${row.dbname} as ${row.username}` : 'SELECT 1'
+			};
+		} catch (error) {
+			return {
+				status: 'down',
+				provider: this.dataSource.options.type,
+				detail: error instanceof Error ? error.message : 'Database connectivity failed.'
+			};
+		}
+	}
 
-  async storageHealth(): Promise<HealthDependencyDto> {
-    return this.mediaService.checkStorageConnectivity();
-  }
+	async storageHealth(): Promise<HealthDependencyDto> {
+		return this.mediaService.checkStorageConnectivity();
+	}
 
-  private async checkDatabase(): Promise<HealthResponseDto['database']> {
-    return this.databaseHealth();
-  }
+	private async checkDatabase(): Promise<HealthResponseDto['database']> {
+		return this.databaseHealth();
+	}
 }

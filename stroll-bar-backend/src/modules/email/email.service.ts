@@ -1,6 +1,7 @@
 import { Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createTransport, Transporter } from 'nodemailer';
+import { withRetry, withTimeoutAndRetry } from '../../common/utils/retry.util';
 
 @Injectable()
 export class EmailService {
@@ -10,6 +11,29 @@ export class EmailService {
 
 	isDeliveryEnabled(): boolean {
 		return (this.configService.get<string>('EMAIL_DELIVERY_ENABLED') ?? 'false').toLowerCase() === 'true';
+	}
+
+	async checkDeliveryConnectivity(): Promise<{ status: 'up' | 'down'; provider: string; detail: string }> {
+		if (!this.isDeliveryEnabled()) {
+			return { status: 'up', provider: 'smtp', detail: 'Email delivery is disabled.' };
+		}
+
+		try {
+			await withTimeoutAndRetry(() => this.getTransporter().verify(), 10_000, {
+				maxAttempts: 3,
+				initialDelayMs: 1000,
+				maxDelayMs: 10000,
+				backoffMultiplier: 4,
+				jitterFactor: 0
+			});
+			return { status: 'up', provider: 'smtp', detail: 'SMTP server is reachable.' };
+		} catch (error) {
+			return {
+				status: 'down',
+				provider: 'smtp',
+				detail: error instanceof Error ? error.message : 'SMTP connectivity failed.'
+			};
+		}
 	}
 
 	async sendVerificationEmail(recipient: string, username: string, token: string): Promise<void> {
@@ -22,25 +46,37 @@ export class EmailService {
 		const safeVerificationUrl = this.escapeHtml(verificationUrl);
 
 		try {
-			await this.getTransporter().sendMail({
-				from: this.getRequiredConfig('SMTP_FROM'),
-				to: recipient,
-				subject: 'Verify your StrollBar email address',
-				text: [
-					`Hello ${username},`,
-					'',
-					'Confirm your email address to finish setting up your StrollBar account:',
-					verificationUrl,
-					'',
-					'For your security, this link will expire. If you did not create this account, you can ignore this email.'
-				].join('\n'),
-				html: [
-					`<p>Hello ${safeUsername},</p>`,
-					'<p>Confirm your email address to finish setting up your StrollBar account.</p>',
-					`<p><a href="${safeVerificationUrl}">Verify email address</a></p>`,
-					'<p>For your security, this link will expire. If you did not create this account, you can ignore this email.</p>'
-				].join('')
-			});
+			await withRetry(
+				() =>
+					this.getTransporter().sendMail({
+						from: this.getRequiredConfig('SMTP_FROM'),
+						to: recipient,
+						subject: 'Verify your StrollBar email address',
+						text: [
+							`Hello ${username},`,
+							'',
+							'Confirm your email address to finish setting up your StrollBar account:',
+							verificationUrl,
+							'',
+							'For your security, this link will expire. If you did not create this account, you can ignore this email.'
+						].join('\n'),
+						html: [
+							`<p>Hello ${safeUsername},</p>`,
+							'<p>Confirm your email address to finish setting up your StrollBar account.</p>',
+							`<p><a href="${safeVerificationUrl}">Verify email address</a></p>`,
+							'<p>For your security, this link will expire. If you did not create this account, you can ignore this email.</p>'
+						].join('')
+					}),
+				{
+					maxAttempts: 3,
+					initialDelayMs: 1000,
+					maxDelayMs: 10000,
+					backoffMultiplier: 4,
+					isRetryable: (error: any) =>
+						['ECONNECTION', 'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ESOCKET', 'ETLS'].includes(error?.code) ||
+						(error?.responseCode >= 500 && error?.responseCode < 600)
+				}
+			);
 		} catch {
 			throw new ServiceUnavailableException('The verification email could not be delivered. Please try again.');
 		}

@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
 	AbortMultipartUploadCommand,
@@ -21,6 +21,8 @@ import { CreatePresignedUploadDto } from './dto/create-presigned-upload.dto';
 import { AbortMultipartUploadDto } from './dto/abort-multipart-upload.dto';
 import { CompleteMultipartUploadDto } from './dto/complete-multipart-upload.dto';
 import { MediaAssetEntity, MediaUploadMode, MediaUploadStatus } from './entities/media-asset.entity';
+import { withTimeoutAndRetry } from '../../common/utils/retry.util';
+import { NodeHttpHandler } from '@smithy/node-http-handler';
 
 @Injectable()
 export class MediaService {
@@ -35,6 +37,8 @@ export class MediaService {
 	private readonly multipartThresholdBytes: number;
 	private readonly multipartPartSizeBytes: number;
 	private readonly multipartMaxParts: number;
+	private readonly s3RequestTimeoutMs: number;
+	private readonly s3RetryAttempts: number;
 	private readonly s3Client: S3Client;
 
 	constructor(
@@ -58,11 +62,17 @@ export class MediaService {
 		this.multipartThresholdBytes = Number(this.configService.get<string>('MEDIA_MULTIPART_THRESHOLD_BYTES') ?? '26214400');
 		this.multipartPartSizeBytes = Number(this.configService.get<string>('MEDIA_MULTIPART_PART_SIZE_BYTES') ?? '10485760');
 		this.multipartMaxParts = Number(this.configService.get<string>('MEDIA_MULTIPART_MAX_PARTS') ?? '1000');
+		this.s3RequestTimeoutMs = Number(this.configService.get<string>('S3_REQUEST_TIMEOUT_MS') ?? '30000');
+		this.s3RetryAttempts = Number(this.configService.get<string>('S3_RETRY_ATTEMPTS') ?? '3');
 
 		this.s3Client = new S3Client({
 			region: this.requireConfig('S3_REGION'),
 			endpoint: this.configService.get<string>('S3_ENDPOINT'),
 			forcePathStyle: (this.configService.get<string>('S3_FORCE_PATH_STYLE') ?? 'false').toLowerCase() === 'true',
+			requestHandler: new NodeHttpHandler({
+				connectionTimeout: this.s3RequestTimeoutMs,
+				requestTimeout: this.s3RequestTimeoutMs
+			}),
 			credentials: {
 				accessKeyId: this.requireConfig('S3_ACCESS_KEY_ID'),
 				secretAccessKey: this.requireConfig('S3_SECRET_ACCESS_KEY')
@@ -99,9 +109,18 @@ export class MediaService {
 			ContentType: dto.contentType
 		});
 
-		const uploadUrl = await getSignedUrl(this.s3Client, command, {
-			expiresIn: this.uploadExpirySeconds
-		});
+		let uploadUrl: string;
+		try {
+			uploadUrl = await getSignedUrl(this.s3Client, command, {
+				expiresIn: this.uploadExpirySeconds
+			});
+		} catch (error) {
+			await this.mediaAssetsRepository
+				.delete(asset.id)
+				.catch((cleanupError) => this.logger.error('Failed to remove media asset after presign failure.', cleanupError));
+			this.logger.error('Failed to create S3 upload URL.', error instanceof Error ? error.stack : String(error));
+			throw new ServiceUnavailableException('Media storage is temporarily unavailable. Please try again.');
+		}
 
 		return {
 			assetId: asset.id,
@@ -133,7 +152,7 @@ export class MediaService {
 		const objectKey = this.buildObjectKey(dto, userId);
 		const publicUrl = `${this.publicBaseUrl.replace(/\/$/, '')}/${objectKey}`;
 
-		const multipartUpload = await this.s3Client.send(
+		const multipartUpload = await this.sendS3Command<{ UploadId?: string }>(
 			new CreateMultipartUploadCommand({
 				Bucket: this.bucketName,
 				Key: objectKey,
@@ -145,40 +164,71 @@ export class MediaService {
 			throw new Error('Failed to initialize multipart upload.');
 		}
 
-		const asset = await this.mediaAssetsRepository.save(
-			this.mediaAssetsRepository.create({
-				uploadedByUserId: userId,
-				strollId: links.strollId,
-				stageId: links.stageId,
-				profileUserId: links.profileUserId,
-				storageKey: objectKey,
-				publicUrl,
-				contentType: dto.contentType,
-				sizeBytes: dto.sizeBytes,
-				purpose: dto.purpose,
-				uploadStatus: MediaUploadStatus.PENDING,
-				uploadMode: MediaUploadMode.MULTIPART,
-				multipartUploadId: multipartUpload.UploadId
-			})
-		);
+		let asset: MediaAssetEntity;
+		try {
+			asset = await this.mediaAssetsRepository.save(
+				this.mediaAssetsRepository.create({
+					uploadedByUserId: userId,
+					strollId: links.strollId,
+					stageId: links.stageId,
+					profileUserId: links.profileUserId,
+					storageKey: objectKey,
+					publicUrl,
+					contentType: dto.contentType,
+					sizeBytes: dto.sizeBytes,
+					purpose: dto.purpose,
+					uploadStatus: MediaUploadStatus.PENDING,
+					uploadMode: MediaUploadMode.MULTIPART,
+					multipartUploadId: multipartUpload.UploadId
+				})
+			);
+		} catch (error) {
+			await this.sendS3Command(
+				new AbortMultipartUploadCommand({ Bucket: this.bucketName, Key: objectKey, UploadId: multipartUpload.UploadId })
+			).catch((cleanupError) =>
+				this.logger.error(
+					'Failed to abort multipart upload after database failure.',
+					cleanupError instanceof Error ? cleanupError.stack : String(cleanupError)
+				)
+			);
+			this.logger.error('Failed to persist multipart media asset.', error instanceof Error ? error.stack : String(error));
+			throw new ServiceUnavailableException('Media storage is temporarily unavailable. Please try again.');
+		}
 
-		const parts = await Promise.all(
-			Array.from({ length: partCount }, async (_value, index) => {
-				const partNumber = index + 1;
-				const uploadUrl = await getSignedUrl(
-					this.s3Client,
-					new UploadPartCommand({
-						Bucket: this.bucketName,
-						Key: objectKey,
-						UploadId: multipartUpload.UploadId,
-						PartNumber: partNumber
-					}),
-					{ expiresIn: this.uploadExpirySeconds }
-				);
+		let parts: Array<{ partNumber: number; uploadUrl: string }>;
+		try {
+			parts = await Promise.all(
+				Array.from({ length: partCount }, async (_value, index) => {
+					const partNumber = index + 1;
+					const uploadUrl = await getSignedUrl(
+						this.s3Client,
+						new UploadPartCommand({
+							Bucket: this.bucketName,
+							Key: objectKey,
+							UploadId: multipartUpload.UploadId,
+							PartNumber: partNumber
+						}),
+						{ expiresIn: this.uploadExpirySeconds }
+					);
 
-				return { partNumber, uploadUrl };
-			})
-		);
+					return { partNumber, uploadUrl };
+				})
+			);
+		} catch (error) {
+			await this.sendS3Command(
+				new AbortMultipartUploadCommand({ Bucket: this.bucketName, Key: objectKey, UploadId: multipartUpload.UploadId })
+			).catch((cleanupError) =>
+				this.logger.error(
+					'Failed to abort multipart upload after presign failure.',
+					cleanupError instanceof Error ? cleanupError.stack : String(cleanupError)
+				)
+			);
+			await this.mediaAssetsRepository
+				.delete(asset.id)
+				.catch((cleanupError) => this.logger.error('Failed to remove media asset after multipart presign failure.', cleanupError));
+			this.logger.error('Failed to create multipart upload URLs.', error instanceof Error ? error.stack : String(error));
+			throw new ServiceUnavailableException('Media storage is temporarily unavailable. Please try again.');
+		}
 
 		return {
 			assetId: asset.id,
@@ -199,7 +249,7 @@ export class MediaService {
 			throw new BadRequestException('Multipart upload id does not match the persisted media asset.');
 		}
 
-		await this.s3Client.send(
+		await this.sendS3Command(
 			new CompleteMultipartUploadCommand({
 				Bucket: this.bucketName,
 				Key: asset.storageKey,
@@ -229,7 +279,7 @@ export class MediaService {
 			throw new BadRequestException('Multipart upload id does not match the persisted media asset.');
 		}
 
-		await this.s3Client.send(
+		await this.sendS3Command(
 			new AbortMultipartUploadCommand({
 				Bucket: this.bucketName,
 				Key: asset.storageKey,
@@ -249,7 +299,7 @@ export class MediaService {
 
 	async checkStorageConnectivity() {
 		try {
-			await this.s3Client.send(new HeadBucketCommand({ Bucket: this.bucketName }));
+			await this.sendS3Command(new HeadBucketCommand({ Bucket: this.bucketName }));
 			return {
 				status: 'up' as const,
 				provider: 's3-compatible',
@@ -261,6 +311,26 @@ export class MediaService {
 				provider: 's3-compatible',
 				detail: error instanceof Error ? error.message : 'S3 connectivity failed.'
 			};
+		}
+	}
+
+	private async sendS3Command<T>(command: any): Promise<T> {
+		try {
+			return await withTimeoutAndRetry(() => this.s3Client.send(command) as Promise<T>, this.s3RequestTimeoutMs, {
+				maxAttempts: this.s3RetryAttempts,
+				isRetryable: (error: any) => {
+					const statusCode = error?.$metadata?.httpStatusCode ?? error?.statusCode ?? error?.response?.status;
+					return (
+						statusCode === 408 ||
+						statusCode === 429 ||
+						statusCode >= 500 ||
+						['ECONNRESET', 'ECONNREFUSED', 'ETIMEDOUT'].includes(error?.code)
+					);
+				}
+			});
+		} catch (error) {
+			this.logger.error('S3 operation failed after retries.', error instanceof Error ? error.stack : String(error));
+			throw new ServiceUnavailableException('Media storage is temporarily unavailable. Please try again.');
 		}
 	}
 
