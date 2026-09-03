@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import { StrollActiveStatus, StrollPublicityFlag } from '../../core/api/models';
+import { StrollActiveStatus, StrollCategory, StrollPublicityFlag } from '../../core/api/models';
 import { EditableStroll } from './creator-editor.models';
 import { MediaChange, MediaManagerComponent } from './media-manager.component';
 
@@ -21,5 +21,6 @@ export class StrollDetailsEditorComponent {
 	@Input() strollId: string | null = null;
 	@Input() activeStatuses: StrollActiveStatus[] = [];
 	@Input() publicityFlags: StrollPublicityFlag[] = [];
+	@Input() categories: StrollCategory[] = [];
 	@Output() mediaChange = new EventEmitter<MediaChange>();
 }

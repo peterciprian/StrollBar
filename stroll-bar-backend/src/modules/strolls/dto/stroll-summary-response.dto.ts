@@ -1,5 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { StrollPublicityFlag } from '../entities/stroll.entity';
+import { StrollCategory } from './stroll-category.enum';
+import { StrollPriceDto } from './stroll-price.dto';
 
 export class StrollSummaryResponseDto {
 	@ApiProperty({ example: '0e86308f-78cd-4929-a7d8-9db9c3307ee6' })
@@ -14,6 +16,9 @@ export class StrollSummaryResponseDto {
 	@ApiProperty({ type: [String], example: ['historical', 'budapest'] })
 	labels!: string[];
 
+	@ApiProperty({ enum: StrollCategory, isArray: true })
+	category!: StrollCategory[];
+
 	@ApiProperty({ description: 'Advertising extract, limited to 240 characters.' })
 	description!: string;
 
@@ -22,6 +27,12 @@ export class StrollSummaryResponseDto {
 		nullable: true
 	})
 	mediaUrls?: { imageUrls: string[]; videoUrls: [] } | null;
+
+	@ApiPropertyOptional({ type: StrollPriceDto, nullable: true })
+	price?: StrollPriceDto | null;
+
+	@ApiProperty({ example: 2.4 })
+	length!: number;
 
 	@ApiProperty({ enum: StrollPublicityFlag })
 	publicityFlag!: StrollPublicityFlag;

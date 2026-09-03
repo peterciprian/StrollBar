@@ -1,6 +1,8 @@
 import { Type } from 'class-transformer';
 import { IsArray, IsEnum, IsInt, IsOptional, IsString, IsUrl, IsNumber, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { StrollActiveStatus, StrollPublicityFlag } from '../entities/stroll.entity';
+import { StrollCategory } from './stroll-category.enum';
+import { StrollPriceDto } from './stroll-price.dto';
 
 class BulkMediaUrlsDto {
 	@IsOptional()
@@ -41,9 +43,19 @@ export class BulkImportStrollRecordDto {
 	labels!: string[];
 
 	@IsOptional()
+	@IsArray()
+	@IsEnum(StrollCategory, { each: true })
+	category?: StrollCategory[];
+
+	@IsOptional()
 	@ValidateNested()
 	@Type(() => BulkMediaUrlsDto)
 	mediaUrls?: BulkMediaUrlsDto | null;
+
+	@IsOptional()
+	@ValidateNested()
+	@Type(() => StrollPriceDto)
+	price?: StrollPriceDto | null;
 
 	@IsOptional()
 	@IsEnum(StrollActiveStatus)

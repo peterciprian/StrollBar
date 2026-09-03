@@ -1,11 +1,14 @@
-import { StrollActiveStatus, StrollPublicityFlag } from '../../core/api/models';
+import { StrollActiveStatus, StrollCategory, StrollPublicityFlag } from '../../core/api/models';
 
 export interface EditableStroll {
 	name: string;
 	description: string;
 	labelsText: string;
+	category: StrollCategory[];
 	status: StrollActiveStatus;
 	publicity: StrollPublicityFlag;
+	priceAmount: number | null;
+	priceCurrency: string;
 	imageUrls: string[];
 	videoUrls: string[];
 }

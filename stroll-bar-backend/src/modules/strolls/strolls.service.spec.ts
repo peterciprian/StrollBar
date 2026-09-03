@@ -144,7 +144,7 @@ describe('StrollsService authorization', () => {
 		);
 
 		expect(dataSource.transaction).toHaveBeenCalledTimes(1);
-		expect(manager.save).toHaveBeenCalledTimes(2);
+		expect(manager.save).toHaveBeenCalledTimes(3);
 		expect(result.stroll.id).toBe('imported-stroll-id');
 		expect(result.stages).toHaveLength(1);
 		expect(result.stages[0].strollId).toBe('imported-stroll-id');
@@ -158,9 +158,11 @@ function buildStroll(overrides: Partial<StrollEntity> = {}): StrollEntity {
 		authorId: 'author-id',
 		activeStatus: StrollActiveStatus.PUBLISHED,
 		labels: [],
+		category: [],
 		description: 'A description',
 		publicityFlag: StrollPublicityFlag.PUBLIC,
 		stageCount: 0,
+		length: 0,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		setIdIfMissing: jest.fn(),

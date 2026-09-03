@@ -1,19 +1,22 @@
 // Maps backend Stroll/Stage responses onto the richer Stroll shape used by the /screens demo UI.
-import { StrollSummary } from '../../core/api/models';
-import { Stroll, StrollCategory } from '../../core/models/screens.models';
-
-const KNOWN_CATEGORIES: StrollCategory[] = ['Historical', 'Mystery', 'Cultural'];
+import { StrollCategory as ApiStrollCategory, StrollSummary } from '../../core/api/models';
+import { Stroll } from '../../core/models/screens.models';
 
 export function mapStrollToStroll(stroll: StrollSummary): Stroll {
-	const category = KNOWN_CATEGORIES.find((known) => stroll.labels.includes(known)) ?? 'Cultural';
+	const category =
+		stroll.category?.[0] === ApiStrollCategory.HISTORICAL
+			? 'Historical'
+			: stroll.category?.[0] === ApiStrollCategory.ARCHITECTURE
+				? 'Cultural'
+				: 'Cultural';
 
 	return {
 		id: stroll.id,
 		title: stroll.name,
 		category,
 		durationMinutes: stroll.stageCount * 15,
-		price: 0,
-		distanceKm: 0,
+		price: stroll.price?.amount ?? 0,
+		distanceKm: stroll.length,
 		description: stroll.description,
 		publicityFlag: stroll.publicityFlag,
 		stationsCount: stroll.stageCount,

@@ -1,14 +1,10 @@
-import {
-	IsArray,
-	IsEnum,
-	IsOptional,
-	IsString,
-	IsUrl,
-	MaxLength,
-	MinLength,
-} from 'class-validator';
+import { IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { StrollActiveStatus, StrollPublicityFlag } from '../entities/stroll.entity';
+import { StrollCategory } from './stroll-category.enum';
+import { StrollPriceDto } from './stroll-price.dto';
+import { Type } from 'class-transformer';
+import { ValidateIf, ValidateNested } from 'class-validator';
 
 export class UpdateStrollDto {
 	@ApiPropertyOptional({ example: 'Budapest Highlights', minLength: 3, maxLength: 150 })
@@ -35,6 +31,12 @@ export class UpdateStrollDto {
 	@IsString({ each: true })
 	labels?: string[];
 
+	@ApiPropertyOptional({ enum: StrollCategory, isArray: true })
+	@IsOptional()
+	@IsArray()
+	@IsEnum(StrollCategory, { each: true })
+	category?: StrollCategory[];
+
 	@ApiPropertyOptional({ type: [String], example: ['https://example.com/cover.jpg'] })
 	@IsOptional()
 	@IsArray()
@@ -46,6 +48,13 @@ export class UpdateStrollDto {
 	@IsArray()
 	@IsUrl({}, { each: true })
 	videoUrls?: string[];
+
+	@ApiPropertyOptional({ type: StrollPriceDto, nullable: true })
+	@IsOptional()
+	@ValidateIf((dto) => dto.price === null || dto.publicityFlag === StrollPublicityFlag.PRIVATE || dto.publicityFlag === undefined)
+	@ValidateNested()
+	@Type(() => StrollPriceDto)
+	price?: StrollPriceDto | null;
 
 	@ApiPropertyOptional({ enum: StrollActiveStatus, example: StrollActiveStatus.PUBLISHED })
 	@IsOptional()

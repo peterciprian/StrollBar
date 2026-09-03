@@ -10,6 +10,7 @@ import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { StrollActiveStatus, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserRole } from '../users/entities/user.entity';
+import { calculateRouteLengthKm } from '../strolls/route-length.util';
 
 @Injectable()
 export class StagesService {
@@ -56,6 +57,7 @@ export class StagesService {
 
 		const savedStage = await this.stagesRepository.save(stage);
 		stroll.stageCount = await this.stagesRepository.count({ where: { strollId } });
+		stroll.length = await this.calculateLength(strollId);
 		await this.strollsRepository.save(stroll);
 
 		return savedStage;
@@ -77,6 +79,11 @@ export class StagesService {
 		}
 
 		await this.stagesRepository.save([...stagesById.values()]);
+		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+		if (stroll) {
+			stroll.length = calculateRouteLengthKm([...stagesById.values()].sort((left, right) => left.orderIndex - right.orderIndex));
+			await this.strollsRepository.save(stroll);
+		}
 
 		return {
 			strollId,
@@ -103,7 +110,14 @@ export class StagesService {
 		if (dto.longitude !== undefined) stage.longitude = dto.longitude;
 		if (dto.riddleAnswer !== undefined) stage.riddleAnswer = dto.riddleAnswer.trim().toLowerCase();
 
-		return this.stagesRepository.save(stage);
+		const savedStage = await this.stagesRepository.save(stage);
+		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+		if (stroll) {
+			stroll.length = await this.calculateLength(strollId);
+			await this.strollsRepository.save(stroll);
+		}
+
+		return savedStage;
 	}
 
 	async remove(strollId: string, stageId: string, currentUser: AuthenticatedUser) {
@@ -116,9 +130,15 @@ export class StagesService {
 
 		await this.stagesRepository.remove(stage);
 		stroll.stageCount = await this.stagesRepository.count({ where: { strollId } });
+		stroll.length = await this.calculateLength(strollId);
 		await this.strollsRepository.save(stroll);
 
 		return { id: stageId, deleted: true };
+	}
+
+	private async calculateLength(strollId: string): Promise<number> {
+		const stages = await this.stagesRepository.find({ where: { strollId }, order: { orderIndex: 'ASC' } });
+		return calculateRouteLengthKm(stages);
 	}
 
 	private async getOwnedStrollOrThrow(strollId: string, currentUser: AuthenticatedUser): Promise<StrollEntity> {

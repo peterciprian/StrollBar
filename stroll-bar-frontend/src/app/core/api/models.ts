@@ -4,6 +4,28 @@ export type StrollActiveStatus = 'draft' | 'published' | 'archived';
 export type StrollPublicityFlag = 'public' | 'unlisted' | 'private';
 export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned';
 
+export enum StrollCategory {
+	ARCHITECTURE = 'ARCHITECTURE',
+	ART = 'ART',
+	CONTEMPORARY = 'CONTEMPORARY',
+	HISTORICAL = 'HISTORICAL',
+	GASTRO = 'GASTRO',
+	BUILDING = 'BUILDING',
+	SIGHTSEEING = 'SIGHTSEEING',
+	SCIENCE = 'SCIENCE',
+	LANDSCAPE = 'LANDSCAPE',
+	URBANISM = 'URBANISM',
+	RELIGION = 'RELIGION',
+	SHOPPING = 'SHOPPING',
+	ENTERTAINMENT = 'ENTERTAINMENT',
+	SPORTS = 'SPORTS'
+}
+
+export interface StrollPrice {
+	amount: number;
+	currency: string;
+}
+
 export { UserRole };
 
 // ─── Users ───────────────────────────────────────────────────────────────────
@@ -125,10 +147,13 @@ export interface Stroll {
 	authorId: string;
 	activeStatus: StrollActiveStatus;
 	labels: string[];
+	category: StrollCategory[];
 	description: string;
 	proposerText?: string | null;
 	mediaUrls?: MediaUrls;
 	publicityFlag: StrollPublicityFlag;
+	price?: StrollPrice | null;
+	length: number;
 	stageCount: number;
 	createdAt: string;
 	updatedAt: string;
@@ -139,9 +164,12 @@ export interface StrollSummary {
 	name: string;
 	authorId: string;
 	labels: string[];
+	category: StrollCategory[];
 	description: string;
 	mediaUrls?: MediaUrls | null;
 	publicityFlag: StrollPublicityFlag;
+	price?: StrollPrice | null;
+	length: number;
 	stageCount: number;
 }
 
@@ -174,8 +202,10 @@ export interface CreateStrollRequest {
 	description: string;
 	proposerText?: string;
 	labels?: string[];
+	category?: StrollCategory[];
 	imageUrls?: string[];
 	videoUrls?: string[];
+	price?: StrollPrice | null;
 	activeStatus?: StrollActiveStatus;
 	publicityFlag?: StrollPublicityFlag;
 }

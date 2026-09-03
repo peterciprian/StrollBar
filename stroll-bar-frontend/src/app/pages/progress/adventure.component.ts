@@ -14,7 +14,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MapPreviewComponent } from '../../components/map-preview/map-preview.component';
 import { MediaGalleryComponent } from '../../components/media-gallery/media-gallery.component';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
-import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage, Stroll as ApiStroll } from '../../core/api/models';
+import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage, Stroll as ApiStroll, StrollCategory } from '../../core/api/models';
 import { MOCK_STROLLS, Stroll as ScreenStroll } from '../../core/models/screens.models';
 
 @Component({
@@ -253,8 +253,10 @@ export class AdventureScreenComponent implements OnInit {
 			authorId: 'demo-author',
 			activeStatus: 'published',
 			labels: [this.demoStroll.category],
+			category: [StrollCategory.HISTORICAL],
 			description: this.demoStroll.description,
 			publicityFlag: 'public',
+			length: this.demoStroll.distanceKm,
 			stageCount: this.demoStroll.stations.length,
 			createdAt: this.demoAdventure.purchaseTime,
 			updatedAt: this.demoAdventure.purchaseTime

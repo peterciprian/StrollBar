@@ -30,6 +30,26 @@
 			</mat-select></mat-form-field
 		>
 	</div>
+	<div class="stroll-details-editor__row">
+		<mat-form-field appearance="outline">
+			<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.CATEGORY_LABEL' | translate }}</mat-label>
+			<mat-select [(ngModel)]="stroll.category" name="strollCategory" multiple>
+				@for (category of categories; track category) {
+					<mat-option [value]="category">{{ category }}</mat-option>
+				}
+			</mat-select>
+		</mat-form-field>
+		@if (stroll.publicity === 'private') {
+			<mat-form-field appearance="outline">
+				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.PRICE_AMOUNT_LABEL' | translate }}</mat-label>
+				<input matInput type="number" min="0" [(ngModel)]="stroll.priceAmount" name="priceAmount" />
+			</mat-form-field>
+			<mat-form-field appearance="outline">
+				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.PRICE_CURRENCY_LABEL' | translate }}</mat-label>
+				<input matInput maxlength="3" [(ngModel)]="stroll.priceCurrency" name="priceCurrency" />
+			</mat-form-field>
+		}
+	</div>
 	<app-media-manager
 		[imageUrls]="stroll.imageUrls"
 		[videoUrls]="stroll.videoUrls"

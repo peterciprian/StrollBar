@@ -7,10 +7,12 @@ import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
 import { UpdateStrollDto } from './dto/update-stroll.dto';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
+import { StrollCategory } from './dto/stroll-category.enum';
 import { UserRole } from '../users/entities/user.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
+import { calculateRouteLengthKm } from './route-length.util';
 
 const SIMPLE_PUBLIC_STROLL_LIMIT = 3;
 const PRIVATE_STROLL_EXTRACT_LENGTH = 240;
@@ -102,18 +104,22 @@ export class StrollsService {
 
 	async create(dto: CreateStrollDto, currentUser: AuthenticatedUser) {
 		const publicityFlag = dto.publicityFlag ?? StrollPublicityFlag.PUBLIC;
+		this.assertPriceAllowed(publicityFlag, dto.price);
 		await this.assertCanCreateWithPublicity(currentUser, publicityFlag);
 		const stroll = this.strollsRepository.create({
 			name: dto.name,
 			authorId: currentUser.userId,
 			activeStatus: dto.activeStatus ?? StrollActiveStatus.DRAFT,
 			labels: (dto.labels ?? []).map((label) => label.trim().toLowerCase()),
+			category: dto.category ?? [StrollCategory.HISTORICAL],
 			description: dto.description,
 			proposerText: dto.proposerText ?? null,
 			mediaUrls: {
 				imageUrls: dto.imageUrls ?? [],
 				videoUrls: dto.videoUrls ?? []
 			},
+			price: publicityFlag === StrollPublicityFlag.PRIVATE ? (dto.price ?? null) : null,
+			length: 0,
 			publicityFlag,
 			stageCount: 0
 		});
@@ -129,19 +135,23 @@ export class StrollsService {
 		}
 
 		const stageOrderOffset = dto.stages.some((stage) => stage.orderIndex === 0) ? 1 : 0;
+		const publicityFlag = dto.stroll.publicityFlag ?? StrollPublicityFlag.PRIVATE;
+		this.assertPriceAllowed(publicityFlag, dto.stroll.price);
 		const result = await this.dataSource.transaction(async (manager) => {
 			const stroll = manager.create(StrollEntity, {
 				name: dto.stroll.name,
 				authorId: currentUser.userId,
 				activeStatus: dto.stroll.activeStatus ?? StrollActiveStatus.DRAFT,
 				labels: dto.stroll.labels.map((label) => label.trim().toLowerCase()),
+				category: dto.stroll.category ?? [StrollCategory.HISTORICAL],
 				description: dto.stroll.description,
 				proposerText: dto.stroll.proposerText ?? null,
 				mediaUrls: {
 					imageUrls: dto.stroll.mediaUrls?.imageUrls ?? [],
 					videoUrls: dto.stroll.mediaUrls?.videoUrls ?? []
 				},
-				publicityFlag: dto.stroll.publicityFlag ?? StrollPublicityFlag.PRIVATE,
+				publicityFlag,
+				price: dto.stroll.price ?? null,
 				stageCount: dto.stages.length
 			});
 			const savedStroll = await manager.save(StrollEntity, stroll);
@@ -160,6 +170,8 @@ export class StrollsService {
 				})
 			);
 			const savedStages = stages.length ? await manager.save(StageEntity, stages) : [];
+			savedStroll.length = calculateRouteLengthKm(savedStages.slice().sort((left, right) => left.orderIndex - right.orderIndex));
+			await manager.save(StrollEntity, savedStroll);
 			return { stroll: savedStroll, stages: savedStages };
 		});
 
@@ -201,6 +213,11 @@ export class StrollsService {
 
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		const nextPublicity = dto.publicityFlag ?? stroll.publicityFlag;
+		this.assertPriceAllowed(nextPublicity, dto.price);
+		if (nextPublicity !== StrollPublicityFlag.PRIVATE && (dto.price !== undefined || stroll.price)) {
+			stroll.price = null;
+		}
 
 		if (dto.publicityFlag !== undefined && dto.publicityFlag !== stroll.publicityFlag) {
 			await this.assertCanCreateWithPublicity(currentUser, dto.publicityFlag);
@@ -222,6 +239,8 @@ export class StrollsService {
 			stroll.labels = dto.labels.map((label) => label.trim().toLowerCase());
 		}
 
+		if (dto.category !== undefined) stroll.category = dto.category;
+
 		if (dto.activeStatus !== undefined) {
 			stroll.activeStatus = dto.activeStatus;
 		}
@@ -229,6 +248,8 @@ export class StrollsService {
 		if (dto.publicityFlag !== undefined) {
 			stroll.publicityFlag = dto.publicityFlag;
 		}
+
+		if (dto.price !== undefined && nextPublicity === StrollPublicityFlag.PRIVATE) stroll.price = dto.price;
 
 		if (dto.imageUrls !== undefined || dto.videoUrls !== undefined) {
 			const currentMedia = stroll.mediaUrls ?? { imageUrls: [], videoUrls: [] };
@@ -293,6 +314,12 @@ export class StrollsService {
 		}
 	}
 
+	private assertPriceAllowed(publicityFlag: StrollPublicityFlag, price?: { amount: number; currency: string } | null): void {
+		if (price && publicityFlag !== StrollPublicityFlag.PRIVATE) {
+			throw new ForbiddenException('Only private strolls can have a price.');
+		}
+	}
+
 	private async assertCanRead(stroll: StrollEntity, currentUser?: AuthenticatedUser): Promise<void> {
 		if (stroll.activeStatus === StrollActiveStatus.PUBLISHED && stroll.publicityFlag === StrollPublicityFlag.PUBLIC) {
 			return;
@@ -327,8 +354,11 @@ export class StrollsService {
 			name: stroll.name,
 			authorId: stroll.authorId,
 			labels: stroll.labels,
+			category: stroll.category,
 			description: descriptionExtract,
 			mediaUrls: firstImageUrl ? { imageUrls: [firstImageUrl], videoUrls: [] } : null,
+			price: stroll.publicityFlag === StrollPublicityFlag.PRIVATE ? (stroll.price ?? null) : null,
+			length: stroll.length,
 			publicityFlag: stroll.publicityFlag,
 			stageCount: stroll.stageCount
 		};

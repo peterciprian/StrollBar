@@ -24,6 +24,8 @@
 			"approve": true,
 			"matchCommandLine": true
 		},
-		"npm run lint": true
+		"npm run lint": true,
+		"npm --workspace stroll-bar-frontend": true,
+		"npm --workspace stroll-bar-backend": true
 	}
 }

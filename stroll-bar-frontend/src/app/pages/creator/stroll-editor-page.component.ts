@@ -7,7 +7,15 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
-import { CreateStageRequest, CreateStrollRequest, Stage, StrollActiveStatus, StrollDetailResponse, StrollPublicityFlag } from '../../core/api/models';
+import {
+	CreateStageRequest,
+	CreateStrollRequest,
+	Stage,
+	StrollActiveStatus,
+	StrollCategory,
+	StrollDetailResponse,
+	StrollPublicityFlag
+} from '../../core/api/models';
 import { EditableStage, EditableStroll } from './creator-editor.models';
 import { MediaChange } from './media-manager.component';
 import { StrollDetailsEditorComponent } from './stroll-details-editor.component';
@@ -37,6 +45,7 @@ export class StrollEditorPageComponent implements OnInit {
 	private readonly dialog = inject(MatDialog);
 	protected readonly activeStatuses: StrollActiveStatus[] = ['draft', 'published', 'archived'];
 	protected readonly publicityFlags: StrollPublicityFlag[] = ['private', 'unlisted', 'public'];
+	protected readonly categories = Object.values(StrollCategory);
 	protected readonly loading = signal(true);
 	protected strollId: string | null = null;
 	protected isNewStroll = true;
@@ -151,8 +160,13 @@ export class StrollEditorPageComponent implements OnInit {
 				.split(',')
 				.map((label) => label.trim())
 				.filter(Boolean),
+			category: this.stroll.category,
 			activeStatus: this.stroll.status,
 			publicityFlag: this.stroll.publicity,
+			price:
+				this.stroll.publicity === 'private' && this.stroll.priceAmount !== null
+					? { amount: this.stroll.priceAmount, currency: this.stroll.priceCurrency }
+					: null,
 			imageUrls: this.stroll.imageUrls,
 			videoUrls: this.stroll.videoUrls
 		};
@@ -204,8 +218,11 @@ export class StrollEditorPageComponent implements OnInit {
 			name: detail.stroll.name,
 			description: detail.stroll.description,
 			labelsText: (detail.stroll.labels ?? []).join(', '),
+			category: detail.stroll.category ?? [],
 			status: detail.stroll.activeStatus,
 			publicity: detail.stroll.publicityFlag,
+			priceAmount: detail.stroll.price?.amount ?? null,
+			priceCurrency: detail.stroll.price?.currency ?? 'HUF',
 			imageUrls: detail.stroll.mediaUrls?.imageUrls ?? [],
 			videoUrls: detail.stroll.mediaUrls?.videoUrls ?? []
 		};
@@ -237,6 +254,17 @@ export class StrollEditorPageComponent implements OnInit {
 		if (this.selectedStageId === id) this.selectedStageId = this.stages[0]?.id ?? null;
 	}
 	private blankStroll(): EditableStroll {
-		return { name: '', description: '', labelsText: '', status: 'draft', publicity: 'private', imageUrls: [], videoUrls: [] };
+		return {
+			name: '',
+			description: '',
+			labelsText: '',
+			category: [StrollCategory.HISTORICAL],
+			status: 'draft',
+			publicity: 'private',
+			priceAmount: null,
+			priceCurrency: 'HUF',
+			imageUrls: [],
+			videoUrls: []
+		};
 	}
 }

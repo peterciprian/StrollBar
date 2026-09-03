@@ -9,6 +9,7 @@ import { EmailVerification1752918000000 } from './migrations/1752918000000-email
 import { UserRoles1752929000000 } from './migrations/1752929000000-user-roles';
 import { QueryPerformanceIndexes1753000000000 } from './migrations/1753000000000-query-performance-indexes';
 import { AuditEvents1753100000000 } from './migrations/1753100000000-audit-events';
+import { StrollCategoryPriceLength1753200000000 } from './migrations/1753200000000-stroll-category-price-length';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -64,7 +65,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			EmailVerification1752918000000,
 			UserRoles1752929000000,
 			QueryPerformanceIndexes1753000000000,
-			AuditEvents1753100000000
+			AuditEvents1753100000000,
+			StrollCategoryPriceLength1753200000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

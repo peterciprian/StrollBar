@@ -1,6 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import { BeforeInsert, Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { DATABASE_DATE_COLUMN_TYPE, DATABASE_ID_COLUMN_TYPE, DATABASE_JSON_COLUMN_TYPE } from '../../../database/column-types';
+import {
+	DATABASE_DATE_COLUMN_TYPE,
+	DATABASE_FLOAT_COLUMN_TYPE,
+	DATABASE_ID_COLUMN_TYPE,
+	DATABASE_JSON_COLUMN_TYPE
+} from '../../../database/column-types';
+import { StrollCategory } from '../dto/stroll-category.enum';
+
+export interface StrollPrice {
+	amount: number;
+	currency: string;
+}
 
 export enum StrollActiveStatus {
 	DRAFT = 'draft',
@@ -49,6 +60,9 @@ export class StrollEntity {
 	@Column({ type: 'simple-array', default: '' })
 	labels!: string[];
 
+	@Column({ type: 'simple-array', default: StrollCategory.HISTORICAL })
+	category!: StrollCategory[];
+
 	@Column({ type: 'text' })
 	description!: string;
 
@@ -57,6 +71,12 @@ export class StrollEntity {
 
 	@Column({ type: DATABASE_JSON_COLUMN_TYPE, nullable: true })
 	mediaUrls?: StrollMediaUrls | null;
+
+	@Column({ type: DATABASE_JSON_COLUMN_TYPE, nullable: true })
+	price?: StrollPrice | null;
+
+	@Column({ type: DATABASE_FLOAT_COLUMN_TYPE, default: 0 })
+	length!: number;
 
 	@Column({
 		type: 'varchar',
