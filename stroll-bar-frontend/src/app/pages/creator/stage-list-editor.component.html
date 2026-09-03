@@ -1,0 +1,27 @@
+<div class="stage-list-editor">
+	<h2>{{ 'SCREENS.ADMIN_STATION_EDITOR.STATIONS_TITLE' | translate }}</h2>
+	<div class="stage-list-editor__list" cdkDropList (cdkDropListDropped)="drop($event)">
+		@for (stage of stages; track stage.id; let i = $index) {
+			<div
+				class="stage-list-editor__item"
+				[class.stage-list-editor__item--active]="stage.id === selectedStageId"
+				cdkDrag
+				(click)="stageSelected.emit(stage.id)"
+			>
+				<mat-icon cdkDragHandle>drag_indicator</mat-icon
+				><span>{{ 'SCREENS.ADMIN_STATION_EDITOR.STATION_ITEM' | translate: { index: i + 1, title: stage.name } }}</span
+				><button type="button" mat-icon-button (click)="$event.stopPropagation(); stageDeleted.emit(stage)">
+					<mat-icon>delete</mat-icon>
+				</button>
+			</div>
+		}
+		@if (!stages.length) {
+			<p>{{ 'SCREENS.ADMIN_STATION_EDITOR.EMPTY_STATIONS' | translate }}</p>
+		}
+	</div>
+	<button mat-stroked-button (click)="stageAdded.emit()">
+		<mat-icon>add</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.ADD_STATION' | translate }}</button
+	><button mat-flat-button color="primary" [disabled]="saving" (click)="saveRequested.emit()">
+		<mat-icon>save</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES' | translate }}
+	</button>
+</div>

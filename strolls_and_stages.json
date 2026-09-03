@@ -1,0 +1,1351 @@
+{
+	"strolls": [
+		{
+			"id": "stroll-budapest-001",
+			"name": "Buda titkos szövedéke",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["rejtett-helyek", "panoráma", "történelem", "buda"],
+			"description": "Rejtett középkori utcák, elfeledett kertek és a budai oldal misztikus panorámái a fősodorbeli turistautakról letérve.",
+			"proposerText": "Tarts velünk Buda legrejtettebb szegleteibe, ahol nincsenek turistacsoportok!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1563804860010-85fbf80e4624"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-szeged-001",
+			"name": "A boszorkányok és paloták városa",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["szecesszió", "legendák", "tisza-part", "rejtély"],
+			"description": "Szeged nem csak a Dóm térből áll. Ez a séta a szecessziós építészet rejtett motívumai és a Tisza-part sötétebb legendái közé kalauzol.",
+			"proposerText": "Fedezd fel Szeged eltitkolt arcát a szecessziós palotáktól a boszorkányok szigetéig.",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1590001155093-a3c66ab0c3ff"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-pecs-001",
+			"name": "Pécs mediterrán rejtélyei",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["mediterrán", "zsolnay", "ókori-róma", "pincevilág"],
+			"description": "Séta Pécs zegzugos, macskaköves utcáin, rejtett udvarok, római kori emlékek és a világhírű Zsolnay-kerámiák nyomában.",
+			"proposerText": "Járd be Pécs titkos átjáróit és tudd meg, hol rejtőznek a legszebb kerámiadíszek!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-sopron-001",
+			"name": "Sopron lovagjai és polgárai",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["középkor", "várfal", "polgárházak", "hűség"],
+			"description": "Ismerd meg Sopron óvárosának azon rejtett részleteit, kapualjait és bástyáit, amiket a rohanó turisták észre sem vesznek.",
+			"proposerText": "Lépj be Sopron eldugott középkori udvaraiba és fejtsd meg az évszázados rejtélyeket!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1573155993874-d5d48af862ba"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-debrecen-001",
+			"name": "Debrecen rejtett udvarai",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["cívis", "kálvinizmus", "rejtett-kertek", "legendák"],
+			"description": "A Nagytemplomon túl: fedezd fel a régi cívisváros belső udvarait, rejtett sikátorait és a hajdani kereskedők elfeledett emlékeit.",
+			"proposerText": "Láss be a monumentális homlokzatok mögé, és fedezd fel Debrecen eldugott kisvárosi oázisait!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1549693578-d683be217e58"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-eger-001",
+			"name": "Eger eltitkolt históriái",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["barokk", "török-kor", "pincék", "kaland"],
+			"description": "Barokk pompán és a várfalakon túl: titkos török emlékek, föld alatti folyosók bejáratai és elfeledett egri hősök nyomai.",
+			"proposerText": "Eger nem csak a bikavérről híres. Találd meg a török kor és a barokk világ eldugott nyomait!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1565008447742-97f6f38c985c"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-gyor-001",
+			"name": "Győr, a vaskakas birodalma",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["barokk", "folyók", "legendák", "francia-ostrom"],
+			"description": "A három folyó találkozásánál fekvő Győr barokk belvárosának titkai: sarokerkélyek, ágyúgolyók a falban és a híres Vaskakas legendája.",
+			"proposerText": "Találd meg a házfalakba fúródott ágyúgolyókat és derítsd ki a győri legendák valóságalapját!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1527631746610-bca00a040d60"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stroll-koszeg-001",
+			"name": "Kőszeg, az időtlen ékszerdoboz",
+			"authorId": "system-generator",
+			"activeStatus": "ACTIVE",
+			"labels": ["Alpokalja", "középkor", " Jurisics", "időutazás"],
+			"description": "Magyarország egyik leghangulatosabb kisvárosának eldugott szegletei: a Jurisics-vár rejtett bástyái, ősi szárazkapuk és különleges házjelek.",
+			"proposerText": "Lépj be a történelem élő díszletébe, ahol 11 órakor is harangoznak a törökök feletti győzelem tiszteletére!",
+			"mediaUrls": {
+				"imageUrls": ["https://images.unsplash.com/photo-1449034446853-66c86144b0ad"]
+			},
+			"publicityFlag": "public",
+			"stageCount": 8,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		}
+	],
+	"stages": [
+		{
+			"id": "stage-bp-001",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 0,
+			"name": "Gül Baba utca és a macskakövek",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: Az utca aljától a türbe bejáratáig tartó szakaszon hány darab zöld színű, öntöttvas utcai lámpaoszlop található közvetlenül az út szélén?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": ["https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4"],
+			"address": "Budapest, Gül Baba u., 1023",
+			"latitude": 47.5158,
+			"longitude": 19.0347,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-002",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 1,
+			"name": "A néma tanú parkja",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: Keresd meg a parkban álló modern emlékművet! Milyen geometriai alakzat van kivágva a magasba törő kőtömb közepéből?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Mansfeld Péter park, 1023",
+			"latitude": 47.5172,
+			"longitude": 19.0325,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-003",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 2,
+			"name": "A várfal árnyéka",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: A bástyafalba épített, az ostromokra emlékeztető ágyúcsövek közül pontosan hány darab mutat a Vérmező irányába (nyugat felé)?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Tóth Árpád sétány déli vége, 1014",
+			"latitude": 47.5021,
+			"longitude": 19.0278,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-004",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 3,
+			"name": "A sziklák gyomra",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: Keresd meg a zöld növényzettel benőtt szellőzőgombát a sétány mellett! Hány darab csavar rögzíti a tetején lévő fém védőrácsot?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Lovas út 4c, 1012",
+			"latitude": 47.5028,
+			"longitude": 19.0292,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-005",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 4,
+			"name": "A rejtett budai zsinagóga imaterme",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: Nézz fel a bejárat melletti emléktáblára. Milyen évszám olvasható a felirat legvégén?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Táncsics Mihály u. 26, 1014",
+			"latitude": 47.5039,
+			"longitude": 19.0315,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-006",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 5,
+			"name": "A Halászbástya alatti rejtett lépcső",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: Hány darab kőoszlop szegélyezi a lépcsőforduló boltíves korlátját az első szakaszon?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Jezsuita lépcső, 1014",
+			"latitude": 47.5023,
+			"longitude": 19.0345,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-007",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 6,
+			"name": "A Tabán elfeledett harangja",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: Keresd meg a régi épület falán lévő réztáblát! Milyen mesterséget jelöl a felette látható kis domborműves címer?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Apród utca, 1013",
+			"latitude": 47.4912,
+			"longitude": 19.0423,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-bp-008",
+			"strollId": "stroll-budapest-001",
+			"orderIndex": 7,
+			"name": "Az eldugott Európa-liget",
+			"description": "Fedezd fel ezt a különleges helyszínt és figyeld meg a legapróbb részleteit is!\n\nKérdés: A parkban elhelyezett emlékkövek közül hány darab kőtömb áll közvetlenül a sétány bal oldalán?",
+			"notes": "Figyelmesen nézz körül!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Budapest, Hunyadi János út, 1011",
+			"latitude": 47.5005,
+			"longitude": 19.0333,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-001",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 0,
+			"name": "A vasvirágos remekmű",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: Nézd meg alaposan a földszinti sarokablak feletti kovácsoltvas díszítést! Hány kinyílt liliomvirág ismerhető fel a vaskacsok között?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Tisza Lajos krt. 56, 6720",
+			"latitude": 46.2519,
+			"longitude": 20.1441,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-002",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 1,
+			"name": "A titokzatos sötét sarok",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: A Fekete Ház sarokhomlokzatán, az emeleti ablakok magasságában található egy dombormű. Mit ábrázol ez a címerállat: oroszlánt, sast vagy griffmadarat?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Somogyi u. 13, 6720",
+			"latitude": 46.2505,
+			"longitude": 20.1458,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-003",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 2,
+			"name": "A ferencesek békéje",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: A templom kertjében álló kőkereszt talapzatán egy évszám olvasható. Mi ez az évszám?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Mátyás király tér 26, 6725",
+			"latitude": 46.2428,
+			"longitude": 20.1375,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-004",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 3,
+			"name": "A Tisza sötét legendája",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: Az erdő bejáratánál lévő kék és fehér jelzésű turistatábla oszlopára egy sárga alakzat van felfestve. Milyen szimbólum ez?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Boszorkánysziget, 6725",
+			"latitude": 46.2392,
+			"longitude": 20.1472,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-005",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 4,
+			"name": "A zenei óra rejtélye",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: Keresd meg a zenélő órát a tér boltíve alatt! Hány kis fémfigura látható az óralap körüli félköríves galériában?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Dóm tér, 6720",
+			"latitude": 46.2488,
+			"longitude": 20.1481,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-006",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 5,
+			"name": "A rejtett szegedi Sóhajok hídja",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: A Városházát és a bérpalotát összekötő zárt híd alatt állva, hány darab kis kerek díszítőablakot látsz a híd alján?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Széchenyi tér 10, 6720",
+			"latitude": 46.2531,
+			"longitude": 20.1475,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-007",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 6,
+			"name": "A Glattfelder téri rejtett címer",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: A tér közepén lévő kút talapzatán elhelyezett bronz plakettről olvasd le: hány csillag látható a címerpajzs felső részén?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Glattfelder Gyula tér, 6720",
+			"latitude": 46.2585,
+			"longitude": 20.1512,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-sz-008",
+			"strollId": "stroll-szeged-001",
+			"orderIndex": 7,
+			"name": "Az elfeledett Duna-Tisza jelzőkő",
+			"description": "Járd be a helyszínt és figyeld meg a szegedi múlt ezen darabkáját!\n\nKérdés: Keresd meg a régi gátépítési emlékművet! Hány darab lépcsőfok vezet fel közvetlenül az emlékmű talpazatához?",
+			"notes": "Nézz jól a lábad elé és a fejed fölé is!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Szeged, Roosevelt tér, 6720",
+			"latitude": 46.2514,
+			"longitude": 20.1518,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-001",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 0,
+			"name": "A lakatok falának titka",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: A híres lakatfal mellett állva, a kovácsoltvas kapu tetején egy kis állatfigura rejtőzik. Milyen állat ez?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Janus Pannonius u., 7621",
+			"latitude": 46.0755,
+			"longitude": 18.2265,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-002",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 1,
+			"name": "A török kor magányos bástyája",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: A Barbakán körbástyájához vezető fahíd pontosan hány darab vastag fagerendából épül fel?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Barbakán, 7621",
+			"latitude": 46.0762,
+			"longitude": 18.2245,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-003",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 2,
+			"name": "Zsolnay-kút a tér sarkán",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: A gyönyörű eozinmázas Zsolnay-kútból négy ökörfej ontja a vizet. Hány füllel rendelkezik összesen a kút alsó medencéje?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Széchenyi tér déli rész, 7621",
+			"latitude": 46.0741,
+			"longitude": 18.2272,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-004",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 3,
+			"name": "A Jakováli Hasszán dzsámi udvara",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: A minaret tövében lévő információs tábla kerete milyen színűre van festve?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Rákóczi út 2, 7621",
+			"latitude": 46.0728,
+			"longitude": 18.2222,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-005",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 4,
+			"name": "Az eldugott püspöki pincerendszer kapuja",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: A pincelejárat nehéz vaskapuját hány darab függőleges vasrács alkotja?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Sétatér, 7621",
+			"latitude": 46.0751,
+			"longitude": 18.2255,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-006",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 5,
+			"name": "A Káptalan utcai rejtett szoborpark",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: Az udvarba belépve balra az első kőszobor fején van-e bármilyen kalap vagy fejdísz? (Igen/Nem)",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Káptalan u. 4, 7621",
+			"latitude": 46.076,
+			"longitude": 18.2275,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-007",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 6,
+			"name": "A Cella Septichora feletti üvegplacc",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: Az ókeresztény sírkamrák feletti üveg talajablakok közül hány darab négyzet alakú panel világítja meg a föld alatti termet?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Szent István tér, 7621",
+			"latitude": 46.0756,
+			"longitude": 18.2251,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-pe-008",
+			"strollId": "stroll-pecs-001",
+			"orderIndex": 7,
+			"name": "A Jókai tér kispatakja",
+			"description": "Pécs mediterrán hangulata magával ragadó. Keresd a részleteket!\n\nKérdés: A téren végighúzódó mesterséges kis patakmeder kövei között hány darab fémből készült békefigura bújik meg?",
+			"notes": "A kövek mesélnek.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Pécs, Jókai tér, 7621",
+			"latitude": 46.0747,
+			"longitude": 18.2285,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-001",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 0,
+			"name": "A Tűztorony rejtett szoknyája",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A Tűztorony alatti római kori romok mellett lévő információs táblán hány darab fekete-fehér rajz látható?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Előkapu, 9400",
+			"latitude": 47.6841,
+			"longitude": 16.5912,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-002",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 1,
+			"name": "A Kecske-templom titkos sekrestyéje",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A templom homlokzatán lévő kőcímerben lévő kecske lábai közül hány érinti a földet?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Templom utca 1, 9400",
+			"latitude": 47.6835,
+			"longitude": 16.5905,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-003",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 2,
+			"name": "A Két Mór ház kapubálványai",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A híres barokk épület kapuját őrző két mór szobor közül a bal oldali figurának mi van a jobb kezében?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Szent Mihály u. 9, 9400",
+			"latitude": 47.6872,
+			"longitude": 16.5941,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-004",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 3,
+			"name": "A várfal sétány rejtett kapuja",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A bástyafalon lévő kis fa ajtón hány darab fém szegecs található összesen?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Várkerület belső sétány, 9400",
+			"latitude": 47.6845,
+			"longitude": 16.5925,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-005",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 4,
+			"name": "A Storno-ház kapualja",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A kapualjba benézve a mennyezetről lógó régi lámpásnak hány oldala (üveglapja) van?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Fő tér 8, 9400",
+			"latitude": 47.6838,
+			"longitude": 16.5908,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-006",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 5,
+			"name": "Az eldugott Új utca macskakövei",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: Keresd meg a régi zsinagóga melletti emléktáblát! Hány sorból áll a magyar nyelvű szöveg rajta?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Új utca közép, 9400",
+			"latitude": 47.6828,
+			"longitude": 16.5899,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-007",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 6,
+			"name": "A fegyvertár mögötti sikátor",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A szűk sikátor falába falazott régi ágyúgolyó milyen magasan van a talajtól (kb. térdmagasság, derékmagasság vagy fejmagasság)?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Fegyvertár köz, 9400",
+			"latitude": 47.6843,
+			"longitude": 16.5919,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-so-008",
+			"strollId": "stroll-sopron-001",
+			"orderIndex": 7,
+			"name": "A Taródi-vár titkos sarokbástyája",
+			"description": "Sopron ódon hangulata ideális a kalandozásra. Találd meg a választ!\n\nKérdés: A különc bagolyvár kapuja felett hány darab fából faragott bagolyfigura figyeli a látogatókat?",
+			"notes": "Figyeld a részleteket a kapukon!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Sopron, Csalogány köz 8, 9400",
+			"latitude": 47.6795,
+			"longitude": 16.5682,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-001",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 0,
+			"name": "A Nagytemplom mögötti emlékkert",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: A gályarabok oszlopának talapzatán hány darab bronz domborműves plakett látható?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Emlékkert, 4026",
+			"latitude": 47.5323,
+			"longitude": 21.6241,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-002",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 1,
+			"name": "A régi Városháza titkos átjárója",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: Az udvar boltívei alatt állva, a középső tartóoszlopon látható-e piros színű jelzés? (Igen/Nem)",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Piac u. 20, 4024",
+			"latitude": 47.5305,
+			"longitude": 21.6252,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-003",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 2,
+			"name": "A Csanak-ház szecessziós kapuja",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: A kapu feletti kovácsoltvas rácson milyen növényi motívum dominál: levelek, indák vagy virágok?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Piac u. 54, 4024",
+			"latitude": 47.5278,
+			"longitude": 21.6271,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-004",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 3,
+			"name": "A Református Kollégium belső udvara",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: Az árkádos udvar falán elhelyezett emléktáblák közül a legnagyobbnak mi a legfelső szava?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Kálvin tér 16, 4026",
+			"latitude": 47.5328,
+			"longitude": 21.6258,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-005",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 4,
+			"name": "A Batthyány utca eldugott lépcsőháza",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: A sétálóutca ezen kapualjában hány darab postaláda van felszerelve a falra?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Batthyány u. 8, 4024",
+			"latitude": 47.5298,
+			"longitude": 21.6288,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-006",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 5,
+			"name": "A Déri tér rejtett szobra",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: A múzeum előtti parkban lévő egyik ülő bronzszobor kezében mi található könyvön kívül?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Déri tér, 4026",
+			"latitude": 47.5318,
+			"longitude": 21.6225,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-007",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 6,
+			"name": "A Simonffy utcai belső oázis",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: Az udvari galéria fagerendás korlátján hány darab függőleges faléc található egy szekcióban?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Simonffy u. 4, 4024",
+			"latitude": 47.5299,
+			"longitude": 21.6235,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-de-008",
+			"strollId": "stroll-debrecen-001",
+			"orderIndex": 7,
+			"name": "A Megyeháza homlokzatának őrzője",
+			"description": "Debrecen elrejtett cívismúltja elevenedik meg itt.\n\nKérdés: Az épület tetején álló Hajdú vitéz szobra milyen fegyvert tart a kezében?",
+			"notes": "Nézz be a kapuk mögé, ahol szabad!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Debrecen, Piac u. 54, 4024",
+			"latitude": 47.5281,
+			"longitude": 21.6268,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-001",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 0,
+			"name": "A Minaret melletti rejtett lépcső",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A Minaret kerítésénél lévő kis kapu rácsozatában hány darab csúcsos fém nyílhegy mutat az ég felé?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Knézich Károly u. 4, 3300",
+			"latitude": 47.9048,
+			"longitude": 20.3778,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-002",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 1,
+			"name": "A Fazola-kapu rejtélyes madara",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A Megyeháza híres kovácsoltvas kapujának legtetején látható szőlőfürtök közül hány darab lóg le teljesen szabadon?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Kossuth Lajos u. 9, 3300",
+			"latitude": 47.9015,
+			"longitude": 20.3792,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-003",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 2,
+			"name": "A vár hátsó, elfeledett kapuja",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A kőfalba süllyesztett régi fa ajtó feletti boltívbe milyen geometriai forma van belevésve?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Dobó István Vármúzeum északi oldal, 3300",
+			"latitude": 47.9055,
+			"longitude": 20.3815,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-004",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 3,
+			"name": "Az Érsekkert eldugott hídja",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A patak felett átívelő kis kőhíd korlátjának hány darab kőoszlopa van összesen az egyik oldalon?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Érsekkert, 3300",
+			"latitude": 47.8965,
+			"longitude": 20.3798,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-005",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 4,
+			"name": "A Dobó tér rejtett barokk sarokszobra",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A sarokház falán lévő szobor fülkéje alatt milyen díszítő motívum látható a vakolatban?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Dobó István tér sarok, 3300",
+			"latitude": 47.9028,
+			"longitude": 20.3772,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-006",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 5,
+			"name": "A patakparti elfeledett malomkő",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A sétány mellé kiállított régi malomkő közepén lévő lyuk kerek vagy négyzet alakú?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Eger-patak sétány, 3300",
+			"latitude": 47.9002,
+			"longitude": 20.3785,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-007",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 6,
+			"name": "A Líceum csillagvizsgálójának ablaka",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A monumentális épület főbejárata feletti erkélyt hány darab díszes kőkonzol tartja alulról?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Eszterházy tér 1, 3300",
+			"latitude": 47.8995,
+			"longitude": 20.3748,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-eg-008",
+			"strollId": "stroll-eger-001",
+			"orderIndex": 7,
+			"name": "A török fürdő rejtett kupolája",
+			"description": "Eger történelmi titkai várnak rád ezen a ponton.\n\nKérdés: A fürdő épületének falán lévő régi márványtábla első szava mi?",
+			"notes": "A részletekben rejlik az igazság.",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Eger, Fürdő utca 3, 3300",
+			"latitude": 47.8978,
+			"longitude": 20.3812,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-001",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 0,
+			"name": "A Vaskakas emlékmű titka",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A rézből készült vaskakas szobor lába alatt lévő gömbön hány darab vízszintes díszítőcsík fut körbe?",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Dunakapu tér, 9022",
+			"latitude": 47.6912,
+			"longitude": 17.6328,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-002",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 1,
+			"name": "Az eldugott ágyúgolyós házfal",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A ház sarokfalába épült fekete ágyúgolyó alatt lévő kis emléktáblán szerepel-e évszám? (Igen/Nem)",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Király utca 4, 9021",
+			"latitude": 47.6892,
+			"longitude": 17.6315,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-003",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 2,
+			"name": "A Káptalandomb rejtett sikátora",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A szűk sikátor falán lévő függőleges vashálóra hány darab lakat van rögzítve ebben a pillanatban (ha nincs, írd be: 0)?",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Gutenberg köz, 9021",
+			"latitude": 47.6898,
+			"longitude": 17.6305,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-004",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 3,
+			"name": "A Frigyláda-szobor angyalai",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A monumentális barokk szobrot tartó angyalok közül a bal oldali figurának a szárnya felfelé vagy lefelé mutat?",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Gutenberg tér, 9021",
+			"latitude": 47.6895,
+			"longitude": 17.6302,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-005",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 4,
+			"name": "A Radó-sziget elfeledett pavilonja",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A szigeten álló kis klasszicista zenepavilonnak hány darab tartóoszlopa van összesen?",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Radó-sziget, 9021",
+			"latitude": 47.6868,
+			"longitude": 17.6285,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-006",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 5,
+			"name": "A vastuskós ház sarka",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A vastuskóba vert szögek közül látsz-e olyat, aminek kifejezetten nagy, négyzet alakú a feje? (Igen/Nem)",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Széchenyi tér 4, 9022",
+			"latitude": 47.6885,
+			"longitude": 17.6332,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-007",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 6,
+			"name": "A Bencés templom rejtett kriptabejárata",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A templom főbejáratának nehéz faajtaján hány darab különálló kazetta (mélyített téglalap panel) található?",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Széchenyi tér, 9022",
+			"latitude": 47.6882,
+			"longitude": 17.6328,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-gy-008",
+			"strollId": "stroll-gyor-001",
+			"orderIndex": 7,
+			"name": "A Püspökvár rejtett bástyakertje",
+			"description": "Győr a folyók és sarkok városa, minden sarok tartogat valamit.\n\nKérdés: A bástyafal tövében lévő kőpad hány darab különálló kőtömbből lett összeállítva?",
+			"notes": "Nézz alaposan a sarokkövekre!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Győr, Káptalandomb 1, 9021",
+			"latitude": 47.6905,
+			"longitude": 17.6298,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-001",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 0,
+			"name": "A Jurisics-vár belső szárazárka",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: A várat övező vizesárok feletti fahíd korlátját hány darab függőleges fatartó rögzíti?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Rajnis u. 9, 9730",
+			"latitude": 47.3892,
+			"longitude": 16.5385,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-002",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 1,
+			"name": "A Hősök tornya alatti boltív",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: A boltív belső falába süllyesztett régi kőtáblán hány darab római számjegy ismerhető fel?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Jurisics tér 6, 9730",
+			"latitude": 47.3885,
+			"longitude": 16.5398,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-003",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 2,
+			"name": "A Sgraffitós-ház különleges mintája",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: Az egyedi festésű ház homlokzatán, az első emeleti ablakok között milyen geometriai minta ismétlődik: körök vagy rombuszok?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Jurisics tér 7, 9730",
+			"latitude": 47.3884,
+			"longitude": 16.5395,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-004",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 3,
+			"name": "Az eldugott Tábornokház udvara",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: Az udvar belső loggiás folyosóját tartó kőoszlopok fejezete sima vagy faragott mintás?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Jurisics tér 8, 9730",
+			"latitude": 47.3883,
+			"longitude": 16.5392,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-005",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 4,
+			"name": "Az elfeledett városfal sétány",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: A megmaradt lőrések közül az elsőnél állva, a nyílás szélessége nagyobb-e, mint egy tenyér szélessége? (Igen/Nem)",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Várkör belső oldala, 9730",
+			"latitude": 47.3898,
+			"longitude": 16.5412,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-006",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 5,
+			"name": "A Jézus Szíve templom rejtett vízköpője",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: A hatalmas neogótikus templom oldalán lévő egyik vízköpő milyen mitikus lényt formáz: sárkányt vagy vízköpő békát?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Várkör 1, 9730",
+			"latitude": 47.3875,
+			"longitude": 16.5405,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-007",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 6,
+			"name": "A Chernel-kert rejtett ösvénye",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: A botanikus kert bejáratánál lévő információs tábla szerint hány védett madárfaj fészkel a területen?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Chernel utca, 9730",
+			"latitude": 47.3912,
+			"longitude": 16.5365,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		},
+		{
+			"id": "stage-ko-008",
+			"strollId": "stroll-koszeg-001",
+			"orderIndex": 7,
+			"name": "Az ódon református imaház kapuja",
+			"description": "Kőszeg egy igazi ékszerdoboz az Alpokalján. Figyelj a részletekre!\n\nKérdés: A keskeny faajtó felett elhelyezett fém lámpatest burkolata milyen színű?",
+			"notes": "Lépj közelebb a falakhoz!",
+			"imageUrls": [
+				"https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
+				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
+			],
+			"videoUrls": [],
+			"address": "Kőszeg, Gyöngyös u. 2, 9730",
+			"latitude": 47.3865,
+			"longitude": 16.5421,
+			"createdAt": "2026-09-03T17:58:00Z",
+			"updatedAt": "2026-09-03T17:58:00Z"
+		}
+	]
+}
+

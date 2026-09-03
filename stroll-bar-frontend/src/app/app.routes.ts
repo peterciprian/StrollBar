@@ -4,7 +4,6 @@ import { LoginPageComponent } from './pages/auth/login-page.component';
 import { RegisterPageComponent } from './pages/auth/register-page.component';
 import { SocialCallbackPageComponent } from './pages/auth/social-callback-page.component';
 import { VerifyEmailPageComponent } from './pages/auth/verify-email-page.component';
-import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
 import { CreatorProfilePageComponent } from './pages/profile/creator-profile-page.component';
 import { StrollBrowserScreenComponent } from './pages/explore/stroll-browser.component';
 import { AdventureScreenComponent } from './pages/progress/adventure.component';
@@ -19,6 +18,7 @@ import { SettingsPreferencesComponent } from './pages/settings/preferences/setti
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { LegalPageComponent } from './pages/legal/legal-page.component';
+import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: HomeComponent },

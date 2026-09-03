@@ -1,0 +1,41 @@
+:host {
+	display: block;
+	flex: 1 1 720px;
+	min-width: 0;
+}
+
+.stage-detail-editor {
+	width: 100%;
+	min-width: 0;
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+	padding: 16px;
+}
+.stage-detail-editor__header {
+	margin: -16px -16px 8px;
+	padding: 16px;
+	border-bottom: 1px solid #e2e8f0;
+}
+.stage-detail-editor h1 {
+	margin: 0;
+	font-size: 20px;
+}
+.stage-detail-editor form {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+.stage-detail-editor mat-form-field {
+	width: 100%;
+}
+.stage-detail-editor__coords {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}
+@media (min-width: 700px) {
+	.stage-detail-editor__coords {
+		grid-template-columns: 1fr 1fr;
+	}
+}

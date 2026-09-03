@@ -2,187 +2,42 @@
 	@if (loading()) {
 		<p class="stroll-editor-page__loading">{{ 'SCREENS.ADMIN_STATION_EDITOR.LOADING' | translate }}</p>
 	} @else {
-		<section class="stroll-editor-page__stroll-fields">
-			<h2 class="stroll-editor-page__title">{{ 'SCREENS.ADMIN_STATION_EDITOR.STROLL_DETAILS_TITLE' | translate }}</h2>
-
-			<mat-form-field appearance="outline" class="stroll-editor-page__full">
-				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.NAME_LABEL' | translate }}</mat-label>
-				<input matInput [(ngModel)]="strollName" name="strollName" />
-			</mat-form-field>
-
-			<mat-form-field appearance="outline" class="stroll-editor-page__full">
-				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.DESCRIPTION_LABEL' | translate }}</mat-label>
-				<textarea matInput rows="3" [(ngModel)]="strollDescription" name="strollDescription"></textarea>
-			</mat-form-field>
-
-			<div class="stroll-editor-page__field-row">
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LABELS_LABEL' | translate }}</mat-label>
-					<input matInput [(ngModel)]="strollLabelsText" name="strollLabels" />
-				</mat-form-field>
-
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.STATUS_LABEL' | translate }}</mat-label>
-					<mat-select [(ngModel)]="strollStatus" name="strollStatus">
-						@for (status of activeStatuses; track status) {
-							<mat-option [value]="status">{{ 'SCREENS.ADMIN_STATION_EDITOR.STATUS_' + status.toUpperCase() | translate }}</mat-option>
-						}
-					</mat-select>
-				</mat-form-field>
-
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.PUBLICITY_LABEL' | translate }}</mat-label>
-					<mat-select [(ngModel)]="strollPublicity" name="strollPublicity">
-						@for (flag of publicityFlags; track flag) {
-							<mat-option [value]="flag">{{ 'SCREENS.ADMIN_STATION_EDITOR.PUBLICITY_' + flag.toUpperCase() | translate }}</mat-option>
-						}
-					</mat-select>
-				</mat-form-field>
-			</div>
-
-			<label class="stroll-editor-page__upload" [class.stroll-editor-page__upload--locked]="!canUploadCoverImage">
-				<input type="file" accept="image/*,video/*" hidden [disabled]="!canUploadCoverImage" (change)="onCoverImageSelected($event)" />
-				<mat-icon>cloud_upload</mat-icon>
-				<p>
-					{{
-						(canUploadCoverImage
-							? 'SCREENS.ADMIN_STATION_EDITOR.COVER_IMAGE_HINT'
-							: 'SCREENS.ADMIN_STATION_EDITOR.COVER_IMAGE_LOCKED_HINT'
-						) | translate
-					}}
-				</p>
-				@if (uploadingCover) {
-					<p class="stroll-editor-page__upload-status">{{ 'SCREENS.ADMIN_STATION_EDITOR.UPLOADING' | translate }}</p>
-				}
-			</label>
-			@if (strollImageUrls.length) {
-				<p class="stroll-editor-page__media-count">{{ strollImageUrls.length }}</p>
+		<app-stroll-details-editor
+			[stroll]="stroll"
+			[strollId]="strollId"
+			[activeStatuses]="activeStatuses"
+			[publicityFlags]="publicityFlags"
+			(mediaChange)="onStrollMediaChange($event)"
+		></app-stroll-details-editor>
+		<div class="stroll-editor-page__workspace">
+			<app-stage-list-editor
+				[stages]="stages"
+				[selectedStageId]="selectedStageId"
+				[saving]="saving"
+				(stagesChange)="onStagesChange($event)"
+				(stageSelected)="selectStage($event)"
+				(stageAdded)="addStage()"
+				(stageDeleted)="deleteStage($event)"
+				(saveRequested)="saveChanges()"
+			></app-stage-list-editor>
+			<app-stage-detail-editor
+				[stage]="selectedStage"
+				[strollId]="strollId"
+				(mediaChange)="onStageMediaChange($event)"
+				(locationChange)="onLocationChange($event)"
+			></app-stage-detail-editor>
+		</div>
+		<div class="stroll-editor-page__feedback">
+			@if (saved) {
+				<p class="stroll-editor-page__saved"><mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVED' | translate }}</p>
 			}
-		</section>
-
-		<div class="stroll-editor">
-			<div class="stroll-editor__left">
-				<h2 class="stroll-editor__title">{{ 'SCREENS.ADMIN_STATION_EDITOR.STATIONS_TITLE' | translate }}</h2>
-				<div class="stroll-editor__list" cdkDropList (cdkDropListDropped)="drop($event)">
-					@for (stage of stages; track stage.id; let i = $index) {
-						<div
-							class="stroll-editor__item"
-							[class.stroll-editor__item--active]="stage.id === selectedStageId"
-							cdkDrag
-							(click)="selectStage(stage.id)"
-						>
-							<mat-icon class="stroll-editor__handle" cdkDragHandle>drag_indicator</mat-icon>
-							<span class="stroll-editor__item-text">{{
-								'SCREENS.ADMIN_STATION_EDITOR.STATION_ITEM' | translate: { index: i + 1, title: stage.name }
-							}}</span>
-							<button
-								type="button"
-								mat-icon-button
-								class="stroll-editor__delete-btn"
-								[attr.aria-label]="'SCREENS.ADMIN_STATION_EDITOR.DELETE_STATION' | translate"
-								(click)="$event.stopPropagation(); deleteStage(stage)"
-							>
-								<mat-icon>delete</mat-icon>
-							</button>
-						</div>
-					}
-					@if (!stages.length) {
-						<p class="stroll-editor__empty">{{ 'SCREENS.ADMIN_STATION_EDITOR.EMPTY_STATIONS' | translate }}</p>
-					}
-				</div>
-				<button mat-stroked-button class="stroll-editor__add-btn" (click)="addStage()">
-					<mat-icon>add</mat-icon>
-					{{ 'SCREENS.ADMIN_STATION_EDITOR.ADD_STATION' | translate | uppercase }}
-				</button>
-				<button mat-flat-button color="primary" class="stroll-editor__save-btn" [disabled]="saving" (click)="saveChanges()">
-					<mat-icon>save</mat-icon>
-					{{
-						(isNewStroll ? 'SCREENS.ADMIN_STATION_EDITOR.CREATE_STROLL' : 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES')
-							| translate
-							| uppercase
-					}}
-				</button>
-			</div>
-
-			<div class="stroll-editor__right">
-				<div class="stroll-editor__form-header">
-					<h1>{{ selectedStage?.name || ('SCREENS.ADMIN_STATION_EDITOR.NEW_STATION_FALLBACK' | translate) }}</h1>
-				</div>
-				@if (saved) {
-					<p class="stroll-editor__saved"><mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVED' | translate }}</p>
-				}
-				@if (saveError) {
-					<p class="stroll-editor__error"><mat-icon>error_outline</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR' | translate }}</p>
-				}
-
-				@if (selectedStage; as stage) {
-					<form class="stroll-editor__form">
-						<mat-form-field appearance="outline" class="stroll-editor__full">
-							<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.TITLE_LABEL' | translate }}</mat-label>
-							<input matInput [(ngModel)]="stage.name" name="title" />
-						</mat-form-field>
-
-						<mat-form-field appearance="outline" class="stroll-editor__full">
-							<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.ADDRESS_LABEL' | translate }}</mat-label>
-							<input matInput [(ngModel)]="stage.address" name="address" />
-						</mat-form-field>
-
-						<div class="stroll-editor__coords">
-							<mat-form-field appearance="outline">
-								<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LATITUDE_LABEL' | translate }}</mat-label>
-								<input matInput type="number" [(ngModel)]="stage.latitude" name="latitude" />
-							</mat-form-field>
-							<mat-form-field appearance="outline">
-								<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LONGITUDE_LABEL' | translate }}</mat-label>
-								<input matInput type="number" [(ngModel)]="stage.longitude" name="longitude" />
-							</mat-form-field>
-						</div>
-
-						<mat-form-field appearance="outline" class="stroll-editor__full">
-							<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.STORY_LABEL' | translate }}</mat-label>
-							<textarea matInput rows="6" [(ngModel)]="stage.description" name="story"></textarea>
-						</mat-form-field>
-
-						<label class="stroll-editor__upload" [class.stroll-editor__upload--locked]="!canUploadStageImage">
-							<input
-								type="file"
-								accept="image/*,video/*"
-								hidden
-								[disabled]="!canUploadStageImage"
-								(change)="onStageImageSelected($event)"
-							/>
-							<mat-icon>cloud_upload</mat-icon>
-							<p>
-								{{
-									(canUploadStageImage
-										? 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_HINT'
-										: 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_LOCKED_HINT'
-									) | translate
-								}}
-							</p>
-							@if (uploadingStageImage) {
-								<p class="stroll-editor__upload-status">{{ 'SCREENS.ADMIN_STATION_EDITOR.UPLOADING' | translate }}</p>
-							}
-						</label>
-						@if (stage.imageUrls.length) {
-							<p class="stroll-editor__media-count">{{ stage.imageUrls.length }}</p>
-						}
-						@if (uploadError) {
-							<p class="stroll-editor__error">{{ 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_ERROR' | translate }}</p>
-						}
-
-						<mat-form-field appearance="outline" class="stroll-editor__full">
-							<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.CORRECT_ANSWER_LABEL' | translate }}</mat-label>
-							<input
-								matInput
-								[(ngModel)]="stage.riddleAnswer"
-								name="correctAnswer"
-								[placeholder]="'SCREENS.ADMIN_STATION_EDITOR.CORRECT_ANSWER_HINT' | translate"
-							/>
-						</mat-form-field>
-					</form>
-				}
-			</div>
+			@if (saveError) {
+				<p class="stroll-editor-page__error"><mat-icon>error_outline</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR' | translate }}</p>
+			}
+			<button mat-flat-button color="primary" [disabled]="saving" (click)="saveChanges()">
+				<mat-icon>save</mat-icon
+				>{{ (isNewStroll ? 'SCREENS.ADMIN_STATION_EDITOR.CREATE_STROLL' : 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES') | translate }}
+			</button>
 		</div>
 	}
 </div>

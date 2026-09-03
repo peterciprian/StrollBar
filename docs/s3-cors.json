@@ -1,0 +1,9 @@
+[
+	{
+		"AllowedOrigins": ["https://peterciprian.github.io", "http://localhost:4200", "http://127.0.0.1:4200"],
+		"AllowedMethods": ["GET", "PUT", "HEAD"],
+		"AllowedHeaders": ["Content-Type", "x-amz-*", "x-amz-checksum-*"],
+		"ExposeHeaders": ["ETag"],
+		"MaxAgeSeconds": 3600
+	}
+]

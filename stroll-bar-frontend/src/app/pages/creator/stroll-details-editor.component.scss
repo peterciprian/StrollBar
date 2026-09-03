@@ -1,0 +1,27 @@
+.stroll-details-editor {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: #fff;
+	border-radius: 16px;
+	box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+	padding: 16px;
+}
+.stroll-details-editor h2 {
+	margin: 0 0 12px;
+	font-size: 15px;
+	color: #334155;
+}
+.stroll-details-editor mat-form-field {
+	width: 100%;
+}
+.stroll-details-editor__row {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 16px;
+}
+@media (min-width: 700px) {
+	.stroll-details-editor__row {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}

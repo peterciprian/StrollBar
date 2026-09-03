@@ -1,0 +1,48 @@
+<section class="stage-detail-editor">
+	<div class="stage-detail-editor__header">
+		<h1>{{ stage?.name || ('SCREENS.ADMIN_STATION_EDITOR.NEW_STATION_FALLBACK' | translate) }}</h1>
+	</div>
+	@if (stage; as selectedStage) {
+		<form>
+			<mat-form-field appearance="outline"
+				><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.TITLE_LABEL' | translate }}</mat-label
+				><input matInput [(ngModel)]="selectedStage.name" name="title" /></mat-form-field
+			><mat-form-field appearance="outline"
+				><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.ADDRESS_LABEL' | translate }}</mat-label
+				><input matInput [(ngModel)]="selectedStage.address" name="address"
+			/></mat-form-field>
+			<div class="stage-detail-editor__coords">
+				<mat-form-field appearance="outline"
+					><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LATITUDE_LABEL' | translate }}</mat-label
+					><input matInput type="number" [(ngModel)]="selectedStage.latitude" name="latitude" /></mat-form-field
+				><mat-form-field appearance="outline"
+					><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LONGITUDE_LABEL' | translate }}</mat-label
+					><input matInput type="number" [(ngModel)]="selectedStage.longitude" name="longitude"
+				/></mat-form-field>
+			</div>
+			<app-stage-location-map
+				[latitude]="selectedStage.latitude"
+				[longitude]="selectedStage.longitude"
+				(locationSelected)="locationChange.emit($event)"
+			></app-stage-location-map
+			><mat-form-field appearance="outline"
+				><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.STORY_LABEL' | translate }}</mat-label
+				><textarea matInput rows="6" [(ngModel)]="selectedStage.description" name="story"></textarea></mat-form-field
+			><app-media-manager
+				[imageUrls]="selectedStage.imageUrls"
+				[videoUrls]="selectedStage.videoUrls"
+				[entityId]="selectedStage.isNew ? null : selectedStage.id"
+				purpose="stage"
+				(mediaChange)="mediaChange.emit($event)"
+			></app-media-manager
+			><mat-form-field appearance="outline"
+				><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.CORRECT_ANSWER_LABEL' | translate }}</mat-label
+				><input
+					matInput
+					[(ngModel)]="selectedStage.riddleAnswer"
+					name="correctAnswer"
+					[placeholder]="'SCREENS.ADMIN_STATION_EDITOR.CORRECT_ANSWER_HINT' | translate"
+			/></mat-form-field>
+		</form>
+	}
+</section>

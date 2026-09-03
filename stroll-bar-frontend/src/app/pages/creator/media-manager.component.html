@@ -1,0 +1,53 @@
+<div class="media-manager">
+	<app-media-upload-control
+		[purpose]="purpose"
+		[entityId]="entityId"
+		[locked]="!entityId"
+		[hintKey]="purpose === 'stage' ? 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_HINT' : 'SCREENS.ADMIN_STATION_EDITOR.COVER_IMAGE_HINT'"
+		[lockedHintKey]="lockedHintKey"
+		accept="image/*"
+		(uploaded)="change('image', [...imageUrls, $event])"
+	></app-media-upload-control>
+	<app-media-upload-control
+		[purpose]="purpose"
+		[entityId]="entityId"
+		[locked]="!entityId"
+		[hintKey]="purpose === 'stage' ? 'SCREENS.ADMIN_STATION_EDITOR.STAGE_VIDEO_HINT' : 'SCREENS.ADMIN_STATION_EDITOR.COVER_VIDEO_HINT'"
+		[lockedHintKey]="lockedHintKey"
+		accept="video/*"
+		icon="video_library"
+		(uploaded)="change('video', [...videoUrls, $event])"
+	></app-media-upload-control>
+	@if (imageUrls.length || videoUrls.length) {
+		<div class="media-manager__grid">
+			@for (url of imageUrls; track url; let i = $index) {
+				<div class="media-manager__item">
+					<img [src]="url" alt="" />
+					<div class="media-manager__actions">
+						<button type="button" mat-icon-button [disabled]="i === 0" (click)="move('image', i, -1)">
+							<mat-icon>arrow_back</mat-icon>
+						</button>
+						<button type="button" mat-icon-button [disabled]="i === imageUrls.length - 1" (click)="move('image', i, 1)">
+							<mat-icon>arrow_forward</mat-icon>
+						</button>
+						<button type="button" mat-icon-button (click)="remove('image', i)"><mat-icon>delete</mat-icon></button>
+					</div>
+				</div>
+			}
+			@for (url of videoUrls; track url; let i = $index) {
+				<div class="media-manager__item">
+					<video [src]="url" controls preload="metadata"></video>
+					<div class="media-manager__actions">
+						<button type="button" mat-icon-button [disabled]="i === 0" (click)="move('video', i, -1)">
+							<mat-icon>arrow_back</mat-icon>
+						</button>
+						<button type="button" mat-icon-button [disabled]="i === videoUrls.length - 1" (click)="move('video', i, 1)">
+							<mat-icon>arrow_forward</mat-icon>
+						</button>
+						<button type="button" mat-icon-button (click)="remove('video', i)"><mat-icon>delete</mat-icon></button>
+					</div>
+				</div>
+			}
+		</div>
+	}
+</div>

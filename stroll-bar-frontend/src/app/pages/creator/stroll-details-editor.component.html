@@ -1,0 +1,40 @@
+<section class="stroll-details-editor">
+	<h2>{{ 'SCREENS.ADMIN_STATION_EDITOR.STROLL_DETAILS_TITLE' | translate }}</h2>
+	<mat-form-field appearance="outline"
+		><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.NAME_LABEL' | translate }}</mat-label
+		><input matInput [(ngModel)]="stroll.name" name="strollName"
+	/></mat-form-field>
+	<mat-form-field appearance="outline"
+		><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.DESCRIPTION_LABEL' | translate }}</mat-label
+		><textarea matInput rows="3" [(ngModel)]="stroll.description" name="strollDescription"></textarea>
+	</mat-form-field>
+	<div class="stroll-details-editor__row">
+		<mat-form-field appearance="outline"
+			><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.LABELS_LABEL' | translate }}</mat-label
+			><input matInput [(ngModel)]="stroll.labelsText" name="strollLabels"
+		/></mat-form-field>
+		<mat-form-field appearance="outline"
+			><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.STATUS_LABEL' | translate }}</mat-label
+			><mat-select [(ngModel)]="stroll.status" name="strollStatus">
+				@for (status of activeStatuses; track status) {
+					<mat-option [value]="status">{{ 'SCREENS.ADMIN_STATION_EDITOR.STATUS_' + status.toUpperCase() | translate }}</mat-option>
+				}
+			</mat-select></mat-form-field
+		>
+		<mat-form-field appearance="outline"
+			><mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.PUBLICITY_LABEL' | translate }}</mat-label
+			><mat-select [(ngModel)]="stroll.publicity" name="strollPublicity">
+				@for (flag of publicityFlags; track flag) {
+					<mat-option [value]="flag">{{ 'SCREENS.ADMIN_STATION_EDITOR.PUBLICITY_' + flag.toUpperCase() | translate }}</mat-option>
+				}
+			</mat-select></mat-form-field
+		>
+	</div>
+	<app-media-manager
+		[imageUrls]="stroll.imageUrls"
+		[videoUrls]="stroll.videoUrls"
+		[entityId]="strollId"
+		purpose="stroll"
+		(mediaChange)="mediaChange.emit($event)"
+	></app-media-manager>
+</section>

@@ -1,0 +1,16 @@
+:host {
+	display: block;
+	width: 100%;
+}
+
+.stage-location-map {
+	display: block;
+	position: relative;
+	height: 280px;
+	width: 100%;
+	min-width: 0;
+	border: 1px solid #cbd5e1;
+	border-radius: 8px;
+	overflow: hidden;
+	margin: 4px 0 12px;
+}

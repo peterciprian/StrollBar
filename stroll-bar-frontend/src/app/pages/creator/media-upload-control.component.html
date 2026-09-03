@@ -1,0 +1,8 @@
+<label class="media-upload" [class.media-upload--locked]="locked">
+	<input type="file" [accept]="accept" hidden [disabled]="locked" (change)="selectFile($event)" />
+	<mat-icon>{{ icon }}</mat-icon>
+	<p>{{ (locked ? lockedHintKey : hintKey) | translate }}</p>
+	@if (uploading) {
+		<p class="media-upload__status">{{ 'SCREENS.ADMIN_STATION_EDITOR.UPLOADING' | translate }}</p>
+	}
+</label>

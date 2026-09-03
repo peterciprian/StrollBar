@@ -158,6 +158,8 @@ If neither native PostgreSQL nor Docker is available, the script exits with a cl
 
 ## Media upload policy
 
+Direct browser uploads require bucket CORS configuration in addition to the backend `CORS_ORIGINS` setting. See [docs/S3_CORS_CONFIGURATION.md](docs/S3_CORS_CONFIGURATION.md) for the policy and provider setup commands.
+
 Media presign requests are validated against env-configured MIME and file-size rules before the upload URL is issued.
 
 Relevant backend env vars:
