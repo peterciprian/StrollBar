@@ -22,6 +22,10 @@ export class AdventuresFeatureService {
 		return this.api.getAdventure(adventureId);
 	}
 
+	getResult(adventureId: string) {
+		return this.api.getAdventureResult(adventureId);
+	}
+
 	submitAnswer(adventureId: string, stageId: string, answer: string) {
 		return this.api.submitStageAnswer(adventureId, stageId, { answer });
 	}

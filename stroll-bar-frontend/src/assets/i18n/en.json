@@ -8,6 +8,10 @@
 		"EN": "English"
 	},
 	"COMMON": {
+		"CANCEL": "Cancel",
+		"DELETE": "Delete",
+		"DELETE_MEDIA_TITLE": "Delete media?",
+		"DELETE_MEDIA_MESSAGE": "Are you sure you want to remove this {{itemName}}?",
 		"OFFLINE_MESSAGE": "You are offline. Cached public content remains available.",
 		"MIN_SUFFIX": "min",
 		"STATIONS_SUFFIX": "stations",
@@ -247,9 +251,21 @@
 			"FEEDBACK_INCORRECT": "That's not quite right — give it another try.",
 			"PREVIOUS_STAGE": "Previous stage",
 			"NEXT_STAGE": "Next stage",
+			"FINISH": "Finish",
 			"CLUE_PHOTO": "Clue photo: carved stone crest",
 			"STORY": "High above the archway, weathered by centuries of Danube winds, a stone crest keeps its secret. Local guild records from 1487 mention a \"silent guardian\" carved into the gate — said to protect the street from misfortune.",
 			"RIDDLE": "Riddle: \"I do not roar, yet I have always watched. Find me above the gate, carved in stone, and tell me what I am.\""
+		},
+		"ADVENTURE_RESULT": {
+			"LOADING": "Loading your result…",
+			"ERROR": "Your adventure result could not be loaded.",
+			"BACK": "Back to my adventures",
+			"COMPLETE": "Adventure complete",
+			"TITLE": "You made it to the end",
+			"CONGRATULATIONS": "Congratulations! Every stage of this stroll is complete.",
+			"TIME": "Time spent",
+			"STAGES": "Stages completed",
+			"DISTANCE": "Route length"
 		},
 		"ADMIN_STROLL_LIST": {
 			"HEADER_TITLE": "Manage Strolls",
@@ -270,6 +286,8 @@
 			"COL_ACTIONS": "Actions",
 			"EDIT_TOOLTIP": "Edit stroll",
 			"DELETE_TOOLTIP": "Delete stroll",
+			"DELETE_CONFIRM_TITLE": "Delete stroll?",
+			"DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete \"{{itemName}}\"? This cannot be undone.",
 			"METRIC_TOTAL": "Total strolls",
 			"METRIC_PUBLISHED": "Published",
 			"METRIC_DRAFTS": "Drafts",
@@ -339,6 +357,8 @@
 			"ADD_STATION": "Add new stage",
 			"NEW_STATION_FALLBACK": "New Stage",
 			"DELETE_STATION": "Delete stage",
+			"DELETE_STAGE_CONFIRM_TITLE": "Delete stage?",
+			"DELETE_STAGE_CONFIRM_MESSAGE": "Are you sure you want to delete \"{{itemName}}\"? This cannot be undone.",
 			"EMPTY_STATIONS": "No stages yet. Add your first one.",
 			"SAVE_CHANGES": "Save changes",
 			"CREATE_STROLL": "Create stroll",

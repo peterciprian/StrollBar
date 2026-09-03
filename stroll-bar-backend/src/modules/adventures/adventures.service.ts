@@ -110,6 +110,27 @@ export class AdventuresService {
 		};
 	}
 
+	async getResult(adventureId: string, currentUser: AuthenticatedUser) {
+		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
+		const [stroll, stages] = await Promise.all([
+			this.strollsRepository.findOne({ where: { id: adventure.strollId } }),
+			this.stagesRepository.find({ where: { strollId: adventure.strollId }, order: { orderIndex: 'ASC' } })
+		]);
+		const completedAt = adventure.completionDateTime ?? new Date();
+		const elapsedSeconds = adventure.startDateTime
+			? Math.max(0, Math.round((completedAt.getTime() - adventure.startDateTime.getTime()) / 1000))
+			: 0;
+
+		return {
+			adventure,
+			stroll,
+			completedStageCount:
+				adventure.progressStatus === AdventureProgressStatus.COMPLETED ? stages.length : Math.max(0, adventure.currentStageIndex - 1),
+			elapsedSeconds,
+			routeLengthKm: stages.slice(1).reduce((total, stage, index) => total + this.distanceInKm(stages[index], stage), 0)
+		};
+	}
+
 	async submitAnswer(adventureId: string, stageId: string, dto: SubmitStageAnswerDto, currentUser: AuthenticatedUser) {
 		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
 		const stage = await this.stagesRepository.findOne({
@@ -199,6 +220,28 @@ export class AdventuresService {
 		}
 
 		return adventure;
+	}
+
+	private distanceInKm(first: StageEntity, second: StageEntity): number {
+		if (
+			first.latitude === null ||
+			first.latitude === undefined ||
+			first.longitude === null ||
+			first.longitude === undefined ||
+			second.latitude === null ||
+			second.latitude === undefined ||
+			second.longitude === null ||
+			second.longitude === undefined
+		)
+			return 0;
+		const earthRadiusKm = 6371;
+		const toRadians = (value: number) => (value * Math.PI) / 180;
+		const latitudeDelta = toRadians(second.latitude - first.latitude);
+		const longitudeDelta = toRadians(second.longitude - first.longitude);
+		const firstLatitude = toRadians(first.latitude);
+		const secondLatitude = toRadians(second.latitude);
+		const a = Math.sin(latitudeDelta / 2) ** 2 + Math.cos(firstLatitude) * Math.cos(secondLatitude) * Math.sin(longitudeDelta / 2) ** 2;
+		return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 	}
 
 	/**

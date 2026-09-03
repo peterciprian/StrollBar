@@ -1,5 +1,5 @@
 import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -38,9 +38,11 @@ import { MOCK_STROLLS, Stroll as ScreenStroll } from '../../core/models/screens.
 })
 export class AdventureScreenComponent implements OnInit {
 	private readonly route = inject(ActivatedRoute);
+	private readonly router = inject(Router);
 	private readonly adventuresFeature = inject(AdventuresFeatureService);
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly destroyRef = inject(DestroyRef);
+	private demoMode = false;
 
 	protected readonly adventureId = this.route.snapshot.paramMap.get('adventureId') ?? '';
 
@@ -96,6 +98,10 @@ export class AdventureScreenComponent implements OnInit {
 		this.cdr.detectChanges();
 
 		if (result.isCorrect) {
+			if (result.adventure.progressStatus === 'completed' || this.currentStageIndex >= this.totalStages) {
+				void this.router.navigate(['/adventure', this.adventureId, 'result']);
+				return;
+			}
 			this.reloadCurrentStage();
 		}
 	}
@@ -105,19 +111,30 @@ export class AdventureScreenComponent implements OnInit {
 	}
 
 	protected goToNextStage(): void {
+		if (!this.canGoNext) {
+			void this.router.navigate(['/adventure', this.adventureId, 'result']);
+			return;
+		}
 		this.navigateStage('next');
 	}
 
 	private navigateStage(direction: AdventureNavigateDirection): void {
+		if (this.demoMode) {
+			this.applyDetail(this.demoNavigate(direction));
+			return;
+		}
+
 		this.adventuresFeature
 			.navigate(this.adventureId, direction)
 			.pipe(
 				takeUntilDestroyed(this.destroyRef),
-				map((detail) => (this.isUsableDetail(detail) ? detail : this.demoNavigate(direction)))
+				map((detail) => (this.isUsableDetail(detail) ? detail : null))
 			)
 			.subscribe({
-				next: (detail) => this.applyDetail(detail),
-				error: () => this.applyDetail(this.demoNavigate(direction))
+				next: (detail) => {
+					if (detail) this.applyDetail(detail);
+				},
+				error: () => undefined
 			});
 	}
 
@@ -130,7 +147,11 @@ export class AdventureScreenComponent implements OnInit {
 			.get(this.adventureId)
 			.pipe(
 				takeUntilDestroyed(this.destroyRef),
-				map((detail) => (this.isUsableDetail(detail) ? detail : this.buildDemoDetail()))
+				map((detail) => {
+					if (this.isUsableDetail(detail)) return detail;
+					this.demoMode = true;
+					return this.buildDemoDetail();
+				})
 			)
 			.subscribe({
 				next: (detail) => {
@@ -145,15 +166,22 @@ export class AdventureScreenComponent implements OnInit {
 	}
 
 	private reloadCurrentStage(): void {
+		if (this.demoMode) {
+			this.applyDetail(this.buildDemoDetail());
+			return;
+		}
+
 		this.adventuresFeature
 			.get(this.adventureId)
 			.pipe(
 				takeUntilDestroyed(this.destroyRef),
-				map((detail) => (this.isUsableDetail(detail) ? detail : this.buildDemoDetail()))
+				map((detail) => (this.isUsableDetail(detail) ? detail : null))
 			)
 			.subscribe({
-				next: (detail) => this.applyDetail(detail),
-				error: () => this.applyDetail(this.buildDemoDetail())
+				next: (detail) => {
+					if (detail) this.applyDetail(detail);
+				},
+				error: () => undefined
 			});
 	}
 
@@ -161,6 +189,9 @@ export class AdventureScreenComponent implements OnInit {
 		this.currentStage = detail.currentStage;
 		this.currentStageIndex = detail.adventure.currentStageIndex;
 		this.totalStages = detail.stroll?.stageCount ?? this.totalStages;
+		if (detail.adventure.progressStatus === 'completed' || this.currentStageIndex >= this.totalStages) {
+			this.currentStageIndex = this.totalStages;
+		}
 		this.answer = '';
 		this.submitted = false;
 

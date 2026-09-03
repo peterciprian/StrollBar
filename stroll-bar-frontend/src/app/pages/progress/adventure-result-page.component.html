@@ -1,0 +1,30 @@
+<section class="adventure-result">
+	@if (loading) {
+		<p>{{ 'SCREENS.ADVENTURE_RESULT.LOADING' | translate }}</p>
+	} @else if (error || !result) {
+		<p class="adventure-result__error">{{ 'SCREENS.ADVENTURE_RESULT.ERROR' | translate }}</p>
+		<button mat-flat-button color="primary" (click)="backToAdventures()">{{ 'SCREENS.ADVENTURE_RESULT.BACK' | translate }}</button>
+	} @else {
+		<div class="adventure-result__icon"><mat-icon>emoji_events</mat-icon></div>
+		<p class="adventure-result__eyebrow">{{ 'SCREENS.ADVENTURE_RESULT.COMPLETE' | translate }}</p>
+		<h1>{{ 'SCREENS.ADVENTURE_RESULT.TITLE' | translate }}</h1>
+		<p class="adventure-result__congratulations">{{ 'SCREENS.ADVENTURE_RESULT.CONGRATULATIONS' | translate }}</p>
+		<div class="adventure-result__stats">
+			<div>
+				<mat-icon>schedule</mat-icon><strong>{{ formatTime(result.elapsedSeconds) }}</strong
+				><span>{{ 'SCREENS.ADVENTURE_RESULT.TIME' | translate }}</span>
+			</div>
+			<div>
+				<mat-icon>flag</mat-icon><strong>{{ result.completedStageCount }}</strong
+				><span>{{ 'SCREENS.ADVENTURE_RESULT.STAGES' | translate }}</span>
+			</div>
+			<div>
+				<mat-icon>straighten</mat-icon><strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong
+				><span>{{ 'SCREENS.ADVENTURE_RESULT.DISTANCE' | translate }}</span>
+			</div>
+		</div>
+		<button mat-flat-button color="primary" (click)="backToAdventures()">
+			<mat-icon>dashboard</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.BACK' | translate }}
+		</button>
+	}
+</section>

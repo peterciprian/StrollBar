@@ -128,6 +128,7 @@ export class StrollsService {
 			throw new ForbiddenException('Only administrators can bulk import strolls.');
 		}
 
+		const stageOrderOffset = dto.stages.some((stage) => stage.orderIndex === 0) ? 1 : 0;
 		const result = await this.dataSource.transaction(async (manager) => {
 			const stroll = manager.create(StrollEntity, {
 				name: dto.stroll.name,
@@ -147,7 +148,7 @@ export class StrollsService {
 			const stages = dto.stages.map((stage) =>
 				manager.create(StageEntity, {
 					strollId: savedStroll.id,
-					orderIndex: stage.orderIndex,
+					orderIndex: stage.orderIndex + stageOrderOffset,
 					name: stage.name,
 					description: stage.description,
 					notes: stage.notes ?? null,

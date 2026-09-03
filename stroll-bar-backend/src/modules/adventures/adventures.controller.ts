@@ -71,6 +71,16 @@ export class AdventuresController {
 	}
 
 	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Get a completed adventure result' })
+	@ApiParam({ name: 'adventureId' })
+	@ApiOkResponse({ description: 'Adventure completion metrics.' })
+	@UseGuards(JwtAuthGuard)
+	@Get(':adventureId/result')
+	getResult(@Param('adventureId') adventureId: string, @CurrentUser() user: AuthenticatedUser) {
+		return this.adventuresService.getResult(adventureId, user);
+	}
+
+	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'Submit a stage answer and advance progress if correct' })
 	@ApiParam({ name: 'adventureId' })
 	@ApiParam({ name: 'stageId' })

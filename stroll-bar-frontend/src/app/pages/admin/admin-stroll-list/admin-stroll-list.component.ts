@@ -3,13 +3,16 @@ import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
 
 import { BulkImportStrollRequest, Stroll } from '../../../core/api/models';
 import { StrollsFeatureService } from '../../../features/strolls/strolls-feature.service';
+import { ConfirmDeleteDialogComponent } from '../../../shared/confirm-delete-dialog.component';
 
 @Component({
 	selector: 'app-admin-stroll-list-screen',
@@ -21,6 +24,7 @@ import { StrollsFeatureService } from '../../../features/strolls/strolls-feature
 export class AdminStrollListScreenComponent implements OnInit {
 	private readonly router = inject(Router);
 	private readonly strollsFeature = inject(StrollsFeatureService);
+	private readonly dialog = inject(MatDialog);
 
 	protected readonly displayedColumns = ['name', 'status', 'visibility', 'stations', 'labels', 'media', 'updated', 'actions'];
 	protected readonly strolls = signal<Stroll[]>([]);
@@ -59,7 +63,23 @@ export class AdminStrollListScreenComponent implements OnInit {
 		return (stroll.mediaUrls?.imageUrls?.length ?? 0) + (stroll.mediaUrls?.videoUrls?.length ?? 0);
 	}
 
-	protected deleteStroll(strollId: string): void {
+	protected async deleteStroll(stroll: Stroll): Promise<void> {
+		const confirmed = await firstValueFrom(
+			this.dialog
+				.open(ConfirmDeleteDialogComponent, {
+					data: {
+						titleKey: 'SCREENS.ADMIN_STROLL_LIST.DELETE_CONFIRM_TITLE',
+						messageKey: 'SCREENS.ADMIN_STROLL_LIST.DELETE_CONFIRM_MESSAGE',
+						itemName: stroll.name
+					},
+					maxWidth: 'calc(100vw - 32px)',
+					width: '420px'
+				})
+				.afterClosed()
+		);
+		if (!confirmed) return;
+
+		const strollId = stroll.id;
 		this.strollsFeature.remove(strollId).subscribe({
 			next: () => this.strolls.update((strolls) => strolls.filter((stroll) => stroll.id !== strollId)),
 			error: () => this.loadError.set(true)

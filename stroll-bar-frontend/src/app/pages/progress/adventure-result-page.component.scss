@@ -1,0 +1,74 @@
+.adventure-result {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 48px 16px;
+	text-align: center;
+}
+.adventure-result__icon {
+	display: grid;
+	place-items: center;
+	width: 72px;
+	height: 72px;
+	margin: 0 auto 16px;
+	border-radius: 50%;
+	background: #fef3c7;
+	color: #b45309;
+}
+.adventure-result__icon mat-icon {
+	font-size: 40px;
+	width: 40px;
+	height: 40px;
+}
+.adventure-result__eyebrow {
+	margin: 0;
+	color: #0e7490;
+	font-size: 12px;
+	font-weight: 800;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+}
+.adventure-result h1 {
+	margin: 8px 0;
+	font-size: clamp(28px, 6vw, 48px);
+	color: #0f172a;
+}
+.adventure-result__congratulations {
+	color: #475569;
+	font-size: 18px;
+}
+.adventure-result__stats {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 12px;
+	margin: 32px 0;
+}
+.adventure-result__stats div {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	padding: 20px 12px;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	background: #fff;
+}
+.adventure-result__stats mat-icon {
+	color: #0e7490;
+}
+.adventure-result__stats strong {
+	font-size: 24px;
+	color: #0f172a;
+}
+.adventure-result__stats span {
+	color: #64748b;
+	font-size: 12px;
+	text-transform: uppercase;
+}
+.adventure-result__error {
+	color: #b91c1c;
+}
+@media (min-width: 600px) {
+	.adventure-result__stats {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}

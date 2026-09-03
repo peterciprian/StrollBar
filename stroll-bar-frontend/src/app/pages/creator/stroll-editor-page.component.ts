@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -12,6 +13,7 @@ import { MediaChange } from './media-manager.component';
 import { StrollDetailsEditorComponent } from './stroll-details-editor.component';
 import { StageListEditorComponent } from './stage-list-editor.component';
 import { StageDetailEditorComponent } from './stage-detail-editor.component';
+import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
 
 @Component({
 	selector: 'app-stroll-editor-page',
@@ -32,6 +34,7 @@ export class StrollEditorPageComponent implements OnInit {
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly strollsFeature = inject(StrollsFeatureService);
+	private readonly dialog = inject(MatDialog);
 	protected readonly activeStatuses: StrollActiveStatus[] = ['draft', 'published', 'archived'];
 	protected readonly publicityFlags: StrollPublicityFlag[] = ['private', 'unlisted', 'public'];
 	protected readonly loading = signal(true);
@@ -80,7 +83,22 @@ export class StrollEditorPageComponent implements OnInit {
 		this.selectedStageId = stage.id;
 	}
 
-	protected deleteStage(stage: EditableStage): void {
+	protected async deleteStage(stage: EditableStage): Promise<void> {
+		const confirmed = await firstValueFrom(
+			this.dialog
+				.open(ConfirmDeleteDialogComponent, {
+					data: {
+						titleKey: 'SCREENS.ADMIN_STATION_EDITOR.DELETE_STAGE_CONFIRM_TITLE',
+						messageKey: 'SCREENS.ADMIN_STATION_EDITOR.DELETE_STAGE_CONFIRM_MESSAGE',
+						itemName: stage.name || 'New stage'
+					},
+					maxWidth: 'calc(100vw - 32px)',
+					width: '420px'
+				})
+				.afterClosed()
+		);
+		if (!confirmed) return;
+
 		if (stage.isNew || !this.strollId) {
 			this.removeStageLocally(stage.id);
 			return;

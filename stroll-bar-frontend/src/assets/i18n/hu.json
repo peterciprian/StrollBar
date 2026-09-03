@@ -8,6 +8,10 @@
 		"EN": "Angol"
 	},
 	"COMMON": {
+		"CANCEL": "Mégse",
+		"DELETE": "Törlés",
+		"DELETE_MEDIA_TITLE": "Törlöd a médiát?",
+		"DELETE_MEDIA_MESSAGE": "Biztosan eltávolítod ezt a(z) {{itemName}} fájlt?",
 		"OFFLINE_MESSAGE": "Offline vagy. A gyorsítótárazott nyilvános tartalmak továbbra is elérhetők.",
 		"MIN_SUFFIX": "perc",
 		"STATIONS_SUFFIX": "állomás",
@@ -247,9 +251,21 @@
 			"FEEDBACK_INCORRECT": "Ez nem egészen jó — próbáld meg újra.",
 			"PREVIOUS_STAGE": "Előző állomás",
 			"NEXT_STAGE": "Következő állomás",
+			"FINISH": "Befejezés",
 			"CLUE_PHOTO": "Nyom fotó: kőbe vésett címer",
 			"STORY": "A boltív fölött, a Duna szelének évszázados koptatásától megviselve, egy kőcímer őrzi titkát. Az 1487-es céhes feljegyzések egy „néma őrzőt” említenek, amelyet a kapuba véstek — hogy megvédje az utcát a bajtól.",
 			"RIDDLE": "Rejtvény: „Nem üvöltök, mégis mindig figyeltem. Találj meg a kapu fölött, kőbe vésve, és mondd meg, mi vagyok.”"
+		},
+		"ADVENTURE_RESULT": {
+			"LOADING": "Eredmény betöltése…",
+			"ERROR": "Az eredmény nem tölthető be.",
+			"BACK": "Vissza a kalandjaimhoz",
+			"COMPLETE": "Kaland teljesítve",
+			"TITLE": "Eljutottál a végére",
+			"CONGRATULATIONS": "Gratulálunk! A séta minden szakaszát teljesítetted.",
+			"TIME": "Eltelt idő",
+			"STAGES": "Teljesített szakaszok",
+			"DISTANCE": "Útvonal hossza"
 		},
 		"ADMIN_STROLL_LIST": {
 			"HEADER_TITLE": "Túrák kezelése",
@@ -270,6 +286,8 @@
 			"COL_ACTIONS": "Műveletek",
 			"EDIT_TOOLTIP": "Túra szerkesztése",
 			"DELETE_TOOLTIP": "Túra törlése",
+			"DELETE_CONFIRM_TITLE": "Törlöd a sétát?",
+			"DELETE_CONFIRM_MESSAGE": "Biztosan törlöd ezt: \"{{itemName}}\"? Ez a művelet nem vonható vissza.",
 			"METRIC_TOTAL": "Összes séta",
 			"METRIC_PUBLISHED": "Publikálva",
 			"METRIC_DRAFTS": "Piszkozat",
@@ -339,6 +357,8 @@
 			"ADD_STATION": "Új állomás hozzáadása",
 			"NEW_STATION_FALLBACK": "Új állomás",
 			"DELETE_STATION": "Állomás törlése",
+			"DELETE_STAGE_CONFIRM_TITLE": "Törlöd a szakaszt?",
+			"DELETE_STAGE_CONFIRM_MESSAGE": "Biztosan törlöd ezt: \"{{itemName}}\"? Ez a művelet nem vonható vissza.",
 			"EMPTY_STATIONS": "Még nincs állomás. Adj hozzá egyet.",
 			"SAVE_CHANGES": "Változtatások mentése",
 			"CREATE_STROLL": "Séta létrehozása",

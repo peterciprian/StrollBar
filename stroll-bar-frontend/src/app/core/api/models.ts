@@ -287,6 +287,14 @@ export interface AdventureDetailResponse {
 	currentStage: Stage | null;
 }
 
+export interface AdventureResultResponse {
+	adventure: Adventure;
+	stroll: Stroll | null;
+	completedStageCount: number;
+	elapsedSeconds: number;
+	routeLengthKm: number;
+}
+
 export type AdventureNavigateDirection = 'next' | 'previous';
 
 export interface NavigateAdventureRequest {

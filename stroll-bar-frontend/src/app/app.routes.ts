@@ -19,6 +19,7 @@ import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { LegalPageComponent } from './pages/legal/legal-page.component';
 import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
+import { AdventureResultPageComponent } from './pages/progress/adventure-result-page.component';
 
 export const routes: Routes = [
 	{ path: '', pathMatch: 'full', component: HomeComponent },
@@ -30,6 +31,7 @@ export const routes: Routes = [
 	{ path: 'impressum', component: LegalPageComponent, data: { document: 'imprint' } },
 	{ path: 'privacy-policy', component: LegalPageComponent, data: { document: 'privacy' } },
 	{ path: 'terms-of-service', component: LegalPageComponent, data: { document: 'terms' } },
+	{ path: 'adventure/:adventureId/result', component: AdventureResultPageComponent, canActivate: [authGuard] },
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
 	{ path: 'admin/stroll-list', component: AdminStrollListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },

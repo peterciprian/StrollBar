@@ -54,10 +54,17 @@
 							<mat-icon>arrow_back</mat-icon>
 							{{ 'SCREENS.ADVENTURE.PREVIOUS_STAGE' | translate }}
 						</button>
-						<button mat-stroked-button [disabled]="!canGoNext" (click)="goToNextStage()">
-							{{ 'SCREENS.ADVENTURE.NEXT_STAGE' | translate }}
-							<mat-icon>arrow_forward</mat-icon>
-						</button>
+						@if (canGoNext) {
+							<button mat-stroked-button (click)="goToNextStage()">
+								{{ 'SCREENS.ADVENTURE.NEXT_STAGE' | translate }}
+								<mat-icon>arrow_forward</mat-icon>
+							</button>
+						} @else {
+							<button mat-flat-button color="primary" (click)="goToNextStage()">
+								{{ 'SCREENS.ADVENTURE.FINISH' | translate }}
+								<mat-icon>flag</mat-icon>
+							</button>
+						}
 					</div>
 				</div>
 			</div>

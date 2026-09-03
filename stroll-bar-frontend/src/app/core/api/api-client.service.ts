@@ -5,6 +5,7 @@ import {
 	AbortMultipartUploadRequest,
 	Achievement,
 	AdventureDetailResponse,
+	AdventureResultResponse,
 	AuthResponse,
 	BulkImportStrollRequest,
 	BulkImportStrollResponse,
@@ -206,6 +207,10 @@ export class ApiClientService {
 
 	getAdventure(adventureId: string) {
 		return this.http.get<AdventureDetailResponse>(`${this.baseUrl}/adventures/${adventureId}`);
+	}
+
+	getAdventureResult(adventureId: string) {
+		return this.http.get<AdventureResultResponse>(`${this.baseUrl}/adventures/${adventureId}/result`);
 	}
 
 	submitStageAnswer(adventureId: string, stageId: string, body: SubmitStageAnswerRequest) {
