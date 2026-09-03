@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, Repository } from 'typeorm';
+import { DataSource, ILike, Repository } from 'typeorm';
+import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
 import { UpdateStrollDto } from './dto/update-stroll.dto';
@@ -24,7 +25,8 @@ export class StrollsService {
 		private readonly stagesRepository: Repository<StageEntity>,
 		@InjectRepository(AdventureEntity)
 		private readonly adventuresRepository: Repository<AdventureEntity>,
-		private readonly cache: RedisCacheService
+		private readonly cache: RedisCacheService,
+		private readonly dataSource: DataSource
 	) {}
 
 	async list(query: ListStrollsQueryDto) {
@@ -119,6 +121,49 @@ export class StrollsService {
 		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
 		return saved;
+	}
+
+	async bulkImport(dto: BulkImportStrollDto, currentUser: AuthenticatedUser) {
+		if (currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('Only administrators can bulk import strolls.');
+		}
+
+		const result = await this.dataSource.transaction(async (manager) => {
+			const stroll = manager.create(StrollEntity, {
+				name: dto.stroll.name,
+				authorId: currentUser.userId,
+				activeStatus: dto.stroll.activeStatus ?? StrollActiveStatus.DRAFT,
+				labels: dto.stroll.labels.map((label) => label.trim().toLowerCase()),
+				description: dto.stroll.description,
+				proposerText: dto.stroll.proposerText ?? null,
+				mediaUrls: {
+					imageUrls: dto.stroll.mediaUrls?.imageUrls ?? [],
+					videoUrls: dto.stroll.mediaUrls?.videoUrls ?? []
+				},
+				publicityFlag: dto.stroll.publicityFlag ?? StrollPublicityFlag.PRIVATE,
+				stageCount: dto.stages.length
+			});
+			const savedStroll = await manager.save(StrollEntity, stroll);
+			const stages = dto.stages.map((stage) =>
+				manager.create(StageEntity, {
+					strollId: savedStroll.id,
+					orderIndex: stage.orderIndex,
+					name: stage.name,
+					description: stage.description,
+					notes: stage.notes ?? null,
+					imageUrls: stage.imageUrls ?? [],
+					videoUrls: stage.videoUrls ?? [],
+					address: stage.address ?? null,
+					latitude: stage.latitude ?? null,
+					longitude: stage.longitude ?? null
+				})
+			);
+			const savedStages = stages.length ? await manager.save(StageEntity, stages) : [];
+			return { stroll: savedStroll, stages: savedStages };
+		});
+
+		await this.cache.deleteByPrefix('strolls:list:');
+		return result;
 	}
 
 	async findOne(strollId: string, currentUser?: AuthenticatedUser) {

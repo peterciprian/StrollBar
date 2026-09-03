@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ApiClientService } from '../../core/api/api-client.service';
 import {
 	CreateStageRequest,
+	BulkImportStrollRequest,
 	CreateStrollRequest,
 	ListStrollsQuery,
 	ReorderStagesRequest,
@@ -27,6 +28,10 @@ export class StrollsFeatureService {
 
 	getOwnedDetail(strollId: string) {
 		return this.api.getOwnedStroll(strollId);
+	}
+
+	bulkImport(payload: BulkImportStrollRequest) {
+		return this.api.bulkImportStroll(payload);
 	}
 
 	create(payload: CreateStrollRequest) {

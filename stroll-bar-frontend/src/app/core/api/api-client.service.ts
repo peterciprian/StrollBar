@@ -6,6 +6,8 @@ import {
 	Achievement,
 	AdventureDetailResponse,
 	AuthResponse,
+	BulkImportStrollRequest,
+	BulkImportStrollResponse,
 	BrowseStrollsResponse,
 	ChangePasswordRequest,
 	CompleteMultipartUploadRequest,
@@ -154,6 +156,10 @@ export class ApiClientService {
 
 	getOwnedStroll(strollId: string) {
 		return this.http.get<StrollDetailResponse>(`${this.baseUrl}/strolls/mine/${strollId}`);
+	}
+
+	bulkImportStroll(body: BulkImportStrollRequest) {
+		return this.http.post<BulkImportStrollResponse>(`${this.baseUrl}/strolls/bulk-import`, body);
 	}
 
 	updateStroll(strollId: string, body: UpdateStrollRequest) {

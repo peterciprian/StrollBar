@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateStrollDto } from './dto/create-stroll.dto';
+import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
 import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
 import { StrollDetailResponseDto } from './dto/stroll-detail-response.dto';
 import { StrollListResponseDto } from './dto/stroll-list-response.dto';
@@ -77,6 +78,17 @@ export class StrollsController {
 	@Post()
 	create(@Body() dto: CreateStrollDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.strollsService.create(dto, user);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Bulk import a stroll and its stages (admin only)' })
+	@ApiCreatedResponse({ type: StrollDetailResponseDto, description: 'Stroll and stages imported successfully.' })
+	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'The bulk payload failed validation.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Only administrators can bulk import strolls.' })
+	@UseGuards(JwtAuthGuard)
+	@Post('bulk-import')
+	bulkImport(@Body() dto: BulkImportStrollDto, @CurrentUser() user: AuthenticatedUser) {
+		return this.strollsService.bulkImport(dto, user);
 	}
 
 	@ApiOperation({ summary: 'Get a stroll with its ordered stages' })

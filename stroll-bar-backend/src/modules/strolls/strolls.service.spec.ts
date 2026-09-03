@@ -29,11 +29,15 @@ describe('StrollsService authorization', () => {
 		set: jest.fn(),
 		deleteByPrefix: jest.fn()
 	};
+	const dataSource = {
+		transaction: jest.fn()
+	};
 	const service = new StrollsService(
 		strollsRepository as unknown as Repository<StrollEntity>,
 		stagesRepository as unknown as Repository<StageEntity>,
 		adventuresRepository as unknown as Repository<AdventureEntity>,
-		cache as never
+		cache as never,
+		dataSource as never
 	);
 	const createDto = {
 		name: 'A stroll',
@@ -108,6 +112,42 @@ describe('StrollsService authorization', () => {
 		strollsRepository.save.mockImplementationOnce(async (value) => value);
 
 		await expect(service.update(stroll.id, { name: 'Updated' }, adminUser)).resolves.toMatchObject({ name: 'Updated' });
+	});
+
+	it('bulk imports a stroll and stages in one admin transaction', async () => {
+		const adminUser = { ...simpleUser, role: UserRole.ADMIN };
+		const manager = {
+			create: jest.fn((_entity, value) => value),
+			save: jest.fn(async (_entity, value) => (Array.isArray(value) ? value : { ...value, id: 'imported-stroll-id' }))
+		};
+		dataSource.transaction.mockImplementationOnce(async (callback) => callback(manager));
+
+		const result = await service.bulkImport(
+			{
+				stroll: {
+					name: 'Imported stroll',
+					description: 'An imported stroll description.',
+					labels: ['History'],
+					mediaUrls: { imageUrls: ['https://example.com/stroll.jpg'], videoUrls: [] }
+				},
+				stages: [
+					{
+						orderIndex: 0,
+						name: 'Imported stage',
+						description: 'An imported stage description.',
+						imageUrls: [],
+						videoUrls: []
+					}
+				]
+			} as any,
+			adminUser
+		);
+
+		expect(dataSource.transaction).toHaveBeenCalledTimes(1);
+		expect(manager.save).toHaveBeenCalledTimes(2);
+		expect(result.stroll.id).toBe('imported-stroll-id');
+		expect(result.stages).toHaveLength(1);
+		expect(result.stages[0].strollId).toBe('imported-stroll-id');
 	});
 });
 

@@ -140,4 +140,26 @@
 			</tr>
 		</table>
 	</div>
+
+	<section class="admin-stroll-list__bulk-import">
+		<div>
+			<h2>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_TITLE' | translate }}</h2>
+			<p>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_HINT' | translate }}</p>
+		</div>
+		<textarea [(ngModel)]="bulkJson" rows="8" [placeholder]="'SCREENS.ADMIN_STROLL_LIST.BULK_PLACEHOLDER' | translate"></textarea>
+		<div class="admin-stroll-list__bulk-actions">
+			<button mat-flat-button color="primary" [disabled]="bulkImporting || !bulkJson.trim()" (click)="importBulkJson()">
+				<mat-icon>upload_file</mat-icon>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_BUTTON' | translate | uppercase }}
+			</button>
+			@if (bulkImporting) {
+				<span>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_IMPORTING' | translate }}</span>
+			}
+			@if (bulkImportSuccess) {
+				<span class="admin-stroll-list__bulk-success">{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_SUCCESS' | translate }}</span>
+			}
+			@if (bulkImportError) {
+				<span class="admin-stroll-list__bulk-error">{{ bulkImportError | translate }}</span>
+			}
+		</div>
+	</section>
 </div>

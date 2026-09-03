@@ -275,7 +275,16 @@
 			"METRIC_DRAFTS": "Drafts",
 			"METRIC_STAGES": "Total stages",
 			"STATUS_PUBLISHED": "Published",
-			"STATUS_DRAFT": "Draft"
+			"STATUS_DRAFT": "Draft",
+			"BULK_TITLE": "Import stroll from JSON",
+			"BULK_HINT": "Paste a JSON object with a Stroll and its Stages.",
+			"BULK_PLACEHOLDER": "{\"stroll\": { ... }, \"stages\": [ ... ]}",
+			"BULK_BUTTON": "Import JSON",
+			"BULK_IMPORTING": "Importing…",
+			"BULK_SUCCESS": "Stroll imported successfully.",
+			"BULK_INVALID_JSON": "The pasted text is not valid JSON.",
+			"BULK_INVALID_SHAPE": "The JSON must contain a valid 'Stroll' object and 'Stage' array.",
+			"BULK_SERVER_ERROR": "The bulk import failed. Check the payload and try again."
 		},
 		"ADMIN_USER_LIST": {
 			"HEADER_TITLE": "Manage Users",

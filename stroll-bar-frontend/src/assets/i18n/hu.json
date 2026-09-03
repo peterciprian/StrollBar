@@ -275,7 +275,16 @@
 			"METRIC_DRAFTS": "Piszkozat",
 			"METRIC_STAGES": "Összes állomás",
 			"STATUS_PUBLISHED": "Közzétéve",
-			"STATUS_DRAFT": "Piszkozat"
+			"STATUS_DRAFT": "Piszkozat",
+			"BULK_TITLE": "Séta importálása JSON feltöltéssel",
+			"BULK_HINT": "Illessz be egy Sétát és a hozzá tartozó Állomásokat tartalmazó JSON-t.",
+			"BULK_PLACEHOLDER": "{\"stroll\": { ... }, \"stages\": [ ... ]}",
+			"BULK_BUTTON": "JSON importálása",
+			"BULK_IMPORTING": "Importálás…",
+			"BULK_SUCCESS": "A séta importálása sikerült.",
+			"BULK_INVALID_JSON": "A beillesztett szöveg nem érvényes JSON.",
+			"BULK_INVALID_SHAPE": "A JSON-nak érvényes 'Stroll' objektumot és 'Stage' tömböt kell tartalmaznia.",
+			"BULK_SERVER_ERROR": "A tömeges import sikertelen. Ellenőrizd az adatokat."
 		},
 		"ADMIN_USER_LIST": {
 			"HEADER_TITLE": "Felhasználók kezelése",

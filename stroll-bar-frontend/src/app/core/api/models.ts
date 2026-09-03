@@ -210,6 +210,16 @@ export interface StrollDetailResponse {
 	stages: Stage[];
 }
 
+export interface BulkImportStrollRequest {
+	stroll: Stroll;
+	stages: Stage[];
+}
+
+export interface BulkImportStrollResponse {
+	stroll: Stroll;
+	stages: Stage[];
+}
+
 export interface CreateStageRequest {
 	orderIndex: number;
 	name: string;

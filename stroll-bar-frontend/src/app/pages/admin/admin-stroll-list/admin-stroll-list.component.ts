@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -7,13 +8,13 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { Stroll } from '../../../core/api/models';
+import { BulkImportStrollRequest, Stroll } from '../../../core/api/models';
 import { StrollsFeatureService } from '../../../features/strolls/strolls-feature.service';
 
 @Component({
 	selector: 'app-admin-stroll-list-screen',
 	standalone: true,
-	imports: [CommonModule, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
+	imports: [CommonModule, FormsModule, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
 	templateUrl: './admin-stroll-list.component.html',
 	styleUrls: ['./admin-stroll-list.component.scss']
 })
@@ -28,6 +29,10 @@ export class AdminStrollListScreenComponent implements OnInit {
 	protected readonly publishedCount = computed(() => this.strolls().filter((stroll) => stroll.activeStatus === 'published').length);
 	protected readonly draftCount = computed(() => this.strolls().filter((stroll) => stroll.activeStatus === 'draft').length);
 	protected readonly totalStages = computed(() => this.strolls().reduce((total, stroll) => total + stroll.stageCount, 0));
+	protected bulkJson = '';
+	protected bulkImporting = false;
+	protected bulkImportError = '';
+	protected bulkImportSuccess = false;
 
 	ngOnInit(): void {
 		this.strollsFeature.listOwned({ limit: 100 }).subscribe({
@@ -59,5 +64,66 @@ export class AdminStrollListScreenComponent implements OnInit {
 			next: () => this.strolls.update((strolls) => strolls.filter((stroll) => stroll.id !== strollId)),
 			error: () => this.loadError.set(true)
 		});
+	}
+
+	protected importBulkJson(): void {
+		this.bulkImportError = '';
+		this.bulkImportSuccess = false;
+		let payload: unknown;
+		try {
+			payload = JSON.parse(this.bulkJson);
+		} catch {
+			this.bulkImportError = 'SCREENS.ADMIN_STROLL_LIST.BULK_INVALID_JSON';
+			return;
+		}
+
+		if (!this.isValidPayload(payload)) {
+			this.bulkImportError = 'SCREENS.ADMIN_STROLL_LIST.BULK_INVALID_SHAPE';
+			return;
+		}
+
+		this.bulkImporting = true;
+		this.strollsFeature.bulkImport(payload).subscribe({
+			next: (result) => {
+				this.strolls.update((strolls) => [...strolls, result.stroll]);
+				this.bulkJson = '';
+				this.bulkImportSuccess = true;
+				this.bulkImporting = false;
+			},
+			error: () => {
+				this.bulkImportError = 'SCREENS.ADMIN_STROLL_LIST.BULK_SERVER_ERROR';
+				this.bulkImporting = false;
+			}
+		});
+	}
+
+	private isValidPayload(value: unknown): value is BulkImportStrollRequest {
+		if (!value || typeof value !== 'object') return false;
+		const payload = value as { stroll?: unknown; stages?: unknown };
+		if (!payload.stroll || typeof payload.stroll !== 'object' || !Array.isArray(payload.stages)) return false;
+		const stroll = payload.stroll as { name?: unknown; description?: unknown; labels?: unknown; mediaUrls?: unknown };
+		return (
+			typeof stroll.name === 'string' &&
+			stroll.name.trim().length >= 3 &&
+			typeof stroll.description === 'string' &&
+			stroll.description.trim().length >= 10 &&
+			Array.isArray(stroll.labels) &&
+			stroll.labels.every((label) => typeof label === 'string') &&
+			payload.stages.every((stage) => this.isStage(stage))
+		);
+	}
+
+	private isStage(value: unknown): boolean {
+		if (!value || typeof value !== 'object') return false;
+		const stage = value as { name?: unknown; description?: unknown; orderIndex?: unknown };
+		return (
+			typeof stage.name === 'string' &&
+			stage.name.trim().length >= 2 &&
+			typeof stage.description === 'string' &&
+			stage.description.trim().length >= 10 &&
+			typeof stage.orderIndex === 'number' &&
+			Number.isInteger(stage.orderIndex) &&
+			stage.orderIndex >= 0
+		);
 	}
 }

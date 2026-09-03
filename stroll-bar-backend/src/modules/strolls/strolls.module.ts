@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { StrollsController } from './strolls.controller';
 import { StrollsService } from './strolls.service';
 import { StageEntity } from '../stages/entities/stage.entity';

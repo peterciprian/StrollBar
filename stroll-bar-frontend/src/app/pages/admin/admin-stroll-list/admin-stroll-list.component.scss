@@ -1,11 +1,53 @@
+.admin-stroll-list__bulk-import {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	padding: 16px;
+}
+.admin-stroll-list__bulk-import h2 {
+	margin: 0;
+	font-size: 15px;
+}
+.admin-stroll-list__bulk-import p {
+	margin: 4px 0 12px;
+	color: #64748b;
+	font-size: 13px;
+}
+.admin-stroll-list__bulk-import textarea {
+	display: block;
+	width: 100%;
+	box-sizing: border-box;
+	resize: vertical;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	padding: 10px;
+	font: inherit;
+}
+.admin-stroll-list__bulk-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	margin-top: 12px;
+}
+.admin-stroll-list__bulk-success {
+	color: #15803d;
+	font-weight: 600;
+}
+.admin-stroll-list__bulk-error {
+	color: #b91c1c;
+	font-weight: 600;
+}
 .admin-stroll-list {
+	gap: 16px;
+	display: flex;
+	flex-direction: column;
 	&__header {
 		display: flex;
 		align-items: stretch;
 		flex-direction: column;
 		gap: 12px;
 		justify-content: space-between;
-		margin-bottom: 16px;
 	}
 
 	&__brand {
@@ -91,7 +133,6 @@
 		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 		border-block: 1px solid #e2e8f0;
-		margin-bottom: 16px;
 
 		div {
 			color: #64748b;
@@ -225,7 +266,6 @@
 		&__header {
 			align-items: center;
 			flex-direction: row;
-			margin-bottom: 24px;
 		}
 
 		&__content {
