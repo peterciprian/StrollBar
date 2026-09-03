@@ -111,7 +111,7 @@ export class StrollsService {
 			authorId: currentUser.userId,
 			activeStatus: dto.activeStatus ?? StrollActiveStatus.DRAFT,
 			labels: (dto.labels ?? []).map((label) => label.trim().toLowerCase()),
-			category: dto.category ?? [StrollCategory.HISTORICAL],
+			category: dto.category ?? StrollCategory.ENTERTAINMENT,
 			description: dto.description,
 			proposerText: dto.proposerText ?? null,
 			mediaUrls: {
@@ -143,7 +143,7 @@ export class StrollsService {
 				authorId: currentUser.userId,
 				activeStatus: dto.stroll.activeStatus ?? StrollActiveStatus.DRAFT,
 				labels: dto.stroll.labels.map((label) => label.trim().toLowerCase()),
-				category: dto.stroll.category ?? [StrollCategory.HISTORICAL],
+				category: dto.stroll.category ?? StrollCategory.ENTERTAINMENT,
 				description: dto.stroll.description,
 				proposerText: dto.stroll.proposerText ?? null,
 				mediaUrls: {

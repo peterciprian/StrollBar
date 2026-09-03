@@ -4,19 +4,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { CATEGORY_LABEL_KEYS } from '../../core/models/screens.models';
+import { StrollCategory, StrollSummary } from '../../core/api/models';
 
-export interface StrollCardData {
-	title: string;
-	category: string;
-	durationMinutes: number;
-	price: number;
-	stationsCount?: number;
-	stations?: unknown[];
-	publicityFlag?: 'public' | 'unlisted' | 'private';
-	coverImageUrl?: string;
-	coverFallback?: string;
-}
+export type StrollCardData = StrollSummary;
 
 @Component({
 	selector: 'app-stroll-card',
@@ -30,5 +20,7 @@ export class StrollCardComponent {
 	@Input() selected = false;
 	@Output() cardClick = new EventEmitter<void>();
 
-	protected readonly categoryLabelKeys: Record<string, string> = CATEGORY_LABEL_KEYS;
+	protected categoryLabelKey(category: StrollCategory): string {
+		return `SCREENS.CATEGORY_${category}`;
+	}
 }

@@ -147,7 +147,7 @@ export interface Stroll {
 	authorId: string;
 	activeStatus: StrollActiveStatus;
 	labels: string[];
-	category: StrollCategory[];
+	category: StrollCategory;
 	description: string;
 	proposerText?: string | null;
 	mediaUrls?: MediaUrls;
@@ -164,7 +164,7 @@ export interface StrollSummary {
 	name: string;
 	authorId: string;
 	labels: string[];
-	category: StrollCategory[];
+	category: StrollCategory;
 	description: string;
 	mediaUrls?: MediaUrls | null;
 	publicityFlag: StrollPublicityFlag;
@@ -202,7 +202,7 @@ export interface CreateStrollRequest {
 	description: string;
 	proposerText?: string;
 	labels?: string[];
-	category?: StrollCategory[];
+	category?: StrollCategory;
 	imageUrls?: string[];
 	videoUrls?: string[];
 	price?: StrollPrice | null;

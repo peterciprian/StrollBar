@@ -29,11 +29,10 @@ export class CreateStrollDto {
 	@IsString({ each: true })
 	labels?: string[];
 
-	@ApiPropertyOptional({ enum: StrollCategory, isArray: true, example: [StrollCategory.HISTORICAL] })
+	@ApiPropertyOptional({ enum: StrollCategory, example: StrollCategory.HISTORICAL })
 	@IsOptional()
-	@IsArray()
-	@IsEnum(StrollCategory, { each: true })
-	category?: StrollCategory[];
+	@IsEnum(StrollCategory)
+	category?: StrollCategory;
 
 	@ApiPropertyOptional({ type: [String], example: ['https://example.com/cover.jpg'] })
 	@IsOptional()

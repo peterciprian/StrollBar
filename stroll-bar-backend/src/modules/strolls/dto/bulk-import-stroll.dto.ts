@@ -43,9 +43,8 @@ export class BulkImportStrollRecordDto {
 	labels!: string[];
 
 	@IsOptional()
-	@IsArray()
-	@IsEnum(StrollCategory, { each: true })
-	category?: StrollCategory[];
+	@IsEnum(StrollCategory)
+	category?: StrollCategory;
 
 	@IsOptional()
 	@ValidateNested()

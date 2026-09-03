@@ -33,7 +33,7 @@
 	<div class="stroll-details-editor__row">
 		<mat-form-field appearance="outline">
 			<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.CATEGORY_LABEL' | translate }}</mat-label>
-			<mat-select [(ngModel)]="stroll.category" name="strollCategory" multiple>
+			<mat-select [(ngModel)]="stroll.category" name="strollCategory">
 				@for (category of categories; track category) {
 					<mat-option [value]="category">{{ category }}</mat-option>
 				}

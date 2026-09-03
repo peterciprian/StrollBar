@@ -5,6 +5,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { StageEntity } from '../stages/entities/stage.entity';
 import { UserRole } from '../users/entities/user.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
+import { StrollCategory } from './dto/stroll-category.enum';
 import { StrollsService } from './strolls.service';
 
 describe('StrollsService authorization', () => {
@@ -158,7 +159,7 @@ function buildStroll(overrides: Partial<StrollEntity> = {}): StrollEntity {
 		authorId: 'author-id',
 		activeStatus: StrollActiveStatus.PUBLISHED,
 		labels: [],
-		category: [],
+		category: StrollCategory.HISTORICAL,
 		description: 'A description',
 		publicityFlag: StrollPublicityFlag.PUBLIC,
 		stageCount: 0,

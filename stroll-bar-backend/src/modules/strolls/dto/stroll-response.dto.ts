@@ -27,8 +27,8 @@ export class StrollResponseDto {
 	@ApiProperty({ type: [String], example: ['city', 'architecture'] })
 	labels!: string[];
 
-	@ApiProperty({ enum: StrollCategory, isArray: true })
-	category!: StrollCategory[];
+	@ApiProperty({ enum: StrollCategory })
+	category!: StrollCategory;
 
 	@ApiProperty({ example: 'A short guided route through the city center.' })
 	description!: string;

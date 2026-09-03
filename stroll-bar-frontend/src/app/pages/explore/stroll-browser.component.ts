@@ -12,14 +12,13 @@ import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
-import { CATEGORY_LABEL_KEYS, MOCK_STROLLS, Stroll, StrollCategory } from '../../core/models/screens.models';
+import { StrollCategory, StrollSummary } from '../../core/api/models';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
-import { mapStrollToStroll } from '../../features/strolls/stroll-mappers';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
 import { MockPaymentDialogComponent } from './mock-payment-dialog.component';
 
-type CategoryFilter = StrollCategory | 'All';
+type CategoryFilter = StrollCategory | 'ALL';
 
 @Component({
 	selector: 'app-stroll-browser-screen',
@@ -47,13 +46,12 @@ export class StrollBrowserScreenComponent implements OnInit {
 	private readonly router = inject(Router);
 	private readonly destroyRef = inject(DestroyRef);
 
-	protected readonly categories: CategoryFilter[] = ['All', 'Historical', 'Mystery', 'Cultural'];
-	protected readonly categoryLabelKeys = CATEGORY_LABEL_KEYS;
-	protected strolls: Stroll[] = MOCK_STROLLS;
+	protected readonly categories: CategoryFilter[] = ['ALL', ...Object.values(StrollCategory)];
+	protected strolls: StrollSummary[] = [];
 
 	protected searchTerm = '';
-	protected activeCategory: CategoryFilter = 'All';
-	protected selectedStroll: Stroll = this.strolls[0];
+	protected activeCategory: CategoryFilter = 'ALL';
+	protected selectedStroll: StrollSummary | null = null;
 	protected readonly startingAdventure = signal(false);
 	protected readonly startAdventureError = signal(false);
 
@@ -61,10 +59,10 @@ export class StrollBrowserScreenComponent implements OnInit {
 		this.loadStrolls();
 	}
 
-	protected get filteredStrolls(): Stroll[] {
+	protected get filteredStrolls(): StrollSummary[] {
 		return this.strolls.filter((stroll) => {
-			const matchesCategory = this.activeCategory === 'All' || stroll.category === this.activeCategory;
-			const matchesSearch = stroll.title.toLowerCase().includes(this.searchTerm.trim().toLowerCase());
+			const matchesCategory = this.activeCategory === 'ALL' || stroll.category === this.activeCategory;
+			const matchesSearch = stroll.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase());
 			return matchesCategory && matchesSearch;
 		});
 	}
@@ -73,13 +71,17 @@ export class StrollBrowserScreenComponent implements OnInit {
 		this.activeCategory = category;
 	}
 
-	protected selectStrollCard(stroll: Stroll): void {
+	protected categoryLabelKey(category: CategoryFilter): string {
+		return category === 'ALL' ? 'SCREENS.CATEGORY_ALL' : `SCREENS.CATEGORY_${category}`;
+	}
+
+	protected selectStrollCard(stroll: StrollSummary): void {
 		this.selectedStroll = stroll;
 		this.startAdventureError.set(false);
 	}
 
 	protected async startAdventure(): Promise<void> {
-		if (this.startingAdventure()) {
+		if (this.startingAdventure() || !this.selectedStroll) {
 			return;
 		}
 
@@ -91,7 +93,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 		const confirmed = await firstValueFrom(
 			this.dialog
 				.open(MockPaymentDialogComponent, {
-					data: { strollName: this.selectedStroll.title, price: this.selectedStroll.price },
+					data: { strollName: this.selectedStroll.name, price: this.selectedStroll.price?.amount ?? 0 },
 					maxWidth: 'calc(100vw - 32px)',
 					width: '420px'
 				})
@@ -117,17 +119,17 @@ export class StrollBrowserScreenComponent implements OnInit {
 	}
 
 	private loadStrolls(): void {
-		// Calls the real strolls list endpoint; falls back to demo strolls on error, empty, or missing response.
+		// Calls the real strolls list endpoint.
 		this.strollsFeature
 			.browse({ sortBy: 'most_used' })
 			.pipe(
 				takeUntilDestroyed(this.destroyRef),
-				map((response) => (response?.items?.length ? response.items.map((stroll) => mapStrollToStroll(stroll)) : MOCK_STROLLS)),
-				catchError(() => of(MOCK_STROLLS))
+				map((response) => response?.items ?? []),
+				catchError(() => of([] as StrollSummary[]))
 			)
 			.subscribe((strolls) => {
 				this.strolls = strolls;
-				this.selectStrollCard(this.strolls[0]);
+				this.selectedStroll = this.strolls[0] ?? null;
 			});
 	}
 }

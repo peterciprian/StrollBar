@@ -1,23 +1,23 @@
 @if (stroll; as t) {
 	<mat-card class="stroll-card" [class.selected]="selected" (click)="cardClick.emit()">
-		<div class="stroll-card__cover" [style.background-image]="t.coverImageUrl ? null : t.coverFallback">
-			@if (t.coverImageUrl) {
-				<img [src]="t.coverImageUrl" alt="" />
+		<div class="stroll-card__cover" [style.background-image]="t.mediaUrls?.imageUrls?.[0] ? null : 'linear-gradient(135deg, #155e75, #0f172a)'">
+			@if (t.mediaUrls?.imageUrls?.[0]; as imageUrl) {
+				<img [src]="imageUrl" alt="" />
 			}
 			@if (t.publicityFlag === 'private') {
 				<span class="stroll-card__private"><mat-icon>lock</mat-icon>{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</span>
 			}
-			<span class="stroll-card__category">{{ categoryLabelKeys[t.category] | translate }}</span>
+			<span class="stroll-card__category">{{ categoryLabelKey(t.category) | translate }}</span>
 		</div>
 		<mat-card-content>
-			<h3 class="stroll-card__title">{{ t.title }}</h3>
+			<h3 class="stroll-card__title">{{ t.name }}</h3>
 			<div class="stroll-card__meta">
-				<span class="stroll-card__meta-item"><mat-icon>schedule</mat-icon>{{ t.durationMinutes }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span>
 				<span class="stroll-card__meta-item"
-					><mat-icon>place</mat-icon>{{ t.stationsCount ?? t.stations?.length ?? 0 }} {{ 'COMMON.STATIONS_SUFFIX' | translate }}</span
+					><mat-icon>straighten</mat-icon>{{ t.length | number: '1.1-2' }} {{ 'COMMON.KM_SUFFIX' | translate }}</span
 				>
+				<span class="stroll-card__meta-item"><mat-icon>place</mat-icon>{{ t.stageCount }} {{ 'COMMON.STATIONS_SUFFIX' | translate }}</span>
 				<span class="stroll-card__meta-item stroll-card__price"
-					><mat-icon>sell</mat-icon>{{ t.price | number }} {{ 'COMMON.HUF_SUFFIX' | translate }}</span
+					><mat-icon>sell</mat-icon>{{ t.price?.amount ?? 0 | number }} {{ t.price?.currency ?? 'HUF' }}</span
 				>
 			</div>
 		</mat-card-content>

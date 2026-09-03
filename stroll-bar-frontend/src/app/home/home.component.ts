@@ -6,9 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { StrollCardComponent } from '../components/stroll-card/stroll-card.component';
-import { MOCK_STROLLS, Stroll } from '../core/models/screens.models';
+import { StrollSummary } from '../core/api/models';
 import { StrollsFeatureService } from '../features/strolls/strolls-feature.service';
-import { mapStrollToStroll } from '../features/strolls/stroll-mappers';
 import { AsyncLoadingState } from '../core/utils/async-loading-state.util';
 
 @Component({
@@ -22,22 +21,20 @@ export class HomeComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
 
 	/** Async state for featured strolls loading */
-	protected readonly strollsState = new AsyncLoadingState<Stroll[]>();
+	protected readonly strollsState = new AsyncLoadingState<StrollSummary[]>();
 
 	ngOnInit(): void {
 		this.loadFeaturedStrolls();
 	}
 
 	private loadFeaturedStrolls(): void {
-		// Fetch featured strolls from API; falls back to mock strolls on error or empty response.
-		// Using AsyncLoadingState to manage loading/error/data state consistently.
+		// Load featured strolls from the API and keep the page honest when the service is unavailable.
 		this.strollsFeature.browse({ sortBy: 'most_used', limit: 3 }).subscribe({
 			next: (response) => {
-				const strolls = response?.items?.length ? response.items.map((stroll) => mapStrollToStroll(stroll)) : MOCK_STROLLS.slice(0, 3);
-				this.strollsState.setSuccess(strolls);
+				this.strollsState.setSuccess(response?.items ?? []);
 			},
 			error: () => {
-				this.strollsState.setSuccess(MOCK_STROLLS.slice(0, 3));
+				this.strollsState.setError('Failed to load featured strolls.');
 			}
 		});
 	}

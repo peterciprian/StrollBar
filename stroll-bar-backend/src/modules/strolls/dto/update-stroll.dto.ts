@@ -31,11 +31,10 @@ export class UpdateStrollDto {
 	@IsString({ each: true })
 	labels?: string[];
 
-	@ApiPropertyOptional({ enum: StrollCategory, isArray: true })
+	@ApiPropertyOptional({ enum: StrollCategory })
 	@IsOptional()
-	@IsArray()
-	@IsEnum(StrollCategory, { each: true })
-	category?: StrollCategory[];
+	@IsEnum(StrollCategory)
+	category?: StrollCategory;
 
 	@ApiPropertyOptional({ type: [String], example: ['https://example.com/cover.jpg'] })
 	@IsOptional()

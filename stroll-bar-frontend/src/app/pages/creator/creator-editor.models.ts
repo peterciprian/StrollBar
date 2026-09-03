@@ -4,7 +4,7 @@ export interface EditableStroll {
 	name: string;
 	description: string;
 	labelsText: string;
-	category: StrollCategory[];
+	category: StrollCategory;
 	status: StrollActiveStatus;
 	publicity: StrollPublicityFlag;
 	priceAmount: number | null;

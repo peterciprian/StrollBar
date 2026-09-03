@@ -60,8 +60,8 @@ export class StrollEntity {
 	@Column({ type: 'simple-array', default: '' })
 	labels!: string[];
 
-	@Column({ type: 'simple-array', default: StrollCategory.HISTORICAL })
-	category!: StrollCategory[];
+	@Column({ type: 'varchar', enum: StrollCategory, default: StrollCategory.HISTORICAL })
+	category!: StrollCategory;
 
 	@Column({ type: 'text' })
 	description!: string;

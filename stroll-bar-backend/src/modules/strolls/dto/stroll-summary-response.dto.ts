@@ -16,8 +16,8 @@ export class StrollSummaryResponseDto {
 	@ApiProperty({ type: [String], example: ['historical', 'budapest'] })
 	labels!: string[];
 
-	@ApiProperty({ enum: StrollCategory, isArray: true })
-	category!: StrollCategory[];
+	@ApiProperty({ enum: StrollCategory })
+	category!: StrollCategory;
 
 	@ApiProperty({ description: 'Advertising extract, limited to 240 characters.' })
 	description!: string;
