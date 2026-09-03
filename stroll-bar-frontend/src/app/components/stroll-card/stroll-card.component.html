@@ -7,7 +7,9 @@
 			@if (t.publicityFlag === 'private') {
 				<span class="stroll-card__private"><mat-icon>lock</mat-icon>{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</span>
 			}
-			<span class="stroll-card__category">{{ categoryLabelKey(t.category) | translate }}</span>
+			@if (t.category; as category) {
+				<span class="stroll-card__category">{{ categoryLabelKey(category) | translate }}</span>
+			}
 		</div>
 		<mat-card-content>
 			<h3 class="stroll-card__title">{{ t.name }}</h3>

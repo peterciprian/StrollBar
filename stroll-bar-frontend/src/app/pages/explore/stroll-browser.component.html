@@ -45,7 +45,9 @@
 				@if (stroll.mediaUrls?.imageUrls?.[0]; as imageUrl) {
 					<img [src]="imageUrl" alt="" />
 				}
-				<span class="stroll-browser__cover-category">{{ categoryLabelKey(stroll.category) | translate }}</span>
+				@if (stroll.category; as category) {
+					<span class="stroll-browser__cover-category">{{ categoryLabelKey(category) | translate }}</span>
+				}
 				<h1>{{ stroll.name }}</h1>
 			</div>
 
