@@ -5,6 +5,7 @@ import { In, Repository } from 'typeorm';
 import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
 import { UnlockStrollDto } from './dto/unlock-stroll.dto';
+import { AdventureResultsService } from '../achievements/adventure-results.service';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserRole } from '../users/entities/user.entity';
@@ -22,7 +23,8 @@ export class AdventuresService {
 		@InjectRepository(StrollEntity)
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(StageEntity)
-		private readonly stagesRepository: Repository<StageEntity>
+		private readonly stagesRepository: Repository<StageEntity>,
+		private readonly adventureResultsService: AdventureResultsService
 	) {}
 
 	async unlock(dto: UnlockStrollDto, currentUser: AuthenticatedUser) {
@@ -135,14 +137,28 @@ export class AdventuresService {
 		const elapsedSeconds = adventure.startDateTime
 			? Math.max(0, Math.round((completedAt.getTime() - adventure.startDateTime.getTime()) / 1000))
 			: 0;
+		const completedStageCount =
+			adventure.progressStatus === AdventureProgressStatus.COMPLETED ? stages.length : Math.max(0, adventure.currentStageIndex - 1);
+		const routeLengthKm = stages.slice(1).reduce((total, stage, index) => total + this.distanceInKm(stages[index], stage), 0);
+
+		if (adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
+			await this.adventureResultsService.recordCompletion({
+				userId: adventure.ownerUserId,
+				strollId: adventure.strollId,
+				adventureId: adventure.id,
+				completedStageCount,
+				elapsedSeconds,
+				routeLengthKm,
+				completedAt
+			});
+		}
 
 		return {
 			adventure,
 			stroll,
-			completedStageCount:
-				adventure.progressStatus === AdventureProgressStatus.COMPLETED ? stages.length : Math.max(0, adventure.currentStageIndex - 1),
+			completedStageCount,
 			elapsedSeconds,
-			routeLengthKm: stages.slice(1).reduce((total, stage, index) => total + this.distanceInKm(stages[index], stage), 0)
+			routeLengthKm
 		};
 	}
 

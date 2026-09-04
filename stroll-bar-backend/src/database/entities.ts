@@ -1,4 +1,5 @@
 import { AchievementEntity } from '../modules/achievements/entities/achievement.entity';
+import { AdventureResultEntity } from '../modules/achievements/entities/adventure-result.entity';
 import { AdventureEntity } from '../modules/adventures/entities/adventure.entity';
 import { StageAttemptEntity } from '../modules/adventures/entities/stage-attempt.entity';
 import { MediaAssetEntity } from '../modules/media/entities/media-asset.entity';
@@ -10,6 +11,7 @@ import { AuditEventEntity } from '../common/audit.entity';
 
 export const DATABASE_ENTITIES = [
 	AchievementEntity,
+	AdventureResultEntity,
 	UserEntity,
 	StrollEntity,
 	StageEntity,

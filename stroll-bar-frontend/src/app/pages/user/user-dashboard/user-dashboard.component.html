@@ -116,31 +116,46 @@
 			<ng-container matColumnDef="actions">
 				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_ACTIONS' | translate }}</th>
 				<td mat-cell *matCellDef="let detail" class="user-dashboard__actions">
-					<button
-						mat-icon-button
-						[matTooltip]="
-							(detail.adventure.progressStatus === 'purchased'
-								? 'SCREENS.USER_DASHBOARD.START_TOOLTIP'
-								: detail.adventure.progressStatus === 'completed'
-									? 'SCREENS.USER_DASHBOARD.SUMMARY_TOOLTIP'
+					@if (detail.adventure.progressStatus === 'completed') {
+						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.SUMMARY_TOOLTIP' | translate" (click)="viewResult(detail)">
+							<mat-icon>emoji_events</mat-icon>
+						</button>
+						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.ACHIEVEMENTS_TOOLTIP' | translate" (click)="viewAchievements()">
+							<mat-icon>military_tech</mat-icon>
+						</button>
+						<button
+							mat-icon-button
+							[disabled]="replayingAdventureId() === detail.adventure.id"
+							[matTooltip]="'SCREENS.USER_DASHBOARD.REPLAY_TOOLTIP' | translate"
+							(click)="replayAdventure(detail)"
+						>
+							<mat-icon>replay</mat-icon>
+						</button>
+					} @else {
+						<button
+							mat-icon-button
+							[matTooltip]="
+								(detail.adventure.progressStatus === 'purchased'
+									? 'SCREENS.USER_DASHBOARD.START_TOOLTIP'
 									: 'SCREENS.USER_DASHBOARD.CONTINUE_TOOLTIP'
-							) | translate
-						"
-						(click)="openAdventure(detail)"
-					>
-						<mat-icon>{{
-							detail.adventure.progressStatus === 'purchased'
-								? 'play_arrow'
-								: detail.adventure.progressStatus === 'completed'
-									? 'emoji_events'
-									: 'arrow_forward'
-						}}</mat-icon>
-					</button>
+								) | translate
+							"
+							(click)="openAdventure(detail)"
+						>
+							<mat-icon>{{ detail.adventure.progressStatus === 'purchased' ? 'play_arrow' : 'arrow_forward' }}</mat-icon>
+						</button>
+					}
 				</td>
 			</ng-container>
 
 			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr mat-row *matRowDef="let row; columns: displayedColumns" (dblclick)="openAdventure(row)"></tr>
+			<tr
+				mat-row
+				*matRowDef="let row; columns: displayedColumns"
+				class="user-dashboard__row"
+				[class.user-dashboard__row--completed]="row.adventure.progressStatus === 'completed'"
+				(dblclick)="openAdventure(row)"
+			></tr>
 			<tr class="mat-row" *matNoDataRow>
 				<td class="mat-cell user-dashboard__message" [attr.colspan]="displayedColumns.length">
 					{{ 'SCREENS.USER_DASHBOARD.EMPTY' | translate }}

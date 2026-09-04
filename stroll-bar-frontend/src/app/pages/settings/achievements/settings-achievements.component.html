@@ -1,13 +1,59 @@
 <h1>{{ 'SETTINGS.SECTION_ACHIEVEMENTS' | translate }}</h1>
-<div class="settings-page__achievements">
-	@for (achievement of achievements; track achievement.title) {
-		<div class="settings-page__achievement-card">
-			<mat-icon>{{ achievement.icon }}</mat-icon>
-			<div>
-				<h3>{{ achievement.title }}</h3>
-				<p>{{ achievement.description }}</p>
-				<span class="settings-page__muted">Earned {{ achievement.earnedOn }}</span>
-			</div>
+
+<section class="settings-page__results">
+	<h2>{{ 'SETTINGS.RESULTS_SECTION_TITLE' | translate }}</h2>
+
+	@if (resultsLoading()) {
+		<p class="settings-page__muted">{{ 'SETTINGS.RESULTS_LOADING' | translate }}</p>
+	} @else if (resultsError()) {
+		<p class="settings-page__error">{{ 'SETTINGS.RESULTS_ERROR' | translate }}</p>
+	} @else if (!resultGroups().length) {
+		<p class="settings-page__muted">{{ 'SETTINGS.RESULTS_EMPTY' | translate }}</p>
+	} @else {
+		<div class="settings-page__result-groups">
+			@for (group of resultGroups(); track group.strollId) {
+				<div class="settings-page__result-group">
+					<h3>{{ group.strollName }}</h3>
+					@for (result of group.results; track result.id) {
+						<div class="settings-page__result-card">
+							<div class="settings-page__result-stat">
+								<mat-icon>schedule</mat-icon>
+								<strong>{{ formatTime(result.elapsedSeconds) }}</strong>
+								<span>{{ 'SETTINGS.RESULT_STAT_TIME' | translate }}</span>
+							</div>
+							<div class="settings-page__result-stat">
+								<mat-icon>flag</mat-icon>
+								<strong>{{ result.completedStageCount }}</strong>
+								<span>{{ 'SETTINGS.RESULT_STAT_STAGES' | translate }}</span>
+							</div>
+							<div class="settings-page__result-stat">
+								<mat-icon>straighten</mat-icon>
+								<strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong>
+								<span>{{ 'SETTINGS.RESULT_STAT_DISTANCE' | translate }}</span>
+							</div>
+							<span class="settings-page__result-date">{{
+								'SETTINGS.RESULT_COMPLETED_ON' | translate: { date: (result.completedAt | date: 'mediumDate') }
+							}}</span>
+						</div>
+					}
+				</div>
+			}
 		</div>
 	}
-</div>
+</section>
+
+<section class="settings-page__badges">
+	<h2>{{ 'SETTINGS.BADGES_SECTION_TITLE' | translate }}</h2>
+	<div class="settings-page__achievements">
+		@for (achievement of achievements; track achievement.title) {
+			<div class="settings-page__achievement-card">
+				<mat-icon>{{ achievement.icon }}</mat-icon>
+				<div>
+					<h3>{{ achievement.title }}</h3>
+					<p>{{ achievement.description }}</p>
+					<span class="settings-page__muted">Earned {{ achievement.earnedOn }}</span>
+				</div>
+			</div>
+		}
+	</div>
+</section>

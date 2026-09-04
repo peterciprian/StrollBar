@@ -354,6 +354,23 @@ export interface CreateAchievementRequest {
 	completed?: boolean;
 }
 
+export interface AdventureResult {
+	id: string;
+	userId: string;
+	strollId: string;
+	adventureId: string;
+	completedStageCount: number;
+	elapsedSeconds: number;
+	routeLengthKm: number;
+	completedAt: string;
+	createdAt: string;
+}
+
+export interface AdventureResultWithStroll {
+	result: AdventureResult;
+	stroll: Stroll | null;
+}
+
 // ─── Media ────────────────────────────────────────────────────────────────────
 
 export type MediaUploadPurpose = 'stroll' | 'stage' | 'profile';

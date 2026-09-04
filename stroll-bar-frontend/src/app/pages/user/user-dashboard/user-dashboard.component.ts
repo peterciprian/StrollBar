@@ -30,6 +30,7 @@ export class UserDashboardScreenComponent implements OnInit {
 	protected readonly activeCount = computed(() => this.adventures().filter(({ adventure }) => adventure.progressStatus === 'in_progress').length);
 	protected readonly completedCount = computed(() => this.adventures().filter(({ adventure }) => adventure.progressStatus === 'completed').length);
 	protected readonly totalStages = computed(() => this.adventures().reduce((total, { stroll }) => total + (stroll?.stageCount ?? 0), 0));
+	protected readonly replayingAdventureId = signal<string | null>(null);
 
 	ngOnInit(): void {
 		this.adventuresFeature
@@ -62,6 +63,11 @@ export class UserDashboardScreenComponent implements OnInit {
 	}
 
 	protected openAdventure(detail: AdventureDetailResponse): void {
+		if (detail.adventure.progressStatus === 'completed') {
+			this.viewResult(detail);
+			return;
+		}
+
 		if (detail.adventure.progressStatus === 'purchased') {
 			this.adventuresFeature
 				.start(detail.adventure.id)
@@ -74,5 +80,45 @@ export class UserDashboardScreenComponent implements OnInit {
 		}
 
 		this.router.navigate(['/adventure', detail.adventure.id]);
+	}
+
+	protected viewResult(detail: AdventureDetailResponse): void {
+		this.router.navigate(['/adventure', detail.adventure.id, 'result']);
+	}
+
+	protected viewAchievements(): void {
+		this.router.navigate(['/settings/achievements']);
+	}
+
+	protected replayAdventure(detail: AdventureDetailResponse): void {
+		if (!detail.stroll || this.replayingAdventureId()) {
+			return;
+		}
+
+		this.replayingAdventureId.set(detail.adventure.id);
+		this.adventuresFeature
+			.unlock(detail.stroll.id)
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe({
+				next: (newAdventure) => {
+					this.adventuresFeature
+						.start(newAdventure.id)
+						.pipe(takeUntilDestroyed(this.destroyRef))
+						.subscribe({
+							next: () => {
+								this.replayingAdventureId.set(null);
+								this.router.navigate(['/adventure', newAdventure.id]);
+							},
+							error: () => {
+								this.replayingAdventureId.set(null);
+								this.loadError.set(true);
+							}
+						});
+				},
+				error: () => {
+					this.replayingAdventureId.set(null);
+					this.loadError.set(true);
+				}
+			});
 	}
 }

@@ -39,6 +39,83 @@ h1 {
 	font-size: 12px;
 }
 
+.settings-page__error {
+	color: #b91c1c;
+	font-size: 13px;
+}
+
+.settings-page__results,
+.settings-page__badges {
+	margin-bottom: 28px;
+
+	h2 {
+		margin: 0 0 12px;
+		font-size: 16px;
+		font-weight: 700;
+		color: #0f172a;
+	}
+}
+
+.settings-page__result-groups {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 20px;
+}
+
+.settings-page__result-group {
+	h3 {
+		margin: 0 0 8px;
+		font-size: 14px;
+		font-weight: 700;
+		color: var(--mat-sys-primary, #0891b2);
+	}
+
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.settings-page__result-card {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 18px;
+	padding: 14px 16px;
+	border-radius: 14px;
+	background: #fff;
+	box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+}
+
+.settings-page__result-stat {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+
+	mat-icon {
+		color: var(--mat-sys-primary, #0891b2);
+		font-size: 18px;
+		width: 18px;
+		height: 18px;
+	}
+
+	strong {
+		font-size: 14px;
+		font-weight: 700;
+		color: #0f172a;
+	}
+
+	span {
+		font-size: 12px;
+		color: #64748b;
+	}
+}
+
+.settings-page__result-date {
+	margin-left: auto;
+	font-size: 12px;
+	color: #64748b;
+}
+
 @media (min-width: 600px) {
 	.settings-page__achievements {
 		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

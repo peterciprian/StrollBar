@@ -6,6 +6,7 @@ import {
 	Achievement,
 	AdventureDetailResponse,
 	AdventureResultResponse,
+	AdventureResultWithStroll,
 	AuthResponse,
 	BulkImportStrollRequest,
 	BulkImportStrollResponse,
@@ -233,6 +234,10 @@ export class ApiClientService {
 
 	getAchievement(achievementId: string) {
 		return this.http.get<Achievement>(`${this.baseUrl}/achievements/${achievementId}`);
+	}
+
+	listAdventureResults() {
+		return this.http.get<AdventureResultWithStroll[]>(`${this.baseUrl}/achievements/results`);
 	}
 
 	// ─── Media ────────────────────────────────────────────────────────────────────

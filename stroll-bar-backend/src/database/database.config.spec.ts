@@ -15,7 +15,8 @@ describe('buildDatabaseOptions', () => {
 			'UserRoles1752929000000',
 			'QueryPerformanceIndexes1753000000000',
 			'AuditEvents1753100000000',
-			'StrollCategoryPriceLength1753200000000'
+			'StrollCategoryPriceLength1753200000000',
+			'AdventureResults1753300000000'
 		]);
 	});
 });

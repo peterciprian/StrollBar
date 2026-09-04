@@ -84,7 +84,7 @@
 			width: 135px;
 		}
 		.mat-column-actions {
-			width: 72px;
+			width: 140px;
 		}
 	}
 
@@ -156,6 +156,10 @@
 		&--error {
 			color: #b91c1c;
 		}
+	}
+
+	&__row--completed {
+		box-shadow: inset 3px 0 0 #16a34a;
 	}
 
 	&__status {
