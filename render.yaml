@@ -27,6 +27,8 @@ services:
             value: require
           - key: CORS_ORIGINS
             value: 'https://peterciprian.github.io,http://localhost:4200,http://127.0.0.1:4200'
+          - key: API_PUBLIC_BASE_URL
+            value: 'https://stroll-bar-n5zc.onrender.com/v1'
           - key: JWT_SECRET
             generateValue: true
           - key: JWT_ACCESS_TOKEN_TTL

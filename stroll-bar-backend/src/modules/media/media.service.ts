@@ -4,6 +4,7 @@ import {
 	AbortMultipartUploadCommand,
 	CompleteMultipartUploadCommand,
 	CreateMultipartUploadCommand,
+	GetObjectCommand,
 	HeadBucketCommand,
 	PutObjectCommand,
 	S3Client,
@@ -11,6 +12,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import { basename } from 'node:path';
 import { Repository } from 'typeorm';
@@ -28,7 +30,7 @@ import { NodeHttpHandler } from '@smithy/node-http-handler';
 export class MediaService {
 	private readonly logger = new Logger(MediaService.name);
 	private readonly bucketName: string;
-	private readonly publicBaseUrl: string;
+	private readonly mediaPublicBaseUrl: string;
 	private readonly uploadExpirySeconds: number;
 	private readonly allowedImageMimeTypes: string[];
 	private readonly allowedVideoMimeTypes: string[];
@@ -53,7 +55,7 @@ export class MediaService {
 		private readonly usersRepository: Repository<UserEntity>
 	) {
 		this.bucketName = this.requireConfig('S3_BUCKET_NAME');
-		this.publicBaseUrl = this.requireConfig('S3_PUBLIC_BASE_URL');
+		this.mediaPublicBaseUrl = this.resolveMediaPublicBaseUrl();
 		this.uploadExpirySeconds = Number(this.configService.get<string>('S3_PRESIGN_EXPIRES_SECONDS') ?? '900');
 		this.allowedImageMimeTypes = this.readMimeList('MEDIA_ALLOWED_IMAGE_MIME_TYPES', 'image/jpeg,image/png,image/webp,image/gif');
 		this.allowedVideoMimeTypes = this.readMimeList('MEDIA_ALLOWED_VIDEO_MIME_TYPES', 'video/mp4,video/webm,video/quicktime');
@@ -86,7 +88,7 @@ export class MediaService {
 
 		const links = await this.resolveLinks(dto, userId);
 		const objectKey = this.buildObjectKey(dto, userId);
-		const publicUrl = `${this.publicBaseUrl.replace(/\/$/, '')}/${objectKey}`;
+		const publicUrl = this.buildMediaAccessUrl(objectKey);
 		const asset = await this.mediaAssetsRepository.save(
 			this.mediaAssetsRepository.create({
 				uploadedByUserId: userId,
@@ -150,7 +152,7 @@ export class MediaService {
 
 		const links = await this.resolveLinks(dto, userId);
 		const objectKey = this.buildObjectKey(dto, userId);
-		const publicUrl = `${this.publicBaseUrl.replace(/\/$/, '')}/${objectKey}`;
+		const publicUrl = this.buildMediaAccessUrl(objectKey);
 
 		const multipartUpload = await this.sendS3Command<{ UploadId?: string }>(
 			new CreateMultipartUploadCommand({
@@ -297,6 +299,26 @@ export class MediaService {
 		};
 	}
 
+	async createPresignedDownloadRedirect(encodedKey: string) {
+		const objectKey = this.decodeObjectKey(encodedKey);
+		const asset = await this.mediaAssetsRepository.findOne({ where: { storageKey: objectKey } });
+
+		if (!asset || asset.uploadStatus === MediaUploadStatus.ABORTED || asset.uploadStatus === MediaUploadStatus.FAILED) {
+			throw new NotFoundException('Media asset not found.');
+		}
+
+		const url = await getSignedUrl(
+			this.s3Client,
+			new GetObjectCommand({
+				Bucket: this.bucketName,
+				Key: objectKey
+			}),
+			{ expiresIn: this.uploadExpirySeconds }
+		);
+
+		return { url, statusCode: 302 };
+	}
+
 	async checkStorageConnectivity() {
 		try {
 			await this.sendS3Command(new HeadBucketCommand({ Bucket: this.bucketName }));
@@ -340,6 +362,36 @@ export class MediaService {
 		const entitySegment = dto.entityId ? `${dto.entityId}/` : '';
 
 		return `${dto.purpose}/${userId}/${entitySegment}${timestamp.getUTCFullYear()}/${String(timestamp.getUTCMonth() + 1).padStart(2, '0')}/${String(timestamp.getUTCDate()).padStart(2, '0')}/${randomUUID()}-${safeFileName}`;
+	}
+
+	private buildMediaAccessUrl(objectKey: string): string {
+		const encodedKey = Buffer.from(objectKey, 'utf8').toString('base64url');
+		return `${this.mediaPublicBaseUrl}/media/files/${encodedKey}`;
+	}
+
+	private decodeObjectKey(encodedKey: string): string {
+		try {
+			const objectKey = Buffer.from(encodedKey, 'base64url').toString('utf8');
+			if (!objectKey || objectKey.includes('..')) {
+				throw new Error('Invalid media key.');
+			}
+
+			return objectKey;
+		} catch {
+			throw new BadRequestException('Invalid media key.');
+		}
+	}
+
+	private resolveMediaPublicBaseUrl(): string {
+		const configuredApiBaseUrl = this.configService.get<string>('MEDIA_PUBLIC_BASE_URL') ?? this.configService.get<string>('API_PUBLIC_BASE_URL');
+
+		if (configuredApiBaseUrl) {
+			return configuredApiBaseUrl.replace(/\/$/, '');
+		}
+
+		const baseUrl =
+			this.configService.get<string>('RENDER_EXTERNAL_URL') ?? `http://localhost:${this.configService.get<string>('PORT') ?? '3000'}`;
+		return `${baseUrl.replace(/\/$/, '')}/v1`;
 	}
 
 	private assertUploadPolicy(contentType: string, sizeBytes: number): void {
