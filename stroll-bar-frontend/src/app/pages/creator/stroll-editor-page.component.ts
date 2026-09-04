@@ -22,6 +22,8 @@ import { StrollDetailsEditorComponent } from './stroll-details-editor.component'
 import { StageListEditorComponent } from './stage-list-editor.component';
 import { StageDetailEditorComponent } from './stage-detail-editor.component';
 import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
+import { UnsavedChangesDialogComponent, UnsavedChangesDialogResult } from '../../shared/unsaved-changes-dialog.component';
+import { CanComponentDeactivate } from '../../core/guards/unsaved-changes.guard';
 
 @Component({
 	selector: 'app-stroll-editor-page',
@@ -38,7 +40,7 @@ import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog
 	templateUrl: './stroll-editor-page.component.html',
 	styleUrls: ['./stroll-editor-page.component.scss']
 })
-export class StrollEditorPageComponent implements OnInit {
+export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate {
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly strollsFeature = inject(StrollsFeatureService);
@@ -55,14 +57,46 @@ export class StrollEditorPageComponent implements OnInit {
 	protected saving = false;
 	protected saved = false;
 	protected saveError = false;
+	protected validationError = false;
+	private pristineSnapshot = '';
+	private allowNavigation = false;
 
 	ngOnInit(): void {
 		const strollId = this.route.snapshot.paramMap.get('strollId');
 		if (!strollId || strollId === 'new') {
 			this.loading.set(false);
+			this.markPristine();
 			return;
 		}
 		this.strollsFeature.getOwnedDetail(strollId).subscribe({ next: (detail) => this.applyDetail(detail), error: () => this.loading.set(false) });
+	}
+
+	async canDeactivate(): Promise<boolean> {
+		if (this.allowNavigation || !this.hasUnsavedChanges()) return true;
+		const result = await firstValueFrom(
+			this.dialog
+				.open<UnsavedChangesDialogComponent, void, UnsavedChangesDialogResult>(UnsavedChangesDialogComponent, {
+					disableClose: true,
+					maxWidth: 'calc(100vw - 32px)',
+					width: '420px'
+				})
+				.afterClosed()
+		);
+		if (result === 'discard') return true;
+		if (result !== 'save') return false;
+		return await this.saveChanges();
+	}
+
+	protected hasUnsavedChanges(): boolean {
+		return this.snapshot() !== this.pristineSnapshot;
+	}
+
+	private snapshot(): string {
+		return JSON.stringify({ stroll: this.stroll, stages: this.stages });
+	}
+
+	private markPristine(): void {
+		this.pristineSnapshot = this.snapshot();
 	}
 
 	protected get selectedStage(): EditableStage | null {
@@ -136,8 +170,14 @@ export class StrollEditorPageComponent implements OnInit {
 		if (stage) Object.assign(stage, location);
 	}
 
-	protected async saveChanges(): Promise<void> {
-		if (!this.stroll.name.trim() || !this.stroll.description.trim() || this.saving) return;
+	protected async saveChanges(): Promise<boolean> {
+		if (this.saving) return false;
+		this.validationError = !this.stroll.name.trim() || !this.stroll.description.trim();
+		if (this.validationError) {
+			this.saved = false;
+			this.saveError = false;
+			return false;
+		}
 		this.saving = true;
 		this.saved = false;
 		this.saveError = false;
@@ -145,8 +185,11 @@ export class StrollEditorPageComponent implements OnInit {
 			await this.saveStroll();
 			await this.saveStages();
 			this.saved = true;
+			this.markPristine();
+			return true;
 		} catch {
 			this.saveError = true;
+			return false;
 		} finally {
 			this.saving = false;
 		}
@@ -174,7 +217,12 @@ export class StrollEditorPageComponent implements OnInit {
 			const created = await firstValueFrom(this.strollsFeature.create(payload));
 			this.strollId = created.id;
 			this.isNewStroll = false;
-			await this.router.navigate(['/creator/strolls', created.id], { replaceUrl: true });
+			this.allowNavigation = true;
+			try {
+				await this.router.navigate(['/creator/strolls', created.id], { replaceUrl: true });
+			} finally {
+				this.allowNavigation = false;
+			}
 			return;
 		}
 		await firstValueFrom(this.strollsFeature.update(this.strollId!, payload));
@@ -232,6 +280,7 @@ export class StrollEditorPageComponent implements OnInit {
 			.map((stage) => this.toEditableStage(stage));
 		this.selectedStageId = this.stages[0]?.id ?? null;
 		this.loading.set(false);
+		this.markPristine();
 	}
 
 	private toEditableStage(stage: Stage): EditableStage {

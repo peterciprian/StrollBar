@@ -10,6 +10,10 @@
 	"COMMON": {
 		"CANCEL": "Cancel",
 		"DELETE": "Delete",
+		"SAVE": "Save",
+		"DISCARD": "Discard",
+		"UNSAVED_CHANGES_TITLE": "Unsaved changes",
+		"UNSAVED_CHANGES_MESSAGE": "You have unsaved changes. Do you want to save them before leaving?",
 		"DELETE_MEDIA_TITLE": "Delete media?",
 		"DELETE_MEDIA_MESSAGE": "Are you sure you want to remove this {{itemName}}?",
 		"OFFLINE_MESSAGE": "You are offline. Cached public content remains available.",
@@ -383,6 +387,7 @@
 			"CREATE_STROLL": "Create stroll",
 			"SAVED": "Changes saved.",
 			"SAVE_ERROR": "Could not save changes. Please try again.",
+			"VALIDATION_ERROR": "Please fill in the stroll name and description before saving.",
 			"TITLE_LABEL": "Stage Title",
 			"ADDRESS_LABEL": "Street Address",
 			"LATITUDE_LABEL": "Latitude",

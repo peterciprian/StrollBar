@@ -17,6 +17,7 @@ import { SettingsAnalyticsComponent } from './pages/settings/analytics/settings-
 import { SettingsPreferencesComponent } from './pages/settings/preferences/settings-preferences.component';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { unsavedChangesGuard } from './core/guards/unsaved-changes.guard';
 import { LegalPageComponent } from './pages/legal/legal-page.component';
 import { StrollEditorPageComponent } from './pages/creator/stroll-editor-page.component';
 import { AdventureResultPageComponent } from './pages/progress/adventure-result-page.component';
@@ -36,8 +37,8 @@ export const routes: Routes = [
 	{ path: 'admin/stroll-list', component: AdminStrollListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
-	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard] },
-	{ path: 'creator/strolls/:strollId', component: StrollEditorPageComponent, canActivate: [authGuard] },
+	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },
+	{ path: 'creator/strolls/:strollId', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },
 	{ path: 'users/:userId', component: CreatorProfilePageComponent, canActivate: [authGuard] },
 	{
 		path: 'settings',

@@ -35,6 +35,11 @@
 			@if (saveError) {
 				<p class="stroll-editor-page__error"><mat-icon>error_outline</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR' | translate }}</p>
 			}
+			@if (validationError) {
+				<p class="stroll-editor-page__error">
+					<mat-icon>error_outline</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.VALIDATION_ERROR' | translate }}
+				</p>
+			}
 			<button mat-flat-button color="primary" [disabled]="saving" (click)="saveChanges()">
 				<mat-icon>save</mat-icon
 				>{{ (isNewStroll ? 'SCREENS.ADMIN_STATION_EDITOR.CREATE_STROLL' : 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES') | translate }}

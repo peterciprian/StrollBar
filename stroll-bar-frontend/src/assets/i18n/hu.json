@@ -10,6 +10,10 @@
 	"COMMON": {
 		"CANCEL": "Mégse",
 		"DELETE": "Törlés",
+		"SAVE": "Mentés",
+		"DISCARD": "Elvetés",
+		"UNSAVED_CHANGES_TITLE": "Nem mentett módosítások",
+		"UNSAVED_CHANGES_MESSAGE": "Nem mentett módosításaid vannak. Szeretnéd menteni őket kilépés előtt?",
 		"DELETE_MEDIA_TITLE": "Törlöd a médiát?",
 		"DELETE_MEDIA_MESSAGE": "Biztosan eltávolítod ezt a(z) {{itemName}} fájlt?",
 		"OFFLINE_MESSAGE": "Offline vagy. A gyorsítótárazott nyilvános tartalmak továbbra is elérhetők.",
@@ -383,6 +387,7 @@
 			"CREATE_STROLL": "Séta létrehozása",
 			"SAVED": "Változtatások elmentve.",
 			"SAVE_ERROR": "Nem sikerült menteni a változtatásokat. Próbáld újra.",
+			"VALIDATION_ERROR": "Mentés előtt töltsd ki a séta nevét és leírását.",
 			"TITLE_LABEL": "Állomás neve",
 			"ADDRESS_LABEL": "Utca, házszám",
 			"LATITUDE_LABEL": "Szélességi fok",
