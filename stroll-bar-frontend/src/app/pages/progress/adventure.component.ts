@@ -10,7 +10,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslatePipe } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { MapPreviewComponent } from '../../components/map-preview/map-preview.component';
+import { StageLocationMapComponent } from '../../pages/creator/stage-location-map.component';
 import { MediaGalleryComponent } from '../../components/media-gallery/media-gallery.component';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage } from '../../core/api/models';
@@ -28,7 +28,7 @@ import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage }
 		MatButtonModule,
 		MatProgressBarModule,
 		TranslatePipe,
-		MapPreviewComponent,
+		StageLocationMapComponent,
 		MediaGalleryComponent
 	],
 	templateUrl: './adventure.component.html',
@@ -41,7 +41,7 @@ export class AdventureScreenComponent implements OnInit {
 	private readonly cdr = inject(ChangeDetectorRef);
 	private readonly destroyRef = inject(DestroyRef);
 
-	protected readonly adventureId = this.route.snapshot.paramMap.get('adventureId') ?? '';
+	protected adventureId = this.route.snapshot.paramMap.get('adventureId') ?? '';
 
 	protected loading = true;
 	protected currentStage: Stage | null = null;
@@ -53,7 +53,11 @@ export class AdventureScreenComponent implements OnInit {
 	protected feedbackCorrect = false;
 
 	ngOnInit(): void {
-		this.loadAdventure();
+		// Same route path is reused across adventures, so react to param changes instead of just the initial snapshot.
+		this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+			this.adventureId = params.get('adventureId') ?? '';
+			this.loadAdventure();
+		});
 	}
 
 	protected get progressPercent(): number {

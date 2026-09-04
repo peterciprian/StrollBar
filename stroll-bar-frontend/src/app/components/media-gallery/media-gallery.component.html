@@ -1,10 +1,44 @@
 <section class="media-gallery" [class.media-gallery--single]="variant === 'single'">
-	@if (captions?.length) {
-		@for (caption of captions; track caption) {
-			<figure class="media-gallery__tile">
-				<mat-icon>photo_camera</mat-icon>
-				<figcaption>{{ caption }}</figcaption>
+	@if (items.length) {
+		@if (variant === 'single') {
+			<figure class="media-gallery__stage" (click)="openLightbox(activeIndex)">
+				@if (activeItem?.type === 'video') {
+					<video [src]="activeItem!.url" muted playsinline preload="metadata"></video>
+				} @else {
+					<img [src]="activeItem?.url" alt="" loading="lazy" />
+				}
+				<span class="media-gallery__zoom"><mat-icon>zoom_in</mat-icon></span>
 			</figure>
+			@if (items.length > 1) {
+				<div class="media-gallery__thumbs">
+					@for (item of items; track item.url; let i = $index) {
+						<button
+							type="button"
+							class="media-gallery__thumb"
+							[class.media-gallery__thumb--active]="i === activeIndex"
+							(click)="select(i)"
+						>
+							@if (item.type === 'video') {
+								<video [src]="item.url" muted playsinline preload="metadata"></video>
+								<mat-icon class="media-gallery__thumb-icon">play_circle</mat-icon>
+							} @else {
+								<img [src]="item.url" alt="" loading="lazy" />
+							}
+						</button>
+					}
+				</div>
+			}
+		} @else {
+			@for (item of items; track item.url; let i = $index) {
+				<figure class="media-gallery__tile" (click)="openLightbox(i)">
+					@if (item.type === 'video') {
+						<video [src]="item.url" muted playsinline preload="metadata"></video>
+						<mat-icon class="media-gallery__tile-icon">play_circle</mat-icon>
+					} @else {
+						<img [src]="item.url" alt="" loading="lazy" />
+					}
+				</figure>
+			}
 		}
 	} @else {
 		<figure class="media-gallery__tile media-gallery__tile--empty">
@@ -13,3 +47,31 @@
 		</figure>
 	}
 </section>
+
+@if (lightboxOpen && activeItem) {
+	<div class="media-gallery__lightbox" (click)="closeLightbox()">
+		<button type="button" class="media-gallery__lightbox-close" (click)="closeLightbox()">
+			<mat-icon>close</mat-icon>
+		</button>
+
+		@if (items.length > 1) {
+			<button type="button" class="media-gallery__lightbox-nav media-gallery__lightbox-nav--prev" (click)="showPrevious($event)">
+				<mat-icon>chevron_left</mat-icon>
+			</button>
+		}
+
+		<div class="media-gallery__lightbox-content" (click)="$event.stopPropagation()">
+			@if (activeItem.type === 'video') {
+				<video [src]="activeItem.url" controls autoplay playsinline></video>
+			} @else {
+				<img [src]="activeItem.url" alt="" />
+			}
+		</div>
+
+		@if (items.length > 1) {
+			<button type="button" class="media-gallery__lightbox-nav media-gallery__lightbox-nav--next" (click)="showNext($event)">
+				<mat-icon>chevron_right</mat-icon>
+			</button>
+		}
+	</div>
+}

@@ -78,15 +78,21 @@ export class AdventuresService {
 		const strollIds = [...new Set(adventures.map((adventure) => adventure.strollId))];
 		const [strolls, stages] = await Promise.all([
 			this.strollsRepository.find({ where: { id: In(strollIds) } }),
-			this.stagesRepository.find({ where: { strollId: In(strollIds) } })
+			this.stagesRepository.find({ where: { strollId: In(strollIds) }, order: { orderIndex: 'ASC' } })
 		]);
 		const strollsById = new Map(strolls.map((stroll) => [stroll.id, stroll]));
-		const stagesByPosition = new Map(stages.map((stage) => [`${stage.strollId}:${stage.orderIndex}`, stage]));
+		const stagesByStroll = new Map<string, StageEntity[]>();
+		for (const stage of stages) {
+			const bucket = stagesByStroll.get(stage.strollId) ?? [];
+			bucket.push(stage);
+			stagesByStroll.set(stage.strollId, bucket);
+		}
 
 		return adventures.map((adventure) => ({
 			adventure,
 			stroll: strollsById.get(adventure.strollId) ?? null,
-			currentStage: stagesByPosition.get(`${adventure.strollId}:${adventure.currentStageIndex}`) ?? null
+			// currentStageIndex is a 1-based ordinal position, not the raw orderIndex column value.
+			currentStage: stagesByStroll.get(adventure.strollId)?.[adventure.currentStageIndex - 1] ?? null
 		}));
 	}
 
@@ -252,16 +258,13 @@ export class AdventuresService {
 		strollId: string,
 		stageIndex: number
 	): Promise<{ stroll: StrollEntity | null; currentStage: StageEntity | null }> {
-		const [stroll, currentStage] = await Promise.all([
+		const [stroll, stages] = await Promise.all([
 			this.strollsRepository.findOne({ where: { id: strollId } }),
-			this.stagesRepository.findOne({
-				where: {
-					strollId,
-					orderIndex: stageIndex
-				}
-			})
+			this.stagesRepository.find({ where: { strollId }, order: { orderIndex: 'ASC' } })
 		]);
 
-		return { stroll, currentStage };
+		// stageIndex is a 1-based ordinal position, not the raw orderIndex column value,
+		// which may start at 0 or 1 depending on how the stroll's stages were created.
+		return { stroll, currentStage: stages[stageIndex - 1] ?? null };
 	}
 }

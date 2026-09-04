@@ -10,6 +10,7 @@ import * as L from 'leaflet';
 export class StageLocationMapComponent implements AfterViewInit, OnChanges, OnDestroy {
 	@Input() latitude = 47.4979;
 	@Input() longitude = 19.0402;
+	@Input() readonly = false;
 	@Output() locationSelected = new EventEmitter<{ latitude: number; longitude: number }>();
 	@ViewChild('map') private mapElement?: ElementRef<HTMLDivElement>;
 	private map: L.Map | null = null;
@@ -31,19 +32,21 @@ export class StageLocationMapComponent implements AfterViewInit, OnChanges, OnDe
 		if (!this.mapElement) return;
 		const location: L.LatLngExpression = [this.latitude, this.longitude];
 		if (!this.map) {
-			this.map = L.map(this.mapElement.nativeElement).setView(location, 15);
+			this.map = L.map(this.mapElement.nativeElement, { dragging: !this.readonly, scrollWheelZoom: !this.readonly }).setView(location, 15);
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' }).addTo(this.map);
 			this.resizeObserver = new ResizeObserver(() => this.map?.invalidateSize({ pan: false }));
 			this.resizeObserver.observe(this.mapElement.nativeElement);
-			this.map.on('click', (event: L.LeafletMouseEvent) => this.select(event.latlng.lat, event.latlng.lng));
 			this.marker = L.marker(location, {
-				draggable: true,
+				draggable: !this.readonly,
 				icon: L.divIcon({ className: 'stage-location-marker', html: '<span></span>', iconSize: [18, 18], iconAnchor: [9, 9] })
 			}).addTo(this.map);
-			this.marker.on('dragend', () => {
-				const position = this.marker?.getLatLng();
-				if (position) this.select(position.lat, position.lng);
-			});
+			if (!this.readonly) {
+				this.map.on('click', (event: L.LeafletMouseEvent) => this.select(event.latlng.lat, event.latlng.lng));
+				this.marker.on('dragend', () => {
+					const position = this.marker?.getLatLng();
+					if (position) this.select(position.lat, position.lng);
+				});
+			}
 			this.refreshMapSize();
 		} else {
 			this.map.setView(location);

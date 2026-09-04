@@ -14,6 +14,21 @@
 		min-height: 0;
 	}
 
+	&__side {
+		flex: none;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		min-width: 0;
+	}
+
+	&__gallery {
+		flex: none;
+		border-radius: 16px;
+		overflow: hidden;
+		box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+	}
+
 	&__map {
 		flex: none;
 		min-height: 280px;
@@ -21,6 +36,18 @@
 		border-radius: 16px;
 		overflow: hidden;
 		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+
+		app-stage-location-map {
+			display: block;
+			height: 100%;
+		}
+
+		::ng-deep .stage-location-map {
+			height: 100%;
+			margin: 0;
+			border: none;
+			border-radius: 0;
+		}
 	}
 
 	&__station {
@@ -180,12 +207,22 @@
 			min-height: 520px;
 		}
 
-		&__map,
+		&__side,
 		&__station {
 			flex: 0 0 50%;
 		}
 
+		&__side {
+			min-height: 0;
+			overflow-y: auto;
+		}
+
+		&__gallery {
+			flex: 0 0 auto;
+		}
+
 		&__map {
+			flex: 1 1 auto;
 			min-height: 0;
 			border-radius: 20px;
 		}

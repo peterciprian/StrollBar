@@ -5,8 +5,18 @@
 		<p class="adventure__loading">{{ 'SCREENS.ADVENTURE.LOADING' | translate }}</p>
 	} @else {
 		<div class="adventure__split">
-			<div class="adventure__map">
-				<app-map-preview variant="full" [targetLabel]="currentStage?.name ?? ''"></app-map-preview>
+			<div class="adventure__side">
+				<div class="adventure__gallery">
+					<app-media-gallery variant="single" [images]="currentStage?.imageUrls" [videos]="currentStage?.videoUrls"></app-media-gallery>
+				</div>
+
+				<div class="adventure__map">
+					<app-stage-location-map
+						[latitude]="currentStage?.latitude ?? 47.4979"
+						[longitude]="currentStage?.longitude ?? 19.0402"
+						[readonly]="true"
+					></app-stage-location-map>
+				</div>
 			</div>
 
 			<div class="adventure__station">
@@ -19,8 +29,6 @@
 						<p class="adventure__address"><mat-icon>near_me</mat-icon>{{ currentStage!.address }}</p>
 					}
 				</div>
-
-				<app-media-gallery variant="single" [captions]="['SCREENS.ADVENTURE.CLUE_PHOTO' | translate]"></app-media-gallery>
 
 				<div class="adventure__story">
 					<p>{{ currentStage?.description }}</p>
