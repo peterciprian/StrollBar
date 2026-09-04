@@ -10,6 +10,7 @@ import { userReducer, fetchMe } from './features/auth/auth.state';
 import { AuthEffects } from './features/auth/auth.effects';
 import { authInterceptor } from './core/services/auth.interceptor';
 import { errorNotificationInterceptor } from './core/services/error-notification.interceptor';
+import { TokenStorageService } from './core/services/token-storage.service';
 import { map } from 'rxjs/operators';
 import { AppErrorHandler } from './core/services/app-error-handler';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -35,6 +36,8 @@ export const appConfig: ApplicationConfig = {
 		}),
 		{ provide: ErrorHandler, useClass: AppErrorHandler },
 		provideAppInitializer(() => {
+			// Without a stored token /auth/me can only answer 401, so skip the round trip entirely.
+			if (!inject(TokenStorageService).getAccessToken()) return;
 			inject(Store).dispatch(fetchMe());
 		})
 	]
