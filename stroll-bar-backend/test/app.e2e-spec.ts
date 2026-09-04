@@ -133,6 +133,7 @@ describe('StrollBar API (e2e)', () => {
 		process.env.S3_ACCESS_KEY_ID = 'test-access-key';
 		process.env.S3_SECRET_ACCESS_KEY = 'test-secret-key';
 		process.env.S3_PUBLIC_BASE_URL = 'https://cdn.test.example.com/strollbar-media';
+		process.env.MEDIA_PUBLIC_BASE_URL = 'https://api.test.example.com/v1';
 		process.env.S3_FORCE_PATH_STYLE = 'true';
 		process.env.EMAIL_DELIVERY_ENABLED = 'false';
 		// Set explicitly so this suite doesn't depend on NODE_ENV/.env.test being picked up correctly by ConfigModule.
@@ -469,7 +470,8 @@ describe('StrollBar API (e2e)', () => {
 		expect(mediaResponse.body.objectKey).toContain('stroll/');
 		expect(mediaResponse.body.assetId).toBeDefined();
 		expect(mediaResponse.body.uploadUrl).toContain('127.0.0.1:9000');
-		expect(mediaResponse.body.publicUrl).toContain('https://cdn.test.example.com/strollbar-media/');
+		// Media is served through the API redirect endpoint, not straight from the bucket.
+		expect(mediaResponse.body.publicUrl).toContain('https://api.test.example.com/v1/media/files/');
 		expect(mediaResponse.body.method).toBe('PUT');
 	});
 
