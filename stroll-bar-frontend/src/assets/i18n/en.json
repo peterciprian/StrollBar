@@ -278,7 +278,10 @@
 			"CONGRATULATIONS": "Congratulations! Every stage of this stroll is complete.",
 			"TIME": "Time spent",
 			"STAGES": "Stages completed",
-			"DISTANCE": "Route length"
+			"DISTANCE": "Route length",
+			"DURATION_MS": "{{m}}:{{s}}",
+			"DURATION_HMS": "{{h}}h {{m}} min {{s}}s",
+			"DURATION_DHMS": "{{d}}d {{h}}h {{m}} min {{s}}s"
 		},
 		"ADMIN_STROLL_LIST": {
 			"HEADER_TITLE": "Manage Strolls",

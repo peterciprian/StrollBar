@@ -122,6 +122,15 @@ export class AdventuresService {
 			this.strollsRepository.findOne({ where: { id: adventure.strollId } }),
 			this.stagesRepository.find({ where: { strollId: adventure.strollId }, order: { orderIndex: 'ASC' } })
 		]);
+
+		// Viewing the result page (e.g. via the "Finish" shortcut) should reflect completion
+		// even if the adventure was never marked completed through a correct final answer.
+		if (adventure.progressStatus !== AdventureProgressStatus.COMPLETED && adventure.currentStageIndex >= stages.length) {
+			adventure.progressStatus = AdventureProgressStatus.COMPLETED;
+			adventure.completionDateTime ??= new Date();
+			await this.adventuresRepository.save(adventure);
+		}
+
 		const completedAt = adventure.completionDateTime ?? new Date();
 		const elapsedSeconds = adventure.startDateTime
 			? Math.max(0, Math.round((completedAt.getTime() - adventure.startDateTime.getTime()) / 1000))

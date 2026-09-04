@@ -1,9 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { AdventureResultResponse } from '../../core/api/models';
 
@@ -18,6 +18,8 @@ export class AdventureResultPageComponent implements OnInit {
 	private readonly route = inject(ActivatedRoute);
 	private readonly router = inject(Router);
 	private readonly adventuresFeature = inject(AdventuresFeatureService);
+	private readonly cdr = inject(ChangeDetectorRef);
+	private readonly translate = inject(TranslateService);
 	protected loading = true;
 	protected result: AdventureResultResponse | null = null;
 	protected error = false;
@@ -28,17 +30,30 @@ export class AdventureResultPageComponent implements OnInit {
 			next: (result) => {
 				this.result = result;
 				this.loading = false;
+				this.cdr.detectChanges();
 			},
 			error: () => {
 				this.error = true;
 				this.loading = false;
+				this.cdr.detectChanges();
 			}
 		});
 	}
 
-	protected formatTime(seconds: number): string {
-		const minutes = Math.floor(seconds / 60);
-		return `${minutes}:${String(seconds % 60).padStart(2, '0')}`;
+	protected formatTime(totalSeconds: number): string {
+		const days = Math.floor(totalSeconds / 86400);
+		const hours = Math.floor((totalSeconds % 86400) / 3600);
+		const minutes = Math.floor((totalSeconds % 3600) / 60);
+		const seconds = totalSeconds % 60;
+		const pad = (value: number) => String(value).padStart(2, '0');
+
+		if (days > 0) {
+			return this.translate.instant('SCREENS.ADVENTURE_RESULT.DURATION_DHMS', { d: days, h: hours, m: minutes, s: pad(seconds) });
+		}
+		if (hours > 0) {
+			return this.translate.instant('SCREENS.ADVENTURE_RESULT.DURATION_HMS', { h: hours, m: minutes, s: pad(seconds) });
+		}
+		return this.translate.instant('SCREENS.ADVENTURE_RESULT.DURATION_MS', { m: minutes, s: pad(seconds) });
 	}
 
 	protected backToAdventures(): void {

@@ -278,7 +278,10 @@
 			"CONGRATULATIONS": "Gratulálunk! A séta minden szakaszát teljesítetted.",
 			"TIME": "Eltelt idő",
 			"STAGES": "Teljesített szakaszok",
-			"DISTANCE": "Útvonal hossza"
+			"DISTANCE": "Útvonal hossza",
+			"DURATION_MS": "{{m}}:{{s}}",
+			"DURATION_HMS": "{{h}} óra {{m}} perc {{s}} másodperc",
+			"DURATION_DHMS": "{{d}} nap {{h}} óra {{m}} perc {{s}} másodperc"
 		},
 		"ADMIN_STROLL_LIST": {
 			"HEADER_TITLE": "Túrák kezelése",
