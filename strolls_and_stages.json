@@ -9,7 +9,7 @@
 			"description": "Rejtett középkori utcák, elfeledett kertek és a budai oldal misztikus panorámái a fősodorbeli turistautakról letérve.",
 			"proposerText": "Tarts velünk Buda legrejtettebb szegleteibe, ahol nincsenek turistacsoportok!",
 			"mediaUrls": {
-				"imageUrls": ["https://images.unsplash.com/photo-1563804860010-85fbf80e4624"]
+				"imageUrls": ["https://images.unsplash.com/photo-1469474968028-56623f02e42e"]
 			},
 			"publicityFlag": "public",
 			"stageCount": 8,
@@ -142,7 +142,7 @@
 				"https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80",
 				"https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1200&q=80"
 			],
-			"videoUrls": ["https://storage.googleapis.com/coverr-main/mp4/Mt_Baker.mp4"],
+			"videoUrls": ["https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"],
 			"address": "Budapest, Gül Baba u., 1023",
 			"latitude": 47.5158,
 			"longitude": 19.0347,

@@ -35,7 +35,7 @@
 			<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.CATEGORY_LABEL' | translate }}</mat-label>
 			<mat-select [(ngModel)]="stroll.category" name="strollCategory">
 				@for (category of categories; track category) {
-					<mat-option [value]="category">{{ category }}</mat-option>
+					<mat-option [value]="category">{{ 'SCREENS.CATEGORY_' + category | translate }}</mat-option>
 				}
 			</mat-select>
 		</mat-form-field>
@@ -46,7 +46,11 @@
 			</mat-form-field>
 			<mat-form-field appearance="outline">
 				<mat-label>{{ 'SCREENS.ADMIN_STATION_EDITOR.PRICE_CURRENCY_LABEL' | translate }}</mat-label>
-				<input matInput maxlength="3" [(ngModel)]="stroll.priceCurrency" name="priceCurrency" />
+				<mat-select [(ngModel)]="stroll.priceCurrency" name="priceCurrency" [disabled]="true">
+					@for (currency of currencies; track currency) {
+						<mat-option [value]="currency">{{ currency }}</mat-option>
+					}
+				</mat-select>
 			</mat-form-field>
 		}
 	</div>

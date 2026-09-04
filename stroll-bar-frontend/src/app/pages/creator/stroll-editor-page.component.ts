@@ -165,7 +165,7 @@ export class StrollEditorPageComponent implements OnInit {
 			publicityFlag: this.stroll.publicity,
 			price:
 				this.stroll.publicity === 'private' && this.stroll.priceAmount !== null
-					? { amount: this.stroll.priceAmount, currency: this.stroll.priceCurrency }
+					? { amount: this.stroll.priceAmount, currency: this.stroll.priceCurrency || 'HUF' }
 					: null,
 			imageUrls: this.stroll.imageUrls,
 			videoUrls: this.stroll.videoUrls

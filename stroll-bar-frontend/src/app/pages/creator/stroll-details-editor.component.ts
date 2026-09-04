@@ -23,4 +23,6 @@ export class StrollDetailsEditorComponent {
 	@Input() publicityFlags: StrollPublicityFlag[] = [];
 	@Input() categories: StrollCategory[] = [];
 	@Output() mediaChange = new EventEmitter<MediaChange>();
+
+	protected readonly currencies = ['HUF', 'EUR', 'USD'];
 }
