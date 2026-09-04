@@ -23,6 +23,28 @@
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.DISTANCE' | translate }}</span>
 			</div>
 		</div>
+		@if (canReview) {
+			<section class="adventure-result__review">
+				<h2>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_TITLE' | translate }}</h2>
+				<p class="adventure-result__review-hint">{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_HINT' | translate }}</p>
+				<app-star-rating [value]="reviewRating" (valueChange)="reviewRating = $event"></app-star-rating>
+				<mat-form-field appearance="outline" class="adventure-result__review-comment">
+					<mat-label>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_COMMENT_LABEL' | translate }}</mat-label>
+					<textarea matInput rows="3" maxlength="1000" [(ngModel)]="reviewComment"></textarea>
+				</mat-form-field>
+				@if (reviewSaved) {
+					<p class="adventure-result__review-saved">
+						<mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_SAVED' | translate }}
+					</p>
+				}
+				@if (reviewError) {
+					<p class="adventure-result__error">{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_ERROR' | translate }}</p>
+				}
+				<button mat-stroked-button color="primary" [disabled]="!reviewRating || reviewSaving" (click)="submitReview()">
+					<mat-icon>rate_review</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_SUBMIT' | translate }}
+				</button>
+			</section>
+		}
 		<button mat-flat-button color="primary" (click)="backToAdventures()">
 			<mat-icon>dashboard</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.BACK' | translate }}
 		</button>

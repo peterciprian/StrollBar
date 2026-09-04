@@ -67,6 +67,38 @@
 .adventure-result__error {
 	color: #b91c1c;
 }
+.adventure-result__review {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	margin: 0 0 32px;
+	padding: 24px 16px;
+	border: 1px solid #e2e8f0;
+	border-radius: 12px;
+	background: #fff;
+}
+.adventure-result__review h2 {
+	margin: 0;
+	font-size: 20px;
+	color: #0f172a;
+}
+.adventure-result__review-hint {
+	margin: 0;
+	color: #64748b;
+	font-size: 14px;
+}
+.adventure-result__review-comment {
+	width: 100%;
+	max-width: 480px;
+}
+.adventure-result__review-saved {
+	align-items: center;
+	color: #047857;
+	display: inline-flex;
+	gap: 6px;
+	margin: 0;
+}
 @media (min-width: 600px) {
 	.adventure-result__stats {
 		grid-template-columns: repeat(3, 1fr);

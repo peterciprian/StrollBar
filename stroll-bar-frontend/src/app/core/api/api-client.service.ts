@@ -18,6 +18,7 @@ import {
 	CreatePresignedUploadRequest,
 	CreateStageRequest,
 	CreateStrollRequest,
+	CreateStrollReviewRequest,
 	DeleteStageResponse,
 	DeleteStrollResponse,
 	InitiateMultipartUploadResponse,
@@ -42,6 +43,8 @@ import {
 	Stroll,
 	StrollDetailResponse,
 	StrollListResponse,
+	StrollReview,
+	StrollReviewListResponse,
 	SubmitStageAnswerRequest,
 	SubmitStageAnswerResponse,
 	UnlockStrollRequest,
@@ -170,6 +173,20 @@ export class ApiClientService {
 
 	deleteStroll(strollId: string) {
 		return this.http.delete<DeleteStrollResponse>(`${this.baseUrl}/strolls/${strollId}`);
+	}
+
+	// ─── Stroll reviews ───────────────────────────────────────────────────
+
+	listStrollReviews(strollId: string) {
+		return this.http.get<StrollReviewListResponse>(`${this.baseUrl}/strolls/${strollId}/reviews`);
+	}
+
+	getMyStrollReview(strollId: string) {
+		return this.http.get<StrollReview | null>(`${this.baseUrl}/strolls/${strollId}/reviews/mine`);
+	}
+
+	submitStrollReview(strollId: string, body: CreateStrollReviewRequest) {
+		return this.http.post<StrollReview>(`${this.baseUrl}/strolls/${strollId}/reviews`, body);
 	}
 
 	// ─── Stages ────────────────────────────────────────────────────────────────

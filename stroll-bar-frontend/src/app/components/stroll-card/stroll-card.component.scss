@@ -81,6 +81,15 @@
 		font-weight: 600;
 	}
 
+	&__rating {
+		align-items: center;
+		color: var(--mat-sys-on-surface-variant, #616161);
+		display: flex;
+		font-size: 12px;
+		gap: 6px;
+		margin-bottom: 8px;
+	}
+
 	&__meta {
 		display: flex;
 		flex-wrap: wrap;

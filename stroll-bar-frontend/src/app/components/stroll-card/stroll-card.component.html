@@ -13,6 +13,14 @@
 		</div>
 		<mat-card-content>
 			<h3 class="stroll-card__title">{{ t.name }}</h3>
+			<div class="stroll-card__rating">
+				<app-star-rating [value]="t.ratingAverage" [readonly]="true"></app-star-rating>
+				@if (t.ratingCount) {
+					<span>{{ t.ratingAverage | number: '1.1-1' }} ({{ t.ratingCount }})</span>
+				} @else {
+					<span>{{ 'SCREENS.STROLL_BROWSER.NO_RATINGS' | translate }}</span>
+				}
+			</div>
 			<div class="stroll-card__meta">
 				<span class="stroll-card__meta-item"
 					><mat-icon>straighten</mat-icon>{{ t.length | number: '1.1-2' }} {{ 'COMMON.KM_SUFFIX' | translate }}</span

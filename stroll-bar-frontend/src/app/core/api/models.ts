@@ -155,6 +155,8 @@ export interface Stroll {
 	price?: StrollPrice | null;
 	length: number;
 	stageCount: number;
+	ratingAverage: number;
+	ratingCount: number;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -171,14 +173,41 @@ export interface StrollSummary {
 	price?: StrollPrice | null;
 	length: number;
 	stageCount: number;
+	ratingAverage: number;
+	ratingCount: number;
 }
+
+export interface StrollReview {
+	id: string;
+	strollId: string;
+	userId: string;
+	authorName: string;
+	rating: number;
+	comment?: string | null;
+	createdAt: string;
+}
+
+export interface StrollReviewListResponse {
+	items: StrollReview[];
+	ratingAverage: number;
+	ratingCount: number;
+}
+
+export interface CreateStrollReviewRequest {
+	rating: number;
+	comment?: string;
+}
+
+export type StrollSortOption = 'newest' | 'most_popular' | 'top_rated' | 'nearest';
 
 export interface ListStrollsQuery {
 	search?: string;
 	labels?: string;
 	authorId?: string;
 	city?: string;
-	sortBy?: 'newest' | 'most_used' | 'best_rated';
+	sortBy?: StrollSortOption;
+	userLatitude?: number;
+	userLongitude?: number;
 	page?: number;
 	limit?: number;
 }

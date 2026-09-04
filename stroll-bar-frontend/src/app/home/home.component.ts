@@ -29,7 +29,7 @@ export class HomeComponent implements OnInit {
 
 	private loadFeaturedStrolls(): void {
 		// Load featured strolls from the API and keep the page honest when the service is unavailable.
-		this.strollsFeature.browse({ sortBy: 'most_used', limit: 3 }).subscribe({
+		this.strollsFeature.browse({ sortBy: 'most_popular', limit: 3 }).subscribe({
 			next: (response) => {
 				this.strollsState.setSuccess(response?.items ?? []);
 			},

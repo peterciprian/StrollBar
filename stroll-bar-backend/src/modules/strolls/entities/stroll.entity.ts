@@ -88,6 +88,12 @@ export class StrollEntity {
 	@Column({ type: 'int', default: 0 })
 	stageCount!: number;
 
+	@Column({ type: DATABASE_FLOAT_COLUMN_TYPE, default: 0 })
+	ratingAverage!: number;
+
+	@Column({ type: 'int', default: 0 })
+	ratingCount!: number;
+
 	@CreateDateColumn({ type: DATABASE_DATE_COLUMN_TYPE })
 	createdAt!: Date;
 

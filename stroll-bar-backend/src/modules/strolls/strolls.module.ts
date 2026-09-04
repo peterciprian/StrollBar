@@ -3,16 +3,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { StrollsController } from './strolls.controller';
 import { StrollsService } from './strolls.service';
+import { StrollReviewsController } from './stroll-reviews.controller';
+import { StrollReviewsService } from './stroll-reviews.service';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollEntity } from './entities/stroll.entity';
+import { StrollReviewEntity } from './entities/stroll-review.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([StrollEntity, StageEntity, UserEntity, AdventureEntity])],
-	controllers: [StrollsController],
-	providers: [StrollsService, RedisCacheService],
+	imports: [TypeOrmModule.forFeature([StrollEntity, StrollReviewEntity, StageEntity, UserEntity, AdventureEntity])],
+	controllers: [StrollsController, StrollReviewsController],
+	providers: [StrollsService, StrollReviewsService, RedisCacheService],
 	exports: [StrollsService]
 })
 export class StrollsModule {}

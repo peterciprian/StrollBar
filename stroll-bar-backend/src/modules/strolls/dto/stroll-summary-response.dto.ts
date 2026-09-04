@@ -39,4 +39,10 @@ export class StrollSummaryResponseDto {
 
 	@ApiProperty({ example: 5 })
 	stageCount!: number;
+
+	@ApiProperty({ example: 4.5, description: 'Average of all submitted reviews, 0 when the stroll has none.' })
+	ratingAverage!: number;
+
+	@ApiProperty({ example: 12 })
+	ratingCount!: number;
 }

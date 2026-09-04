@@ -5,13 +5,14 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { StrollCategory, StrollSummary } from '../../core/api/models';
+import { StarRatingComponent } from '../../shared/star-rating.component';
 
 export type StrollCardData = StrollSummary;
 
 @Component({
 	selector: 'app-stroll-card',
 	standalone: true,
-	imports: [CommonModule, MatCardModule, MatIconModule, TranslatePipe],
+	imports: [CommonModule, MatCardModule, MatIconModule, TranslatePipe, StarRatingComponent],
 	templateUrl: './stroll-card.component.html',
 	styleUrls: ['./stroll-card.component.scss']
 })

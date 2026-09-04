@@ -9,9 +9,20 @@ import { StrollCategory } from './dto/stroll-category.enum';
 import { StrollsService } from './strolls.service';
 
 describe('StrollsService authorization', () => {
+	const listQueryBuilder: Record<string, jest.Mock> = {
+		where: jest.fn(() => listQueryBuilder),
+		andWhere: jest.fn(() => listQueryBuilder),
+		orderBy: jest.fn(() => listQueryBuilder),
+		addOrderBy: jest.fn(() => listQueryBuilder),
+		setParameters: jest.fn(() => listQueryBuilder),
+		skip: jest.fn(() => listQueryBuilder),
+		take: jest.fn(() => listQueryBuilder),
+		getManyAndCount: jest.fn()
+	};
 	const strollsRepository = {
 		count: jest.fn(),
 		create: jest.fn((value) => value),
+		createQueryBuilder: jest.fn(() => listQueryBuilder),
 		delete: jest.fn(),
 		findOne: jest.fn(),
 		findAndCount: jest.fn(),
@@ -94,7 +105,7 @@ describe('StrollsService authorization', () => {
 				videoUrls: ['https://example.com/secret.mp4']
 			}
 		});
-		strollsRepository.findAndCount.mockResolvedValue([[publicStroll], 1]);
+		listQueryBuilder.getManyAndCount.mockResolvedValue([[publicStroll], 1]);
 
 		const result = await service.list({});
 		const extract = result.items[0];
@@ -164,6 +175,8 @@ function buildStroll(overrides: Partial<StrollEntity> = {}): StrollEntity {
 		publicityFlag: StrollPublicityFlag.PUBLIC,
 		stageCount: 0,
 		length: 0,
+		ratingAverage: 0,
+		ratingCount: 0,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		setIdIfMissing: jest.fn(),

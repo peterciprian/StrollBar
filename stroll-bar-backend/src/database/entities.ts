@@ -6,6 +6,7 @@ import { MediaAssetEntity } from '../modules/media/entities/media-asset.entity';
 import { SocialIdentityEntity } from '../modules/auth/entities/social-identity.entity';
 import { StageEntity } from '../modules/stages/entities/stage.entity';
 import { StrollEntity } from '../modules/strolls/entities/stroll.entity';
+import { StrollReviewEntity } from '../modules/strolls/entities/stroll-review.entity';
 import { UserEntity } from '../modules/users/entities/user.entity';
 import { AuditEventEntity } from '../common/audit.entity';
 
@@ -14,6 +15,7 @@ export const DATABASE_ENTITIES = [
 	AdventureResultEntity,
 	UserEntity,
 	StrollEntity,
+	StrollReviewEntity,
 	StageEntity,
 	AdventureEntity,
 	StageAttemptEntity,

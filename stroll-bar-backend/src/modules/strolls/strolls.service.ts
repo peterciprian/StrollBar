@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, ILike, Repository } from 'typeorm';
+import { DataSource, ILike, Repository, SelectQueryBuilder } from 'typeorm';
 import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
@@ -16,6 +16,8 @@ import { calculateRouteLengthKm } from './route-length.util';
 
 const SIMPLE_PUBLIC_STROLL_LIMIT = 3;
 const PRIVATE_STROLL_EXTRACT_LENGTH = 240;
+// Sorts strolls without a first-stage coordinate to the end of the nearest-first list.
+const MISSING_COORDINATE_FALLBACK = 10000;
 type StrollListResponse = { items: ReturnType<StrollsService['createSummary']>[]; page: number; limit: number; total: number };
 
 @Injectable()
@@ -34,44 +36,79 @@ export class StrollsService {
 	async list(query: ListStrollsQueryDto) {
 		const page = query.page ?? 1;
 		const limit = query.limit ?? 20;
-		const filters: Record<string, unknown> = {
-			activeStatus: StrollActiveStatus.PUBLISHED
-		};
 		const cacheKey = `strolls:list:${JSON.stringify(query)}`;
-		if (!query.authorId) {
+		const cacheable = !query.authorId && query.sortBy !== 'nearest';
+		if (cacheable) {
 			const cached = await this.cache.get<StrollListResponse>(cacheKey);
 			if (cached) return cached;
 		}
 
+		const builder = this.strollsRepository
+			.createQueryBuilder('stroll')
+			.where('stroll.activeStatus = :activeStatus', { activeStatus: StrollActiveStatus.PUBLISHED })
+			.andWhere('stroll.publicityFlag IN (:...publicityFlags)', {
+				publicityFlags: [StrollPublicityFlag.PUBLIC, StrollPublicityFlag.PRIVATE]
+			});
+
 		if (query.search) {
-			filters.name = ILike(`${query.search}%`);
+			builder.andWhere('LOWER(stroll.name) LIKE :search', { search: `${query.search.toLowerCase()}%` });
 		}
 
 		if (query.authorId) {
-			filters.authorId = query.authorId;
+			builder.andWhere('stroll.authorId = :authorId', { authorId: query.authorId });
 		}
 
 		if (query.labels) {
-			filters.labels = ILike(`${query.labels.toLowerCase()}%`);
+			builder.andWhere('LOWER(stroll.labels) LIKE :labels', { labels: `${query.labels.toLowerCase()}%` });
 		}
 
-		const [items, total] = await this.strollsRepository.findAndCount({
-			where: [
-				{ ...filters, publicityFlag: StrollPublicityFlag.PUBLIC },
-				{ ...filters, publicityFlag: StrollPublicityFlag.PRIVATE }
-			],
-			order: { createdAt: 'DESC' },
-			skip: (page - 1) * limit,
-			take: limit
-		});
+		this.applyListSorting(builder, query);
+
+		const [items, total] = await builder
+			.skip((page - 1) * limit)
+			.take(limit)
+			.getManyAndCount();
 		const response = {
 			items: items.map((stroll) => this.createSummary(stroll)),
 			page,
 			limit,
 			total
 		};
-		if (!query.authorId) await this.cache.set(cacheKey, response, 600);
+		if (cacheable) await this.cache.set(cacheKey, response, 600);
 		return response;
+	}
+
+	private applyListSorting(builder: SelectQueryBuilder<StrollEntity>, query: ListStrollsQueryDto) {
+		if (query.sortBy === 'top_rated') {
+			builder.orderBy('stroll.ratingAverage', 'DESC').addOrderBy('stroll.ratingCount', 'DESC').addOrderBy('stroll.createdAt', 'DESC');
+			return;
+		}
+
+		if (query.sortBy === 'most_popular') {
+			const purchaseCount = '(SELECT COUNT(*) FROM adventures purchase WHERE purchase."strollId" = stroll.id)';
+			builder.orderBy(purchaseCount, 'DESC').addOrderBy('stroll.createdAt', 'DESC');
+			return;
+		}
+
+		if (query.sortBy === 'nearest' && query.userLatitude !== undefined && query.userLongitude !== undefined) {
+			const firstStageColumn = (column: string) =>
+				`COALESCE((SELECT stage."${column}" FROM stages stage WHERE stage."strollId" = stroll.id ORDER BY stage."orderIndex" ASC LIMIT 1), :missingCoordinate)`;
+			const latitudeDelta = `(${firstStageColumn('latitude')} - :userLatitude)`;
+			// Longitude degrees shrink towards the poles, so scale them by cos(latitude) before comparing squared distances.
+			const longitudeDelta = `((${firstStageColumn('longitude')} - :userLongitude) * :longitudeScale)`;
+			builder
+				.orderBy(`${latitudeDelta} * ${latitudeDelta} + ${longitudeDelta} * ${longitudeDelta}`, 'ASC')
+				.addOrderBy('stroll.createdAt', 'DESC')
+				.setParameters({
+					userLatitude: query.userLatitude,
+					userLongitude: query.userLongitude,
+					longitudeScale: Math.cos((query.userLatitude * Math.PI) / 180),
+					missingCoordinate: MISSING_COORDINATE_FALLBACK
+				});
+			return;
+		}
+
+		builder.orderBy('stroll.createdAt', 'DESC');
 	}
 
 	async listOwned(query: ListStrollsQueryDto, authorId: string) {
@@ -360,7 +397,9 @@ export class StrollsService {
 			price: stroll.publicityFlag === StrollPublicityFlag.PRIVATE ? (stroll.price ?? null) : null,
 			length: stroll.length,
 			publicityFlag: stroll.publicityFlag,
-			stageCount: stroll.stageCount
+			stageCount: stroll.stageCount,
+			ratingAverage: stroll.ratingAverage ?? 0,
+			ratingCount: stroll.ratingCount ?? 0
 		};
 	}
 }

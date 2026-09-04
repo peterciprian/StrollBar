@@ -18,7 +18,7 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
-import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
+import { ListStrollsQueryDto, STROLL_SORT_OPTIONS } from './dto/list-strolls-query.dto';
 import { StrollDetailResponseDto } from './dto/stroll-detail-response.dto';
 import { StrollListResponseDto } from './dto/stroll-list-response.dto';
 import { StrollResponseDto } from './dto/stroll-response.dto';
@@ -36,7 +36,9 @@ export class StrollsController {
 	@ApiQuery({ name: 'labels', required: false })
 	@ApiQuery({ name: 'authorId', required: false })
 	@ApiQuery({ name: 'city', required: false })
-	@ApiQuery({ name: 'sortBy', required: false, enum: ['newest', 'most_used', 'best_rated'] })
+	@ApiQuery({ name: 'sortBy', required: false, enum: STROLL_SORT_OPTIONS })
+	@ApiQuery({ name: 'userLatitude', required: false, type: Number })
+	@ApiQuery({ name: 'userLongitude', required: false, type: Number })
 	@ApiQuery({ name: 'page', required: false, type: Number })
 	@ApiQuery({ name: 'limit', required: false, type: Number })
 	@ApiOkResponse({ type: BrowseStrollsResponseDto, description: 'Paginated product-preview summaries.' })
