@@ -5,6 +5,7 @@ import { InitiateMultipartUploadResponse, MediaUploadPurpose } from '../../core/
 
 // Files at or above this size use the multipart flow; smaller files upload in a single PUT.
 const MULTIPART_THRESHOLD_BYTES = 25 * 1024 * 1024;
+const SERVICE_WORKER_BYPASS_HEADERS = { 'ngsw-bypass': 'true' } as const;
 
 @Injectable({ providedIn: 'root' })
 export class MediaUploadFeatureService {
@@ -21,7 +22,11 @@ export class MediaUploadFeatureService {
 		return this.api.presignUpload({ fileName: file.name, contentType: file.type, sizeBytes: file.size, purpose, entityId }).pipe(
 			switchMap((presigned) =>
 				from(
-					fetch(presigned.uploadUrl, { method: 'PUT', headers: presigned.headers, body: file }).then((response) => {
+					fetch(presigned.uploadUrl, {
+						method: 'PUT',
+						headers: { ...presigned.headers, ...SERVICE_WORKER_BYPASS_HEADERS },
+						body: file
+					}).then((response) => {
 						if (!response.ok) {
 							throw new Error(`Upload to storage failed with status ${response.status}.`);
 						}
@@ -55,7 +60,7 @@ export class MediaUploadFeatureService {
 		for (const part of initiated.parts) {
 			const start = (part.partNumber - 1) * initiated.partSizeBytes;
 			const chunk = file.slice(start, start + initiated.partSizeBytes);
-			const response = await fetch(part.uploadUrl, { method: 'PUT', body: chunk });
+			const response = await fetch(part.uploadUrl, { method: 'PUT', headers: SERVICE_WORKER_BYPASS_HEADERS, body: chunk });
 
 			if (!response.ok) {
 				throw new Error(`Upload of part ${part.partNumber} failed with status ${response.status}.`);

@@ -1,0 +1,10 @@
+[
+	{
+		"corsRuleName": "strollbar-browser-uploads",
+		"allowedOrigins": ["https://peterciprian.github.io", "http://localhost:4200", "http://127.0.0.1:4200"],
+		"allowedOperations": ["s3_get", "s3_head", "s3_put"],
+		"allowedHeaders": ["content-type", "ngsw-bypass", "x-amz-*"],
+		"exposeHeaders": ["etag"],
+		"maxAgeSeconds": 3600
+	}
+]
