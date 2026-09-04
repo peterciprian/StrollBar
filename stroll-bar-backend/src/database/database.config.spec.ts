@@ -16,7 +16,8 @@ describe('buildDatabaseOptions', () => {
 			'QueryPerformanceIndexes1753000000000',
 			'AuditEvents1753100000000',
 			'StrollCategoryPriceLength1753200000000',
-			'AdventureResults1753300000000'
+			'AdventureResults1753300000000',
+			'StrollReviews1753400000000'
 		]);
 	});
 });
