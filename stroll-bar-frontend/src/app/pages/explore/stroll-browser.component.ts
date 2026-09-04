@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -45,6 +45,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 	private readonly dialog = inject(MatDialog);
 	private readonly router = inject(Router);
 	private readonly destroyRef = inject(DestroyRef);
+	private readonly cdr = inject(ChangeDetectorRef);
 
 	protected readonly categories: CategoryFilter[] = ['ALL', ...Object.values(StrollCategory)];
 	protected strolls: StrollSummary[] = [];
@@ -130,6 +131,8 @@ export class StrollBrowserScreenComponent implements OnInit {
 			.subscribe((strolls) => {
 				this.strolls = strolls;
 				this.selectedStroll = this.strolls[0] ?? null;
+				// HTTP subscribe callbacks in this app don't reliably re-enter Angular's zone, so force a refresh.
+				this.cdr.detectChanges();
 			});
 	}
 }
