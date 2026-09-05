@@ -10,7 +10,13 @@ export interface ScreenDef {
 
 export const SCREEN_DEFS: ScreenDef[] = [
 	{ id: 'stroll-browser', commands: ['/', 'explore'], labelKey: 'SCREENS.STROLL_BROWSER_TAB', visibleWithoutLogin: true },
-	{ id: 'admin-stroll-list', commands: ['/', 'admin', 'stroll-list'], labelKey: 'SCREENS.ADMIN_STROLL_LIST_TAB', visibleWithoutLogin: false },
+	{
+		id: 'admin-stroll-list',
+		commands: ['/', 'admin', 'stroll-list'],
+		labelKey: 'SCREENS.ADMIN_STROLL_LIST_TAB',
+		visibleWithoutLogin: false,
+		adminOnly: true
+	},
 	{
 		id: 'admin-user-list',
 		commands: ['/', 'admin', 'user-list'],
