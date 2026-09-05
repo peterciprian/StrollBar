@@ -29,6 +29,12 @@ services:
             value: 'https://peterciprian.github.io,http://localhost:4200,http://127.0.0.1:4200'
           - key: API_PUBLIC_BASE_URL
             value: 'https://stroll-bar-n5zc.onrender.com/v1'
+          - key: BACKEND_URL
+            value: 'https://stroll-bar-n5zc.onrender.com/v1'
+          - key: GOOGLE_CLIENT_ID
+            sync: false
+          - key: GOOGLE_CLIENT_SECRET
+            sync: false
           - key: JWT_SECRET
             generateValue: true
           - key: JWT_ACCESS_TOKEN_TTL
@@ -65,18 +71,19 @@ services:
             value: '1440'
           - key: AUTH_EXPOSE_VERIFICATION_TOKEN
             value: 'false'
+          # Re-enable after the Brevo SMTP key and verified sender are configured.
           - key: EMAIL_DELIVERY_ENABLED
-            value: 'true'
+            value: 'false'
           - key: EMAIL_VERIFICATION_URL
             value: 'https://peterciprian.github.io/StrollBar/#/auth/verify-email'
           - key: SMTP_HOST
-            sync: false
+            value: smtp-relay.brevo.com
           - key: SMTP_PORT
             value: '587'
           - key: SMTP_SECURE
             value: 'false'
           - key: SMTP_USER
-            sync: false
+            value: b7e924001@smtp-brevo.com
           - key: SMTP_PASSWORD
             sync: false
           - key: SMTP_FROM
