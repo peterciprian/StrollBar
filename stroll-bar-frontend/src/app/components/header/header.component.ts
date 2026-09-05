@@ -88,8 +88,6 @@ export class HeaderComponent {
 				return path.startsWith('/admin/user-list');
 			case 'creator-strolls':
 				return path.startsWith('/creator/strolls');
-			case 'adventure':
-				return path.startsWith('/adventure');
 			case 'user-dashboard':
 				return path.startsWith('/user-dashboard');
 			default:
