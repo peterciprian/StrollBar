@@ -1,4 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
+import { Store } from '@ngrx/store';
 import { RouterLink } from '@angular/router';
 import { UpperCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,6 +10,7 @@ import { StrollCardComponent } from '../components/stroll-card/stroll-card.compo
 import { StrollSummary } from '../core/api/models';
 import { StrollsFeatureService } from '../features/strolls/strolls-feature.service';
 import { AsyncLoadingState } from '../core/utils/async-loading-state.util';
+import { selectIsLoggedIn } from '../features/auth/auth.state';
 
 @Component({
 	selector: 'app-home',
@@ -19,6 +21,8 @@ import { AsyncLoadingState } from '../core/utils/async-loading-state.util';
 })
 export class HomeComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
+	private readonly store = inject(Store);
+	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
 
 	/** Async state for featured strolls loading */
 	protected readonly strollsState = new AsyncLoadingState<StrollSummary[]>();

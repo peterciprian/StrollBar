@@ -107,7 +107,7 @@
 	},
 	"HOME": {
 		"EYEBROW": "Gamified city strolls",
-		"WELCOME_TITLE": "Discover Budapest, one clue at a time",
+		"WELCOME_TITLE": "Discover the world, one clue at a time",
 		"WELCOME_SUBTITLE": "Follow curated trails through hidden courtyards, historic squares and secret legends. Solve riddles at every station, unlock achievements, and turn every stroll into an adventure.",
 		"REGISTER": "Register",
 		"SHOW_STROLLS": "Show me the strolls",
@@ -120,7 +120,7 @@
 		"SHOWCASE_TITLE": "Popular strolls",
 		"SHOWCASE_LINK": "See all strolls",
 		"CTA_TITLE": "Ready for your next adventure?",
-		"CTA_SUBTITLE": "Create a free account and start exploring Budapest today."
+		"CTA_SUBTITLE": "Create a free account and start exploring the world today."
 	},
 	"AUTH": {
 		"LOGIN": {

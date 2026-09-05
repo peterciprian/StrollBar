@@ -107,7 +107,7 @@
 	},
 	"HOME": {
 		"EYEBROW": "Játékos városi túrák",
-		"WELCOME_TITLE": "Fedezd fel Budapestet, nyomról nyomra",
+		"WELCOME_TITLE": "Fedezd fel a világot, nyomról nyomra",
 		"WELCOME_SUBTITLE": "Kövesd a gondosan összeállított útvonalakat rejtett udvarokon, történelmi tereken és titkos legendákon keresztül. Oldj meg rejtvényeket minden állomáson, szerezz jelvényeket, és varázsolj minden sétából igazi kalandot.",
 		"REGISTER": "Regisztráció",
 		"SHOW_STROLLS": "Mutasd a túrákat",
@@ -120,7 +120,7 @@
 		"SHOWCASE_TITLE": "Népszerű túrák",
 		"SHOWCASE_LINK": "Összes túra megtekintése",
 		"CTA_TITLE": "Készen állsz a következő kalandra?",
-		"CTA_SUBTITLE": "Hozz létre egy ingyenes fiókot, és kezdd el felfedezni Budapestet még ma."
+		"CTA_SUBTITLE": "Hozz létre egy ingyenes fiókot, és kezdd el felfedezni a világot még ma."
 	},
 	"AUTH": {
 		"LOGIN": {

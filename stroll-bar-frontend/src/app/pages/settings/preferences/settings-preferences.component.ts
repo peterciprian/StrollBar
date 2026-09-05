@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { TranslatePipe } from '@ngx-translate/core';
+import { ThemeService } from '../../../core/services/theme.service';
 
 @Component({
 	selector: 'app-settings-preferences',
@@ -14,6 +15,11 @@ import { TranslatePipe } from '@ngx-translate/core';
 	styleUrls: ['./settings-preferences.component.scss']
 })
 export class SettingsPreferencesComponent {
-	protected notificationsEnabled = true;
-	protected darkModeEnabled = false;
+	protected notificationsEnabled = false;
+
+	constructor(protected readonly themeService: ThemeService) {}
+
+	protected onDarkModeChange(enabled: boolean): void {
+		this.themeService.setDarkMode(enabled);
+	}
 }

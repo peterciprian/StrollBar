@@ -6,10 +6,12 @@
 			{{ 'HOME.WELCOME_SUBTITLE' | translate }}
 		</p>
 		<div class="welcome__actions">
-			<a mat-flat-button color="primary" class="welcome__cta welcome__cta--primary" routerLink="/auth/register">
-				<mat-icon>person_add</mat-icon>
-				{{ 'HOME.REGISTER' | translate | uppercase }}
-			</a>
+			@if (!isLoggedIn()) {
+				<a mat-flat-button color="primary" class="welcome__cta welcome__cta--primary" routerLink="/auth/register">
+					<mat-icon>person_add</mat-icon>
+					{{ 'HOME.REGISTER' | translate | uppercase }}
+				</a>
+			}
 			<a mat-stroked-button class="welcome__cta welcome__cta--secondary" routerLink="/explore">
 				<mat-icon>hiking</mat-icon>
 				{{ 'HOME.SHOW_STROLLS' | translate | uppercase }}
@@ -58,10 +60,12 @@
 	<h2>{{ 'HOME.CTA_TITLE' | translate }}</h2>
 	<p>{{ 'HOME.CTA_SUBTITLE' | translate }}</p>
 	<div class="cta-banner__actions">
-		<a mat-flat-button color="primary" routerLink="/auth/register">
-			<mat-icon>person_add</mat-icon>
-			{{ 'HOME.REGISTER' | translate | uppercase }}
-		</a>
+		@if (!isLoggedIn()) {
+			<a mat-flat-button color="primary" routerLink="/auth/register">
+				<mat-icon>person_add</mat-icon>
+				{{ 'HOME.REGISTER' | translate | uppercase }}
+			</a>
+		}
 		<a mat-stroked-button routerLink="/explore">
 			<mat-icon>hiking</mat-icon>
 			{{ 'HOME.SHOW_STROLLS' | translate | uppercase }}
