@@ -1,62 +1,68 @@
 import { ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createTransport } from 'nodemailer';
+import { BrevoClient } from '@getbrevo/brevo';
 import { EmailService } from './email.service';
 
-jest.mock('nodemailer', () => ({ createTransport: jest.fn() }));
+jest.mock('@getbrevo/brevo', () => ({ BrevoClient: jest.fn() }));
 
 describe('EmailService', () => {
-	const sendMail = jest.fn();
-	const mockedCreateTransport = jest.mocked(createTransport);
+	const sendTransacEmail = jest.fn();
+	const getAccount = jest.fn();
+	const mockedBrevoClient = jest.mocked(BrevoClient);
 	const validToken = 'f3b91791b6e7d8f565d7d8f565f3b91791b6e7d8f565d7d8f565f3b91791b6f3';
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		sendMail.mockReset();
-		mockedCreateTransport.mockReturnValue({ sendMail } as never);
-		sendMail.mockResolvedValue({ messageId: 'message-id' });
+		sendTransacEmail.mockReset();
+		getAccount.mockReset();
+		mockedBrevoClient.mockImplementation(
+			() =>
+				({
+					account: { getAccount },
+					transactionalEmails: { sendTransacEmail }
+				}) as never
+		);
+		sendTransacEmail.mockResolvedValue({ messageId: 'message-id' });
+		getAccount.mockResolvedValue({ email: 'account@example.com' });
 	});
 
-	it('does not create an SMTP transport when delivery is disabled', async () => {
+	it('does not create a Brevo client when delivery is disabled', async () => {
 		const service = createService({ EMAIL_DELIVERY_ENABLED: 'false' });
 		await service.sendVerificationEmail('walker@example.com', 'Walker', validToken);
-		expect(mockedCreateTransport).not.toHaveBeenCalled();
-		expect(sendMail).not.toHaveBeenCalled();
+		expect(mockedBrevoClient).not.toHaveBeenCalled();
+		expect(sendTransacEmail).not.toHaveBeenCalled();
 	});
 
-	it('sends an encoded verification link through the configured SMTP server', async () => {
+	it('sends an encoded verification link through the Brevo API', async () => {
 		const service = createService({
 			EMAIL_DELIVERY_ENABLED: 'true',
 			EMAIL_VERIFICATION_URL: 'https://example.com/#/auth/verify-email',
-			SMTP_HOST: 'smtp.example.com',
-			SMTP_PORT: '465',
-			SMTP_SECURE: 'true',
-			SMTP_USER: 'smtp-user',
-			SMTP_PASSWORD: 'smtp-password',
-			SMTP_FROM: 'StrollBar <no-reply@example.com>'
+			BREVO_API_KEY: 'brevo-api-key',
+			EMAIL_FROM: 'StrollBar <no-reply@example.com>'
 		});
 		await service.sendVerificationEmail('walker@example.com', 'Walker <Admin>', validToken);
-		expect(mockedCreateTransport).toHaveBeenCalledWith({
-			host: 'smtp.example.com',
-			port: 465,
-			secure: true,
-			auth: { user: 'smtp-user', pass: 'smtp-password' }
-		});
-		expect(sendMail).toHaveBeenCalledWith(
+		expect(mockedBrevoClient).toHaveBeenCalledWith({ apiKey: 'brevo-api-key', timeoutInSeconds: 10, maxRetries: 0 });
+		expect(sendTransacEmail).toHaveBeenCalledWith(
 			expect.objectContaining({
-				from: 'StrollBar <no-reply@example.com>',
-				to: 'walker@example.com',
+				sender: { name: 'StrollBar', email: 'no-reply@example.com' },
+				to: [{ email: 'walker@example.com' }],
 				subject: 'Verify your StrollBar email address',
-				text: expect.stringContaining(`https://example.com/#/auth/verify-email?token=${validToken}`),
-				html: expect.stringContaining('Walker &lt;Admin&gt;')
+				textContent: expect.stringContaining(`https://example.com/#/auth/verify-email?token=${validToken}`),
+				htmlContent: expect.stringContaining('Walker &lt;Admin&gt;')
 			})
 		);
 	});
 
-	it('returns a service unavailable error when SMTP rejects delivery', async () => {
-		const service = createService({ EMAIL_DELIVERY_ENABLED: 'true', SMTP_HOST: 'smtp.example.com', SMTP_FROM: 'no-reply@example.com' });
-		sendMail.mockRejectedValueOnce(new Error('SMTP unavailable'));
+	it('returns a service unavailable error when Brevo rejects delivery', async () => {
+		const service = createService({ EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'brevo-api-key', EMAIL_FROM: 'no-reply@example.com' });
+		sendTransacEmail.mockRejectedValueOnce(new Error('Brevo unavailable'));
 		await expect(service.sendVerificationEmail('walker@example.com', 'Walker', validToken)).rejects.toThrow(ServiceUnavailableException);
+	});
+
+	it('checks Brevo API connectivity when delivery is enabled', async () => {
+		const service = createService({ EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'brevo-api-key' });
+		await expect(service.checkDeliveryConnectivity()).resolves.toMatchObject({ status: 'up', provider: 'brevo' });
+		expect(getAccount).toHaveBeenCalled();
 	});
 });
 

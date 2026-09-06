@@ -36,7 +36,7 @@ export function validateEnvironment(config: Record<string, unknown>): Record<str
 		throw new Error(`Environment validation failed: ${errors.map((error) => Object.values(error.constraints ?? {}).join(', ')).join('; ')}`);
 	}
 	if (config.EMAIL_DELIVERY_ENABLED === 'true') {
-		const requiredEmailKeys = ['SMTP_HOST', 'SMTP_FROM'];
+		const requiredEmailKeys = ['BREVO_API_KEY', 'EMAIL_FROM'];
 		const missingEmailKeys = requiredEmailKeys.filter((key) => !config[key]);
 		if (missingEmailKeys.length > 0) {
 			throw new Error(`Environment validation failed: missing email configuration: ${missingEmailKeys.join(', ')}`);

@@ -172,16 +172,14 @@ Relevant backend env vars:
 
 ## Verification email delivery
 
-The backend sends verification links over SMTP after password registration and when an unverified user requests a resend. Configure:
+The backend sends verification links through the Brevo transactional email API after password registration and when an unverified user requests a resend. Configure:
 
 - `EMAIL_DELIVERY_ENABLED=true`
 - `EMAIL_VERIFICATION_URL`, for example `https://example.com/#/auth/verify-email`
-- `SMTP_HOST` and `SMTP_PORT`
-- `SMTP_SECURE=true` for implicit TLS (normally port 465), or `false` for STARTTLS (normally port 587)
-- `SMTP_USER` and `SMTP_PASSWORD` when the server requires authentication
-- `SMTP_FROM`, for example `StrollBar <no-reply@example.com>`
+- `BREVO_API_KEY` with a Brevo API key that has transactional email access
+- `EMAIL_FROM`, for example `StrollBar <no-reply@example.com>`, using a sender verified in Brevo
 
-The health endpoint reports SMTP reachability when delivery is enabled. Failed SMTP sends are
+The health endpoint reports Brevo API reachability when delivery is enabled. Failed API sends are
 retried with 1-second and 4-second backoff before returning a temporary-unavailable response;
 users can request another verification email from Account settings.
 

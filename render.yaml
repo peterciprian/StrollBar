@@ -76,17 +76,9 @@ services:
             value: 'false'
           - key: EMAIL_VERIFICATION_URL
             value: 'https://peterciprian.github.io/StrollBar/#/auth/verify-email'
-          - key: SMTP_HOST
-            value: smtp-relay.brevo.com
-          - key: SMTP_PORT
-            value: '587'
-          - key: SMTP_SECURE
-            value: 'false'
-          - key: SMTP_USER
-            value: b7e924001@smtp-brevo.com
-          - key: SMTP_PASSWORD
+          - key: BREVO_API_KEY
             sync: false
-          - key: SMTP_FROM
+          - key: EMAIL_FROM
             sync: false
           - key: S3_REGION
             sync: false

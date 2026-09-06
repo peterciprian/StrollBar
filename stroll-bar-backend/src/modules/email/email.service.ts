@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { createTransport, Transporter } from 'nodemailer';
+import { BrevoClient } from '@getbrevo/brevo';
 import { withRetry, withTimeoutAndRetry } from '../../common/utils/retry.util';
 
 @Injectable()
 export class EmailService {
-	private transporter?: Transporter;
+	private brevoClient?: BrevoClient;
 	private deliveryAttempts = 0;
 	private deliverySuccesses = 0;
 	private deliveryFailures = 0;
@@ -18,11 +18,11 @@ export class EmailService {
 
 	async checkDeliveryConnectivity(): Promise<{ status: 'up' | 'down'; provider: string; detail: string }> {
 		if (!this.isDeliveryEnabled()) {
-			return { status: 'up', provider: 'smtp', detail: 'Email delivery is disabled.' };
+			return { status: 'up', provider: 'brevo', detail: 'Email delivery is disabled.' };
 		}
 
 		try {
-			await withTimeoutAndRetry(() => this.getTransporter().verify(), 10_000, {
+			await withTimeoutAndRetry(() => this.getBrevoClient().account.getAccount(), 10_000, {
 				maxAttempts: 3,
 				initialDelayMs: 1000,
 				maxDelayMs: 10000,
@@ -31,14 +31,14 @@ export class EmailService {
 			});
 			return {
 				status: 'up',
-				provider: 'smtp',
-				detail: `SMTP server is reachable. Delivery attempts: ${this.deliveryAttempts}; successes: ${this.deliverySuccesses}; failures: ${this.deliveryFailures}.`
+				provider: 'brevo',
+				detail: `Brevo API is reachable. Delivery attempts: ${this.deliveryAttempts}; successes: ${this.deliverySuccesses}; failures: ${this.deliveryFailures}.`
 			};
 		} catch (error) {
 			return {
 				status: 'down',
-				provider: 'smtp',
-				detail: error instanceof Error ? error.message : 'SMTP connectivity failed.'
+				provider: 'brevo',
+				detail: error instanceof Error ? error.message : 'Brevo API connectivity failed.'
 			};
 		}
 	}
@@ -52,16 +52,17 @@ export class EmailService {
 		const verificationUrl = this.buildVerificationUrl(token);
 		const safeUsername = this.escapeHtml(username);
 		const safeVerificationUrl = this.escapeHtml(verificationUrl);
+		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
 
 		try {
 			await withRetry(
 				() => {
 					this.deliveryAttempts += 1;
-					return this.getTransporter().sendMail({
-						from: this.getRequiredConfig('SMTP_FROM'),
-						to: recipient,
+					return this.getBrevoClient().transactionalEmails.sendTransacEmail({
+						sender,
+						to: [{ email: recipient }],
 						subject: 'Verify your StrollBar email address',
-						text: [
+						textContent: [
 							`Hello ${username},`,
 							'',
 							'Confirm your email address to finish setting up your StrollBar account:',
@@ -69,7 +70,7 @@ export class EmailService {
 							'',
 							'For your security, this link will expire. If you did not create this account, you can ignore this email.'
 						].join('\n'),
-						html: [
+						htmlContent: [
 							`<p>Hello ${safeUsername},</p>`,
 							'<p>Confirm your email address to finish setting up your StrollBar account.</p>',
 							`<p><a href="${safeVerificationUrl}">Verify email address</a></p>`,
@@ -83,8 +84,11 @@ export class EmailService {
 					maxDelayMs: 10000,
 					backoffMultiplier: 4,
 					isRetryable: (error: any) =>
-						['ECONNECTION', 'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND', 'ETIMEDOUT', 'ESOCKET', 'ETLS'].includes(error?.code) ||
-						(error?.responseCode >= 500 && error?.responseCode < 600)
+						error?.statusCode === 408 ||
+						error?.statusCode === 429 ||
+						(error?.statusCode >= 500 && error?.statusCode < 600) ||
+						error?.code === 'ETIMEDOUT' ||
+						error?.name === 'TypeError'
 				}
 			);
 			this.deliverySuccesses += 1;
@@ -94,24 +98,25 @@ export class EmailService {
 		}
 	}
 
-	private getTransporter(): Transporter {
-		if (!this.transporter) {
-			const username = this.configService.get<string>('SMTP_USER');
-			const password = this.configService.get<string>('SMTP_PASSWORD');
-
-			if ((username && !password) || (!username && password)) {
-				throw new ServiceUnavailableException('SMTP_USER and SMTP_PASSWORD must be configured together.');
-			}
-
-			this.transporter = createTransport({
-				host: this.getRequiredConfig('SMTP_HOST'),
-				port: Number(this.configService.get<string>('SMTP_PORT') ?? '587'),
-				secure: (this.configService.get<string>('SMTP_SECURE') ?? 'false').toLowerCase() === 'true',
-				auth: username && password ? { user: username, pass: password } : undefined
+	private getBrevoClient(): BrevoClient {
+		if (!this.brevoClient) {
+			this.brevoClient = new BrevoClient({
+				apiKey: this.getRequiredConfig('BREVO_API_KEY'),
+				timeoutInSeconds: 10,
+				maxRetries: 0
 			});
 		}
 
-		return this.transporter;
+		return this.brevoClient;
+	}
+
+	private parseSender(value: string): { email: string; name?: string } {
+		const match = value.match(/^\s*(.*?)\s*<([^<>\s]+@[^<>\s]+)>\s*$/);
+		if (match) {
+			return { name: match[1], email: match[2] };
+		}
+
+		return { email: value.trim() };
 	}
 
 	private buildVerificationUrl(token: string): string {
