@@ -38,14 +38,14 @@
 				</button>
 			</form>
 
-			<div class="social-login" aria-label="Social login options">
+			<!-- <div class="social-login" aria-label="Social login options">
 				<p>{{ 'AUTH.LOGIN.SOCIAL.TITLE' | translate }}</p>
 				@for (item of socialProviders; track item.provider) {
 					<button mat-stroked-button type="button" [disabled]="!!socialProviderLoading" (click)="onSocialLogin(item.provider)">
 						{{ item.labelKey | translate }}
 					</button>
 				}
-			</div>
+			</div> -->
 			<p class="auth-page__switch">
 				{{ 'AUTH.LOGIN.NO_ACCOUNT' | translate }} <a routerLink="/auth/register">{{ 'AUTH.LOGIN.CREATE_ACCOUNT' | translate }}</a>
 			</p>
