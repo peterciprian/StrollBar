@@ -49,9 +49,8 @@ export class ReviewsDashboardScreenComponent implements OnInit {
 	}
 
 	protected openStroll(entry: MyReviewListEntry): void {
-		if (entry.stroll) {
-			this.router.navigate(['/explore']);
-		}
+		if (!entry.review.adventureId) return;
+		this.router.navigate(['/adventure', entry.review.adventureId, 'result']);
 	}
 
 	protected async deleteReview(entry: MyReviewListEntry): Promise<void> {

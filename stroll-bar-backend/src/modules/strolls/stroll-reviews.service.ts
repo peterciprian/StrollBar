@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
 import { UserEntity } from '../users/entities/user.entity';
+import { BadgesService } from '../badges/badges.service';
 import { CreateStrollReviewDto } from './dto/create-stroll-review.dto';
 import { StrollReviewEntity } from './entities/stroll-review.entity';
 import { StrollEntity } from './entities/stroll.entity';
@@ -21,7 +22,8 @@ export class StrollReviewsService {
 		private readonly adventuresRepository: Repository<AdventureEntity>,
 		@InjectRepository(UserEntity)
 		private readonly usersRepository: Repository<UserEntity>,
-		private readonly cache: RedisCacheService
+		private readonly cache: RedisCacheService,
+		private readonly badgesService: BadgesService
 	) {}
 
 	async list(strollId: string) {
@@ -90,6 +92,7 @@ export class StrollReviewsService {
 
 		await this.recalculateStrollRating(strollId);
 		await this.cache.deleteByPrefix('strolls:list:');
+		await this.badgesService.evaluateAndAward(userId).catch(() => undefined);
 		return this.toResponse(review, await this.loadAuthorNames([review]));
 	}
 
@@ -118,6 +121,7 @@ export class StrollReviewsService {
 			id: review.id,
 			strollId: review.strollId,
 			userId: review.userId,
+			adventureId: review.adventureId,
 			authorName: authorNames.get(review.userId) ?? ANONYMOUS_REVIEWER_NAME,
 			rating: review.rating,
 			comment: review.comment ?? null,

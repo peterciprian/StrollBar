@@ -4,15 +4,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AchievementsFeatureService } from '../../../features/achievements/achievements-feature.service';
-import { AdventureResult, AdventureResultWithStroll } from '../../../core/api/models';
+import { AdventureResult, AdventureResultWithStroll, BadgeCatalogEntry } from '../../../core/api/models';
 import { formatDuration } from '../../../core/utils/duration.util';
-
-interface Achievement {
-	icon: string;
-	title: string;
-	description: string;
-	earnedOn: string;
-}
 
 interface StrollResultGroup {
 	strollId: string;
@@ -36,13 +29,9 @@ export class SettingsAchievementsComponent implements OnInit {
 	protected readonly resultsLoading = signal(true);
 	protected readonly resultsError = signal(false);
 
-	// Badge/milestone concept, not yet wired to backend data.
-	protected readonly achievements: Achievement[] = [
-		{ icon: 'castle', title: 'Bastion Explorer', description: "Completed the Fisherman's Bastion Mystery stroll", earnedOn: '12 May 2026' },
-		{ icon: 'psychology', title: 'Riddle Master', description: 'Solved 10 station riddles without a hint', earnedOn: '28 May 2026' },
-		{ icon: 'water', title: 'Danube Wanderer', description: 'Completed the Danube Legends & Chain Bridge stroll', earnedOn: '3 June 2026' },
-		{ icon: 'hiking', title: 'Weekend Wanderer', description: 'Completed 3 strolls in a single weekend', earnedOn: '15 June 2026' }
-	];
+	protected readonly badges = signal<BadgeCatalogEntry[]>([]);
+	protected readonly badgesLoading = signal(true);
+	protected readonly badgesError = signal(false);
 
 	ngOnInit(): void {
 		this.achievementsFeature
@@ -56,6 +45,20 @@ export class SettingsAchievementsComponent implements OnInit {
 				error: () => {
 					this.resultsError.set(true);
 					this.resultsLoading.set(false);
+				}
+			});
+
+		this.achievementsFeature
+			.listBadges()
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe({
+				next: (badges) => {
+					this.badges.set(badges);
+					this.badgesLoading.set(false);
+				},
+				error: () => {
+					this.badgesError.set(true);
+					this.badgesLoading.set(false);
 				}
 			});
 	}

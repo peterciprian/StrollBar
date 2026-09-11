@@ -6,6 +6,7 @@ import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
 import { UnlockStrollDto } from './dto/unlock-stroll.dto';
 import { AdventureResultsService } from '../achievements/adventure-results.service';
+import { BadgesService } from '../badges/badges.service';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserRole } from '../users/entities/user.entity';
@@ -24,7 +25,8 @@ export class AdventuresService {
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(StageEntity)
 		private readonly stagesRepository: Repository<StageEntity>,
-		private readonly adventureResultsService: AdventureResultsService
+		private readonly adventureResultsService: AdventureResultsService,
+		private readonly badgesService: BadgesService
 	) {}
 
 	async unlock(dto: UnlockStrollDto, currentUser: AuthenticatedUser) {
@@ -64,7 +66,9 @@ export class AdventuresService {
 			currentStageIndex: 1
 		});
 
-		return this.adventuresRepository.save(adventure);
+		const savedAdventure = await this.adventuresRepository.save(adventure);
+		await this.badgesService.evaluateAndAward(currentUser.userId).catch(() => undefined);
+		return savedAdventure;
 	}
 
 	async list(currentUser: AuthenticatedUser) {
@@ -151,6 +155,7 @@ export class AdventuresService {
 				routeLengthKm,
 				completedAt
 			});
+			await this.badgesService.evaluateAndAward(adventure.ownerUserId).catch(() => undefined);
 		}
 
 		return {

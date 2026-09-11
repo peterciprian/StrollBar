@@ -11,6 +11,7 @@ import { StrollCategory } from './dto/stroll-category.enum';
 import { UserRole } from '../users/entities/user.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
+import { BadgesService } from '../badges/badges.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { calculateRouteLengthKm } from './route-length.util';
 
@@ -30,6 +31,7 @@ export class StrollsService {
 		@InjectRepository(AdventureEntity)
 		private readonly adventuresRepository: Repository<AdventureEntity>,
 		private readonly cache: RedisCacheService,
+		private readonly badgesService: BadgesService,
 		private readonly dataSource: DataSource
 	) {}
 
@@ -163,6 +165,7 @@ export class StrollsService {
 
 		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
+		await this.badgesService.evaluateAndAward(currentUser.userId).catch(() => undefined);
 		return saved;
 	}
 

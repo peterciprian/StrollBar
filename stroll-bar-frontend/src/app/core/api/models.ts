@@ -181,6 +181,7 @@ export interface StrollReview {
 	id: string;
 	strollId: string;
 	userId: string;
+	adventureId: string;
 	authorName: string;
 	rating: number;
 	comment?: string | null;
@@ -428,6 +429,17 @@ export interface AnalyticsSummaryResponse {
 	avgCompletionSeconds: number;
 	reviewsCount: number;
 	badgesCount: number;
+}
+
+// ─── Badges ───────────────────────────────────────────────────────────────────
+
+export interface BadgeCatalogEntry {
+	code: string;
+	icon: string;
+	title: string;
+	description: string;
+	earned: boolean;
+	earnedAt: string | null;
 }
 
 // ─── Media ────────────────────────────────────────────────────────────────────

@@ -10,6 +10,9 @@ export class StrollReviewResponseDto {
 	@ApiProperty({ example: 'b1826c26-6352-4bb9-9a31-b4ecf2f40ab8' })
 	userId!: string;
 
+	@ApiProperty({ example: '5c9c1e2a-8f36-4b8b-9b8a-2a6e2e2f9a1b' })
+	adventureId!: string;
+
 	@ApiProperty({ example: 'Wanderer' })
 	authorName!: string;
 

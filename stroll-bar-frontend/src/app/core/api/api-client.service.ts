@@ -9,6 +9,7 @@ import {
 	AdventureResultWithStroll,
 	AnalyticsSummaryResponse,
 	AuthResponse,
+	BadgeCatalogEntry,
 	BulkImportStrollRequest,
 	BulkImportStrollResponse,
 	BrowseStrollsResponse,
@@ -271,6 +272,12 @@ export class ApiClientService {
 
 	getAnalyticsSummary() {
 		return this.http.get<AnalyticsSummaryResponse>(`${this.baseUrl}/analytics/summary`);
+	}
+
+	// ─── Badges ────────────────────────────────────────────────────────────────────
+
+	getBadgeCatalog() {
+		return this.http.get<BadgeCatalogEntry[]>(`${this.baseUrl}/badges`);
 	}
 
 	// ─── Media ────────────────────────────────────────────────────────────────────

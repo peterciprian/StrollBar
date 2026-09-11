@@ -12,6 +12,7 @@ import { StagesModule } from './modules/stages/stages.module';
 import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AdventuresModule } from './modules/adventures/adventures.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { BadgesModule } from './modules/badges/badges.module';
 import { MediaModule } from './modules/media/media.module';
 import { EmailModule } from './modules/email/email.module';
 import { buildDatabaseOptions } from './database/database.config';
@@ -43,6 +44,7 @@ import { AuditModule } from './common/audit.module';
 		AchievementsModule,
 		AdventuresModule,
 		AnalyticsModule,
+		BadgesModule,
 		MediaModule,
 		EmailModule,
 		AuditModule

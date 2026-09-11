@@ -44,11 +44,15 @@ describe('StrollsService authorization', () => {
 	const dataSource = {
 		transaction: jest.fn()
 	};
+	const badgesService = {
+		evaluateAndAward: jest.fn().mockResolvedValue([])
+	};
 	const service = new StrollsService(
 		strollsRepository as unknown as Repository<StrollEntity>,
 		stagesRepository as unknown as Repository<StageEntity>,
 		adventuresRepository as unknown as Repository<AdventureEntity>,
 		cache as never,
+		badgesService as never,
 		dataSource as never
 	);
 	const createDto = {

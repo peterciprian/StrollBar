@@ -12,6 +12,7 @@ import { AuditEvents1753100000000 } from './migrations/1753100000000-audit-event
 import { StrollCategoryPriceLength1753200000000 } from './migrations/1753200000000-stroll-category-price-length';
 import { AdventureResults1753300000000 } from './migrations/1753300000000-adventure-results';
 import { StrollReviews1753400000000 } from './migrations/1753400000000-stroll-reviews';
+import { UserBadges1753600000000 } from './migrations/1753600000000-user-badges';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -70,7 +71,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			AuditEvents1753100000000,
 			StrollCategoryPriceLength1753200000000,
 			AdventureResults1753300000000,
-			StrollReviews1753400000000
+			StrollReviews1753400000000,
+			UserBadges1753600000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

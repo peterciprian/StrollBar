@@ -1,14 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { AchievementEntity } from '../achievements/entities/achievement.entity';
 import { AdventureResultEntity } from '../achievements/entities/adventure-result.entity';
 import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
+import { BadgesService } from '../badges/badges.service';
 import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { StrollReviewEntity } from '../strolls/entities/stroll-review.entity';
 
 @Injectable()
 export class AnalyticsService {
+	private readonly logger = new Logger(AnalyticsService.name);
+
 	constructor(
 		@InjectRepository(StrollEntity)
 		private readonly strollsRepository: Repository<StrollEntity>,
@@ -16,10 +18,9 @@ export class AnalyticsService {
 		private readonly adventuresRepository: Repository<AdventureEntity>,
 		@InjectRepository(AdventureResultEntity)
 		private readonly adventureResultsRepository: Repository<AdventureResultEntity>,
-		@InjectRepository(AchievementEntity)
-		private readonly achievementsRepository: Repository<AchievementEntity>,
 		@InjectRepository(StrollReviewEntity)
-		private readonly reviewsRepository: Repository<StrollReviewEntity>
+		private readonly reviewsRepository: Repository<StrollReviewEntity>,
+		private readonly badgesService: BadgesService
 	) {}
 
 	async getSummary(userId: string) {
@@ -46,7 +47,10 @@ export class AnalyticsService {
 				.where('result.userId = :userId', { userId })
 				.getRawOne<{ average: string | null }>(),
 			this.reviewsRepository.count({ where: { userId } }),
-			this.achievementsRepository.count({ where: { userId, completed: true } })
+			this.badgesService.getEarnedCount(userId).catch((error) => {
+				this.logger.error('Failed to compute earned badge count.', error instanceof Error ? error.stack : String(error));
+				return 0;
+			})
 		]);
 
 		const completionRate = purchasedStrollsCount ? Math.round((completedStrollsCount / purchasedStrollsCount) * 100) : 0;

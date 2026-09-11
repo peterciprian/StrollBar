@@ -12,4 +12,8 @@ export class AchievementsFeatureService {
 	list() {
 		return this.api.listAchievements();
 	}
+
+	listBadges() {
+		return this.api.getBadgeCatalog();
+	}
 }

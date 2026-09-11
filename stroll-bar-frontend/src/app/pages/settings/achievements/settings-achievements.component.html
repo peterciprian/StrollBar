@@ -44,16 +44,29 @@
 
 <section class="settings-page__badges">
 	<h2>{{ 'SETTINGS.BADGES_SECTION_TITLE' | translate }}</h2>
-	<div class="settings-page__achievements">
-		@for (achievement of achievements; track achievement.title) {
-			<div class="settings-page__achievement-card">
-				<mat-icon>{{ achievement.icon }}</mat-icon>
-				<div>
-					<h3>{{ achievement.title }}</h3>
-					<p>{{ achievement.description }}</p>
-					<span class="settings-page__muted">Earned {{ achievement.earnedOn }}</span>
+
+	@if (badgesLoading()) {
+		<p class="settings-page__muted">{{ 'SETTINGS.BADGES_LOADING' | translate }}</p>
+	} @else if (badgesError()) {
+		<p class="settings-page__error">{{ 'SETTINGS.BADGES_ERROR' | translate }}</p>
+	} @else {
+		<div class="settings-page__achievements">
+			@for (badge of badges(); track badge.code) {
+				<div class="settings-page__achievement-card" [class.settings-page__achievement-card--locked]="!badge.earned">
+					<mat-icon>{{ badge.icon }}</mat-icon>
+					<div>
+						<h3>{{ badge.title }}</h3>
+						<p>{{ badge.description }}</p>
+						@if (badge.earned) {
+							<span class="settings-page__muted">{{
+								'SETTINGS.BADGE_EARNED_ON' | translate: { date: (badge.earnedAt | date: 'mediumDate') }
+							}}</span>
+						} @else {
+							<span class="settings-page__muted">{{ 'SETTINGS.BADGE_LOCKED' | translate }}</span>
+						}
+					</div>
 				</div>
-			</div>
-		}
-	</div>
+			}
+		</div>
+	}
 </section>

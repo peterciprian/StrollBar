@@ -17,7 +17,8 @@ describe('buildDatabaseOptions', () => {
 			'AuditEvents1753100000000',
 			'StrollCategoryPriceLength1753200000000',
 			'AdventureResults1753300000000',
-			'StrollReviews1753400000000'
+			'StrollReviews1753400000000',
+			'UserBadges1753600000000'
 		]);
 	});
 });

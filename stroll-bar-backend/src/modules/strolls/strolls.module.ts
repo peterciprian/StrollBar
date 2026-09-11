@@ -10,10 +10,11 @@ import { StrollEntity } from './entities/stroll.entity';
 import { StrollReviewEntity } from './entities/stroll-review.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { BadgesModule } from '../badges/badges.module';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([StrollEntity, StrollReviewEntity, StageEntity, UserEntity, AdventureEntity])],
+	imports: [TypeOrmModule.forFeature([StrollEntity, StrollReviewEntity, StageEntity, UserEntity, AdventureEntity]), BadgesModule],
 	controllers: [StrollsController, StrollReviewsController, MyReviewsController],
 	providers: [StrollsService, StrollReviewsService, RedisCacheService],
 	exports: [StrollsService]
