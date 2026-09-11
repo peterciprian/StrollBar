@@ -278,15 +278,6 @@ export class AdventuresService {
 			throw new ForbiddenException('This adventure has been revoked and can no longer be continued.');
 		}
 
-		if (adventure.progressStatus !== AdventureProgressStatus.COMPLETED) {
-			const stroll = await this.strollsRepository.findOne({ where: { id: adventure.strollId }, select: { id: true, activeStatus: true } });
-			if (stroll?.activeStatus === StrollActiveStatus.ARCHIVED) {
-				adventure.progressStatus = AdventureProgressStatus.REVOKED;
-				await this.adventuresRepository.save(adventure);
-				throw new ForbiddenException('This adventure has been revoked because the stroll was archived.');
-			}
-		}
-
 		return adventure;
 	}
 

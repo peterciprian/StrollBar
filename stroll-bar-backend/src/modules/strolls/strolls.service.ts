@@ -174,6 +174,7 @@ export class StrollsService {
 		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
 		await this.badgesService.evaluateAndAward(currentUser.userId).catch(() => undefined);
+		await this.notifyAuthorOfCreation(saved).catch(() => undefined);
 		return saved;
 	}
 
@@ -261,7 +262,6 @@ export class StrollsService {
 
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
-		const wasArchived = stroll.activeStatus === StrollActiveStatus.ARCHIVED;
 		const previousActiveStatus = stroll.activeStatus;
 		const nextPublicity = dto.publicityFlag ?? stroll.publicityFlag;
 		this.assertPriceAllowed(nextPublicity, dto.price);
@@ -312,14 +312,6 @@ export class StrollsService {
 		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
 
-		if (!wasArchived && saved.activeStatus === StrollActiveStatus.ARCHIVED) {
-			// Archiving a stroll revokes any adventure that hasn't been completed yet.
-			await this.adventuresRepository.update(
-				{ strollId, progressStatus: In([AdventureProgressStatus.PURCHASED, AdventureProgressStatus.IN_PROGRESS]) },
-				{ progressStatus: AdventureProgressStatus.REVOKED }
-			);
-		}
-
 		if (saved.activeStatus !== previousActiveStatus) {
 			await this.notifyAuthorOfStatusChange(saved);
 		}
@@ -334,6 +326,15 @@ export class StrollsService {
 		}
 
 		await this.emailService.sendStrollStatusChangedEmail(author.email, author.username, stroll.name, stroll.activeStatus).catch(() => undefined);
+	}
+
+	private async notifyAuthorOfCreation(stroll: StrollEntity): Promise<void> {
+		const author = await this.usersRepository.findOne({ where: { id: stroll.authorId } });
+		if (!author) {
+			return;
+		}
+
+		await this.emailService.sendStrollCreatedEmail(author.email, author.username, stroll.name).catch(() => undefined);
 	}
 
 	async remove(strollId: string, currentUser: AuthenticatedUser) {

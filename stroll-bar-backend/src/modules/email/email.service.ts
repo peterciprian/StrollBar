@@ -102,6 +102,39 @@ export class EmailService {
 		}
 	}
 
+	async sendStrollCreatedEmail(recipient: string, authorUsername: string, strollName: string): Promise<void> {
+		if (!this.isDeliveryEnabled()) {
+			return;
+		}
+		this.validateRecipientAndUsername(recipient, authorUsername);
+		const safeUsername = this.escapeHtml(authorUsername);
+		const safeStrollName = this.escapeHtml(strollName);
+		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+
+		await this.deliver(
+			() =>
+				this.getBrevoClient().transactionalEmails.sendTransacEmail({
+					sender,
+					to: [{ email: recipient }],
+					subject: `You created "${strollName}" \uD83C\uDF89`,
+					textContent: [
+						`Hey ${authorUsername},`,
+						'',
+						`"${strollName}" is officially born! Add some stages and polish it up whenever you're ready to publish.`
+					].join('\n'),
+					htmlContent: this.wrapHtml(
+						'Stroll created',
+						[
+							`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
+							`<p style="margin:0 0 20px;"><strong>\u201C${safeStrollName}\u201D</strong> is officially born! \uD83C\uDF89</p>`,
+							'<p style="margin:0;">Add some stages, sprinkle in photos, and publish whenever you\u2019re ready to send people exploring.</p>'
+						].join('')
+					)
+				}),
+			'The stroll creation notification email could not be delivered.'
+		);
+	}
+
 	async sendStrollStatusChangedEmail(recipient: string, authorUsername: string, strollName: string, newStatus: StrollActiveStatus): Promise<void> {
 		if (!this.isDeliveryEnabled()) {
 			return;
