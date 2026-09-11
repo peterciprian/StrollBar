@@ -113,10 +113,14 @@ export class StrollsService {
 		builder.orderBy('stroll.createdAt', 'DESC');
 	}
 
-	async listOwned(query: ListStrollsQueryDto, authorId: string) {
+	async listOwned(query: ListStrollsQueryDto, currentUser: AuthenticatedUser) {
 		const page = query.page ?? 1;
 		const limit = query.limit ?? 20;
-		const where: Record<string, unknown> = { authorId };
+		const where: Record<string, unknown> = currentUser.role === UserRole.ADMIN ? {} : { authorId: currentUser.userId };
+
+		if (query.authorId && currentUser.role === UserRole.ADMIN) {
+			where.authorId = query.authorId;
+		}
 
 		if (query.search) {
 			where.name = ILike(`${query.search}%`);

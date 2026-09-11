@@ -4,7 +4,6 @@
 
 - /explore (stroll browser)
 - /adventure/:adventureId
-- /admin/stroll-list (admin role only)
 - /admin/user-list (admin role only)
 - /user-dashboard
 - /users/:userId
@@ -16,6 +15,7 @@
 
 ## Authenticated Routes
 
+- /strolls (own strolls; admins see every stroll)
 - /creator/strolls/new
 - /creator/strolls
 - /creator/strolls/:strollId/edit

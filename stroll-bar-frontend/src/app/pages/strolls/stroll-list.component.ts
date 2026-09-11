@@ -11,19 +11,19 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 
-import { BulkImportStrollRequest, Stroll } from '../../../core/api/models';
-import { selectIsAdmin } from '../../../features/auth/auth.state';
-import { StrollsFeatureService } from '../../../features/strolls/strolls-feature.service';
-import { ConfirmDeleteDialogComponent } from '../../../shared/confirm-delete-dialog.component';
+import { BulkImportStrollRequest, Stroll } from '../../core/api/models';
+import { selectIsAdmin } from '../../features/auth/auth.state';
+import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
+import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
 
 @Component({
-	selector: 'app-admin-stroll-list-screen',
+	selector: 'app-stroll-list-screen',
 	standalone: true,
 	imports: [CommonModule, FormsModule, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
-	templateUrl: './admin-stroll-list.component.html',
-	styleUrls: ['./admin-stroll-list.component.scss']
+	templateUrl: './stroll-list.component.html',
+	styleUrls: ['./stroll-list.component.scss']
 })
-export class AdminStrollListScreenComponent implements OnInit {
+export class StrollListScreenComponent implements OnInit {
 	private readonly router = inject(Router);
 	private readonly strollsFeature = inject(StrollsFeatureService);
 	private readonly dialog = inject(MatDialog);

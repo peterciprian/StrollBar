@@ -211,7 +211,7 @@
 	"SCREENS": {
 		"STROLL_BROWSER_TAB": "Túrabőngésző",
 		"ADVENTURE_TAB": "Kaland",
-		"ADMIN_STROLL_LIST_TAB": "Admin · Túrák",
+		"STROLL_LIST_TAB": "Sétáim",
 		"ADMIN_USER_LIST_TAB": "Admin · Felhasználók",
 		"STATION_EDITOR_TAB": "Állomásszerkesztő",
 		"USER_DASHBOARD_TAB": "Sétáim",

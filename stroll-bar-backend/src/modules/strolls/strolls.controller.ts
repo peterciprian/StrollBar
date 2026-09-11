@@ -49,15 +49,15 @@ export class StrollsController {
 	}
 
 	@ApiBearerAuth('bearer')
-	@ApiOperation({ summary: 'List strolls owned by the authenticated user' })
+	@ApiOperation({ summary: 'List strolls owned by the authenticated user, or every stroll for admins' })
 	@ApiOkResponse({
 		type: StrollListResponseDto,
-		description: 'Paginated owner stroll list, including drafts and private strolls.'
+		description: 'Paginated owner stroll list, including drafts and private strolls. Admins receive every stroll.'
 	})
 	@UseGuards(JwtAuthGuard)
 	@Get('mine')
 	listOwned(@Query() query: ListStrollsQueryDto, @CurrentUser() user: AuthenticatedUser) {
-		return this.strollsService.listOwned(query, user.userId);
+		return this.strollsService.listOwned(query, user);
 	}
 
 	@ApiBearerAuth('bearer')

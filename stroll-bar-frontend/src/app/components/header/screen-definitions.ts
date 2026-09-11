@@ -1,4 +1,4 @@
-export type ScreenId = 'stroll-browser' | 'admin-stroll-list' | 'admin-user-list' | 'creator-strolls' | 'user-dashboard';
+export type ScreenId = 'stroll-browser' | 'strolls' | 'admin-user-list' | 'creator-strolls' | 'user-dashboard';
 
 export interface ScreenDef {
 	id: ScreenId;
@@ -11,11 +11,10 @@ export interface ScreenDef {
 export const SCREEN_DEFS: ScreenDef[] = [
 	{ id: 'stroll-browser', commands: ['/', 'explore'], labelKey: 'SCREENS.STROLL_BROWSER_TAB', visibleWithoutLogin: true },
 	{
-		id: 'admin-stroll-list',
-		commands: ['/', 'admin', 'stroll-list'],
-		labelKey: 'SCREENS.ADMIN_STROLL_LIST_TAB',
-		visibleWithoutLogin: false,
-		adminOnly: true
+		id: 'strolls',
+		commands: ['/', 'strolls'],
+		labelKey: 'SCREENS.STROLL_LIST_TAB',
+		visibleWithoutLogin: false
 	},
 	{
 		id: 'admin-user-list',

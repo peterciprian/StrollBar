@@ -211,7 +211,7 @@
 	"SCREENS": {
 		"STROLL_BROWSER_TAB": "Stroll Browser",
 		"ADVENTURE_TAB": "Adventure",
-		"ADMIN_STROLL_LIST_TAB": "Admin · Strolls",
+		"STROLL_LIST_TAB": "My Strolls",
 		"ADMIN_USER_LIST_TAB": "Admin · Users",
 		"STATION_EDITOR_TAB": "Station Editor",
 		"USER_DASHBOARD_TAB": "My Strolls",

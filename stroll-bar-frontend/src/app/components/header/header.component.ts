@@ -82,8 +82,8 @@ export class HeaderComponent {
 		switch (screen.id) {
 			case 'stroll-browser':
 				return path === '/explore';
-			case 'admin-stroll-list':
-				return path.startsWith('/admin/stroll-list');
+			case 'strolls':
+				return path.startsWith('/strolls');
 			case 'admin-user-list':
 				return path.startsWith('/admin/user-list');
 			case 'creator-strolls':

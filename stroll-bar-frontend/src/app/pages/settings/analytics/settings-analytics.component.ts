@@ -41,7 +41,7 @@ export class SettingsAnalyticsComponent implements OnInit {
 				icon: 'edit_road',
 				labelKey: 'SETTINGS.STAT_CREATED_STROLLS',
 				value: String(summary.createdStrollsCount),
-				route: ['/admin/stroll-list']
+				route: ['/strolls']
 			},
 			{
 				icon: 'shopping_bag',

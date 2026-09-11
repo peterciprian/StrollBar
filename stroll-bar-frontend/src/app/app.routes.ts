@@ -7,7 +7,7 @@ import { VerifyEmailPageComponent } from './pages/auth/verify-email-page.compone
 import { CreatorProfilePageComponent } from './pages/profile/creator-profile-page.component';
 import { StrollBrowserScreenComponent } from './pages/explore/stroll-browser.component';
 import { AdventureScreenComponent } from './pages/progress/adventure.component';
-import { AdminStrollListScreenComponent } from './pages/admin/admin-stroll-list/admin-stroll-list.component';
+import { StrollListScreenComponent } from './pages/strolls/stroll-list.component';
 import { AdminUserListScreenComponent } from './pages/admin/admin-user-list/admin-user-list.component';
 import { UserDashboardScreenComponent } from './pages/user/user-dashboard/user-dashboard.component';
 import { ReviewsDashboardScreenComponent } from './pages/reviews/reviews-dashboard.component';
@@ -35,7 +35,7 @@ export const routes: Routes = [
 	{ path: 'terms-of-service', component: LegalPageComponent, data: { document: 'terms' } },
 	{ path: 'adventure/:adventureId/result', component: AdventureResultPageComponent, canActivate: [authGuard] },
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
-	{ path: 'admin/stroll-list', component: AdminStrollListScreenComponent, canActivate: [adminGuard] },
+	{ path: 'strolls', component: StrollListScreenComponent, canActivate: [authGuard] },
 	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },
