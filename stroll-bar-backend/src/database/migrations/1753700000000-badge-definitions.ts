@@ -22,10 +22,13 @@ export class BadgeDefinitions1753700000000 implements MigrationInterface {
 		await queryRunner.createIndex('badge_definitions', new TableIndex({ name: 'IDX_badge_definitions_active', columnNames: ['active'] }));
 
 		for (const badge of BADGE_SEED_DATA) {
-			await queryRunner.query(
-				`INSERT INTO badge_definitions (code, icon, title, description, rules) VALUES ($1, $2, $3, $4, $5::jsonb)`,
-				[badge.code, badge.icon, badge.title, badge.description, JSON.stringify(badge.rules)]
-			);
+			await queryRunner.query(`INSERT INTO badge_definitions (code, icon, title, description, rules) VALUES ($1, $2, $3, $4, $5::jsonb)`, [
+				badge.code,
+				badge.icon,
+				badge.title,
+				badge.description,
+				JSON.stringify(badge.rules)
+			]);
 		}
 	}
 

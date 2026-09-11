@@ -14,4 +14,3 @@ export class BadgeRuleConditionDto {
 	@ApiProperty({ example: 5, description: 'A number for most metrics, or a StrollCategory name for categoryCompleted.' })
 	value!: number | string;
 }
-

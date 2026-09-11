@@ -81,9 +81,7 @@ export class AdminBadgeListScreenComponent implements OnInit {
 		);
 		if (!result) return;
 
-		const request = definition
-			? this.badgesAdminFeature.update(definition.id, result)
-			: this.badgesAdminFeature.create(result);
+		const request = definition ? this.badgesAdminFeature.update(definition.id, result) : this.badgesAdminFeature.create(result);
 
 		request.subscribe({
 			next: () => this.loadDefinitions(),

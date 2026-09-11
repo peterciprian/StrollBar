@@ -10,7 +10,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
 
-import { BADGE_METRICS, BADGE_OPERATORS, BadgeDefinition, BadgeMetric, BadgeOperator, BadgeRuleCondition, StrollCategory } from '../../../core/api/models';
+import {
+	BADGE_METRICS,
+	BADGE_OPERATORS,
+	BadgeDefinition,
+	BadgeMetric,
+	BadgeOperator,
+	BadgeRuleCondition,
+	StrollCategory
+} from '../../../core/api/models';
 
 export interface BadgeDefinitionFormDialogData {
 	definition: BadgeDefinition | null;
@@ -65,11 +73,13 @@ export class BadgeDefinitionFormDialogComponent {
 		this.title = definition?.title ?? '';
 		this.description = definition?.description ?? '';
 		this.active = definition?.active ?? true;
-		this.rules.set((definition?.rules ?? [{ metric: 'completedStrollsCount', operator: 'gte', value: 1 }]).map((rule) => ({
-			metric: rule.metric,
-			operator: rule.operator,
-			value: String(rule.value)
-		})));
+		this.rules.set(
+			(definition?.rules ?? [{ metric: 'completedStrollsCount', operator: 'gte', value: 1 }]).map((rule) => ({
+				metric: rule.metric,
+				operator: rule.operator,
+				value: String(rule.value)
+			}))
+		);
 	}
 
 	protected isCategoryMetric(metric: BadgeMetric): boolean {

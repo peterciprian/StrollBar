@@ -61,12 +61,7 @@
 					</mat-form-field>
 				} @else {
 					<mat-form-field appearance="outline" subscriptSizing="dynamic">
-						<input
-							matInput
-							type="number"
-							[value]="rule.value"
-							(input)="updateRule($index, { value: $any($event.target).value })"
-						/>
+						<input matInput type="number" [value]="rule.value" (input)="updateRule($index, { value: $any($event.target).value })" />
 					</mat-form-field>
 				}
 
