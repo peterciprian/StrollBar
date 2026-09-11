@@ -134,9 +134,11 @@
 						>
 							<mat-icon>replay</mat-icon>
 						</button>
-					} @else if (detail.adventure.progressStatus === 'revoked') {
+					}
+					<!-- @else if (detail.adventure.progressStatus === 'revoked') {
 						<span class="user-dashboard__muted">{{ 'SCREENS.USER_DASHBOARD.REVOKED_HINT' | translate }}</span>
-					} @else {
+					}  -->
+					@else {
 						<button
 							mat-icon-button
 							[matTooltip]="

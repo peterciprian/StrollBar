@@ -14,20 +14,6 @@ import { logout, selectIsAdmin, selectIsLoggedIn, selectUsername } from '../../f
 import { SCREEN_DEFS, ScreenDef } from './screen-definitions';
 import { SETTINGS_SECTIONS } from '../../pages/settings/settings-nav.service';
 
-interface AdminSectionDef {
-	id: string;
-	labelKey: string;
-	icon: string;
-	route: string[];
-}
-
-const ADMIN_SECTIONS: AdminSectionDef[] = [
-	{ id: 'user-list', labelKey: 'HEADER.ADMIN_USERS', icon: 'group', route: ['/admin/user-list'] },
-	{ id: 'adventures', labelKey: 'HEADER.ADMIN_ADVENTURES', icon: 'explore', route: ['/admin/adventures'] },
-	{ id: 'badges', labelKey: 'HEADER.ADMIN_BADGES', icon: 'emoji_events', route: ['/admin/badges'] },
-	{ id: 'issues', labelKey: 'HEADER.ADMIN_ISSUES', icon: 'report_problem', route: ['/admin/issues'] }
-];
-
 @Component({
 	selector: 'app-header',
 	standalone: true,
@@ -55,8 +41,8 @@ export class HeaderComponent {
 	private readonly store = inject(Store);
 	private readonly router = inject(Router);
 
-	protected readonly settingsSections = SETTINGS_SECTIONS;
-	protected readonly adminSections = ADMIN_SECTIONS;
+	protected readonly settingsSections = SETTINGS_SECTIONS.filter((section) => section.kind === 'settings');
+	protected readonly adminSections = SETTINGS_SECTIONS.filter((section) => section.kind === 'admin');
 
 	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
 	protected readonly isAdmin = this.store.selectSignal(selectIsAdmin);

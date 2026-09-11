@@ -39,10 +39,18 @@ export const routes: Routes = [
 	{ path: 'adventure/:adventureId/result', component: AdventureResultPageComponent, canActivate: [authGuard] },
 	{ path: 'adventure/:adventureId', component: AdventureScreenComponent, canActivate: [authGuard] },
 	{ path: 'strolls', component: StrollListScreenComponent, canActivate: [authGuard] },
-	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },
-	{ path: 'admin/adventures', component: AdminAdventureListScreenComponent, canActivate: [adminGuard] },
-	{ path: 'admin/badges', component: AdminBadgeListScreenComponent, canActivate: [adminGuard] },
-	{ path: 'admin/issues', component: AdminIssuesScreenComponent, canActivate: [adminGuard] },
+	{
+		path: 'admin',
+		component: SettingsPageComponent,
+		canActivate: [adminGuard],
+		children: [
+			{ path: '', pathMatch: 'full', redirectTo: 'user-list' },
+			{ path: 'user-list', component: AdminUserListScreenComponent },
+			{ path: 'adventures', component: AdminAdventureListScreenComponent },
+			{ path: 'badges', component: AdminBadgeListScreenComponent },
+			{ path: 'issues', component: AdminIssuesScreenComponent }
+		]
+	},
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },
 	{ path: 'creator/strolls/:strollId', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },

@@ -173,7 +173,6 @@
 
 	&__reported-icon {
 		color: #b91c1c;
-		float: right;
 		font-size: 18px;
 		height: 18px;
 		width: 18px;
@@ -221,12 +220,6 @@
 	}
 	&__date span {
 		max-width: none;
-	}
-	&__actions {
-		background: #fff;
-		position: sticky;
-		right: 0;
-		z-index: 1;
 	}
 	&__muted {
 		background: transparent !important;
