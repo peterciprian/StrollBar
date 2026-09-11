@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, ServiceUnavailableException } from '@n
 import { ConfigService } from '@nestjs/config';
 import { BrevoClient } from '@getbrevo/brevo';
 import { withRetry, withTimeoutAndRetry } from '../../common/utils/retry.util';
+import { StrollActiveStatus } from '../strolls/entities/stroll.entity';
 
 @Injectable()
 export class EmailService {
@@ -61,21 +62,24 @@ export class EmailService {
 					return this.getBrevoClient().transactionalEmails.sendTransacEmail({
 						sender,
 						to: [{ email: recipient }],
-						subject: 'Verify your StrollBar email address',
+						subject: 'Verify your StrollBar email address \uD83D\uDC63',
 						textContent: [
-							`Hello ${username},`,
+							`Hey ${username},`,
 							'',
-							'Confirm your email address to finish setting up your StrollBar account:',
+							'One quick step before you hit the pavement: confirm your email to activate your account.',
 							verificationUrl,
 							'',
-							'For your security, this link will expire. If you did not create this account, you can ignore this email.'
+							'This link expires soon, so dont dawdle. If you did not create this account, just ignore this email.'
 						].join('\n'),
-						htmlContent: [
-							`<p>Hello ${safeUsername},</p>`,
-							'<p>Confirm your email address to finish setting up your StrollBar account.</p>',
-							`<p><a href="${safeVerificationUrl}">Verify email address</a></p>`,
-							'<p>For your security, this link will expire. If you did not create this account, you can ignore this email.</p>'
-						].join('')
+						htmlContent: this.wrapHtml(
+							'Verify your email',
+							[
+								`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
+								'<p style="margin:0 0 20px;">One quick step before you hit the pavement: confirm your email to activate your StrollBar account.</p>',
+								this.button(safeVerificationUrl, 'Verify my email'),
+								'<p style="margin:24px 0 0;color:#64748b;font-size:13px;">This link expires soon, so don\u2019t dawdle. Didn\u2019t create this account? Just ignore this email.</p>'
+							].join('')
+						)
 					});
 				},
 				{
@@ -95,6 +99,146 @@ export class EmailService {
 		} catch {
 			this.deliveryFailures += 1;
 			throw new ServiceUnavailableException('The verification email could not be delivered. Please try again.');
+		}
+	}
+
+	async sendStrollStatusChangedEmail(recipient: string, authorUsername: string, strollName: string, newStatus: StrollActiveStatus): Promise<void> {
+		if (!this.isDeliveryEnabled()) {
+			return;
+		}
+		this.validateRecipientAndUsername(recipient, authorUsername);
+		const safeUsername = this.escapeHtml(authorUsername);
+		const safeStrollName = this.escapeHtml(strollName);
+		const safeStatus = this.escapeHtml(newStatus);
+		const statusCopy = this.describeStatusChange(newStatus);
+		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+
+		await this.deliver(
+			() =>
+				this.getBrevoClient().transactionalEmails.sendTransacEmail({
+					sender,
+					to: [{ email: recipient }],
+					subject: `Your stroll "${strollName}" is now ${newStatus} \uD83D\uDCE2`,
+					textContent: [`Hey ${authorUsername},`, '', `Heads up: "${strollName}" just changed status to ${newStatus}. ${statusCopy}`].join(
+						'\n'
+					),
+					htmlContent: this.wrapHtml(
+						'Stroll status update',
+						[
+							`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
+							`<p style="margin:0 0 20px;">Heads up \u2014 your stroll <strong>\u201C${safeStrollName}\u201D</strong> just changed status to ${this.statusBadge(safeStatus)}.</p>`,
+							`<p style="margin:0;">${statusCopy}</p>`
+						].join('')
+					)
+				}),
+			'The stroll status notification email could not be delivered.'
+		);
+	}
+
+	async sendStrollPurchasedEmail(recipient: string, authorUsername: string, strollName: string): Promise<void> {
+		if (!this.isDeliveryEnabled()) {
+			return;
+		}
+		this.validateRecipientAndUsername(recipient, authorUsername);
+		const safeUsername = this.escapeHtml(authorUsername);
+		const safeStrollName = this.escapeHtml(strollName);
+		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+
+		await this.deliver(
+			() =>
+				this.getBrevoClient().transactionalEmails.sendTransacEmail({
+					sender,
+					to: [{ email: recipient }],
+					subject: `Cha-ching! "${strollName}" was just purchased \uD83C\uDF89`,
+					textContent: [
+						`Hey ${authorUsername},`,
+						'',
+						`Your stroll "${strollName}" was just purchased. Awesome! You've just officially become a little bit famous.`
+					].join('\n'),
+					htmlContent: this.wrapHtml(
+						'Ka-ching!',
+						[
+							`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
+							`<p style="margin:0 0 20px;">Great news \u2014 your stroll <strong>\u201C${safeStrollName}\u201D</strong> was just purchased. Awesome! You've officially become a little bit famous. \uD83C\uDF1F</p>`,
+							'<p style="margin:0;">Keep exploring, keep creating \u2014 someone out there is about to walk in your footsteps.</p>'
+						].join('')
+					)
+				}),
+			'The stroll purchase notification email could not be delivered.'
+		);
+	}
+
+	private describeStatusChange(status: StrollActiveStatus): string {
+		const copy: Record<StrollActiveStatus, string> = {
+			[StrollActiveStatus.PUBLISHED]: "It's live and ready for the world to explore. Go you!",
+			[StrollActiveStatus.DRAFT]: "It's tucked back into drafts \u2014 keep polishing, it'll shine.",
+			[StrollActiveStatus.ARCHIVED]: "It's been archived. Anyone mid-adventure has been notified."
+		};
+		return copy[status] ?? 'Take a look next time you\u2019re in the app.';
+	}
+
+	private statusBadge(safeStatus: string): string {
+		return `<span style="display:inline-block;padding:2px 10px;border-radius:999px;background:#ecfeff;color:#0e7490;font-weight:600;font-size:13px;">${safeStatus}</span>`;
+	}
+
+	private button(url: string, label: string): string {
+		return [
+			'<table role="presentation" cellpadding="0" cellspacing="0" style="margin:4px 0 0;"><tr><td style="border-radius:8px;background:#06b6d4;">',
+			`<a href="${url}" style="display:inline-block;padding:12px 24px;font-weight:600;color:#ffffff;text-decoration:none;font-size:15px;">${label}</a>`,
+			'</td></tr></table>'
+		].join('');
+	}
+
+	private wrapHtml(preheader: string, bodyHtml: string): string {
+		return [
+			'<div style="background:#f1f5f9;padding:32px 16px;font-family:\'Segoe UI\',Tahoma,Geneva,Verdana,sans-serif;">',
+			`<span style="display:none;max-height:0;overflow:hidden;">${this.escapeHtml(preheader)}</span>`,
+			'<div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(15,23,42,0.08);">',
+			'<div style="background:linear-gradient(135deg,#06b6d4,#0891b2);padding:24px 28px;">',
+			'<span style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:0.3px;">\uD83D\uDEB6 StrollBar</span>',
+			'</div>',
+			`<div style="padding:28px;color:#0f172a;font-size:15px;line-height:1.5;">${bodyHtml}</div>`,
+			'<div style="padding:16px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:12px;">',
+			"You're receiving this because you have a StrollBar account. Happy strolling! \uD83C\uDF3F",
+			'</div>',
+			'</div>',
+			'</div>'
+		].join('');
+	}
+
+	private async deliver(send: () => Promise<unknown>, failureMessage: string): Promise<void> {
+		try {
+			await withRetry(
+				() => {
+					this.deliveryAttempts += 1;
+					return send();
+				},
+				{
+					maxAttempts: 3,
+					initialDelayMs: 1000,
+					maxDelayMs: 10000,
+					backoffMultiplier: 4,
+					isRetryable: (error: any) =>
+						error?.statusCode === 408 ||
+						error?.statusCode === 429 ||
+						(error?.statusCode >= 500 && error?.statusCode < 600) ||
+						error?.code === 'ETIMEDOUT' ||
+						error?.name === 'TypeError'
+				}
+			);
+			this.deliverySuccesses += 1;
+		} catch {
+			this.deliveryFailures += 1;
+			throw new ServiceUnavailableException(failureMessage);
+		}
+	}
+
+	private validateRecipientAndUsername(recipient: string, username: string): void {
+		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient) || recipient.length > 254) {
+			throw new BadRequestException('A valid recipient email address is required.');
+		}
+		if (!username.trim() || username.length > 50) {
+			throw new BadRequestException('A valid username is required.');
 		}
 	}
 

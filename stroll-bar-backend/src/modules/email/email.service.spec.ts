@@ -46,7 +46,7 @@ describe('EmailService', () => {
 			expect.objectContaining({
 				sender: { name: 'StrollBar', email: 'no-reply@example.com' },
 				to: [{ email: 'walker@example.com' }],
-				subject: 'Verify your StrollBar email address',
+				subject: expect.stringContaining('Verify your StrollBar email address'),
 				textContent: expect.stringContaining(`https://example.com/#/auth/verify-email?token=${validToken}`),
 				htmlContent: expect.stringContaining('Walker &lt;Admin&gt;')
 			})

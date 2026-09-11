@@ -8,12 +8,13 @@ import { UpdateStrollDto } from './dto/update-stroll.dto';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
 import { StrollCategory } from './dto/stroll-category.enum';
-import { UserRole } from '../users/entities/user.entity';
+import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { BadgesService } from '../badges/badges.service';
+import { EmailService } from '../email/email.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { calculateRouteLengthKm } from './route-length.util';
+import { BadgesService } from '../badges/badges.service';
 
 const SIMPLE_PUBLIC_STROLL_LIMIT = 3;
 const PRIVATE_STROLL_EXTRACT_LENGTH = 240;
@@ -30,8 +31,11 @@ export class StrollsService {
 		private readonly stagesRepository: Repository<StageEntity>,
 		@InjectRepository(AdventureEntity)
 		private readonly adventuresRepository: Repository<AdventureEntity>,
+		@InjectRepository(UserEntity)
+		private readonly usersRepository: Repository<UserEntity>,
 		private readonly cache: RedisCacheService,
 		private readonly badgesService: BadgesService,
+		private readonly emailService: EmailService,
 		private readonly dataSource: DataSource
 	) {}
 
@@ -258,6 +262,7 @@ export class StrollsService {
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
 		const wasArchived = stroll.activeStatus === StrollActiveStatus.ARCHIVED;
+		const previousActiveStatus = stroll.activeStatus;
 		const nextPublicity = dto.publicityFlag ?? stroll.publicityFlag;
 		this.assertPriceAllowed(nextPublicity, dto.price);
 		if (nextPublicity !== StrollPublicityFlag.PRIVATE && (dto.price !== undefined || stroll.price)) {
@@ -315,7 +320,20 @@ export class StrollsService {
 			);
 		}
 
+		if (saved.activeStatus !== previousActiveStatus) {
+			await this.notifyAuthorOfStatusChange(saved);
+		}
+
 		return saved;
+	}
+
+	private async notifyAuthorOfStatusChange(stroll: StrollEntity): Promise<void> {
+		const author = await this.usersRepository.findOne({ where: { id: stroll.authorId } });
+		if (!author) {
+			return;
+		}
+
+		await this.emailService.sendStrollStatusChangedEmail(author.email, author.username, stroll.name, stroll.activeStatus).catch(() => undefined);
 	}
 
 	async remove(strollId: string, currentUser: AuthenticatedUser) {

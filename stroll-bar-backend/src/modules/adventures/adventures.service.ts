@@ -7,13 +7,14 @@ import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
 import { UnlockStrollDto } from './dto/unlock-stroll.dto';
 import { AdventureResultsService } from '../achievements/adventure-results.service';
-import { BadgesService } from '../badges/badges.service';
+import { EmailService } from '../email/email.service';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AdventureEntity, AdventureProgressStatus } from './entities/adventure.entity';
 import { StageAttemptEntity } from './entities/stage-attempt.entity';
+import { BadgesService } from '../badges/badges.service';
 
 @Injectable()
 export class AdventuresService {
@@ -29,7 +30,8 @@ export class AdventuresService {
 		@InjectRepository(UserEntity)
 		private readonly usersRepository: Repository<UserEntity>,
 		private readonly adventureResultsService: AdventureResultsService,
-		private readonly badgesService: BadgesService
+		private readonly badgesService: BadgesService,
+		private readonly emailService: EmailService
 	) {}
 
 	async unlock(dto: UnlockStrollDto, currentUser: AuthenticatedUser) {
@@ -71,7 +73,21 @@ export class AdventuresService {
 
 		const savedAdventure = await this.adventuresRepository.save(adventure);
 		await this.badgesService.evaluateAndAward(currentUser.userId).catch(() => undefined);
+		await this.notifyAuthorOfPurchase(stroll, currentUser).catch(() => undefined);
 		return savedAdventure;
+	}
+
+	private async notifyAuthorOfPurchase(stroll: StrollEntity, buyer: AuthenticatedUser): Promise<void> {
+		if (stroll.authorId === buyer.userId) {
+			return;
+		}
+
+		const author = await this.usersRepository.findOne({ where: { id: stroll.authorId } });
+		if (!author) {
+			return;
+		}
+
+		await this.emailService.sendStrollPurchasedEmail(author.email, author.username, stroll.name);
 	}
 
 	async list(currentUser: AuthenticatedUser) {

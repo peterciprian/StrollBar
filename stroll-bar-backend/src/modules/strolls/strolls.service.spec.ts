@@ -36,6 +36,9 @@ describe('StrollsService authorization', () => {
 		find: jest.fn(),
 		findOne: jest.fn()
 	};
+	const usersRepository = {
+		findOne: jest.fn()
+	};
 	const cache = {
 		get: jest.fn(),
 		set: jest.fn(),
@@ -47,12 +50,17 @@ describe('StrollsService authorization', () => {
 	const badgesService = {
 		evaluateAndAward: jest.fn().mockResolvedValue([])
 	};
+	const emailService = {
+		sendStrollStatusChangedEmail: jest.fn().mockResolvedValue(undefined)
+	};
 	const service = new StrollsService(
 		strollsRepository as unknown as Repository<StrollEntity>,
 		stagesRepository as unknown as Repository<StageEntity>,
 		adventuresRepository as unknown as Repository<AdventureEntity>,
+		usersRepository as never,
 		cache as never,
 		badgesService as never,
+		emailService as never,
 		dataSource as never
 	);
 	const createDto = {
