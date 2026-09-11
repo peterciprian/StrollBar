@@ -16,6 +16,5 @@ export const SCREEN_DEFS: ScreenDef[] = [
 		labelKey: 'SCREENS.STROLL_LIST_TAB',
 		visibleWithoutLogin: false
 	},
-	{ id: 'creator-strolls', commands: ['/', 'creator', 'strolls', 'new'], labelKey: 'SCREENS.STATION_EDITOR_TAB', visibleWithoutLogin: false },
 	{ id: 'user-dashboard', commands: ['/', 'user-dashboard'], labelKey: 'SCREENS.USER_DASHBOARD_TAB', visibleWithoutLogin: false }
 ];
