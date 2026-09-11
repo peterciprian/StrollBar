@@ -274,10 +274,6 @@ export class AdventuresService {
 			throw new ForbiddenException('You are not allowed to access this adventure.');
 		}
 
-		if (adventure.progressStatus === AdventureProgressStatus.REVOKED) {
-			throw new ForbiddenException('This adventure has been revoked and can no longer be continued.');
-		}
-
 		return adventure;
 	}
 
