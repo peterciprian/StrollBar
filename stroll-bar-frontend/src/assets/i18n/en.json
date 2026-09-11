@@ -22,6 +22,20 @@
 		"HUF_SUFFIX": "HUF",
 		"KM_SUFFIX": "km"
 	},
+	"SHARED": {
+		"REPORT_PROBLEM": {
+			"TOOLTIP": "Report problem",
+			"BADGE": "Community safety",
+			"TITLE": "Report a problem with \"{{strollName}}\"",
+			"INTRO": "We want StrollBar to be a safe and welcoming place for everyone. Thank you for helping us keep it that way \u2014 tell us what's wrong and our team will take a look.",
+			"LABEL": "Describe the problem",
+			"PLACEHOLDER": "e.g. this stroll contains offensive language or misleading information\u2026",
+			"CANCEL": "Cancel",
+			"SEND": "Send report",
+			"SUBMITTED": "Thanks \u2014 your report has been submitted.",
+			"SUBMIT_ERROR": "Your report could not be submitted. Please try again."
+		}
+	},
 	"HEADER": {
 		"BRAND": "StrollBar",
 		"MAIN_NAV_ARIA": "Main navigation",
@@ -33,7 +47,8 @@
 		"REGISTER": "Register",
 		"ADMIN_USERS": "Users",
 		"ADMIN_ADVENTURES": "Adventures",
-		"ADMIN_BADGES": "Badges"
+		"ADMIN_BADGES": "Badges",
+		"ADMIN_ISSUES": "Issues"
 	},
 	"FOOTER": {
 		"BRAND": "StrollBar",
@@ -327,6 +342,8 @@
 			"COL_ACTIONS": "Actions",
 			"EDIT_TOOLTIP": "Edit stroll",
 			"DELETE_TOOLTIP": "Delete stroll",
+			"REPORTED_TOOLTIP": "This stroll has been reported",
+			"ISSUES_TOOLTIP": "View reports",
 			"DELETE_CONFIRM_TITLE": "Delete stroll?",
 			"DELETE_CONFIRM_MESSAGE": "Are you sure you want to delete \"{{itemName}}\"? This cannot be undone.",
 			"METRIC_TOTAL": "Total strolls",
@@ -453,6 +470,21 @@
 			"OPERATOR_lt": "<",
 			"OPERATOR_eq": "="
 		},
+		"ADMIN_ISSUES": {
+			"HEADER_TITLE": "Reported Strolls",
+			"SUBTITLE": "Every report submitted by users, grouped by stroll.",
+			"LOADING": "Loading reports…",
+			"LOAD_ERROR": "The reports could not be loaded.",
+			"EMPTY": "There are no reports yet.",
+			"METRIC_TOTAL": "Total reports",
+			"METRIC_STROLLS": "Reported strolls",
+			"COL_STROLL": "Stroll",
+			"COL_AUTHOR": "Author",
+			"COL_MESSAGE": "Report",
+			"COL_REPORTED_AT": "Reported",
+			"OPEN_EDITOR_TOOLTIP": "Open in stroll editor",
+			"SUSPENDED_CHIP": "Suspended"
+		},
 		"ADMIN_STATION_EDITOR": {
 			"LOADING": "Loading stroll…",
 			"STROLL_DETAILS_TITLE": "Stroll Details",
@@ -463,6 +495,7 @@
 			"STATUS_DRAFT": "Draft",
 			"STATUS_PUBLISHED": "Published",
 			"STATUS_ARCHIVED": "Archived",
+			"STATUS_SUSPENDED": "Suspended",
 			"PUBLICITY_LABEL": "Visibility",
 			"PUBLICITY_PUBLIC": "Public",
 			"PUBLICITY_UNLISTED": "Unlisted",

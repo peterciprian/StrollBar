@@ -64,6 +64,20 @@
 		padding-top: 16px;
 	}
 
+	&__report-row {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 8px;
+	}
+
+	&__report-btn {
+		color: #94a3b8;
+
+		&:hover {
+			color: #b91c1c;
+		}
+	}
+
 	&__reviews-title {
 		font-size: 16px;
 		margin: 0 0 12px;

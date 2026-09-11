@@ -22,6 +22,20 @@
 		"HUF_SUFFIX": "Ft",
 		"KM_SUFFIX": "km"
 	},
+	"SHARED": {
+		"REPORT_PROBLEM": {
+			"TOOLTIP": "Probléma bejelentése",
+			"BADGE": "Közösségi biztonság",
+			"TITLE": "Probléma bejelentése: \"{{strollName}}\"",
+			"INTRO": "Szeretnénk, hogy a StrollBar mindenki számára biztonságos és barátságos hely maradjon. Köszönjük, hogy segítesz ebben – írd le, mi a probléma, csapatunk hamarosan megvizsgálja.",
+			"LABEL": "Írd le a problémát",
+			"PLACEHOLDER": "pl. ez a séta sértő nyelvezetet vagy félrevezető információt tartalmaz…",
+			"CANCEL": "Mégse",
+			"SEND": "Bejelentés küldése",
+			"SUBMITTED": "Köszönjük – a bejelentésed elküldtük.",
+			"SUBMIT_ERROR": "A bejelentés küldése nem sikerült. Kérjük, próbáld újra."
+		}
+	},
 	"HEADER": {
 		"BRAND": "StrollBar",
 		"MAIN_NAV_ARIA": "Fő navigáció",
@@ -33,7 +47,8 @@
 		"REGISTER": "Regisztráció",
 		"ADMIN_USERS": "Felhasználók",
 		"ADMIN_ADVENTURES": "Kalandok",
-		"ADMIN_BADGES": "Jelvények"
+		"ADMIN_BADGES": "Jelvények",
+		"ADMIN_ISSUES": "Bejelentések"
 	},
 	"FOOTER": {
 		"BRAND": "StrollBar",
@@ -327,6 +342,8 @@
 			"COL_ACTIONS": "Műveletek",
 			"EDIT_TOOLTIP": "Túra szerkesztése",
 			"DELETE_TOOLTIP": "Túra törlése",
+			"REPORTED_TOOLTIP": "Ezt a sétát bejelentették",
+			"ISSUES_TOOLTIP": "Bejelentések megtekintése",
 			"DELETE_CONFIRM_TITLE": "Törlöd a sétát?",
 			"DELETE_CONFIRM_MESSAGE": "Biztosan törlöd ezt: \"{{itemName}}\"? Ez a művelet nem vonható vissza.",
 			"METRIC_TOTAL": "Összes séta",
@@ -453,6 +470,21 @@
 			"OPERATOR_lt": "<",
 			"OPERATOR_eq": "="
 		},
+		"ADMIN_ISSUES": {
+			"HEADER_TITLE": "Bejelentett túrák",
+			"SUBTITLE": "Minden felhasználói bejelentés, séták szerint csoportosítva.",
+			"LOADING": "Bejelentések betöltése…",
+			"LOAD_ERROR": "A bejelentéseket nem sikerült betölteni.",
+			"EMPTY": "Még nincs bejelentés.",
+			"METRIC_TOTAL": "Összes bejelentés",
+			"METRIC_STROLLS": "Bejelentett séták",
+			"COL_STROLL": "Séta",
+			"COL_AUTHOR": "Szerző",
+			"COL_MESSAGE": "Bejelentés",
+			"COL_REPORTED_AT": "Bejelentve",
+			"OPEN_EDITOR_TOOLTIP": "Megnyitás a szerkesztőben",
+			"SUSPENDED_CHIP": "Felfüggesztve"
+		},
 		"ADMIN_STATION_EDITOR": {
 			"LOADING": "Séta betöltése…",
 			"STROLL_DETAILS_TITLE": "Séta adatai",
@@ -463,6 +495,7 @@
 			"STATUS_DRAFT": "Piszkozat",
 			"STATUS_PUBLISHED": "Publikálva",
 			"STATUS_ARCHIVED": "Archiválva",
+			"STATUS_SUSPENDED": "Felfüggesztve",
 			"PUBLICITY_LABEL": "Láthatóság",
 			"PUBLICITY_PUBLIC": "Nyilvános",
 			"PUBLICITY_UNLISTED": "Nem listázott",

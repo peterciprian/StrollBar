@@ -24,7 +24,8 @@ interface AdminSectionDef {
 const ADMIN_SECTIONS: AdminSectionDef[] = [
 	{ id: 'user-list', labelKey: 'HEADER.ADMIN_USERS', icon: 'group', route: ['/admin/user-list'] },
 	{ id: 'adventures', labelKey: 'HEADER.ADMIN_ADVENTURES', icon: 'explore', route: ['/admin/adventures'] },
-	{ id: 'badges', labelKey: 'HEADER.ADMIN_BADGES', icon: 'emoji_events', route: ['/admin/badges'] }
+	{ id: 'badges', labelKey: 'HEADER.ADMIN_BADGES', icon: 'emoji_events', route: ['/admin/badges'] },
+	{ id: 'issues', labelKey: 'HEADER.ADMIN_ISSUES', icon: 'report_problem', route: ['/admin/issues'] }
 ];
 
 @Component({

@@ -1,0 +1,25 @@
+<div class="report-problem">
+	<div class="report-problem__eyebrow"><mat-icon>shield</mat-icon>{{ 'SHARED.REPORT_PROBLEM.BADGE' | translate }}</div>
+	<h2 mat-dialog-title>{{ 'SHARED.REPORT_PROBLEM.TITLE' | translate: { strollName: data.strollName } }}</h2>
+	<mat-dialog-content>
+		<p class="report-problem__intro">{{ 'SHARED.REPORT_PROBLEM.INTRO' | translate }}</p>
+
+		<mat-form-field appearance="outline" class="report-problem__field">
+			<mat-label>{{ 'SHARED.REPORT_PROBLEM.LABEL' | translate }}</mat-label>
+			<textarea
+				matInput
+				rows="5"
+				[(ngModel)]="message"
+				[maxlength]="maxLength"
+				[placeholder]="'SHARED.REPORT_PROBLEM.PLACEHOLDER' | translate"
+			></textarea>
+			<mat-hint align="end">{{ message.length }} / {{ maxLength }}</mat-hint>
+		</mat-form-field>
+	</mat-dialog-content>
+	<mat-dialog-actions align="end">
+		<button mat-button type="button" (click)="cancel()">{{ 'SHARED.REPORT_PROBLEM.CANCEL' | translate }}</button>
+		<button mat-flat-button color="warn" type="button" [disabled]="!message.trim() || submitting()" (click)="send()">
+			<mat-icon>send</mat-icon>{{ 'SHARED.REPORT_PROBLEM.SEND' | translate }}
+		</button>
+	</mat-dialog-actions>
+</div>

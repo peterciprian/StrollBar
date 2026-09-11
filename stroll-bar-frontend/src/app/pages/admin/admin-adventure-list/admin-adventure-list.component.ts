@@ -85,7 +85,9 @@ export class AdminAdventureListScreenComponent implements OnInit {
 						this.loadAssignableStrolls(page + 1, combined);
 						return;
 					}
-					this.assignableStrolls.set(combined.filter((stroll) => stroll.activeStatus !== 'archived'));
+					this.assignableStrolls.set(
+						combined.filter((stroll) => stroll.activeStatus !== 'archived' && stroll.activeStatus !== 'suspended')
+					);
 				}
 			});
 	}

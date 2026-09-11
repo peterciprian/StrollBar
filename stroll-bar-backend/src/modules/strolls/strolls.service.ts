@@ -263,6 +263,10 @@ export class StrollsService {
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
 		const previousActiveStatus = stroll.activeStatus;
+		const isSuspensionChange = dto.activeStatus === StrollActiveStatus.SUSPENDED || previousActiveStatus === StrollActiveStatus.SUSPENDED;
+		if (isSuspensionChange && currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('Only administrators can suspend or reinstate a stroll.');
+		}
 		const nextPublicity = dto.publicityFlag ?? stroll.publicityFlag;
 		this.assertPriceAllowed(nextPublicity, dto.price);
 		if (nextPublicity !== StrollPublicityFlag.PRIVATE && (dto.price !== undefined || stroll.price)) {

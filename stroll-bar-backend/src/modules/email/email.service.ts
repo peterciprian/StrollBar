@@ -205,7 +205,8 @@ export class EmailService {
 		const copy: Record<StrollActiveStatus, string> = {
 			[StrollActiveStatus.PUBLISHED]: "It's live and ready for the world to explore. Go you!",
 			[StrollActiveStatus.DRAFT]: "It's tucked back into drafts \u2014 keep polishing, it'll shine.",
-			[StrollActiveStatus.ARCHIVED]: "It's been archived. Anyone mid-adventure has been notified."
+			[StrollActiveStatus.ARCHIVED]: "It's been archived. Anyone mid-adventure has been notified.",
+			[StrollActiveStatus.SUSPENDED]: "It's been temporarily suspended pending a review of some reported content."
 		};
 		return copy[status] ?? 'Take a look next time you\u2019re in the app.';
 	}

@@ -15,6 +15,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { BadgesModule } from './modules/badges/badges.module';
 import { MediaModule } from './modules/media/media.module';
 import { EmailModule } from './modules/email/email.module';
+import { StrollReportsModule } from './modules/stroll-reports/stroll-reports.module';
 import { buildDatabaseOptions } from './database/database.config';
 import { AppThrottlerGuard } from './common/guards/app-throttler.guard';
 import { RequestLoggingMiddleware } from './common/middleware/request-logging.middleware';
@@ -47,6 +48,7 @@ import { AuditModule } from './common/audit.module';
 		BadgesModule,
 		MediaModule,
 		EmailModule,
+		StrollReportsModule,
 		AuditModule
 	],
 	controllers: [AppController],

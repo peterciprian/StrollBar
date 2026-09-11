@@ -4,6 +4,7 @@ import {
 	CreateStageRequest,
 	BulkImportStrollRequest,
 	CreateStrollRequest,
+	CreateStrollReportRequest,
 	CreateStrollReviewRequest,
 	ListStrollsQuery,
 	ReorderStagesRequest,
@@ -37,6 +38,10 @@ export class StrollsFeatureService {
 
 	submitReview(strollId: string, payload: CreateStrollReviewRequest) {
 		return this.api.submitStrollReview(strollId, payload);
+	}
+
+	report(strollId: string, payload: CreateStrollReportRequest) {
+		return this.api.reportStroll(strollId, payload);
 	}
 
 	getOwnedDetail(strollId: string) {

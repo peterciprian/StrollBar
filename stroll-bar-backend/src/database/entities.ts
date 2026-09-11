@@ -7,6 +7,7 @@ import { SocialIdentityEntity } from '../modules/auth/entities/social-identity.e
 import { StageEntity } from '../modules/stages/entities/stage.entity';
 import { StrollEntity } from '../modules/strolls/entities/stroll.entity';
 import { StrollReviewEntity } from '../modules/strolls/entities/stroll-review.entity';
+import { StrollReportEntity } from '../modules/stroll-reports/entities/stroll-report.entity';
 import { UserEntity } from '../modules/users/entities/user.entity';
 import { UserBadgeEntity } from '../modules/badges/entities/user-badge.entity';
 import { BadgeDefinitionEntity } from '../modules/badges/entities/badge-definition.entity';
@@ -18,6 +19,7 @@ export const DATABASE_ENTITIES = [
 	UserEntity,
 	StrollEntity,
 	StrollReviewEntity,
+	StrollReportEntity,
 	StageEntity,
 	AdventureEntity,
 	StageAttemptEntity,

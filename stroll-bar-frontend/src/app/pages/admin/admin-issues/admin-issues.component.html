@@ -1,0 +1,76 @@
+<div class="admin-issues">
+	<div class="admin-issues__header">
+		<div>
+			<span class="admin-issues__brand"><mat-icon>report_problem</mat-icon>{{ 'SCREENS.ADMIN_ISSUES.HEADER_TITLE' | translate }}</span>
+			<p class="admin-issues__subtitle">{{ 'SCREENS.ADMIN_ISSUES.SUBTITLE' | translate }}</p>
+		</div>
+	</div>
+
+	<div class="admin-issues__summary" aria-live="polite">
+		<div>
+			<span>{{ entries().length }}</span
+			>{{ 'SCREENS.ADMIN_ISSUES.METRIC_TOTAL' | translate }}
+		</div>
+		<div>
+			<span>{{ affectedStrollCount() }}</span
+			>{{ 'SCREENS.ADMIN_ISSUES.METRIC_STROLLS' | translate }}
+		</div>
+	</div>
+
+	<div class="admin-issues__content">
+		@if (loading()) {
+			<p class="admin-issues__message">{{ 'SCREENS.ADMIN_ISSUES.LOADING' | translate }}</p>
+		} @else if (loadError()) {
+			<p class="admin-issues__message admin-issues__message--error">{{ 'SCREENS.ADMIN_ISSUES.LOAD_ERROR' | translate }}</p>
+		}
+
+		<table mat-table [dataSource]="entries()" class="admin-issues__table" [hidden]="loading() || loadError()">
+			<ng-container matColumnDef="stroll">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ISSUES.COL_STROLL' | translate }}</th>
+				<td mat-cell *matCellDef="let entry">
+					<button
+						type="button"
+						class="admin-issues__stroll-link"
+						[disabled]="!entry.stroll"
+						[matTooltip]="'SCREENS.ADMIN_ISSUES.OPEN_EDITOR_TOOLTIP' | translate"
+						(click)="openStrollEditor(entry)"
+					>
+						{{ entry.stroll?.name ?? '—' }}
+					</button>
+					@if (entry.stroll?.activeStatus === 'suspended') {
+						<span class="admin-issues__suspended-chip">{{ 'SCREENS.ADMIN_ISSUES.SUSPENDED_CHIP' | translate }}</span>
+					}
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="author">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ISSUES.COL_AUTHOR' | translate }}</th>
+				<td mat-cell *matCellDef="let entry" class="admin-issues__author-cell">
+					<strong>{{ entry.author?.username ?? '—' }}</strong>
+					<span>{{ entry.author?.email }}</span>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="message">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ISSUES.COL_MESSAGE' | translate }}</th>
+				<td mat-cell *matCellDef="let entry" class="admin-issues__message-cell">{{ entry.report.message }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="reportedAt">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ISSUES.COL_REPORTED_AT' | translate }}</th>
+				<td mat-cell *matCellDef="let entry" class="admin-issues__date">
+					<strong>{{ entry.report.createdAt | date: 'mediumDate' }}</strong
+					><span>{{ entry.report.createdAt | date: 'shortTime' }}</span>
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+			<tr class="mat-row" *matNoDataRow>
+				<td class="mat-cell admin-issues__message" [attr.colspan]="displayedColumns.length">
+					{{ 'SCREENS.ADMIN_ISSUES.EMPTY' | translate }}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

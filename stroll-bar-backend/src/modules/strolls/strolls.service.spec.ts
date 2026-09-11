@@ -189,6 +189,7 @@ function buildStroll(overrides: Partial<StrollEntity> = {}): StrollEntity {
 		length: 0,
 		ratingAverage: 0,
 		ratingCount: 0,
+		reported: false,
 		createdAt: new Date(),
 		updatedAt: new Date(),
 		setIdIfMissing: jest.fn(),

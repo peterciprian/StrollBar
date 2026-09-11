@@ -57,6 +57,17 @@
 						</p>
 					}
 
+					<div class="adventure__report-row">
+						<button
+							mat-icon-button
+							class="adventure__report-btn"
+							[matTooltip]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
+							(click)="reportProblem()"
+						>
+							<mat-icon>report_problem</mat-icon>
+						</button>
+					</div>
+
 					<div class="adventure__nav-buttons">
 						<button mat-stroked-button [disabled]="!canGoPrevious" (click)="goToPreviousStage()">
 							<mat-icon>arrow_back</mat-icon>

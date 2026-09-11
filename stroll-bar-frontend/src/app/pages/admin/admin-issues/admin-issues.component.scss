@@ -1,0 +1,146 @@
+.admin-issues {
+	padding: 24px;
+	max-width: 1200px;
+	margin: 0 auto;
+
+	&__header {
+		display: flex;
+		align-items: stretch;
+		flex-direction: column;
+		gap: 12px;
+		justify-content: space-between;
+		margin-bottom: 16px;
+	}
+
+	&__brand {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		font-weight: 700;
+		font-size: 18px;
+	}
+
+	&__subtitle {
+		color: #64748b;
+		font-size: 13px;
+		margin: 4px 0 0 32px;
+	}
+
+	&__summary {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		border-block: 1px solid #e2e8f0;
+		margin-bottom: 16px;
+
+		div {
+			color: #64748b;
+			font-size: 11px;
+			padding: 12px 8px;
+			text-transform: uppercase;
+		}
+		span {
+			color: #0f172a;
+			display: block;
+			font-size: 22px;
+			font-weight: 800;
+		}
+	}
+
+	&__content {
+		flex: 1 1 auto;
+		background: #fff;
+		border: 1px solid #e2e8f0;
+		border-radius: 8px;
+		box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+		overflow-x: auto;
+		padding: 8px;
+	}
+
+	&__table {
+		min-width: 800px;
+		width: 100%;
+
+		.mat-mdc-header-cell {
+			background: #f8fafc;
+			border-bottom-color: #cbd5e1;
+			color: #475569;
+			font-size: 11px;
+			font-weight: 800;
+			text-transform: uppercase;
+		}
+
+		.mat-mdc-row:hover {
+			background: #f8fafc;
+		}
+	}
+
+	&__stroll-link {
+		background: none;
+		border: 0;
+		color: #0e7490;
+		cursor: pointer;
+		font: inherit;
+		font-weight: 700;
+		padding: 0;
+		text-align: left;
+		text-decoration: underline;
+
+		&:disabled {
+			color: #94a3b8;
+			cursor: default;
+			text-decoration: none;
+		}
+	}
+
+	&__suspended-chip {
+		background: #fef2f2;
+		border-radius: 999px;
+		color: #b91c1c;
+		display: inline-block;
+		font-size: 11px;
+		font-weight: 700;
+		margin-left: 8px;
+		padding: 1px 8px;
+		text-transform: uppercase;
+	}
+
+	&__author-cell,
+	&__date {
+		strong,
+		span {
+			display: block;
+		}
+		span {
+			color: #64748b;
+			font-size: 12px;
+			margin-top: 3px;
+		}
+	}
+
+	&__message-cell {
+		color: #334155;
+		font-size: 13px;
+		max-width: 360px;
+		white-space: pre-line;
+	}
+
+	&__message {
+		color: #64748b;
+		font-size: 13px;
+		padding: 16px;
+		text-align: center;
+
+		&--error {
+			color: #b91c1c;
+		}
+	}
+}
+
+@media (min-width: 700px) {
+	.admin-issues {
+		&__header {
+			align-items: center;
+			flex-direction: row;
+		}
+	}
+}

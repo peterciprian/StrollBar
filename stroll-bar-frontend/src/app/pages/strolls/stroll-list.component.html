@@ -39,6 +39,11 @@
 			<ng-container matColumnDef="name">
 				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_NAME' | translate }}</th>
 				<td mat-cell *matCellDef="let stroll" class="admin-stroll-list__name-cell">
+					@if (stroll.reported) {
+						<mat-icon class="admin-stroll-list__reported-icon" [matTooltip]="'SCREENS.ADMIN_STROLL_LIST.REPORTED_TOOLTIP' | translate"
+							>report_problem</mat-icon
+						>
+					}
 					<strong>{{ stroll.name }}</strong>
 					<span>{{ stroll.description }}</span>
 					@if (stroll.proposerText) {
@@ -104,10 +109,17 @@
 						[class.admin-stroll-list__status--published]="stroll.activeStatus === 'published'"
 						[class.admin-stroll-list__status--draft]="stroll.activeStatus === 'draft'"
 						[class.admin-stroll-list__status--archived]="stroll.activeStatus === 'archived'"
+						[class.admin-stroll-list__status--suspended]="stroll.activeStatus === 'suspended'"
 						role="status"
 					>
 						<mat-icon aria-hidden="true">{{
-							stroll.activeStatus === 'published' ? 'check_circle' : stroll.activeStatus === 'draft' ? 'edit_note' : 'archive'
+							stroll.activeStatus === 'published'
+								? 'check_circle'
+								: stroll.activeStatus === 'draft'
+									? 'edit_note'
+									: stroll.activeStatus === 'suspended'
+										? 'block'
+										: 'archive'
 						}}</mat-icon>
 						{{ 'SCREENS.ADMIN_STATION_EDITOR.STATUS_' + stroll.activeStatus.toUpperCase() | translate }}
 					</span>
@@ -120,6 +132,16 @@
 					<button mat-icon-button [matTooltip]="'SCREENS.ADMIN_STROLL_LIST.EDIT_TOOLTIP' | translate" (click)="editStroll(stroll.id)">
 						<mat-icon>edit</mat-icon>
 					</button>
+					@if (stroll.reported && isAdmin()) {
+						<button
+							mat-icon-button
+							color="warn"
+							[matTooltip]="'SCREENS.ADMIN_STROLL_LIST.ISSUES_TOOLTIP' | translate"
+							(click)="openIssues()"
+						>
+							<mat-icon>flag</mat-icon>
+						</button>
+					}
 					<button
 						mat-icon-button
 						[matTooltip]="'SCREENS.ADMIN_STROLL_LIST.DELETE_TOOLTIP' | translate"
@@ -132,7 +154,12 @@
 			</ng-container>
 
 			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr mat-row *matRowDef="let row; columns: displayedColumns" (dblclick)="editStroll(row.id)"></tr>
+			<tr
+				mat-row
+				*matRowDef="let row; columns: displayedColumns"
+				[class.admin-stroll-list__row--reported]="row.reported"
+				(dblclick)="editStroll(row.id)"
+			></tr>
 			<tr class="mat-row" *matNoDataRow>
 				<td class="mat-cell admin-stroll-list__message" [attr.colspan]="displayedColumns.length">
 					{{ 'SCREENS.ADMIN_STROLL_LIST.EMPTY' | translate }}

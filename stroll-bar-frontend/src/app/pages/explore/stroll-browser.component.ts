@@ -8,7 +8,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
@@ -18,6 +19,8 @@ import { StarRatingComponent } from '../../shared/star-rating.component';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
+import { NotificationService } from '../../core/services/notification.service';
+import { ReportProblemDialogComponent } from '../../shared/report-problem-dialog/report-problem-dialog.component';
 import { MockPaymentDialogComponent } from './mock-payment-dialog.component';
 
 type CategoryFilter = StrollCategory | 'ALL';
@@ -37,6 +40,7 @@ const VISIBLE_REVIEW_COUNT = 3;
 		MatIconModule,
 		MatButtonModule,
 		MatDialogModule,
+		MatTooltipModule,
 		TranslatePipe,
 		StrollCardComponent,
 		StarRatingComponent
@@ -48,6 +52,8 @@ export class StrollBrowserScreenComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
 	private readonly adventuresFeature = inject(AdventuresFeatureService);
 	private readonly tokenStorage = inject(TokenStorageService);
+	private readonly notification = inject(NotificationService);
+	private readonly translate = inject(TranslateService);
 	private readonly dialog = inject(MatDialog);
 	private readonly router = inject(Router);
 	private readonly destroyRef = inject(DestroyRef);
@@ -124,6 +130,36 @@ export class StrollBrowserScreenComponent implements OnInit {
 
 	protected toggleReviews(): void {
 		this.showAllReviews = !this.showAllReviews;
+	}
+
+	protected async reportProblem(): Promise<void> {
+		if (!this.selectedStroll) {
+			return;
+		}
+
+		if (!this.tokenStorage.getAccessToken()) {
+			await this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/explore' } });
+			return;
+		}
+
+		const message = await firstValueFrom(
+			this.dialog
+				.open(ReportProblemDialogComponent, {
+					data: { strollName: this.selectedStroll.name },
+					maxWidth: 'calc(100vw - 32px)',
+					width: '480px'
+				})
+				.afterClosed()
+		);
+
+		if (!message) {
+			return;
+		}
+
+		this.strollsFeature.report(this.selectedStroll.id, { message }).subscribe({
+			next: () => this.notification.showSuccess(this.translate.instant('SHARED.REPORT_PROBLEM.SUBMITTED')),
+			error: () => this.notification.showError(this.translate.instant('SHARED.REPORT_PROBLEM.SUBMIT_ERROR'))
+		});
 	}
 
 	private loadReviews(strollId: string): void {

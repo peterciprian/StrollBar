@@ -171,6 +171,18 @@
 		}
 	}
 
+	&__reported-icon {
+		color: #b91c1c;
+		float: right;
+		font-size: 18px;
+		height: 18px;
+		width: 18px;
+	}
+
+	&__row--reported {
+		background: #fef2f2 !important;
+	}
+
 	&__labels {
 		display: flex;
 		flex-wrap: wrap;
@@ -247,6 +259,10 @@
 		&--archived {
 			background: #f8fafc;
 			color: #475569;
+		}
+		&--suspended {
+			background: #fef2f2;
+			color: #b91c1c;
 		}
 	}
 

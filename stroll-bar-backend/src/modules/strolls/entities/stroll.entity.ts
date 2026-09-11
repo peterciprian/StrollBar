@@ -16,7 +16,8 @@ export interface StrollPrice {
 export enum StrollActiveStatus {
 	DRAFT = 'draft',
 	PUBLISHED = 'published',
-	ARCHIVED = 'archived'
+	ARCHIVED = 'archived',
+	SUSPENDED = 'suspended'
 }
 
 export enum StrollPublicityFlag {
@@ -93,6 +94,9 @@ export class StrollEntity {
 
 	@Column({ type: 'int', default: 0 })
 	ratingCount!: number;
+
+	@Column({ type: 'boolean', default: false })
+	reported!: boolean;
 
 	@CreateDateColumn({ type: DATABASE_DATE_COLUMN_TYPE })
 	createdAt!: Date;

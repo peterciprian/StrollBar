@@ -19,7 +19,8 @@ describe('buildDatabaseOptions', () => {
 			'AdventureResults1753300000000',
 			'StrollReviews1753400000000',
 			'UserBadges1753600000000',
-			'BadgeDefinitions1753700000000'
+			'BadgeDefinitions1753700000000',
+			'StrollReports1753800000000'
 		]);
 	});
 });

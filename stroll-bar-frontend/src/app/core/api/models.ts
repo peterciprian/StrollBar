@@ -1,6 +1,6 @@
 import { UserRole } from '../models/user-role.enum';
 
-export type StrollActiveStatus = 'draft' | 'published' | 'archived';
+export type StrollActiveStatus = 'draft' | 'published' | 'archived' | 'suspended';
 export type StrollPublicityFlag = 'public' | 'unlisted' | 'private';
 export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned' | 'revoked';
 
@@ -157,6 +157,7 @@ export interface Stroll {
 	stageCount: number;
 	ratingAverage: number;
 	ratingCount: number;
+	reported: boolean;
 	createdAt: string;
 	updatedAt: string;
 }
@@ -356,6 +357,38 @@ export interface AdminAdventureEntry {
 	adventure: Adventure;
 	stroll: Stroll | null;
 	owner: AdminAdventureOwner | null;
+}
+
+// ─── Stroll reports ───────────────────────────────────────────────────────
+
+export interface CreateStrollReportRequest {
+	message: string;
+}
+
+export interface StrollReport {
+	id: string;
+	strollId: string;
+	reporterUserId: string;
+	message: string;
+	createdAt: string;
+}
+
+export interface AdminStrollReportStrollSummary {
+	id: string;
+	name: string;
+	activeStatus: StrollActiveStatus;
+}
+
+export interface AdminStrollReportAuthor {
+	id: string;
+	username: string;
+	email: string;
+}
+
+export interface AdminStrollReportEntry {
+	report: StrollReport;
+	stroll: AdminStrollReportStrollSummary | null;
+	author: AdminStrollReportAuthor | null;
 }
 
 export interface SubmitStageAnswerRequest {

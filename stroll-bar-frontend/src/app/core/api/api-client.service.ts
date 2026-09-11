@@ -5,6 +5,7 @@ import {
 	AbortMultipartUploadRequest,
 	Achievement,
 	AdminAdventureEntry,
+	AdminStrollReportEntry,
 	AdventureDetailResponse,
 	AdventureResultResponse,
 	AdventureResultWithStroll,
@@ -24,6 +25,7 @@ import {
 	CreatePresignedUploadRequest,
 	CreateStageRequest,
 	CreateStrollRequest,
+	CreateStrollReportRequest,
 	CreateStrollReviewRequest,
 	DeleteStageResponse,
 	DeleteStrollResponse,
@@ -50,6 +52,7 @@ import {
 	Stroll,
 	StrollDetailResponse,
 	StrollListResponse,
+	StrollReport,
 	StrollReview,
 	StrollReviewListResponse,
 	SubmitStageAnswerRequest,
@@ -203,6 +206,16 @@ export class ApiClientService {
 
 	deleteMyReview(reviewId: string) {
 		return this.http.delete<{ id: string; deleted: boolean }>(`${this.baseUrl}/reviews/${reviewId}`);
+	}
+
+	// ─── Stroll reports ────────────────────────────────────────────────────
+
+	reportStroll(strollId: string, body: CreateStrollReportRequest) {
+		return this.http.post<StrollReport>(`${this.baseUrl}/strolls/${strollId}/reports`, body);
+	}
+
+	listStrollReports() {
+		return this.http.get<AdminStrollReportEntry[]>(`${this.baseUrl}/stroll-reports`);
 	}
 
 	// ─── Stages ────────────────────────────────────────────────────────────────

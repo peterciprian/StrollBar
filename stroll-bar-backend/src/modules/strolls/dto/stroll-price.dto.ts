@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsCurrency, IsNumber, IsPositive, IsString, MaxLength } from 'class-validator';
+import { IsISO4217CurrencyCode, IsNumber, IsPositive, IsString, MaxLength } from 'class-validator';
 
 export class StrollPriceDto {
 	@ApiProperty({ example: 3500 })
@@ -10,6 +10,6 @@ export class StrollPriceDto {
 	@ApiProperty({ example: 'HUF' })
 	@IsString()
 	@MaxLength(3)
-	@IsCurrency({ require_symbol: false })
+	@IsISO4217CurrencyCode()
 	currency!: string;
 }

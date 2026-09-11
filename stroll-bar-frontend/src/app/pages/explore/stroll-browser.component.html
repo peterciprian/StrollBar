@@ -103,6 +103,17 @@
 					</div>
 				</div>
 
+				<div class="stroll-browser__report-row">
+					<button
+						mat-icon-button
+						class="stroll-browser__report-btn"
+						[matTooltip]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
+						(click)="reportProblem()"
+					>
+						<mat-icon>report_problem</mat-icon>
+					</button>
+				</div>
+
 				@if (reviews.length) {
 					<section class="stroll-browser__reviews">
 						<h2 class="stroll-browser__reviews-title">{{ 'SCREENS.STROLL_BROWSER.REVIEWS_TITLE' | translate }}</h2>

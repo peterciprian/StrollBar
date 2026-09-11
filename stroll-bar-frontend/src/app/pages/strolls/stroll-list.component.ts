@@ -63,6 +63,10 @@ export class StrollListScreenComponent implements OnInit {
 		this.router.navigate(['/creator/strolls', strollId]);
 	}
 
+	protected openIssues(): void {
+		this.router.navigate(['/admin/issues']);
+	}
+
 	protected mediaCount(stroll: Stroll): number {
 		return (stroll.mediaUrls?.imageUrls?.length ?? 0) + (stroll.mediaUrls?.videoUrls?.length ?? 0);
 	}
