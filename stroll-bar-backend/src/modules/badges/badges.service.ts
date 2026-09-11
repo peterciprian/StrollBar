@@ -1,13 +1,18 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AdventureResultEntity } from '../achievements/entities/adventure-result.entity';
 import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
 import { StageAttemptEntity } from '../adventures/entities/stage-attempt.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { StrollActiveStatus, StrollEntity } from '../strolls/entities/stroll.entity';
 import { StrollCategory } from '../strolls/dto/stroll-category.enum';
 import { StrollReviewEntity } from '../strolls/entities/stroll-review.entity';
-import { BADGE_CATALOG, BadgeStats } from './badge-definitions';
+import { UserRole } from '../users/entities/user.entity';
+import { BadgeStats, evaluateRules, rulesUseMetaMetric } from './badge-rules';
+import { CreateBadgeDefinitionDto } from './dto/create-badge-definition.dto';
+import { UpdateBadgeDefinitionDto } from './dto/update-badge-definition.dto';
+import { BadgeDefinitionEntity } from './entities/badge-definition.entity';
 import { UserBadgeEntity } from './entities/user-badge.entity';
 
 @Injectable()
@@ -17,6 +22,8 @@ export class BadgesService {
 	constructor(
 		@InjectRepository(UserBadgeEntity)
 		private readonly userBadgesRepository: Repository<UserBadgeEntity>,
+		@InjectRepository(BadgeDefinitionEntity)
+		private readonly badgeDefinitionsRepository: Repository<BadgeDefinitionEntity>,
 		@InjectRepository(StrollEntity)
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(AdventureEntity)
@@ -29,23 +36,30 @@ export class BadgesService {
 		private readonly reviewsRepository: Repository<StrollReviewEntity>
 	) {}
 
+	// ─── User-facing ────────────────────────────────────────────────────────────
+
 	async getCatalogForUser(userId: string) {
 		await this.evaluateAndAward(userId);
 
-		const earnedByCode = await this.loadEarnedByCode(userId);
+		const [definitions, earnedByCode] = await Promise.all([
+			this.badgeDefinitionsRepository.find({ where: { active: true } }),
+			this.loadEarnedByCode(userId)
+		]);
 
-		return BADGE_CATALOG.map((definition) => ({
-			code: definition.code,
-			icon: definition.icon,
-			title: definition.title,
-			description: definition.description,
-			earned: earnedByCode.has(definition.code),
-			earnedAt: earnedByCode.get(definition.code) ?? null
-		})).sort((left, right) => {
-			if (left.earned !== right.earned) return left.earned ? -1 : 1;
-			if (left.earnedAt && right.earnedAt) return new Date(right.earnedAt).getTime() - new Date(left.earnedAt).getTime();
-			return 0;
-		});
+		return definitions
+			.map((definition) => ({
+				code: definition.code,
+				icon: definition.icon,
+				title: definition.title,
+				description: definition.description,
+				earned: earnedByCode.has(definition.code),
+				earnedAt: earnedByCode.get(definition.code) ?? null
+			}))
+			.sort((left, right) => {
+				if (left.earned !== right.earned) return left.earned ? -1 : 1;
+				if (left.earnedAt && right.earnedAt) return new Date(right.earnedAt).getTime() - new Date(left.earnedAt).getTime();
+				return 0;
+			});
 	}
 
 	async getEarnedCount(userId: string): Promise<number> {
@@ -58,6 +72,142 @@ export class BadgesService {
 		}
 	}
 
+	// Re-evaluates every active badge definition against the user's live stats: awards newly
+	// qualifying badges and revokes ones the user no longer qualifies for (e.g. after an admin
+	// tightens a rule). Never throws: this is always a side effect of some other action.
+	async evaluateAndAward(userId: string): Promise<{ awarded: string[]; revoked: string[] }> {
+		try {
+			const [definitions, existing] = await Promise.all([
+				this.badgeDefinitionsRepository.find({ where: { active: true } }),
+				this.userBadgesRepository.find({ where: { userId } })
+			]);
+
+			const activeCodes = new Set(definitions.map((definition) => definition.code));
+			const staleBadgeIds = existing.filter((badge) => !activeCodes.has(badge.badgeCode)).map((badge) => badge.id);
+			if (staleBadgeIds.length) {
+				await this.userBadgesRepository.delete({ id: In(staleBadgeIds) });
+			}
+
+			const earnedCodes = new Set(existing.filter((badge) => activeCodes.has(badge.badgeCode)).map((badge) => badge.badgeCode));
+			const stats = await this.computeStats(userId);
+			const awarded: string[] = [];
+			const revoked: string[] = [];
+
+			const statDefinitions = definitions.filter((definition) => !rulesUseMetaMetric(definition.rules));
+			const metaDefinitions = definitions.filter((definition) => rulesUseMetaMetric(definition.rules));
+
+			for (const definition of statDefinitions) {
+				const passes = evaluateRules(definition.rules, stats);
+				const isEarned = earnedCodes.has(definition.code);
+				if (passes && !isEarned) {
+					await this.award(userId, definition.code);
+					earnedCodes.add(definition.code);
+					awarded.push(definition.code);
+				} else if (!passes && isEarned) {
+					await this.revoke(userId, definition.code);
+					earnedCodes.delete(definition.code);
+					revoked.push(definition.code);
+				}
+			}
+
+			const statsWithMeta: BadgeStats = { ...stats, totalBadgesEarned: earnedCodes.size };
+			for (const definition of metaDefinitions) {
+				const passes = evaluateRules(definition.rules, statsWithMeta);
+				const isEarned = earnedCodes.has(definition.code);
+				if (passes && !isEarned) {
+					await this.award(userId, definition.code);
+					earnedCodes.add(definition.code);
+					awarded.push(definition.code);
+				} else if (!passes && isEarned) {
+					await this.revoke(userId, definition.code);
+					earnedCodes.delete(definition.code);
+					revoked.push(definition.code);
+				}
+			}
+
+			return { awarded, revoked };
+		} catch (error) {
+			this.logger.error('Badge evaluation failed.', error instanceof Error ? error.stack : String(error));
+			return { awarded: [], revoked: [] };
+		}
+	}
+
+	// ─── Admin CRUD ─────────────────────────────────────────────────────────────
+
+	async listDefinitionsForAdmin(currentUser: AuthenticatedUser): Promise<BadgeDefinitionEntity[]> {
+		this.assertAdmin(currentUser);
+		return this.badgeDefinitionsRepository.find({ order: { createdAt: 'ASC' } });
+	}
+
+	async createDefinition(dto: CreateBadgeDefinitionDto, currentUser: AuthenticatedUser): Promise<BadgeDefinitionEntity> {
+		this.assertAdmin(currentUser);
+
+		const existing = await this.badgeDefinitionsRepository.findOne({ where: { code: dto.code } });
+		if (existing) {
+			throw new ForbiddenException(`A badge with code ${dto.code} already exists.`);
+		}
+
+		const definition = this.badgeDefinitionsRepository.create({
+			code: dto.code,
+			icon: dto.icon,
+			title: dto.title,
+			description: dto.description,
+			active: dto.active ?? true,
+			rules: dto.rules
+		});
+		return this.badgeDefinitionsRepository.save(definition);
+	}
+
+	async updateDefinition(id: string, dto: UpdateBadgeDefinitionDto, currentUser: AuthenticatedUser): Promise<BadgeDefinitionEntity> {
+		this.assertAdmin(currentUser);
+
+		const definition = await this.badgeDefinitionsRepository.findOne({ where: { id } });
+		if (!definition) {
+			throw new NotFoundException(`Badge definition ${id} was not found.`);
+		}
+
+		if (dto.icon !== undefined) definition.icon = dto.icon;
+		if (dto.title !== undefined) definition.title = dto.title;
+		if (dto.description !== undefined) definition.description = dto.description;
+		if (dto.active !== undefined) definition.active = dto.active;
+		if (dto.rules !== undefined) definition.rules = dto.rules;
+
+		// Changing rules (or deactivating) can change who qualifies; re-evaluation happens
+		// lazily per-user on their next badge read or gameplay action.
+		return this.badgeDefinitionsRepository.save(definition);
+	}
+
+	async deleteDefinition(id: string, currentUser: AuthenticatedUser): Promise<{ id: string; deleted: boolean }> {
+		this.assertAdmin(currentUser);
+
+		const definition = await this.badgeDefinitionsRepository.findOne({ where: { id } });
+		if (!definition) {
+			throw new NotFoundException(`Badge definition ${id} was not found.`);
+		}
+
+		await this.badgeDefinitionsRepository.delete({ id });
+		await this.userBadgesRepository.delete({ badgeCode: definition.code });
+
+		return { id, deleted: true };
+	}
+
+	// ─── Internals ──────────────────────────────────────────────────────────────
+
+	private assertAdmin(currentUser: AuthenticatedUser): void {
+		if (currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('Administrator access required.');
+		}
+	}
+
+	private async award(userId: string, badgeCode: string): Promise<void> {
+		const badge = this.userBadgesRepository.create({ userId, badgeCode });
+		await this.userBadgesRepository.save(badge);
+	}
+
+	private async revoke(userId: string, badgeCode: string): Promise<void> {
+		await this.userBadgesRepository.delete({ userId, badgeCode });
+	}
+
 	private async loadEarnedByCode(userId: string): Promise<Map<string, Date>> {
 		try {
 			const earned = await this.userBadgesRepository.find({ where: { userId } });
@@ -66,43 +216,6 @@ export class BadgesService {
 			this.logger.error('Failed to load earned badges.', error instanceof Error ? error.stack : String(error));
 			return new Map();
 		}
-	}
-
-	// Never throws: badge evaluation is a side effect and must not break the calling flow.
-	async evaluateAndAward(userId: string): Promise<UserBadgeEntity[]> {
-		try {
-			const existing = await this.userBadgesRepository.find({ where: { userId } });
-			const earnedCodes = new Set(existing.map((badge) => badge.badgeCode));
-			const stats = await this.computeStats(userId);
-			const newlyAwarded: UserBadgeEntity[] = [];
-
-			for (const definition of BADGE_CATALOG) {
-				if (!definition.criteria || earnedCodes.has(definition.code)) continue;
-				if (definition.criteria(stats)) {
-					newlyAwarded.push(await this.award(userId, definition.code));
-					earnedCodes.add(definition.code);
-				}
-			}
-
-			// Meta badges depend on the total badge count, so they must be evaluated last.
-			for (const definition of BADGE_CATALOG) {
-				if (definition.minimumBadgeCount === undefined || earnedCodes.has(definition.code)) continue;
-				if (earnedCodes.size >= definition.minimumBadgeCount) {
-					newlyAwarded.push(await this.award(userId, definition.code));
-					earnedCodes.add(definition.code);
-				}
-			}
-
-			return newlyAwarded;
-		} catch (error) {
-			this.logger.error('Badge evaluation failed.', error instanceof Error ? error.stack : String(error));
-			return [];
-		}
-	}
-
-	private async award(userId: string, badgeCode: string): Promise<UserBadgeEntity> {
-		const badge = this.userBadgesRepository.create({ userId, badgeCode });
-		return this.userBadgesRepository.save(badge);
 	}
 
 	private async computeStats(userId: string): Promise<BadgeStats> {
@@ -185,7 +298,9 @@ export class BadgesService {
 			earlyBirdCompletions,
 			weekendCompletions,
 			maxCompletionsInSingleDay,
-			completedCategories
+			distinctCategoriesCompleted: completedCategories.size,
+			completedCategories,
+			totalBadgesEarned: 0
 		};
 	}
 }

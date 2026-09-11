@@ -1,0 +1,70 @@
+<div class="admin-badge-list">
+	<div class="admin-badge-list__header">
+		<div>
+			<span class="admin-badge-list__brand"><mat-icon>emoji_events</mat-icon>{{ 'SCREENS.ADMIN_BADGE_LIST.HEADER_TITLE' | translate }}</span>
+			<p class="admin-badge-list__subtitle">{{ 'SCREENS.ADMIN_BADGE_LIST.SUBTITLE' | translate }}</p>
+		</div>
+		<button mat-flat-button color="primary" (click)="openCreateDialog()">
+			<mat-icon>add</mat-icon>{{ 'SCREENS.ADMIN_BADGE_LIST.CREATE_BUTTON' | translate }}
+		</button>
+	</div>
+
+	<div class="admin-badge-list__content">
+		@if (loading()) {
+			<p class="admin-badge-list__message">{{ 'SCREENS.ADMIN_BADGE_LIST.LOADING' | translate }}</p>
+		} @else if (loadError()) {
+			<p class="admin-badge-list__message admin-badge-list__message--error">{{ 'SCREENS.ADMIN_BADGE_LIST.LOAD_ERROR' | translate }}</p>
+		}
+
+		<table mat-table [dataSource]="definitions()" class="admin-badge-list__table" [hidden]="loading() || loadError()">
+			<ng-container matColumnDef="badge">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_BADGE_LIST.COL_BADGE' | translate }}</th>
+				<td mat-cell *matCellDef="let definition" class="admin-badge-list__badge-cell">
+					<mat-icon>{{ definition.icon }}</mat-icon>
+					<div>
+						<strong>{{ definition.title }}</strong>
+						<span>{{ definition.description }}</span>
+						<small>{{ definition.code }}</small>
+					</div>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="rules">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_BADGE_LIST.COL_RULES' | translate }}</th>
+				<td mat-cell *matCellDef="let definition" class="admin-badge-list__rules-cell">{{ ruleSummary(definition) }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="active">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_BADGE_LIST.COL_ACTIVE' | translate }}</th>
+				<td mat-cell *matCellDef="let definition">
+					<mat-slide-toggle [checked]="definition.active" (change)="toggleActive(definition)"></mat-slide-toggle>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="actions">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_BADGE_LIST.COL_ACTIONS' | translate }}</th>
+				<td mat-cell *matCellDef="let definition">
+					<button mat-icon-button [matTooltip]="'SCREENS.ADMIN_BADGE_LIST.EDIT_TOOLTIP' | translate" (click)="openEditDialog(definition)">
+						<mat-icon>edit</mat-icon>
+					</button>
+					<button
+						mat-icon-button
+						color="warn"
+						[matTooltip]="'SCREENS.ADMIN_BADGE_LIST.DELETE_TOOLTIP' | translate"
+						(click)="deleteDefinition(definition)"
+					>
+						<mat-icon>delete</mat-icon>
+					</button>
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+			<tr class="mat-row" *matNoDataRow>
+				<td class="mat-cell admin-badge-list__message" [attr.colspan]="displayedColumns.length">
+					{{ 'SCREENS.ADMIN_BADGE_LIST.EMPTY' | translate }}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

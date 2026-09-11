@@ -12,6 +12,7 @@ import {
 	AssignAdventureRequest,
 	AuthResponse,
 	BadgeCatalogEntry,
+	BadgeDefinition,
 	BulkImportStrollRequest,
 	BulkImportStrollResponse,
 	BrowseStrollsResponse,
@@ -19,6 +20,7 @@ import {
 	CompleteMultipartUploadRequest,
 	CompleteMultipartUploadResponse,
 	CreateAchievementRequest,
+	CreateBadgeDefinitionRequest,
 	CreatePresignedUploadRequest,
 	CreateStageRequest,
 	CreateStrollRequest,
@@ -53,6 +55,7 @@ import {
 	SubmitStageAnswerRequest,
 	SubmitStageAnswerResponse,
 	UnlockStrollRequest,
+	UpdateBadgeDefinitionRequest,
 	UpdateStageRequest,
 	UpdateStrollRequest,
 	UpdateUserRequest,
@@ -294,6 +297,22 @@ export class ApiClientService {
 
 	getBadgeCatalog() {
 		return this.http.get<BadgeCatalogEntry[]>(`${this.baseUrl}/badges`);
+	}
+
+	listBadgeDefinitionsAdmin() {
+		return this.http.get<BadgeDefinition[]>(`${this.baseUrl}/badges/admin/definitions`);
+	}
+
+	createBadgeDefinition(body: CreateBadgeDefinitionRequest) {
+		return this.http.post<BadgeDefinition>(`${this.baseUrl}/badges/admin/definitions`, body);
+	}
+
+	updateBadgeDefinition(id: string, body: UpdateBadgeDefinitionRequest) {
+		return this.http.patch<BadgeDefinition>(`${this.baseUrl}/badges/admin/definitions/${id}`, body);
+	}
+
+	deleteBadgeDefinition(id: string) {
+		return this.http.delete<{ id: string; deleted: boolean }>(`${this.baseUrl}/badges/admin/definitions/${id}`);
 	}
 
 	// ─── Media ────────────────────────────────────────────────────────────────────

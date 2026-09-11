@@ -7,11 +7,20 @@ import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { StrollReviewEntity } from '../strolls/entities/stroll-review.entity';
 import { BadgesController } from './badges.controller';
 import { BadgesService } from './badges.service';
+import { BadgeDefinitionEntity } from './entities/badge-definition.entity';
 import { UserBadgeEntity } from './entities/user-badge.entity';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([UserBadgeEntity, StrollEntity, AdventureEntity, AdventureResultEntity, StageAttemptEntity, StrollReviewEntity])
+		TypeOrmModule.forFeature([
+			UserBadgeEntity,
+			BadgeDefinitionEntity,
+			StrollEntity,
+			AdventureEntity,
+			AdventureResultEntity,
+			StageAttemptEntity,
+			StrollReviewEntity
+		])
 	],
 	controllers: [BadgesController],
 	providers: [BadgesService],

@@ -10,6 +10,7 @@ import { AdventureScreenComponent } from './pages/progress/adventure.component';
 import { StrollListScreenComponent } from './pages/strolls/stroll-list.component';
 import { AdminUserListScreenComponent } from './pages/admin/admin-user-list/admin-user-list.component';
 import { AdminAdventureListScreenComponent } from './pages/admin/admin-adventure-list/admin-adventure-list.component';
+import { AdminBadgeListScreenComponent } from './pages/admin/admin-badge-list/admin-badge-list.component';
 import { UserDashboardScreenComponent } from './pages/user/user-dashboard/user-dashboard.component';
 import { ReviewsDashboardScreenComponent } from './pages/reviews/reviews-dashboard.component';
 import { SettingsPageComponent } from './pages/settings/settings.component';
@@ -39,6 +40,7 @@ export const routes: Routes = [
 	{ path: 'strolls', component: StrollListScreenComponent, canActivate: [authGuard] },
 	{ path: 'admin/user-list', component: AdminUserListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'admin/adventures', component: AdminAdventureListScreenComponent, canActivate: [adminGuard] },
+	{ path: 'admin/badges', component: AdminBadgeListScreenComponent, canActivate: [adminGuard] },
 	{ path: 'user-dashboard', component: UserDashboardScreenComponent, canActivate: [authGuard] },
 	{ path: 'creator/strolls/new', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },
 	{ path: 'creator/strolls/:strollId', component: StrollEditorPageComponent, canActivate: [authGuard], canDeactivate: [unsavedChangesGuard] },

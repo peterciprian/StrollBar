@@ -459,6 +459,59 @@ export interface BadgeCatalogEntry {
 	earnedAt: string | null;
 }
 
+export const BADGE_METRICS = [
+	'createdStrollsCount',
+	'publishedStrollsCount',
+	'purchasedStrollsCount',
+	'activeStrollsCount',
+	'completedStrollsCount',
+	'completionRate',
+	'reviewsCount',
+	'shortestCompletionSeconds',
+	'totalDistanceKm',
+	'flawlessCompletions',
+	'nightOwlCompletions',
+	'earlyBirdCompletions',
+	'weekendCompletions',
+	'maxCompletionsInSingleDay',
+	'distinctCategoriesCompleted',
+	'categoryCompleted',
+	'totalBadgesEarned'
+] as const;
+export type BadgeMetric = (typeof BADGE_METRICS)[number];
+
+export const BADGE_OPERATORS = ['gte', 'gt', 'lte', 'lt', 'eq'] as const;
+export type BadgeOperator = (typeof BADGE_OPERATORS)[number];
+
+export interface BadgeRuleCondition {
+	metric: BadgeMetric;
+	operator: BadgeOperator;
+	value: number | string;
+}
+
+export interface BadgeDefinition {
+	id: string;
+	code: string;
+	icon: string;
+	title: string;
+	description: string;
+	active: boolean;
+	rules: BadgeRuleCondition[];
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface CreateBadgeDefinitionRequest {
+	code: string;
+	icon: string;
+	title: string;
+	description: string;
+	active?: boolean;
+	rules: BadgeRuleCondition[];
+}
+
+export interface UpdateBadgeDefinitionRequest extends Partial<Omit<CreateBadgeDefinitionRequest, 'code'>> {}
+
 // ─── Media ────────────────────────────────────────────────────────────────────
 
 export type MediaUploadPurpose = 'stroll' | 'stage' | 'profile';

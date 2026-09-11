@@ -9,6 +9,7 @@ import { StrollEntity } from '../modules/strolls/entities/stroll.entity';
 import { StrollReviewEntity } from '../modules/strolls/entities/stroll-review.entity';
 import { UserEntity } from '../modules/users/entities/user.entity';
 import { UserBadgeEntity } from '../modules/badges/entities/user-badge.entity';
+import { BadgeDefinitionEntity } from '../modules/badges/entities/badge-definition.entity';
 import { AuditEventEntity } from '../common/audit.entity';
 
 export const DATABASE_ENTITIES = [
@@ -23,5 +24,6 @@ export const DATABASE_ENTITIES = [
 	MediaAssetEntity,
 	SocialIdentityEntity,
 	AuditEventEntity,
-	UserBadgeEntity
+	UserBadgeEntity,
+	BadgeDefinitionEntity
 ] as const;
