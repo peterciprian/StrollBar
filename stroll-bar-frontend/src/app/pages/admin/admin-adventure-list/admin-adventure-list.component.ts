@@ -70,10 +70,24 @@ export class AdminAdventureListScreenComponent implements OnInit {
 			.pipe(takeUntilDestroyed(this.destroyRef))
 			.subscribe({ next: (users) => this.users.set(users) });
 
+		this.loadAssignableStrolls();
+	}
+
+	// The strolls list endpoint caps `limit` at 100, so page through it to collect every stroll.
+	private loadAssignableStrolls(page = 1, accumulated: Stroll[] = []): void {
 		this.strollsFeature
-			.listOwned({ limit: 500 })
+			.listOwned({ page, limit: 100 })
 			.pipe(takeUntilDestroyed(this.destroyRef))
-			.subscribe({ next: (response) => this.assignableStrolls.set(response.items.filter((stroll) => stroll.activeStatus !== 'archived')) });
+			.subscribe({
+				next: (response) => {
+					const combined = [...accumulated, ...response.items];
+					if (combined.length < response.total && response.items.length > 0) {
+						this.loadAssignableStrolls(page + 1, combined);
+						return;
+					}
+					this.assignableStrolls.set(combined.filter((stroll) => stroll.activeStatus !== 'archived'));
+				}
+			});
 	}
 
 	private loadEntries(): void {
