@@ -193,6 +193,16 @@ export interface StrollReviewListResponse {
 	ratingCount: number;
 }
 
+export interface MyReviewStrollSummary {
+	id: string;
+	name: string;
+}
+
+export interface MyReviewListEntry {
+	review: StrollReview;
+	stroll: MyReviewStrollSummary | null;
+}
+
 export interface CreateStrollReviewRequest {
 	rating: number;
 	comment?: string;
@@ -398,6 +408,26 @@ export interface AdventureResult {
 export interface AdventureResultWithStroll {
 	result: AdventureResult;
 	stroll: Stroll | null;
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+
+export interface ShortestCompletion {
+	strollId: string;
+	strollName: string;
+	elapsedSeconds: number;
+}
+
+export interface AnalyticsSummaryResponse {
+	createdStrollsCount: number;
+	purchasedStrollsCount: number;
+	activeStrollsCount: number;
+	completedStrollsCount: number;
+	completionRate: number;
+	shortestCompletion: ShortestCompletion | null;
+	avgCompletionSeconds: number;
+	reviewsCount: number;
+	badgesCount: number;
 }
 
 // ─── Media ────────────────────────────────────────────────────────────────────

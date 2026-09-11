@@ -7,6 +7,7 @@ import {
 	AdventureDetailResponse,
 	AdventureResultResponse,
 	AdventureResultWithStroll,
+	AnalyticsSummaryResponse,
 	AuthResponse,
 	BulkImportStrollRequest,
 	BulkImportStrollResponse,
@@ -26,6 +27,7 @@ import {
 	LoginRequest,
 	LogoutRequest,
 	MessageResponse,
+	MyReviewListEntry,
 	NavigateAdventureRequest,
 	PasswordResetRequestResponse,
 	PresignedUploadResponse,
@@ -189,6 +191,14 @@ export class ApiClientService {
 		return this.http.post<StrollReview>(`${this.baseUrl}/strolls/${strollId}/reviews`, body);
 	}
 
+	listMyReviews() {
+		return this.http.get<MyReviewListEntry[]>(`${this.baseUrl}/reviews/mine`);
+	}
+
+	deleteMyReview(reviewId: string) {
+		return this.http.delete<{ id: string; deleted: boolean }>(`${this.baseUrl}/reviews/${reviewId}`);
+	}
+
 	// ─── Stages ────────────────────────────────────────────────────────────────
 
 	listStages(strollId: string) {
@@ -255,6 +265,12 @@ export class ApiClientService {
 
 	listAdventureResults() {
 		return this.http.get<AdventureResultWithStroll[]>(`${this.baseUrl}/achievements/results`);
+	}
+
+	// ─── Analytics ──────────────────────────────────────────────────────────────
+
+	getAnalyticsSummary() {
+		return this.http.get<AnalyticsSummaryResponse>(`${this.baseUrl}/analytics/summary`);
 	}
 
 	// ─── Media ────────────────────────────────────────────────────────────────────

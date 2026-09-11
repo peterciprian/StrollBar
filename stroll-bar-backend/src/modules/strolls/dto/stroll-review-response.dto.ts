@@ -33,3 +33,19 @@ export class StrollReviewListResponseDto {
 	@ApiProperty({ example: 12 })
 	ratingCount!: number;
 }
+
+export class MyReviewStrollSummaryDto {
+	@ApiProperty({ example: 'f7f3eb6a-711b-49e8-ae60-b7af77fa35c6' })
+	id!: string;
+
+	@ApiProperty({ example: "Fisherman's Bastion Mystery" })
+	name!: string;
+}
+
+export class MyReviewListResponseDto {
+	@ApiProperty({ type: StrollReviewResponseDto })
+	review!: StrollReviewResponseDto;
+
+	@ApiPropertyOptional({ type: MyReviewStrollSummaryDto, nullable: true })
+	stroll!: MyReviewStrollSummaryDto | null;
+}

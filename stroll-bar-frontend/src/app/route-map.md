@@ -24,6 +24,7 @@
 - /settings/profile
 - /settings/achievements
 - /settings/analytics
+- /settings/reviews
 - /settings/settings
 
 ## Notes

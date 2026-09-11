@@ -43,6 +43,31 @@ export class StrollReviewsService {
 		return review ? this.toResponse(review, await this.loadAuthorNames([review])) : null;
 	}
 
+	async findAllForUser(userId: string) {
+		const reviews = await this.reviewsRepository.find({ where: { userId }, order: { createdAt: 'DESC' } });
+		if (!reviews.length) return [];
+
+		const strollIds = [...new Set(reviews.map((review) => review.strollId))];
+		const strolls = await this.strollsRepository.find({ where: { id: In(strollIds) } });
+		const strollsById = new Map(strolls.map((stroll) => [stroll.id, stroll]));
+		const authorNames = await this.loadAuthorNames(reviews);
+
+		return reviews.map((review) => ({
+			review: this.toResponse(review, authorNames),
+			stroll: strollsById.has(review.strollId) ? { id: review.strollId, name: strollsById.get(review.strollId)!.name } : null
+		}));
+	}
+
+	async remove(reviewId: string, userId: string) {
+		const review = await this.reviewsRepository.findOne({ where: { id: reviewId, userId } });
+		if (!review) throw new NotFoundException('Review not found');
+
+		await this.reviewsRepository.delete({ id: reviewId });
+		await this.recalculateStrollRating(review.strollId);
+		await this.cache.deleteByPrefix('strolls:list:');
+		return { id: reviewId, deleted: true };
+	}
+
 	async submit(strollId: string, userId: string, dto: CreateStrollReviewDto) {
 		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
 		if (!stroll) throw new NotFoundException('Stroll not found');

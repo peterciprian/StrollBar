@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiCreatedResponse, ApiForbiddenResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { CreateStrollReviewDto } from './dto/create-stroll-review.dto';
-import { StrollReviewListResponseDto, StrollReviewResponseDto } from './dto/stroll-review-response.dto';
+import { MyReviewListResponseDto, StrollReviewListResponseDto, StrollReviewResponseDto } from './dto/stroll-review-response.dto';
 import { StrollReviewsService } from './stroll-reviews.service';
 
 @ApiTags('Strolls')
@@ -38,5 +38,27 @@ export class StrollReviewsController {
 	@Post()
 	submit(@Param('strollId') strollId: string, @Body() dto: CreateStrollReviewDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.reviewsService.submit(strollId, user.userId, dto);
+	}
+}
+
+@ApiTags('Reviews')
+@ApiBearerAuth('bearer')
+@UseGuards(JwtAuthGuard)
+@Controller('reviews')
+export class MyReviewsController {
+	constructor(private readonly reviewsService: StrollReviewsService) {}
+
+	@ApiOperation({ summary: 'List all reviews submitted by the current user, most recent first' })
+	@ApiOkResponse({ type: MyReviewListResponseDto, isArray: true })
+	@Get('mine')
+	findMine(@CurrentUser() user: AuthenticatedUser) {
+		return this.reviewsService.findAllForUser(user.userId);
+	}
+
+	@ApiOperation({ summary: 'Delete a review submitted by the current user' })
+	@ApiOkResponse({ description: 'Review deleted successfully.' })
+	@Delete(':reviewId')
+	remove(@Param('reviewId') reviewId: string, @CurrentUser() user: AuthenticatedUser) {
+		return this.reviewsService.remove(reviewId, user.userId);
 	}
 }

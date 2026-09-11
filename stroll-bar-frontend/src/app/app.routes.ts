@@ -10,6 +10,7 @@ import { AdventureScreenComponent } from './pages/progress/adventure.component';
 import { AdminStrollListScreenComponent } from './pages/admin/admin-stroll-list/admin-stroll-list.component';
 import { AdminUserListScreenComponent } from './pages/admin/admin-user-list/admin-user-list.component';
 import { UserDashboardScreenComponent } from './pages/user/user-dashboard/user-dashboard.component';
+import { ReviewsDashboardScreenComponent } from './pages/reviews/reviews-dashboard.component';
 import { SettingsPageComponent } from './pages/settings/settings.component';
 import { SettingsProfileComponent } from './pages/settings/profile/settings-profile.component';
 import { SettingsAchievementsComponent } from './pages/settings/achievements/settings-achievements.component';
@@ -49,7 +50,8 @@ export const routes: Routes = [
 			{ path: 'profile', component: SettingsProfileComponent },
 			{ path: 'achievements', component: SettingsAchievementsComponent },
 			{ path: 'analytics', component: SettingsAnalyticsComponent },
-			{ path: 'settings', component: SettingsPreferencesComponent }
+			{ path: 'settings', component: SettingsPreferencesComponent },
+			{ path: 'reviews', component: ReviewsDashboardScreenComponent }
 		]
 	},
 	{ path: '**', redirectTo: 'explore' }

@@ -24,15 +24,40 @@ h1 {
 	}
 }
 
+.settings-page__stat-card--clickable {
+	cursor: pointer;
+	transition:
+		box-shadow 0.15s ease,
+		transform 0.15s ease;
+
+	&:hover,
+	&:focus-visible {
+		box-shadow: 0 4px 16px rgba(15, 23, 42, 0.12);
+		transform: translateY(-1px);
+		outline: none;
+	}
+}
+
 .settings-page__stat-value {
 	font-size: 20px;
 	font-weight: 700;
 	color: #0f172a;
 }
 
+.settings-page__stat-subtitle {
+	color: #64748b;
+	font-size: 11px;
+	text-align: center;
+}
+
 .settings-page__muted {
 	color: #64748b;
 	font-size: 12px;
+}
+
+.settings-page__error {
+	color: #b91c1c;
+	font-size: 13px;
 }
 
 @media (min-width: 480px) {

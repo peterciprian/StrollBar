@@ -1,0 +1,59 @@
+<div class="reviews-dashboard">
+	<div class="reviews-dashboard__header">
+		<div>
+			<span class="reviews-dashboard__brand"><mat-icon>rate_review</mat-icon>{{ 'REVIEWS_DASHBOARD.TITLE' | translate }}</span>
+			<p class="reviews-dashboard__subtitle">{{ 'REVIEWS_DASHBOARD.SUBTITLE' | translate }}</p>
+		</div>
+	</div>
+
+	<div class="reviews-dashboard__content">
+		@if (loading()) {
+			<p class="reviews-dashboard__message">{{ 'REVIEWS_DASHBOARD.LOADING' | translate }}</p>
+		} @else if (loadError()) {
+			<p class="reviews-dashboard__message reviews-dashboard__message--error">{{ 'REVIEWS_DASHBOARD.LOAD_ERROR' | translate }}</p>
+		} @else if (!reviews().length) {
+			<p class="reviews-dashboard__message">{{ 'REVIEWS_DASHBOARD.EMPTY' | translate }}</p>
+		} @else {
+			<table mat-table [dataSource]="reviews()" class="reviews-dashboard__table">
+				<ng-container matColumnDef="stroll">
+					<th mat-header-cell *matHeaderCellDef>{{ 'REVIEWS_DASHBOARD.COL_STROLL' | translate }}</th>
+					<td mat-cell *matCellDef="let entry">
+						<a class="reviews-dashboard__stroll-link" (click)="openStroll(entry)">{{ entry.stroll?.name ?? '—' }}</a>
+					</td>
+				</ng-container>
+
+				<ng-container matColumnDef="rating">
+					<th mat-header-cell *matHeaderCellDef>{{ 'REVIEWS_DASHBOARD.COL_RATING' | translate }}</th>
+					<td mat-cell *matCellDef="let entry"><mat-icon class="reviews-dashboard__star">star</mat-icon>{{ entry.review.rating }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="comment">
+					<th mat-header-cell *matHeaderCellDef>{{ 'REVIEWS_DASHBOARD.COL_COMMENT' | translate }}</th>
+					<td mat-cell *matCellDef="let entry" class="reviews-dashboard__comment-cell">{{ entry.review.comment ?? '—' }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="date">
+					<th mat-header-cell *matHeaderCellDef>{{ 'REVIEWS_DASHBOARD.COL_DATE' | translate }}</th>
+					<td mat-cell *matCellDef="let entry">{{ entry.review.createdAt | date: 'mediumDate' }}</td>
+				</ng-container>
+
+				<ng-container matColumnDef="actions">
+					<th mat-header-cell *matHeaderCellDef>{{ 'REVIEWS_DASHBOARD.COL_ACTIONS' | translate }}</th>
+					<td mat-cell *matCellDef="let entry">
+						<button
+							mat-icon-button
+							color="warn"
+							[matTooltip]="'REVIEWS_DASHBOARD.DELETE_TOOLTIP' | translate"
+							(click)="deleteReview(entry)"
+						>
+							<mat-icon>delete</mat-icon>
+						</button>
+					</td>
+				</ng-container>
+
+				<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+				<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+			</table>
+		}
+	</div>
+</div>

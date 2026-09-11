@@ -11,6 +11,7 @@ import { StrollsModule } from './modules/strolls/strolls.module';
 import { StagesModule } from './modules/stages/stages.module';
 import { AchievementsModule } from './modules/achievements/achievements.module';
 import { AdventuresModule } from './modules/adventures/adventures.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { MediaModule } from './modules/media/media.module';
 import { EmailModule } from './modules/email/email.module';
 import { buildDatabaseOptions } from './database/database.config';
@@ -41,6 +42,7 @@ import { AuditModule } from './common/audit.module';
 		StagesModule,
 		AchievementsModule,
 		AdventuresModule,
+		AnalyticsModule,
 		MediaModule,
 		EmailModule,
 		AuditModule
