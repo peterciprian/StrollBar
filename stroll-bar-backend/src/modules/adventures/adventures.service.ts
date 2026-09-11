@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { In, Repository } from 'typeorm';
+import { AssignAdventureDto } from './dto/assign-adventure.dto';
 import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
 import { UnlockStrollDto } from './dto/unlock-stroll.dto';
@@ -9,7 +10,7 @@ import { AdventureResultsService } from '../achievements/adventure-results.servi
 import { BadgesService } from '../badges/badges.service';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
-import { UserRole } from '../users/entities/user.entity';
+import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AdventureEntity, AdventureProgressStatus } from './entities/adventure.entity';
 import { StageAttemptEntity } from './entities/stage-attempt.entity';
@@ -25,6 +26,8 @@ export class AdventuresService {
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(StageEntity)
 		private readonly stagesRepository: Repository<StageEntity>,
+		@InjectRepository(UserEntity)
+		private readonly usersRepository: Repository<UserEntity>,
 		private readonly adventureResultsService: AdventureResultsService,
 		private readonly badgesService: BadgesService
 	) {}
@@ -255,6 +258,19 @@ export class AdventuresService {
 			throw new ForbiddenException('You are not allowed to access this adventure.');
 		}
 
+		if (adventure.progressStatus === AdventureProgressStatus.REVOKED) {
+			throw new ForbiddenException('This adventure has been revoked and can no longer be continued.');
+		}
+
+		if (adventure.progressStatus !== AdventureProgressStatus.COMPLETED) {
+			const stroll = await this.strollsRepository.findOne({ where: { id: adventure.strollId }, select: { id: true, activeStatus: true } });
+			if (stroll?.activeStatus === StrollActiveStatus.ARCHIVED) {
+				adventure.progressStatus = AdventureProgressStatus.REVOKED;
+				await this.adventuresRepository.save(adventure);
+				throw new ForbiddenException('This adventure has been revoked because the stroll was archived.');
+			}
+		}
+
 		return adventure;
 	}
 
@@ -296,5 +312,95 @@ export class AdventuresService {
 		// stageIndex is a 1-based ordinal position, not the raw orderIndex column value,
 		// which may start at 0 or 1 depending on how the stroll's stages were created.
 		return { stroll, currentStage: stages[stageIndex - 1] ?? null };
+	}
+
+	async listAllForAdmin(currentUser: AuthenticatedUser) {
+		this.assertAdmin(currentUser);
+
+		const adventures = await this.adventuresRepository.find({ order: { updatedAt: 'DESC' } });
+		if (!adventures.length) {
+			return [];
+		}
+
+		const strollIds = [...new Set(adventures.map((adventure) => adventure.strollId))];
+		const ownerIds = [...new Set(adventures.map((adventure) => adventure.ownerUserId))];
+		const [strolls, owners] = await Promise.all([
+			this.strollsRepository.find({ where: { id: In(strollIds) } }),
+			this.usersRepository.find({ where: { id: In(ownerIds) }, select: { id: true, username: true, email: true } })
+		]);
+		const strollsById = new Map(strolls.map((stroll) => [stroll.id, stroll]));
+		const ownersById = new Map(owners.map((owner) => [owner.id, owner]));
+
+		return adventures.map((adventure) => ({
+			adventure,
+			stroll: strollsById.get(adventure.strollId) ?? null,
+			owner: ownersById.get(adventure.ownerUserId) ?? null
+		}));
+	}
+
+	async assignAdventure(dto: AssignAdventureDto, currentUser: AuthenticatedUser) {
+		this.assertAdmin(currentUser);
+
+		const [stroll, targetUser] = await Promise.all([
+			this.strollsRepository.findOne({ where: { id: dto.strollId } }),
+			this.usersRepository.findOne({ where: { id: dto.userId } })
+		]);
+
+		if (!stroll) {
+			throw new NotFoundException(`Stroll ${dto.strollId} was not found.`);
+		}
+		if (!targetUser) {
+			throw new NotFoundException(`User ${dto.userId} was not found.`);
+		}
+		if (stroll.activeStatus === StrollActiveStatus.ARCHIVED) {
+			throw new ForbiddenException('Archived strolls cannot be assigned.');
+		}
+
+		const existingAdventure = await this.adventuresRepository.findOne({
+			where: {
+				ownerUserId: dto.userId,
+				strollId: dto.strollId,
+				progressStatus: In([AdventureProgressStatus.PURCHASED, AdventureProgressStatus.IN_PROGRESS])
+			},
+			order: { updatedAt: 'DESC' }
+		});
+
+		if (existingAdventure) {
+			return existingAdventure;
+		}
+
+		const adventure = this.adventuresRepository.create({
+			ownerUserId: dto.userId,
+			strollId: dto.strollId,
+			purchaseTime: new Date(),
+			startDateTime: null,
+			completionDateTime: null,
+			progressStatus: AdventureProgressStatus.PURCHASED,
+			currentStageIndex: 1
+		});
+
+		return this.adventuresRepository.save(adventure);
+	}
+
+	async revokeAdventure(adventureId: string, currentUser: AuthenticatedUser) {
+		this.assertAdmin(currentUser);
+
+		if (!isUUID(adventureId)) {
+			throw new NotFoundException(`Adventure ${adventureId} was not found.`);
+		}
+
+		const adventure = await this.adventuresRepository.findOne({ where: { id: adventureId } });
+		if (!adventure) {
+			throw new NotFoundException(`Adventure ${adventureId} was not found.`);
+		}
+
+		adventure.progressStatus = AdventureProgressStatus.REVOKED;
+		return this.adventuresRepository.save(adventure);
+	}
+
+	private assertAdmin(currentUser: AuthenticatedUser): void {
+		if (currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('Administrator access required.');
+		}
 	}
 }

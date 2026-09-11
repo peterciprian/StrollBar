@@ -30,7 +30,9 @@
 		"PROFILE_MENU_ARIA": "Profil menü",
 		"LOGOUT": "Kijelentkezés",
 		"LOGIN": "Bejelentkezés",
-		"REGISTER": "Regisztráció"
+		"REGISTER": "Regisztráció",
+		"ADMIN_USERS": "Felhasználók",
+		"ADMIN_ADVENTURES": "Kalandok"
 	},
 	"FOOTER": {
 		"BRAND": "StrollBar",
@@ -214,7 +216,7 @@
 		"STROLL_LIST_TAB": "Sétáim",
 		"ADMIN_USER_LIST_TAB": "Admin · Felhasználók",
 		"STATION_EDITOR_TAB": "Állomásszerkesztő",
-		"USER_DASHBOARD_TAB": "Sétáim",
+		"USER_DASHBOARD_TAB": "Kalandok",
 		"CATEGORY_ALL": "Összes",
 		"CATEGORY_HISTORICAL": "Történelmi",
 		"CATEGORY_MYSTERY": "Rejtélyes",
@@ -373,6 +375,31 @@
 			"METRIC_CREATORS": "Készítők",
 			"METRIC_ADMINS": "Adminisztrátorok"
 		},
+		"ADMIN_ADVENTURE_LIST": {
+			"HEADER_TITLE": "Kalandok kezelése",
+			"SUBTITLE": "Minden felhasználó összes kalandja, kézi hozzárendelési eszközökkel.",
+			"LOADING": "Kalandok betöltése\u2026",
+			"LOAD_ERROR": "A kalandokat nem sikerült betölteni.",
+			"EMPTY": "Még nincs egyetlen kaland sem.",
+			"METRIC_TOTAL": "Összes kaland",
+			"METRIC_ACTIVE": "Aktív",
+			"METRIC_COMPLETED": "Teljesítve",
+			"METRIC_REVOKED": "Visszavonva",
+			"ASSIGN_TITLE": "Séta hozzárendelése felhasználóhoz",
+			"ASSIGN_USER_PLACEHOLDER": "Válassz felhasználót",
+			"ASSIGN_STROLL_PLACEHOLDER": "Válassz sétát",
+			"ASSIGN_BUTTON": "Hozzárendelés",
+			"ASSIGN_ERROR": "A sétát nem sikerült hozzárendelni.",
+			"COL_OWNER": "Felhasználó",
+			"COL_STROLL": "Séta",
+			"COL_STATUS": "Állapot",
+			"COL_PURCHASED": "Hozzárendelve",
+			"COL_ACTIONS": "Műveletek",
+			"REVOKE_TOOLTIP": "Eltávolítás a felhasználótól",
+			"REVOKE_CONFIRM_TITLE": "Eltávolítod a felhasználótól?",
+			"REVOKE_CONFIRM_MESSAGE": "Biztosan eltávolítod a(z) \"{{itemName}}\" sétát ettől a felhasználótól? A haladása visszavonásra kerül.",
+			"REVOKE_ERROR": "A kalandot nem sikerült visszavonni."
+		},
 		"ADMIN_STATION_EDITOR": {
 			"LOADING": "Séta betöltése…",
 			"STROLL_DETAILS_TITLE": "Séta adatai",
@@ -447,7 +474,9 @@
 			"STATUS_PURCHASED": "Indításra kész",
 			"STATUS_IN_PROGRESS": "Folyamatban",
 			"STATUS_COMPLETED": "Teljesítve",
-			"STATUS_ABANDONED": "Félbehagyva"
+			"STATUS_ABANDONED": "Félbehagyva",
+			"STATUS_REVOKED": "Visszavonva",
+			"REVOKED_HINT": "Ez a kaland visszavonásra került, nem folytatható."
 		}
 	},
 	"SETTINGS": {

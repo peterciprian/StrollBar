@@ -33,4 +33,16 @@ export class AdventuresFeatureService {
 	navigate(adventureId: string, direction: AdventureNavigateDirection) {
 		return this.api.navigateAdventure(adventureId, { direction });
 	}
+
+	listAllAdmin() {
+		return this.api.listAllAdventuresAdmin();
+	}
+
+	assign(userId: string, strollId: string) {
+		return this.api.assignAdventure({ userId, strollId });
+	}
+
+	revoke(adventureId: string) {
+		return this.api.revokeAdventure(adventureId);
+	}
 }

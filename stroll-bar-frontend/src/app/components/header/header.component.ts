@@ -14,6 +14,18 @@ import { logout, selectIsAdmin, selectIsLoggedIn, selectUsername } from '../../f
 import { SCREEN_DEFS, ScreenDef } from './screen-definitions';
 import { SETTINGS_SECTIONS } from '../../pages/settings/settings-nav.service';
 
+interface AdminSectionDef {
+	id: string;
+	labelKey: string;
+	icon: string;
+	route: string[];
+}
+
+const ADMIN_SECTIONS: AdminSectionDef[] = [
+	{ id: 'user-list', labelKey: 'HEADER.ADMIN_USERS', icon: 'group', route: ['/admin/user-list'] },
+	{ id: 'adventures', labelKey: 'HEADER.ADMIN_ADVENTURES', icon: 'explore', route: ['/admin/adventures'] }
+];
+
 @Component({
 	selector: 'app-header',
 	standalone: true,
@@ -42,6 +54,7 @@ export class HeaderComponent {
 	private readonly router = inject(Router);
 
 	protected readonly settingsSections = SETTINGS_SECTIONS;
+	protected readonly adminSections = ADMIN_SECTIONS;
 
 	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
 	protected readonly isAdmin = this.store.selectSignal(selectIsAdmin);
@@ -84,8 +97,6 @@ export class HeaderComponent {
 				return path === '/explore';
 			case 'strolls':
 				return path.startsWith('/strolls');
-			case 'admin-user-list':
-				return path.startsWith('/admin/user-list');
 			case 'creator-strolls':
 				return path.startsWith('/creator/strolls');
 			case 'user-dashboard':

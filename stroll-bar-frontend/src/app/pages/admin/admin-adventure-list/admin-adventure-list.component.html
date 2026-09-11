@@ -1,0 +1,122 @@
+<div class="admin-adventure-list">
+	<div class="admin-adventure-list__header">
+		<div>
+			<span class="admin-adventure-list__brand"><mat-icon>explore</mat-icon>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.HEADER_TITLE' | translate }}</span>
+			<p class="admin-adventure-list__subtitle">{{ 'SCREENS.ADMIN_ADVENTURE_LIST.SUBTITLE' | translate }}</p>
+		</div>
+	</div>
+
+	<div class="admin-adventure-list__summary" aria-live="polite">
+		<div>
+			<span>{{ entries().length }}</span
+			>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.METRIC_TOTAL' | translate }}
+		</div>
+		<div>
+			<span>{{ activeCount() }}</span
+			>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.METRIC_ACTIVE' | translate }}
+		</div>
+		<div>
+			<span>{{ completedCount() }}</span
+			>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.METRIC_COMPLETED' | translate }}
+		</div>
+		<div>
+			<span>{{ revokedCount() }}</span
+			>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.METRIC_REVOKED' | translate }}
+		</div>
+	</div>
+
+	<section class="admin-adventure-list__assign">
+		<h2>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.ASSIGN_TITLE' | translate }}</h2>
+		<div class="admin-adventure-list__assign-form">
+			<mat-form-field appearance="outline" subscriptSizing="dynamic">
+				<mat-select [(ngModel)]="selectedUserId" [placeholder]="'SCREENS.ADMIN_ADVENTURE_LIST.ASSIGN_USER_PLACEHOLDER' | translate">
+					@for (user of users(); track user.id) {
+						<mat-option [value]="user.id">{{ user.username }} ({{ user.email }})</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+			<mat-form-field appearance="outline" subscriptSizing="dynamic">
+				<mat-select [(ngModel)]="selectedStrollId" [placeholder]="'SCREENS.ADMIN_ADVENTURE_LIST.ASSIGN_STROLL_PLACEHOLDER' | translate">
+					@for (stroll of assignableStrolls(); track stroll.id) {
+						<mat-option [value]="stroll.id">{{ stroll.name }}</mat-option>
+					}
+				</mat-select>
+			</mat-form-field>
+			<button mat-flat-button color="primary" [disabled]="assigning || !selectedUserId || !selectedStrollId" (click)="assign()">
+				<mat-icon>person_add</mat-icon>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.ASSIGN_BUTTON' | translate }}
+			</button>
+			@if (assignError) {
+				<span class="admin-adventure-list__assign-error">{{ assignError | translate }}</span>
+			}
+		</div>
+	</section>
+
+	<div class="admin-adventure-list__content">
+		@if (loading()) {
+			<p class="admin-adventure-list__message">{{ 'SCREENS.ADMIN_ADVENTURE_LIST.LOADING' | translate }}</p>
+		} @else if (loadError()) {
+			<p class="admin-adventure-list__message admin-adventure-list__message--error">
+				{{ 'SCREENS.ADMIN_ADVENTURE_LIST.LOAD_ERROR' | translate }}
+			</p>
+		}
+
+		<table mat-table [dataSource]="entries()" class="admin-adventure-list__table" [hidden]="loading() || loadError()">
+			<ng-container matColumnDef="owner">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.COL_OWNER' | translate }}</th>
+				<td mat-cell *matCellDef="let entry" class="admin-adventure-list__owner-cell">
+					<strong>{{ entry.owner?.username ?? '—' }}</strong>
+					<span>{{ entry.owner?.email }}</span>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="stroll">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.COL_STROLL' | translate }}</th>
+				<td mat-cell *matCellDef="let entry">{{ entry.stroll?.name ?? '—' }}</td>
+			</ng-container>
+
+			<ng-container matColumnDef="status">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.COL_STATUS' | translate }}</th>
+				<td mat-cell *matCellDef="let entry">
+					<span
+						class="admin-adventure-list__status"
+						[class.admin-adventure-list__status--completed]="entry.adventure.progressStatus === 'completed'"
+						[class.admin-adventure-list__status--revoked]="entry.adventure.progressStatus === 'revoked'"
+						role="status"
+					>
+						{{ 'SCREENS.USER_DASHBOARD.STATUS_' + entry.adventure.progressStatus.toUpperCase() | translate }}
+					</span>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="purchased">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.COL_PURCHASED' | translate }}</th>
+				<td mat-cell *matCellDef="let entry" class="admin-adventure-list__date">
+					<strong>{{ entry.adventure.purchaseTime | date: 'mediumDate' }}</strong>
+				</td>
+			</ng-container>
+
+			<ng-container matColumnDef="actions">
+				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_ADVENTURE_LIST.COL_ACTIONS' | translate }}</th>
+				<td mat-cell *matCellDef="let entry">
+					<button
+						mat-icon-button
+						color="warn"
+						[matTooltip]="'SCREENS.ADMIN_ADVENTURE_LIST.REVOKE_TOOLTIP' | translate"
+						[disabled]="entry.adventure.progressStatus === 'revoked'"
+						(click)="revoke(entry)"
+					>
+						<mat-icon>person_remove</mat-icon>
+					</button>
+				</td>
+			</ng-container>
+
+			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+			<tr class="mat-row" *matNoDataRow>
+				<td class="mat-cell admin-adventure-list__message" [attr.colspan]="displayedColumns.length">
+					{{ 'SCREENS.ADMIN_ADVENTURE_LIST.EMPTY' | translate }}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>

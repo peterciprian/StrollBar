@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
 	ApiBadRequestResponse,
 	ApiBearerAuth,
@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AdventureDetailResponseDto } from './dto/adventure-detail-response.dto';
 import { AdventureResponseDto } from './dto/adventure-response.dto';
+import { AssignAdventureDto } from './dto/assign-adventure.dto';
 import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerResponseDto } from './dto/submit-stage-answer-response.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
@@ -34,6 +35,39 @@ export class AdventuresController {
 	@Get()
 	list(@CurrentUser() user: AuthenticatedUser) {
 		return this.adventuresService.list(user);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'List every adventure across all users (admin only)' })
+	@ApiOkResponse({ description: 'All adventures with owner and stroll details.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Administrator access required.' })
+	@UseGuards(JwtAuthGuard)
+	@Get('admin')
+	listAllAdmin(@CurrentUser() user: AuthenticatedUser) {
+		return this.adventuresService.listAllForAdmin(user);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Assign a stroll to a user (admin only)' })
+	@ApiCreatedResponse({ type: AdventureResponseDto, description: 'Adventure assigned successfully.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Administrator access required, or the stroll is archived.' })
+	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll or user not found.' })
+	@UseGuards(JwtAuthGuard)
+	@Post('admin/assign')
+	assign(@Body() dto: AssignAdventureDto, @CurrentUser() user: AuthenticatedUser) {
+		return this.adventuresService.assignAdventure(dto, user);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: "Revoke a user's adventure (admin only)" })
+	@ApiParam({ name: 'adventureId' })
+	@ApiOkResponse({ type: AdventureResponseDto, description: 'Adventure revoked successfully.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Administrator access required.' })
+	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Adventure not found.' })
+	@UseGuards(JwtAuthGuard)
+	@Delete('admin/:adventureId')
+	revoke(@Param('adventureId') adventureId: string, @CurrentUser() user: AuthenticatedUser) {
+		return this.adventuresService.revokeAdventure(adventureId, user);
 	}
 
 	@ApiBearerAuth('bearer')

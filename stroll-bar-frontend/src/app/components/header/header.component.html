@@ -51,6 +51,14 @@
 					<span>{{ section.labelKey | translate }}</span>
 				</a>
 			}
+			@if (isAdmin()) {
+				@for (section of adminSections; track section.id) {
+					<a mat-menu-item routerLinkActive="active" [routerLink]="section.route">
+						<mat-icon>{{ section.icon }}</mat-icon>
+						<span>{{ section.labelKey | translate }}</span>
+					</a>
+				}
+			}
 			<button mat-menu-item (click)="onLogout()">
 				<mat-icon>logout</mat-icon>
 				<span>{{ 'HEADER.LOGOUT' | translate }}</span>
@@ -83,6 +91,14 @@
 					<mat-icon>{{ section.icon }}</mat-icon>
 					<span>{{ section.labelKey | translate }}</span>
 				</a>
+			}
+			@if (isAdmin()) {
+				@for (section of adminSections; track section.id) {
+					<a mat-menu-item [routerLink]="section.route">
+						<mat-icon>{{ section.icon }}</mat-icon>
+						<span>{{ section.labelKey | translate }}</span>
+					</a>
+				}
 			}
 			<button mat-menu-item (click)="onLogout()">
 				<mat-icon>logout</mat-icon>

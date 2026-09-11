@@ -4,10 +4,12 @@ import { API_ENDPOINT } from './api-endpoint.token';
 import {
 	AbortMultipartUploadRequest,
 	Achievement,
+	AdminAdventureEntry,
 	AdventureDetailResponse,
 	AdventureResultResponse,
 	AdventureResultWithStroll,
 	AnalyticsSummaryResponse,
+	AssignAdventureRequest,
 	AuthResponse,
 	BadgeCatalogEntry,
 	BulkImportStrollRequest,
@@ -236,6 +238,20 @@ export class ApiClientService {
 
 	getAdventure(adventureId: string) {
 		return this.http.get<AdventureDetailResponse>(`${this.baseUrl}/adventures/${adventureId}`);
+	}
+
+	// ─── Adventures (admin) ────────────────────────────────────────────────────
+
+	listAllAdventuresAdmin() {
+		return this.http.get<AdminAdventureEntry[]>(`${this.baseUrl}/adventures/admin`);
+	}
+
+	assignAdventure(body: AssignAdventureRequest) {
+		return this.http.post<Adventure>(`${this.baseUrl}/adventures/admin/assign`, body);
+	}
+
+	revokeAdventure(adventureId: string) {
+		return this.http.delete<Adventure>(`${this.baseUrl}/adventures/admin/${adventureId}`);
 	}
 
 	getAdventureResult(adventureId: string) {

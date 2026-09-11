@@ -192,6 +192,15 @@
 			background: #fef2f2;
 			color: #991b1b;
 		}
+		&--revoked {
+			background: #fee2e2;
+			color: #991b1b;
+		}
+	}
+
+	&__muted {
+		color: #94a3b8;
+		font-size: 12px;
 	}
 }
 

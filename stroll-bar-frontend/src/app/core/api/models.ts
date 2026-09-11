@@ -2,7 +2,7 @@ import { UserRole } from '../models/user-role.enum';
 
 export type StrollActiveStatus = 'draft' | 'published' | 'archived';
 export type StrollPublicityFlag = 'public' | 'unlisted' | 'private';
-export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned';
+export type AdventureProgressStatus = 'purchased' | 'in_progress' | 'completed' | 'abandoned' | 'revoked';
 
 export enum StrollCategory {
 	ARCHITECTURE = 'ARCHITECTURE',
@@ -339,6 +339,23 @@ export interface Adventure {
 
 export interface UnlockStrollRequest {
 	strollId: string;
+}
+
+export interface AssignAdventureRequest {
+	userId: string;
+	strollId: string;
+}
+
+export interface AdminAdventureOwner {
+	id: string;
+	username: string;
+	email: string;
+}
+
+export interface AdminAdventureEntry {
+	adventure: Adventure;
+	stroll: Stroll | null;
+	owner: AdminAdventureOwner | null;
 }
 
 export interface SubmitStageAnswerRequest {

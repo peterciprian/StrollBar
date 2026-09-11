@@ -5,6 +5,7 @@
 - /explore (stroll browser)
 - /adventure/:adventureId
 - /admin/user-list (admin role only)
+- /admin/adventures (admin role only)
 - /user-dashboard
 - /users/:userId
 

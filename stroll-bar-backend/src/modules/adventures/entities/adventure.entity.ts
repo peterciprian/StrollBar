@@ -6,7 +6,8 @@ export enum AdventureProgressStatus {
 	PURCHASED = 'purchased',
 	IN_PROGRESS = 'in_progress',
 	COMPLETED = 'completed',
-	ABANDONED = 'abandoned'
+	ABANDONED = 'abandoned',
+	REVOKED = 'revoked'
 }
 
 @Entity('adventures')

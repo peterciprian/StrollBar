@@ -30,7 +30,9 @@
 		"PROFILE_MENU_ARIA": "Profile menu",
 		"LOGOUT": "Logout",
 		"LOGIN": "Login",
-		"REGISTER": "Register"
+		"REGISTER": "Register",
+		"ADMIN_USERS": "Users",
+		"ADMIN_ADVENTURES": "Adventures"
 	},
 	"FOOTER": {
 		"BRAND": "StrollBar",
@@ -214,7 +216,7 @@
 		"STROLL_LIST_TAB": "My Strolls",
 		"ADMIN_USER_LIST_TAB": "Admin · Users",
 		"STATION_EDITOR_TAB": "Station Editor",
-		"USER_DASHBOARD_TAB": "My Strolls",
+		"USER_DASHBOARD_TAB": "Adventures",
 		"CATEGORY_ALL": "All",
 		"CATEGORY_HISTORICAL": "Historical",
 		"CATEGORY_MYSTERY": "Mystery",
@@ -373,6 +375,31 @@
 			"METRIC_CREATORS": "Creators",
 			"METRIC_ADMINS": "Admins"
 		},
+		"ADMIN_ADVENTURE_LIST": {
+			"HEADER_TITLE": "Manage Adventures",
+			"SUBTITLE": "Every adventure across all users, with manual assignment tools.",
+			"LOADING": "Loading adventures…",
+			"LOAD_ERROR": "The adventures could not be loaded.",
+			"EMPTY": "There are no adventures yet.",
+			"METRIC_TOTAL": "Total adventures",
+			"METRIC_ACTIVE": "Active",
+			"METRIC_COMPLETED": "Completed",
+			"METRIC_REVOKED": "Revoked",
+			"ASSIGN_TITLE": "Assign a stroll to a user",
+			"ASSIGN_USER_PLACEHOLDER": "Select a user",
+			"ASSIGN_STROLL_PLACEHOLDER": "Select a stroll",
+			"ASSIGN_BUTTON": "Assign",
+			"ASSIGN_ERROR": "The stroll could not be assigned.",
+			"COL_OWNER": "User",
+			"COL_STROLL": "Stroll",
+			"COL_STATUS": "Status",
+			"COL_PURCHASED": "Assigned",
+			"COL_ACTIONS": "Actions",
+			"REVOKE_TOOLTIP": "Remove from user",
+			"REVOKE_CONFIRM_TITLE": "Remove from user?",
+			"REVOKE_CONFIRM_MESSAGE": "Are you sure you want to remove \"{{itemName}}\" from this user? Their progress will be revoked.",
+			"REVOKE_ERROR": "The adventure could not be revoked."
+		},
 		"ADMIN_STATION_EDITOR": {
 			"LOADING": "Loading stroll…",
 			"STROLL_DETAILS_TITLE": "Stroll Details",
@@ -447,7 +474,9 @@
 			"STATUS_PURCHASED": "Ready to start",
 			"STATUS_IN_PROGRESS": "In Progress",
 			"STATUS_COMPLETED": "Completed",
-			"STATUS_ABANDONED": "Abandoned"
+			"STATUS_ABANDONED": "Abandoned",
+			"STATUS_REVOKED": "Revoked",
+			"REVOKED_HINT": "This adventure was revoked and can no longer be continued."
 		}
 	},
 	"SETTINGS": {

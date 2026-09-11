@@ -52,6 +52,7 @@
 						[class.user-dashboard__status--progress]="detail.adventure.progressStatus === 'in_progress'"
 						[class.user-dashboard__status--purchased]="detail.adventure.progressStatus === 'purchased'"
 						[class.user-dashboard__status--abandoned]="detail.adventure.progressStatus === 'abandoned'"
+						[class.user-dashboard__status--revoked]="detail.adventure.progressStatus === 'revoked'"
 						role="status"
 					>
 						<mat-icon aria-hidden="true">{{
@@ -61,7 +62,9 @@
 									? 'directions_walk'
 									: detail.adventure.progressStatus === 'purchased'
 										? 'play_circle'
-										: 'pause_circle'
+										: detail.adventure.progressStatus === 'revoked'
+											? 'block'
+											: 'pause_circle'
 						}}</mat-icon>
 						{{ 'SCREENS.USER_DASHBOARD.STATUS_' + detail.adventure.progressStatus.toUpperCase() | translate }}
 					</span>
@@ -131,6 +134,8 @@
 						>
 							<mat-icon>replay</mat-icon>
 						</button>
+					} @else if (detail.adventure.progressStatus === 'revoked') {
+						<span class="user-dashboard__muted">{{ 'SCREENS.USER_DASHBOARD.REVOKED_HINT' | translate }}</span>
 					} @else {
 						<button
 							mat-icon-button

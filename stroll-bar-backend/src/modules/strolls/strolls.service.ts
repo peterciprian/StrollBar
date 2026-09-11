@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, ILike, Repository, SelectQueryBuilder } from 'typeorm';
+import { DataSource, ILike, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
@@ -9,7 +9,7 @@ import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
 import { StrollCategory } from './dto/stroll-category.enum';
 import { UserRole } from '../users/entities/user.entity';
-import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { BadgesService } from '../badges/badges.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
@@ -257,6 +257,7 @@ export class StrollsService {
 
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		const wasArchived = stroll.activeStatus === StrollActiveStatus.ARCHIVED;
 		const nextPublicity = dto.publicityFlag ?? stroll.publicityFlag;
 		this.assertPriceAllowed(nextPublicity, dto.price);
 		if (nextPublicity !== StrollPublicityFlag.PRIVATE && (dto.price !== undefined || stroll.price)) {
@@ -305,6 +306,15 @@ export class StrollsService {
 
 		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
+
+		if (!wasArchived && saved.activeStatus === StrollActiveStatus.ARCHIVED) {
+			// Archiving a stroll revokes any adventure that hasn't been completed yet.
+			await this.adventuresRepository.update(
+				{ strollId, progressStatus: In([AdventureProgressStatus.PURCHASED, AdventureProgressStatus.IN_PROGRESS]) },
+				{ progressStatus: AdventureProgressStatus.REVOKED }
+			);
+		}
+
 		return saved;
 	}
 
