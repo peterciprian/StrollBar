@@ -4,11 +4,25 @@
 			<span class="admin-stroll-list__brand"><mat-icon>route</mat-icon>{{ 'SCREENS.ADMIN_STROLL_LIST.HEADER_TITLE' | translate }}</span>
 			<p class="admin-stroll-list__subtitle">{{ 'SCREENS.ADMIN_STROLL_LIST.SUBTITLE' | translate }}</p>
 		</div>
-		<button mat-flat-button color="primary" class="admin-stroll-list__create-btn" (click)="createStroll()">
+		<button
+			mat-flat-button
+			color="primary"
+			class="admin-stroll-list__create-btn"
+			[disabled]="!emailVerified()"
+			[matTooltip]="emailVerified() ? '' : ('ERRORS.EMAIL_NOT_VERIFIED' | translate)"
+			(click)="createStroll()"
+		>
 			<mat-icon>add</mat-icon>
 			{{ 'SCREENS.ADMIN_STROLL_LIST.CREATE_BUTTON' | translate | uppercase }}
 		</button>
 	</div>
+	@if (!emailVerified()) {
+		<p class="admin-stroll-list__verify-notice">
+			<mat-icon>error_outline</mat-icon>
+			<span>{{ 'SCREENS.ADMIN_STROLL_LIST.VERIFY_EMAIL_NOTICE' | translate }}</span>
+			<a routerLink="/settings/profile">{{ 'SCREENS.ADMIN_STROLL_LIST.VERIFY_EMAIL_LINK' | translate }}</a>
+		</p>
+	}
 	<div class="admin-stroll-list__summary" aria-live="polite">
 		<div>
 			<span>{{ strolls().length }}</span
@@ -129,7 +143,12 @@
 			<ng-container matColumnDef="actions">
 				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_ACTIONS' | translate }}</th>
 				<td mat-cell *matCellDef="let stroll" class="admin-stroll-list__actions">
-					<button mat-icon-button [matTooltip]="'SCREENS.ADMIN_STROLL_LIST.EDIT_TOOLTIP' | translate" (click)="editStroll(stroll.id)">
+					<button
+						mat-icon-button
+						[disabled]="!emailVerified()"
+						[matTooltip]="(emailVerified() ? 'SCREENS.ADMIN_STROLL_LIST.EDIT_TOOLTIP' : 'ERRORS.EMAIL_NOT_VERIFIED') | translate"
+						(click)="editStroll(stroll.id)"
+					>
 						<mat-icon>edit</mat-icon>
 					</button>
 					@if (stroll.reported && isAdmin()) {
@@ -144,7 +163,8 @@
 					}
 					<button
 						mat-icon-button
-						[matTooltip]="'SCREENS.ADMIN_STROLL_LIST.DELETE_TOOLTIP' | translate"
+						[disabled]="!emailVerified()"
+						[matTooltip]="(emailVerified() ? 'SCREENS.ADMIN_STROLL_LIST.DELETE_TOOLTIP' : 'ERRORS.EMAIL_NOT_VERIFIED') | translate"
 						color="warn"
 						(click)="deleteStroll(stroll)"
 					>

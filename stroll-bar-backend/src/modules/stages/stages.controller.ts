@@ -14,6 +14,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateStageDto } from './dto/create-stage.dto';
 import { ReorderStagesDto } from './dto/reorder-stages.dto';
@@ -43,7 +44,7 @@ export class StagesController {
 	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation failed.' })
 	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to modify stages in this stroll.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Post()
 	create(@Param('strollId') strollId: string, @Body() dto: CreateStageDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.stagesService.create(strollId, dto, user);
@@ -56,7 +57,7 @@ export class StagesController {
 	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation failed.' })
 	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to modify stages in this stroll.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stage or stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Patch('reorder')
 	reorder(@Param('strollId') strollId: string, @Body() dto: ReorderStagesDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.stagesService.reorder(strollId, dto, user);
@@ -70,7 +71,7 @@ export class StagesController {
 	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation failed.' })
 	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to modify stages in this stroll.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stage or stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Patch(':stageId')
 	update(
 		@Param('strollId') strollId: string,
@@ -88,7 +89,7 @@ export class StagesController {
 	@ApiOkResponse({ description: 'Stage deleted successfully.', schema: { example: { id: '53fd478b-8cc2-4d1c-91ca-9f69ea9d5037', deleted: true } } })
 	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to modify stages in this stroll.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stage or stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Delete(':stageId')
 	remove(@Param('strollId') strollId: string, @Param('stageId') stageId: string, @CurrentUser() user: AuthenticatedUser) {
 		return this.stagesService.remove(strollId, stageId, user);

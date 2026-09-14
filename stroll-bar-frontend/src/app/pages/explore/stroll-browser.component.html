@@ -138,10 +138,8 @@
 					</section>
 				}
 
-				@if (startAdventureError()) {
-					<p class="stroll-browser__start-error">
-						<mat-icon>error_outline</mat-icon>{{ 'SCREENS.STROLL_BROWSER.START_ERROR' | translate }}
-					</p>
+				@if (startAdventureError(); as startErrorKey) {
+					<p class="stroll-browser__start-error"><mat-icon>error_outline</mat-icon>{{ startErrorKey | translate }}</p>
 				}
 				<button mat-flat-button color="primary" class="stroll-browser__start-btn" [disabled]="startingAdventure()" (click)="startAdventure()">
 					<mat-icon>{{ startingAdventure() ? 'hourglass_top' : 'hiking' }}</mat-icon>

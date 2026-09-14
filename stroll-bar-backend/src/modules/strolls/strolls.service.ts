@@ -15,8 +15,9 @@ import { EmailService } from '../email/email.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { calculateRouteLengthKm } from './route-length.util';
 import { BadgesService } from '../badges/badges.service';
+import { STROLL_CREATION_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
+import { AppErrorCode } from '../../common/utils/app-error-code';
 
-const SIMPLE_PUBLIC_STROLL_LIMIT = 3;
 const PRIVATE_STROLL_EXTRACT_LENGTH = 240;
 // Sorts strolls without a first-stage coordinate to the end of the nearest-first list.
 const MISSING_COORDINATE_FALLBACK = 10000;
@@ -366,28 +367,33 @@ export class StrollsService {
 	}
 
 	private async assertCanCreateWithPublicity(currentUser: AuthenticatedUser, publicityFlag: StrollPublicityFlag): Promise<void> {
-		if (currentUser.role === UserRole.ADMIN) {
+		const quota = resolveQuota(STROLL_CREATION_QUOTAS, currentUser.role);
+		const isPublic = publicityFlag === StrollPublicityFlag.PUBLIC;
+		const limit = isPublic ? quota.public : quota.private;
+
+		if (limit === Number.POSITIVE_INFINITY) {
 			return;
 		}
 
-		if (publicityFlag !== StrollPublicityFlag.PUBLIC) {
-			if (currentUser.role !== UserRole.PREMIUM) {
-				throw new ForbiddenException('Only premium users can create private or unlisted strolls.');
+		if (limit === 0) {
+			throw new ForbiddenException({
+				code: AppErrorCode.STROLL_PUBLICITY_NOT_ALLOWED,
+				message: 'Your account type cannot create private or unlisted strolls.'
+			});
+		}
+
+		const existingCount = await this.strollsRepository.count({
+			where: {
+				authorId: currentUser.userId,
+				publicityFlag: isPublic ? StrollPublicityFlag.PUBLIC : In([StrollPublicityFlag.PRIVATE, StrollPublicityFlag.UNLISTED])
 			}
-
-			return;
-		}
-
-		if (currentUser.role === UserRole.CREATOR) {
-			return;
-		}
-
-		const publicStrollCount = await this.strollsRepository.count({
-			where: { authorId: currentUser.userId, publicityFlag: StrollPublicityFlag.PUBLIC }
 		});
 
-		if (publicStrollCount >= SIMPLE_PUBLIC_STROLL_LIMIT) {
-			throw new ForbiddenException('Simple and premium users can create up to 3 public strolls.');
+		if (existingCount >= limit) {
+			throw new ForbiddenException({
+				code: AppErrorCode.STROLL_QUOTA_REACHED,
+				message: `Your account type can create up to ${limit} ${isPublic ? 'public' : 'private'} strolls.`
+			});
 		}
 	}
 

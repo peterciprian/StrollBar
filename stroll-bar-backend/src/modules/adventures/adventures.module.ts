@@ -10,13 +10,15 @@ import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { AdventureEntity } from './entities/adventure.entity';
 import { StageAttemptEntity } from './entities/stage-attempt.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([AdventureEntity, StageAttemptEntity, StrollEntity, StageEntity, UserEntity]),
 		AchievementsModule,
 		BadgesModule,
-		EmailModule
+		EmailModule,
+		AuthModule
 	],
 	controllers: [AdventuresController],
 	providers: [AdventuresService],

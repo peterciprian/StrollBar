@@ -8,6 +8,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
+import { EmailVerifiedGuard } from './guards/email-verified.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SocialIdentityEntity } from './entities/social-identity.entity';
 import { UserEntity } from '../users/entities/user.entity';
@@ -40,9 +41,10 @@ import { RecaptchaGuard } from '../../common/guards/recaptcha.guard';
 		JwtStrategy,
 		JwtAuthGuard,
 		OptionalJwtAuthGuard,
+		EmailVerifiedGuard,
 		RecaptchaService,
 		RecaptchaGuard
 	],
-	exports: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard, PassportModule, JwtModule]
+	exports: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard, EmailVerifiedGuard, PassportModule, JwtModule]
 })
 export class AuthModule {}

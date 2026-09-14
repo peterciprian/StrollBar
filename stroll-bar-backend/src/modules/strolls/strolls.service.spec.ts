@@ -96,6 +96,28 @@ describe('StrollsService authorization', () => {
 		expect(strollsRepository.count).not.toHaveBeenCalled();
 	});
 
+	it('rejects a private stroll for a simple user without counting', async () => {
+		await expect(service.create({ ...createDto, publicityFlag: StrollPublicityFlag.PRIVATE }, simpleUser)).rejects.toThrow(ForbiddenException);
+		expect(strollsRepository.count).not.toHaveBeenCalled();
+	});
+
+	it('allows a creator a fourth public stroll but rejects a fourth private one', async () => {
+		const creatorUser = { ...simpleUser, role: UserRole.CREATOR };
+
+		strollsRepository.count.mockResolvedValue(3);
+		await expect(service.create(createDto, creatorUser)).resolves.toBeDefined();
+
+		strollsRepository.count.mockResolvedValue(3);
+		await expect(service.create({ ...createDto, publicityFlag: StrollPublicityFlag.PRIVATE }, creatorUser)).rejects.toThrow(ForbiddenException);
+	});
+
+	it('rejects a 101st public stroll for a creator', async () => {
+		const creatorUser = { ...simpleUser, role: UserRole.CREATOR };
+		strollsRepository.count.mockResolvedValue(100);
+
+		await expect(service.create(createDto, creatorUser)).rejects.toThrow(ForbiddenException);
+	});
+
 	it('requires purchase before another user can read private stroll details', async () => {
 		const privateStroll = buildStroll({ publicityFlag: StrollPublicityFlag.PRIVATE });
 		strollsRepository.findOne.mockResolvedValue(privateStroll);

@@ -221,6 +221,12 @@
 			"LOGIN_ACCOUNT": "Bejelentkezés"
 		}
 	},
+	"ERRORS": {
+		"EMAIL_NOT_VERIFIED": "Előbb erősítsd meg az e-mail címedet. A profilodnál újraküldheted a megerősítő levelet.",
+		"STROLL_PUBLICITY_NOT_ALLOWED": "A fióktípusod nem hozhat létre privát vagy nem listázott sétákat. Válts prémium fiókra.",
+		"STROLL_QUOTA_REACHED": "Elérted a fióktípusodhoz tartozó sétalimitet.",
+		"PURCHASE_QUOTA_REACHED": "Elérted a fióktípusodhoz tartozó feloldási limitet."
+	},
 	"EXPLORE": {
 		"FEED_TITLE": "Séták felfedezése",
 		"FEED_SUBTITLE": "Böngéssz a nyilvános séták között kereséssel és szűrőkkel.",
@@ -353,6 +359,8 @@
 			"HEADER_TITLE": "Túrák kezelése",
 			"SUBTITLE": "Publikálás, láthatóság, tartalom és legutóbbi aktivitás egy helyen.",
 			"CREATE_BUTTON": "Új túra létrehozása",
+			"VERIFY_EMAIL_NOTICE": "Séták létrehozásához és szerkesztéséhez erősítsd meg az e-mail címedet.",
+			"VERIFY_EMAIL_LINK": "Ugrás a profilodhoz",
 			"LOADING": "Sétáid betöltése…",
 			"LOAD_ERROR": "A sétáidat nem sikerült betölteni.",
 			"EMPTY": "Még nem hoztál létre sétát.",

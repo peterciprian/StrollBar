@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -12,14 +12,14 @@ import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 
 import { BulkImportStrollRequest, Stroll } from '../../core/api/models';
-import { selectIsAdmin } from '../../features/auth/auth.state';
+import { selectEmailVerified, selectIsAdmin } from '../../features/auth/auth.state';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
 
 @Component({
 	selector: 'app-stroll-list-screen',
 	standalone: true,
-	imports: [CommonModule, FormsModule, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
+	imports: [CommonModule, FormsModule, RouterLink, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
 	templateUrl: './stroll-list.component.html',
 	styleUrls: ['./stroll-list.component.scss']
 })
@@ -30,6 +30,7 @@ export class StrollListScreenComponent implements OnInit {
 	private readonly store = inject(Store);
 
 	protected readonly isAdmin = this.store.selectSignal(selectIsAdmin);
+	protected readonly emailVerified = this.store.selectSignal(selectEmailVerified);
 	protected readonly displayedColumns = ['name', 'status', 'visibility', 'stations', 'labels', 'media', 'updated', 'actions'];
 	protected readonly strolls = signal<Stroll[]>([]);
 	protected readonly loading = signal(true);

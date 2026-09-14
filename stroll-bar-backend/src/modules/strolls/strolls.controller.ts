@@ -15,6 +15,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
@@ -76,7 +77,8 @@ export class StrollsController {
 	@ApiOperation({ summary: 'Create a stroll' })
 	@ApiCreatedResponse({ type: StrollResponseDto, description: 'Stroll created successfully.' })
 	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation failed.' })
-	@UseGuards(JwtAuthGuard)
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Email not verified, or the stroll quota for your account type is reached.' })
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Post()
 	create(@Body() dto: CreateStrollDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.strollsService.create(dto, user);
@@ -87,7 +89,7 @@ export class StrollsController {
 	@ApiCreatedResponse({ type: StrollDetailResponseDto, description: 'Stroll and stages imported successfully.' })
 	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'The bulk payload failed validation.' })
 	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Only administrators can bulk import strolls.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Post('bulk-import')
 	bulkImport(@Body() dto: BulkImportStrollDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.strollsService.bulkImport(dto, user);
@@ -107,9 +109,9 @@ export class StrollsController {
 	@ApiOperation({ summary: 'Update a stroll' })
 	@ApiParam({ name: 'strollId' })
 	@ApiOkResponse({ type: StrollResponseDto, description: 'Stroll updated successfully.' })
-	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to modify this stroll.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Email not verified, or you are not allowed to modify this stroll.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Patch(':strollId')
 	update(@Param('strollId') strollId: string, @Body() dto: UpdateStrollDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.strollsService.update(strollId, dto, user);
@@ -122,9 +124,9 @@ export class StrollsController {
 		description: 'Stroll deleted successfully.',
 		schema: { example: { id: '0e86308f-78cd-4929-a7d8-9db9c3307ee6', deleted: true } }
 	})
-	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to modify this stroll.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Email not verified, or you are not allowed to modify this stroll.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Delete(':strollId')
 	remove(@Param('strollId') strollId: string, @CurrentUser() user: AuthenticatedUser) {
 		return this.strollsService.remove(strollId, user);

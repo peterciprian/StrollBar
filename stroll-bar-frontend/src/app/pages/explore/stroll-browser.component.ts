@@ -22,6 +22,8 @@ import { TokenStorageService } from '../../core/services/token-storage.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { ReportProblemDialogComponent } from '../../shared/report-problem-dialog/report-problem-dialog.component';
 import { MockPaymentDialogComponent } from './mock-payment-dialog.component';
+import { extractErrorCode } from '../../core/utils/http-error.util';
+import { AppErrorCode } from '../../core/models/app-error-code';
 
 type CategoryFilter = StrollCategory | 'ALL';
 
@@ -68,7 +70,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 	protected sortBy: StrollSortOption = 'newest';
 	protected selectedStroll: StrollSummary | null = null;
 	protected readonly startingAdventure = signal(false);
-	protected readonly startAdventureError = signal(false);
+	protected readonly startAdventureError = signal<string | null>(null);
 	protected readonly locatingUser = signal(false);
 	protected readonly locationError = signal(false);
 	protected reviews: StrollReview[] = [];
@@ -116,7 +118,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 
 	protected selectStrollCard(stroll: StrollSummary): void {
 		this.selectedStroll = stroll;
-		this.startAdventureError.set(false);
+		this.startAdventureError.set(null);
 		this.loadReviews(stroll.id);
 	}
 
@@ -202,16 +204,27 @@ export class StrollBrowserScreenComponent implements OnInit {
 		}
 
 		this.startingAdventure.set(true);
-		this.startAdventureError.set(false);
+		this.startAdventureError.set(null);
 
 		try {
 			const adventure = await firstValueFrom(this.adventuresFeature.unlock(this.selectedStroll.id));
 			await firstValueFrom(this.adventuresFeature.start(adventure.id));
 			await this.router.navigate(['/adventure', adventure.id]);
-		} catch {
-			this.startAdventureError.set(true);
+		} catch (error) {
+			this.startAdventureError.set(this.resolveStartErrorKey(error));
 		} finally {
 			this.startingAdventure.set(false);
+		}
+	}
+
+	private resolveStartErrorKey(error: unknown): string {
+		switch (extractErrorCode(error)) {
+			case AppErrorCode.EMAIL_NOT_VERIFIED:
+				return 'ERRORS.EMAIL_NOT_VERIFIED';
+			case AppErrorCode.PURCHASE_QUOTA_REACHED:
+				return 'ERRORS.PURCHASE_QUOTA_REACHED';
+			default:
+				return 'SCREENS.STROLL_BROWSER.START_ERROR';
 		}
 	}
 

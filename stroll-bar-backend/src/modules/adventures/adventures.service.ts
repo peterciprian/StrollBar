@@ -15,6 +15,8 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { AdventureEntity, AdventureProgressStatus } from './entities/adventure.entity';
 import { StageAttemptEntity } from './entities/stage-attempt.entity';
 import { BadgesService } from '../badges/badges.service';
+import { STROLL_PURCHASE_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
+import { AppErrorCode } from '../../common/utils/app-error-code';
 
 @Injectable()
 export class AdventuresService {
@@ -61,6 +63,8 @@ export class AdventuresService {
 			return existingAdventure;
 		}
 
+		await this.assertCanPurchase(currentUser, stroll.publicityFlag);
+
 		const adventure = this.adventuresRepository.create({
 			ownerUserId: currentUser.userId,
 			strollId: dto.strollId,
@@ -75,6 +79,33 @@ export class AdventuresService {
 		await this.badgesService.evaluateAndAward(currentUser.userId).catch(() => undefined);
 		await this.notifyAuthorOfPurchase(stroll, currentUser).catch(() => undefined);
 		return savedAdventure;
+	}
+
+	private async assertCanPurchase(currentUser: AuthenticatedUser, publicityFlag: StrollPublicityFlag): Promise<void> {
+		const quota = resolveQuota(STROLL_PURCHASE_QUOTAS, currentUser.role);
+		const isPublic = publicityFlag === StrollPublicityFlag.PUBLIC;
+		const limit = isPublic ? quota.public : quota.private;
+
+		if (limit === Number.POSITIVE_INFINITY) {
+			return;
+		}
+
+		const purchasedCount = await this.adventuresRepository
+			.createQueryBuilder('adventure')
+			.innerJoin(StrollEntity, 'stroll', 'stroll.id = adventure.strollId')
+			.where('adventure.ownerUserId = :userId', { userId: currentUser.userId })
+			.andWhere('adventure.progressStatus != :revoked', { revoked: AdventureProgressStatus.REVOKED })
+			.andWhere(isPublic ? 'stroll.publicityFlag = :publicFlag' : 'stroll.publicityFlag != :publicFlag', {
+				publicFlag: StrollPublicityFlag.PUBLIC
+			})
+			.getCount();
+
+		if (purchasedCount >= limit) {
+			throw new ForbiddenException({
+				code: AppErrorCode.PURCHASE_QUOTA_REACHED,
+				message: `Your account type can unlock up to ${limit} ${isPublic ? 'public' : 'private'} strolls.`
+			});
+		}
 	}
 
 	private async notifyAuthorOfPurchase(stroll: StrollEntity, buyer: AuthenticatedUser): Promise<void> {

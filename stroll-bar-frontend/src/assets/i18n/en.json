@@ -221,6 +221,12 @@
 			"LOGIN_ACCOUNT": "Log in"
 		}
 	},
+	"ERRORS": {
+		"EMAIL_NOT_VERIFIED": "Verify your email address first. Open your profile to resend the verification email.",
+		"STROLL_PUBLICITY_NOT_ALLOWED": "Your account type cannot create private or unlisted strolls. Upgrade to premium to unlock them.",
+		"STROLL_QUOTA_REACHED": "You have reached the stroll limit for your account type.",
+		"PURCHASE_QUOTA_REACHED": "You have reached the unlock limit for your account type."
+	},
 	"EXPLORE": {
 		"FEED_TITLE": "Explore Strolls",
 		"FEED_SUBTITLE": "Browse public strolls with search and filters.",
@@ -353,6 +359,8 @@
 			"HEADER_TITLE": "Manage Strolls",
 			"SUBTITLE": "Publishing, visibility, content and recent activity at a glance.",
 			"CREATE_BUTTON": "Create new stroll",
+			"VERIFY_EMAIL_NOTICE": "Verify your email address to create or edit strolls.",
+			"VERIFY_EMAIL_LINK": "Go to your profile",
 			"LOADING": "Loading your strolls…",
 			"LOAD_ERROR": "Your strolls could not be loaded.",
 			"EMPTY": "You have not created any strolls yet.",

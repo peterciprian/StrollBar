@@ -13,6 +13,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AdventureDetailResponseDto } from './dto/adventure-detail-response.dto';
 import { AdventureResponseDto } from './dto/adventure-response.dto';
@@ -73,8 +74,9 @@ export class AdventuresController {
 	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'Unlock a stroll as an adventure' })
 	@ApiCreatedResponse({ type: AdventureResponseDto, description: 'Adventure unlocked successfully.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Email not verified, or the purchase quota for your account type is reached.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Stroll not found.' })
-	@UseGuards(JwtAuthGuard)
+	@UseGuards(JwtAuthGuard, EmailVerifiedGuard)
 	@Post('unlock')
 	unlock(@Body() dto: UnlockStrollDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.adventuresService.unlock(dto, user);

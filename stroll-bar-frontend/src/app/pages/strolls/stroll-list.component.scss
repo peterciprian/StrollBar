@@ -1,3 +1,20 @@
+.admin-stroll-list__verify-notice {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 0 0 16px;
+	padding: 10px 14px;
+	border-radius: 10px;
+	background: rgba(239, 68, 68, 0.1);
+	color: #b91c1c;
+	font-size: 13px;
+}
+
+.admin-stroll-list__verify-notice a {
+	color: inherit;
+	font-weight: 700;
+}
+
 .admin-stroll-list__bulk-import {
 	background: #fff;
 	border: 1px solid #e2e8f0;

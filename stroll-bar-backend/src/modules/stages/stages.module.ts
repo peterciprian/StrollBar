@@ -5,9 +5,10 @@ import { StagesService } from './stages.service';
 import { StageEntity } from './entities/stage.entity';
 import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([StageEntity, StrollEntity, AdventureEntity])],
+	imports: [TypeOrmModule.forFeature([StageEntity, StrollEntity, AdventureEntity]), AuthModule],
 	controllers: [StagesController],
 	providers: [StagesService],
 	exports: [StagesService]

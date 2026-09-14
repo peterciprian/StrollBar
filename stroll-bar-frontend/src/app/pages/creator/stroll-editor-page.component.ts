@@ -24,6 +24,8 @@ import { StageDetailEditorComponent } from './stage-detail-editor.component';
 import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
 import { UnsavedChangesDialogComponent, UnsavedChangesDialogResult } from '../../shared/unsaved-changes-dialog.component';
 import { CanComponentDeactivate } from '../../core/guards/unsaved-changes.guard';
+import { extractErrorCode } from '../../core/utils/http-error.util';
+import { AppErrorCode } from '../../core/models/app-error-code';
 
 @Component({
 	selector: 'app-stroll-editor-page',
@@ -57,6 +59,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 	protected saving = false;
 	protected saved = false;
 	protected saveError = false;
+	protected saveErrorKey = 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR';
 	protected validationError = false;
 	private pristineSnapshot = '';
 	private allowNavigation = false;
@@ -187,11 +190,25 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 			this.saved = true;
 			this.markPristine();
 			return true;
-		} catch {
+		} catch (error) {
+			this.saveErrorKey = this.resolveSaveErrorKey(error);
 			this.saveError = true;
 			return false;
 		} finally {
 			this.saving = false;
+		}
+	}
+
+	private resolveSaveErrorKey(error: unknown): string {
+		switch (extractErrorCode(error)) {
+			case AppErrorCode.EMAIL_NOT_VERIFIED:
+				return 'ERRORS.EMAIL_NOT_VERIFIED';
+			case AppErrorCode.STROLL_PUBLICITY_NOT_ALLOWED:
+				return 'ERRORS.STROLL_PUBLICITY_NOT_ALLOWED';
+			case AppErrorCode.STROLL_QUOTA_REACHED:
+				return 'ERRORS.STROLL_QUOTA_REACHED';
+			default:
+				return 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR';
 		}
 	}
 

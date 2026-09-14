@@ -33,7 +33,7 @@
 				<p class="stroll-editor-page__saved"><mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVED' | translate }}</p>
 			}
 			@if (saveError) {
-				<p class="stroll-editor-page__error"><mat-icon>error_outline</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR' | translate }}</p>
+				<p class="stroll-editor-page__error"><mat-icon>error_outline</mat-icon>{{ saveErrorKey | translate }}</p>
 			}
 			@if (validationError) {
 				<p class="stroll-editor-page__error">
