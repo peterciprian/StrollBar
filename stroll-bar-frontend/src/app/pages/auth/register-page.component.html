@@ -33,15 +33,23 @@
 					<input matInput type="password" formControlName="password" autocomplete="new-password" />
 					@if (form.controls.password.invalid && form.controls.password.touched) {
 						<mat-error>
-							@if (form.controls.password.hasError('commonPassword')) {
+							@if (form.controls.password.hasError('required')) {
+								{{ 'AUTH.REGISTER.PASSWORD_REQUIRED_ERROR' | translate }}
+							} @else if (form.controls.password.hasError('minlength')) {
+								{{ 'AUTH.REGISTER.PASSWORD_MIN_LENGTH_ERROR' | translate }}
+							} @else if (form.controls.password.hasError('maxlength')) {
+								{{ 'AUTH.REGISTER.PASSWORD_MAX_LENGTH_ERROR' | translate }}
+							} @else if (form.controls.password.hasError('commonPassword')) {
 								{{ 'AUTH.REGISTER.PASSWORD_COMMON_ERROR' | translate }}
 							} @else {
-								{{ 'AUTH.REGISTER.PASSWORD_ERROR' | translate }}
+								{{ 'AUTH.REGISTER.PASSWORD_COMPLEXITY_ERROR' | translate }}
 							}
 						</mat-error>
 					}
-					@if (form.controls.password.value && !form.controls.password.invalid) {
+					@if (form.controls.password.valid) {
 						<mat-hint>{{ 'AUTH.REGISTER.PASSWORD_ACCEPTED' | translate }}</mat-hint>
+					} @else if (!form.controls.password.touched) {
+						<mat-hint>{{ 'AUTH.REGISTER.PASSWORD_REQUIREMENTS' | translate }}</mat-hint>
 					}
 				</mat-form-field>
 

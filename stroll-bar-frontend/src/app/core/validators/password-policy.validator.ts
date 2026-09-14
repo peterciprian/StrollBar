@@ -20,7 +20,7 @@ export const passwordPolicyValidator: ValidatorFn = (control: AbstractControl): 
 	}
 
 	const errors: ValidationErrors = {};
-	if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,128}$/.test(password)) {
+	if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,128}$/.test(password)) {
 		errors['passwordComplexity'] = true;
 	}
 	if (COMMON_PASSWORDS.has(password)) {
