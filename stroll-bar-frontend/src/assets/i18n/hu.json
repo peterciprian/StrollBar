@@ -209,6 +209,10 @@
 			"PASSWORD_ACCEPTED": "A jelszó megfelel a biztonsági követelményeknek.",
 			"SUBMIT_LOADING": "Fiók létrehozása…",
 			"SUBMIT": "Regisztráció",
+			"CAPTCHA_LOADING": "Biztonsági ellenőrzés betöltése…",
+			"CAPTCHA_VERIFYING": "Ellenőrzés…",
+			"CAPTCHA_ERROR": "A biztonsági ellenőrzés nem sikerült. Töltsd újra az oldalt, és próbáld újra.",
+			"CAPTCHA_NOTICE": "Az oldalt reCAPTCHA védi, a Google Adatvédelmi irányelvei és Felhasználási feltételei érvényesek.",
 			"HAS_ACCOUNT": "Már van fiókod?",
 			"LOGIN_ACCOUNT": "Bejelentkezés"
 		}

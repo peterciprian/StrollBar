@@ -14,6 +14,8 @@ import { UserEntity } from '../users/entities/user.entity';
 import { EmailModule } from '../email/email.module';
 import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialUserService } from './services/social-user.service';
+import { RecaptchaService } from '../../common/services/recaptcha.service';
+import { RecaptchaGuard } from '../../common/guards/recaptcha.guard';
 
 @Module({
 	imports: [
@@ -31,7 +33,16 @@ import { SocialUserService } from './services/social-user.service';
 		})
 	],
 	controllers: [AuthController],
-	providers: [AuthService, OAuthProviderService, SocialUserService, JwtStrategy, JwtAuthGuard, OptionalJwtAuthGuard],
+	providers: [
+		AuthService,
+		OAuthProviderService,
+		SocialUserService,
+		JwtStrategy,
+		JwtAuthGuard,
+		OptionalJwtAuthGuard,
+		RecaptchaService,
+		RecaptchaGuard
+	],
 	exports: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard, PassportModule, JwtModule]
 })
 export class AuthModule {}

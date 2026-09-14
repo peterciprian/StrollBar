@@ -209,6 +209,10 @@
 			"PASSWORD_ACCEPTED": "Password meets the security requirements.",
 			"SUBMIT_LOADING": "Creating account…",
 			"SUBMIT": "Register",
+			"CAPTCHA_LOADING": "Loading security check…",
+			"CAPTCHA_VERIFYING": "Verifying…",
+			"CAPTCHA_ERROR": "Security check could not be completed. Please reload the page and try again.",
+			"CAPTCHA_NOTICE": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
 			"HAS_ACCOUNT": "Already have an account?",
 			"LOGIN_ACCOUNT": "Log in"
 		}

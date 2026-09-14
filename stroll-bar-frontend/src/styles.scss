@@ -149,6 +149,14 @@ app-register-page > section {
 	text-align: center;
 }
 
+.auth-page__captcha-notice {
+	margin: 12px 0 0;
+	color: #94a3b8;
+	font-size: 11px;
+	line-height: 1.4;
+	text-align: center;
+}
+
 .auth-page__switch a {
 	color: var(--mat-sys-primary, #0891b2);
 	font-weight: 700;

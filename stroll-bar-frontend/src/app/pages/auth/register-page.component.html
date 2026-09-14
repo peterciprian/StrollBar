@@ -48,11 +48,29 @@
 				@if (error()) {
 					<p class="auth-error">{{ error() }}</p>
 				}
+				@if (captchaFailed()) {
+					<p class="auth-error">{{ 'AUTH.REGISTER.CAPTCHA_ERROR' | translate }}</p>
+				}
 
-				<button mat-flat-button color="primary" class="auth-page__submit" type="submit" [disabled]="loading()">
+				<button
+					mat-flat-button
+					color="primary"
+					class="auth-page__submit"
+					type="submit"
+					[disabled]="loading() || verifying() || !captchaReady()"
+				>
 					<mat-icon>person_add</mat-icon>
-					{{ (loading() ? 'AUTH.REGISTER.SUBMIT_LOADING' : 'AUTH.REGISTER.SUBMIT') | translate }}
+					@if (!captchaReady()) {
+						{{ 'AUTH.REGISTER.CAPTCHA_LOADING' | translate }}
+					} @else if (verifying()) {
+						{{ 'AUTH.REGISTER.CAPTCHA_VERIFYING' | translate }}
+					} @else {
+						{{ (loading() ? 'AUTH.REGISTER.SUBMIT_LOADING' : 'AUTH.REGISTER.SUBMIT') | translate }}
+					}
 				</button>
+				<p class="auth-page__captcha-notice">
+					{{ 'AUTH.REGISTER.CAPTCHA_NOTICE' | translate }}
+				</p>
 			</form>
 			<p class="auth-page__switch">
 				{{ 'AUTH.REGISTER.HAS_ACCOUNT' | translate }} <a routerLink="/auth/login">{{ 'AUTH.REGISTER.LOGIN_ACCOUNT' | translate }}</a>

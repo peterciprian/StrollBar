@@ -8,6 +8,7 @@ import {
 	ApiOperation,
 	ApiTags,
 	ApiBadRequestResponse,
+	ApiForbiddenResponse,
 	ApiNotFoundResponse,
 	ApiTooManyRequestsResponse,
 	ApiUnauthorizedResponse
@@ -29,6 +30,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthenticatedUser } from './interfaces/authenticated-user.interface';
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { MessageResponseDto } from '../../common/dto/message-response.dto';
+import { RecaptchaAction, RecaptchaGuard } from '../../common/guards/recaptcha.guard';
 import { PasswordResetRequestResponseDto } from './dto/password-reset-request-response.dto';
 import { SocialAuthStartResponseDto } from './dto/social-auth-start-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -42,8 +44,11 @@ export class AuthController {
 	@ApiCreatedResponse({ type: AuthResponseDto, description: 'User registered successfully.' })
 	@ApiBadRequestResponse({ description: 'Validation failed.', type: ErrorResponseDto })
 	@ApiConflictResponse({ description: 'A user with the same email or username already exists.', type: ErrorResponseDto })
+	@ApiForbiddenResponse({ description: 'Captcha verification failed.', type: ErrorResponseDto })
 	@ApiTooManyRequestsResponse({ description: 'Registration rate limit exceeded.' })
 	@Throttle({ default: { limit: 5, ttl: 60_000 } })
+	@UseGuards(RecaptchaGuard)
+	@RecaptchaAction('register')
 	@Post('register')
 	register(@Body() dto: RegisterDto) {
 		return this.authService.register(dto);

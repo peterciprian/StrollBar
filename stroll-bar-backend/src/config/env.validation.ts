@@ -23,6 +23,10 @@ class EnvironmentVariables {
 	@IsOptional()
 	@IsBooleanString()
 	EMAIL_DELIVERY_ENABLED?: string;
+
+	@IsOptional()
+	@IsBooleanString()
+	RECAPTCHA_ENABLED?: string;
 }
 
 export function validateEnvironment(config: Record<string, unknown>): Record<string, unknown> {
@@ -41,6 +45,9 @@ export function validateEnvironment(config: Record<string, unknown>): Record<str
 		if (missingEmailKeys.length > 0) {
 			throw new Error(`Environment validation failed: missing email configuration: ${missingEmailKeys.join(', ')}`);
 		}
+	}
+	if (config.RECAPTCHA_ENABLED === 'true' && (!config.RECAPTCHA_SECRET_KEY || String(config.RECAPTCHA_SECRET_KEY).startsWith('replace-'))) {
+		throw new Error('Environment validation failed: missing captcha configuration: RECAPTCHA_SECRET_KEY');
 	}
 	if (config.NODE_ENV === 'production' || config.NODE_ENV === 'staging') {
 		const requiredKeys = [

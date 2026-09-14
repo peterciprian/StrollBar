@@ -4,7 +4,8 @@
 
 export const environment = {
 	production: false,
-	baseApiUrl: 'https://stroll-bar-n5zc.onrender.com/v1'
+	baseApiUrl: 'https://stroll-bar-n5zc.onrender.com/v1',
+	recaptchaSiteKey: '6LeME7stAAAAAFF1UszwcLrliwq3AG2ZPZIDDAIl'
 };
 
 /*

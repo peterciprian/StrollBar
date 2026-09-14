@@ -79,6 +79,14 @@ services:
             sync: false
           - key: EMAIL_FROM
             sync: false
+          - key: RECAPTCHA_ENABLED
+            value: 'true'
+          - key: RECAPTCHA_SECRET_KEY
+            sync: false
+          - key: RECAPTCHA_MIN_SCORE
+            value: '0.5'
+          - key: RECAPTCHA_TIMEOUT_MS
+            value: '5000'
           - key: S3_REGION
             sync: false
           - key: S3_ENDPOINT
