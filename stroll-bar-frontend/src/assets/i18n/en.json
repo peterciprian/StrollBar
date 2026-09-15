@@ -17,6 +17,7 @@
 		"DELETE_MEDIA_TITLE": "Delete media?",
 		"DELETE_MEDIA_MESSAGE": "Are you sure you want to remove this {{itemName}}?",
 		"OFFLINE_MESSAGE": "You are offline. Cached public content remains available.",
+		"ERROR_LOADING": "Something went wrong while loading this content. Please try again.",
 		"MIN_SUFFIX": "min",
 		"STATIONS_SUFFIX": "stations",
 		"HUF_SUFFIX": "HUF",

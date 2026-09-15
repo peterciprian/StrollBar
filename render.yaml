@@ -26,7 +26,7 @@ services:
           - key: DB_SSL
             value: require
           - key: CORS_ORIGINS
-            value: 'https://peterciprian.github.io,http://localhost:4200,http://127.0.0.1:4200'
+            value: 'https://peterciprian.github.io,https://strollbar.app,https://www.strollbar.app,https://stroll-bar.vercel.app,http://localhost:4200,http://127.0.0.1:4200,http://localhost:4000'
           - key: API_PUBLIC_BASE_URL
             value: 'https://stroll-bar-n5zc.onrender.com/v1'
           - key: BACKEND_URL

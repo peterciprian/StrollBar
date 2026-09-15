@@ -17,6 +17,7 @@
 		"DELETE_MEDIA_TITLE": "Törlöd a médiát?",
 		"DELETE_MEDIA_MESSAGE": "Biztosan eltávolítod ezt a(z) {{itemName}} fájlt?",
 		"OFFLINE_MESSAGE": "Offline vagy. A gyorsítótárazott nyilvános tartalmak továbbra is elérhetők.",
+		"ERROR_LOADING": "Hiba történt a tartalom betöltése közben. Próbáld újra.",
 		"MIN_SUFFIX": "perc",
 		"STATIONS_SUFFIX": "állomás",
 		"HUF_SUFFIX": "Ft",
