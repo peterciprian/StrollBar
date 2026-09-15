@@ -1,4 +1,5 @@
-import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class ConnectivityService {
@@ -7,6 +8,9 @@ export class ConnectivityService {
 	readonly isOnline = this.onlineState.asReadonly();
 
 	constructor() {
+		// The server has no `window`; connectivity only matters for the already-hydrated browser tab.
+		if (!isPlatformBrowser(inject(PLATFORM_ID))) return;
+
 		const handleOnline = () => this.onlineState.set(true);
 		const handleOffline = () => this.onlineState.set(false);
 		window.addEventListener('online', handleOnline);

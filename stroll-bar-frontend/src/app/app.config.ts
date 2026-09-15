@@ -1,6 +1,7 @@
 import { ApplicationConfig, ErrorHandler, inject, provideAppInitializer } from '@angular/core';
-import { HttpResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideRouter, withHashLocation } from '@angular/router';
+import { HttpResponse, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideClientHydration, withEventReplay } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideTranslateService } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
@@ -23,8 +24,10 @@ const versionedResponseInterceptor = (request: any, next: any) =>
 
 export const appConfig: ApplicationConfig = {
 	providers: [
-		provideRouter(routes, withHashLocation()),
-		provideHttpClient(withInterceptors([versionedResponseInterceptor, errorNotificationInterceptor, authInterceptor])),
+		provideRouter(routes),
+		provideClientHydration(withEventReplay()),
+		// withFetch: the server has no XHR, only fetch; the browser build works fine with either.
+		provideHttpClient(withFetch(), withInterceptors([versionedResponseInterceptor, errorNotificationInterceptor, authInterceptor])),
 		provideTranslateService({ lang: 'hu', fallbackLang: 'hu' }),
 		// Relative (no leading slash) so it resolves against <base href>, not the site origin root.
 		...provideTranslateHttpLoader({ prefix: 'assets/i18n/', suffix: '.json' }),
@@ -39,6 +42,7 @@ export const appConfig: ApplicationConfig = {
 			// Without a stored token /auth/me can only answer 401, so skip the round trip entirely.
 			if (!inject(TokenStorageService).getAccessToken()) return;
 			inject(Store).dispatch(fetchMe());
-		})
+		}),
+		provideClientHydration()
 	]
 };

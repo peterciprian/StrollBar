@@ -1,5 +1,21 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild } from '@angular/core';
-import * as L from 'leaflet';
+import {
+	AfterViewInit,
+	Component,
+	ElementRef,
+	EventEmitter,
+	Input,
+	OnChanges,
+	OnDestroy,
+	Output,
+	PLATFORM_ID,
+	SimpleChanges,
+	ViewChild,
+	inject
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+// Type-only: erased at compile time, so importing this file never pulls in leaflet's
+// `window`-touching runtime code (which would crash SSR route extraction/prerendering).
+import type * as L from 'leaflet';
 
 @Component({
 	selector: 'app-stage-location-map',
@@ -8,28 +24,32 @@ import * as L from 'leaflet';
 	styleUrls: ['./stage-location-map.component.scss']
 })
 export class StageLocationMapComponent implements AfterViewInit, OnChanges, OnDestroy {
+	private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 	@Input() latitude = 47.4979;
 	@Input() longitude = 19.0402;
 	@Input() readonly = false;
 	@Output() locationSelected = new EventEmitter<{ latitude: number; longitude: number }>();
 	@ViewChild('map') private mapElement?: ElementRef<HTMLDivElement>;
+	private leaflet: typeof L | null = null;
 	private map: L.Map | null = null;
 	private marker: L.Marker | null = null;
 	private resizeObserver: ResizeObserver | null = null;
 
 	ngAfterViewInit(): void {
-		this.syncMap();
+		void this.syncMap();
 	}
 	ngOnChanges(changes: SimpleChanges): void {
-		if (changes['latitude'] || changes['longitude']) setTimeout(() => this.syncMap());
+		if (changes['latitude'] || changes['longitude']) setTimeout(() => void this.syncMap());
 	}
 	ngOnDestroy(): void {
 		this.resizeObserver?.disconnect();
 		this.map?.remove();
 	}
 
-	private syncMap(): void {
-		if (!this.mapElement) return;
+	private async syncMap(): Promise<void> {
+		// Leaflet reads `window`/`document` at import time; loading it must stay browser-only.
+		if (!this.isBrowser || !this.mapElement) return;
+		const L = (this.leaflet ??= await import('leaflet'));
 		const location: L.LatLngExpression = [this.latitude, this.longitude];
 		if (!this.map) {
 			this.map = L.map(this.mapElement.nativeElement, { dragging: !this.readonly, scrollWheelZoom: !this.readonly }).setView(location, 15);
@@ -61,6 +81,7 @@ export class StageLocationMapComponent implements AfterViewInit, OnChanges, OnDe
 	}
 
 	private select(latitude: number, longitude: number): void {
+		if (!this.leaflet) return;
 		const selectedLocation: L.LatLngExpression = [Number(latitude.toFixed(6)), Number(longitude.toFixed(6))];
 		this.marker?.setLatLng(selectedLocation);
 		this.map?.setView(selectedLocation, this.map.getZoom(), { animate: true });

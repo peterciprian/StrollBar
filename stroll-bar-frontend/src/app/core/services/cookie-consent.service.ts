@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, PLATFORM_ID, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 export type CookieCategory = 'necessary' | 'preferences' | 'analytics';
 
@@ -14,6 +15,8 @@ const CONSENT_COOKIE_NAME = 'strollbar_cookie_consent';
 
 @Injectable({ providedIn: 'root' })
 export class CookieConsentService {
+	// No cookies/localStorage on the server; treat SSR as "no decision yet" and let hydration reconcile it.
+	private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 	private readonly consentState = signal<CookieConsent | null>(this.readConsent());
 
 	readonly consent = this.consentState.asReadonly();
@@ -35,7 +38,7 @@ export class CookieConsentService {
 	}
 
 	openPreferences(): void {
-		window.dispatchEvent(new CustomEvent('strollbar:open-cookie-preferences'));
+		if (this.isBrowser) window.dispatchEvent(new CustomEvent('strollbar:open-cookie-preferences'));
 	}
 
 	hasConsent(category: CookieCategory): boolean {
@@ -43,7 +46,7 @@ export class CookieConsentService {
 	}
 
 	setCookie(name: string, value: string, maxAgeSeconds: number, category: CookieCategory = 'necessary'): void {
-		if (!this.hasConsent(category)) {
+		if (!this.isBrowser || !this.hasConsent(category)) {
 			return;
 		}
 
@@ -51,17 +54,19 @@ export class CookieConsentService {
 	}
 
 	getCookie(name: string): string | null {
+		if (!this.isBrowser) return null;
 		const encodedName = `${encodeURIComponent(name)}=`;
 		const cookie = document.cookie.split('; ').find((entry) => entry.startsWith(encodedName));
 		return cookie ? decodeURIComponent(cookie.slice(encodedName.length)) : null;
 	}
 
 	deleteCookie(name: string): void {
+		if (!this.isBrowser) return;
 		document.cookie = `${encodeURIComponent(name)}=; Max-Age=0; Path=/; SameSite=Lax${this.secureCookieSuffix}`;
 	}
 
 	private get secureCookieSuffix(): string {
-		return window.location.protocol === 'https:' ? '; Secure' : '';
+		return this.isBrowser && window.location.protocol === 'https:' ? '; Secure' : '';
 	}
 
 	private saveConsent(optional: Pick<CookieConsent, 'preferences' | 'analytics'>): void {
@@ -85,6 +90,7 @@ export class CookieConsentService {
 	}
 
 	private readConsent(): CookieConsent | null {
+		if (!this.isBrowser) return null;
 		try {
 			const stored = localStorage.getItem(CONSENT_STORAGE_KEY);
 
