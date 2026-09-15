@@ -30,7 +30,7 @@
 			"urls": ["https://stroll-bar-n5zc.onrender.com/v1/strolls"],
 			"cacheConfig": {
 				"strategy": "freshness",
-				"timeout": "5s",
+				"timeout": "20s",
 				"maxSize": 50,
 				"maxAge": "10m"
 			}
