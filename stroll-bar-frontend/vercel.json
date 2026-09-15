@@ -1,4 +1,11 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
-	"framework": "angular"
+	"buildCommand": "npm run build:production",
+	"outputDirectory": "dist/strollbar-frontend/browser",
+	"functions": {
+		"api/index.mjs": {
+			"includeFiles": "dist/strollbar-frontend/browser/**"
+		}
+	},
+	"rewrites": [{ "source": "/((?!api/).*)", "destination": "/api" }]
 }

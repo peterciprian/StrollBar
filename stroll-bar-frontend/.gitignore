@@ -48,4 +48,7 @@ testem.log
 .DS_Store
 Thumbs.db
 
+# Vercel CLI local artifacts (project link, pulled env vars, local build output)
+/.vercel
+
 .env*
