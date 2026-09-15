@@ -12,10 +12,14 @@ async function bootstrap(): Promise<void> {
 	const app = await NestFactory.create(AppModule);
 	app.setGlobalPrefix('v1');
 	app.enableCors({
-		origin: (process.env.CORS_ORIGINS ?? 'https://peterciprian.github.io,http://localhost:4200,http://127.0.0.1:4200')
-			.split(',')
-			.map((origin) => origin.trim())
-			.filter(Boolean)
+		origin: [
+			...(process.env.CORS_ORIGINS ?? 'https://peterciprian.github.io,http://localhost:4200,http://127.0.0.1:4200')
+				.split(',')
+				.map((origin) => origin.trim())
+				.filter(Boolean),
+			// Vercel preview deployments get a random subdomain per build; scoped to this project only.
+			/^https:\/\/stroll-bar-[a-z0-9]+-peterciprians-projects\.vercel\.app$/
+		]
 	});
 	app.useGlobalPipes(
 		new ValidationPipe({
