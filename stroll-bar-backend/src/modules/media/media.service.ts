@@ -59,10 +59,10 @@ export class MediaService {
 		this.uploadExpirySeconds = Number(this.configService.get<string>('S3_PRESIGN_EXPIRES_SECONDS') ?? '900');
 		this.allowedImageMimeTypes = this.readMimeList('MEDIA_ALLOWED_IMAGE_MIME_TYPES', 'image/jpeg,image/png,image/webp,image/gif');
 		this.allowedVideoMimeTypes = this.readMimeList('MEDIA_ALLOWED_VIDEO_MIME_TYPES', 'video/mp4,video/webm,video/quicktime');
-		this.maxImageSizeBytes = Number(this.configService.get<string>('MEDIA_MAX_IMAGE_SIZE_BYTES') ?? '10485760');
-		this.maxVideoSizeBytes = Number(this.configService.get<string>('MEDIA_MAX_VIDEO_SIZE_BYTES') ?? '104857600');
-		this.multipartThresholdBytes = Number(this.configService.get<string>('MEDIA_MULTIPART_THRESHOLD_BYTES') ?? '26214400');
-		this.multipartPartSizeBytes = Number(this.configService.get<string>('MEDIA_MULTIPART_PART_SIZE_BYTES') ?? '10485760');
+		this.maxImageSizeBytes = Number(this.configService.get<string>('MEDIA_MAX_IMAGE_SIZE_BYTES') ?? '4194304');
+		this.maxVideoSizeBytes = Number(this.configService.get<string>('MEDIA_MAX_VIDEO_SIZE_BYTES') ?? '20971520');
+		this.multipartThresholdBytes = Number(this.configService.get<string>('MEDIA_MULTIPART_THRESHOLD_BYTES') ?? '10485760');
+		this.multipartPartSizeBytes = Number(this.configService.get<string>('MEDIA_MULTIPART_PART_SIZE_BYTES') ?? '5242880');
 		this.multipartMaxParts = Number(this.configService.get<string>('MEDIA_MULTIPART_MAX_PARTS') ?? '1000');
 		this.s3RequestTimeoutMs = Number(this.configService.get<string>('S3_REQUEST_TIMEOUT_MS') ?? '30000');
 		this.s3RetryAttempts = Number(this.configService.get<string>('S3_RETRY_ATTEMPTS') ?? '3');

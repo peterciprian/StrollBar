@@ -564,6 +564,8 @@
 			"UPLOAD_LOCKED_HINT": "Előbb mentsd el ezt az állomást a fotófeltöltéshez",
 			"UPLOADING": "Feltöltés…",
 			"UPLOAD_ERROR": "A feltöltés nem sikerült. Próbáld újra.",
+			"IMAGE_TOO_LARGE": "Ez a kép túl nagy méretű. Válassz {{maxMb}} MB alatti fotót.",
+			"VIDEO_TOO_LARGE": "Ez a videó túl nagy méretű. Válassz {{maxMb}} MB alatti klipet.",
 			"CORRECT_ANSWER_LABEL": "Helyes válasz",
 			"CORRECT_ANSWER_HINT": "Hagyd üresen a meglévő válasz megtartásához"
 		},

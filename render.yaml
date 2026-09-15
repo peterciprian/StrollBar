@@ -112,12 +112,12 @@ services:
           - key: MEDIA_ALLOWED_VIDEO_MIME_TYPES
             value: video/mp4,video/webm,video/quicktime
           - key: MEDIA_MAX_IMAGE_SIZE_BYTES
-            value: '10485760'
+            value: '4194304'
           - key: MEDIA_MAX_VIDEO_SIZE_BYTES
-            value: '104857600'
+            value: '20971520'
           - key: MEDIA_MULTIPART_THRESHOLD_BYTES
-            value: '26214400'
-          - key: MEDIA_MULTIPART_PART_SIZE_BYTES
             value: '10485760'
+          - key: MEDIA_MULTIPART_PART_SIZE_BYTES
+            value: '5242880'
           - key: MEDIA_MULTIPART_MAX_PARTS
             value: '1000'

@@ -564,6 +564,8 @@
 			"STAGE_VIDEO_HINT": "Click to upload a stage video",
 			"UPLOADING": "Uploading…",
 			"UPLOAD_ERROR": "Upload failed. Please try again.",
+			"IMAGE_TOO_LARGE": "This image is too large. Please choose a photo under {{maxMb}} MB.",
+			"VIDEO_TOO_LARGE": "This video is too large. Please choose a clip under {{maxMb}} MB.",
 			"CORRECT_ANSWER_LABEL": "Correct Answer",
 			"CORRECT_ANSWER_HINT": "Leave blank to keep the existing answer"
 		},
