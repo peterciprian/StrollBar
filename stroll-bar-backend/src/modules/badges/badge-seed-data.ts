@@ -238,19 +238,5 @@ export const BADGE_SEED_DATA: BadgeSeedDefinition[] = [
 		title: 'Badge Collector',
 		description: 'Earned 10 badges.',
 		rules: [{ metric: 'totalBadgesEarned', operator: 'gte', value: 10 }]
-	},
-	{
-		code: 'RIDDLE_SOLVER',
-		icon: 'psychology',
-		title: 'Riddle Solver',
-		description: 'Answered 25 riddles correctly.',
-		rules: [{ metric: 'correctRiddleAnswersCount', operator: 'gte', value: 25 }]
-	},
-	{
-		code: 'RIDDLE_MASTER',
-		icon: 'emoji_objects',
-		title: 'Riddle Master',
-		description: 'Answered 100 riddles correctly.',
-		rules: [{ metric: 'correctRiddleAnswersCount', operator: 'gte', value: 100 }]
 	}
 ];
