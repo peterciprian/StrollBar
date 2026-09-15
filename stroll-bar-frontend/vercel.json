@@ -1,7 +1,4 @@
 {
 	"$schema": "https://openapi.vercel.sh/vercel.json",
-	"framework": "angular",
-	"installCommand": "npm install",
-	"buildCommand": "npm run build:production",
-	"outputDirectory": "dist/strollbar-frontend"
+	"framework": "angular"
 }
