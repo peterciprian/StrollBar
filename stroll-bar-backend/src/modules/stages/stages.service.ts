@@ -1,6 +1,6 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { QueryFailedError, Repository } from 'typeorm';
 import { CreateStageDto } from './dto/create-stage.dto';
 import { ReorderStagesDto } from './dto/reorder-stages.dto';
 import { UpdateStageDto } from './dto/update-stage.dto';
@@ -60,12 +60,24 @@ export class StagesService {
 			riddleAnswer: dto.riddleAnswer?.trim().toLowerCase() ?? null
 		});
 
-		const savedStage = await this.stagesRepository.save(stage);
+		const savedStage = await this.saveStageOrThrow(stage);
 		stroll.stageCount = await this.stagesRepository.count({ where: { strollId } });
 		stroll.length = await this.calculateLength(strollId);
 		await this.strollsRepository.save(stroll);
 
 		return savedStage;
+	}
+
+	// Surfaces the (strollId, orderIndex) unique constraint as a clear 409 instead of an opaque 500.
+	private async saveStageOrThrow(stage: StageEntity): Promise<StageEntity> {
+		try {
+			return await this.stagesRepository.save(stage);
+		} catch (error) {
+			if (error instanceof QueryFailedError && (error as unknown as { code?: string }).code === '23505') {
+				throw new ConflictException(`A stage with order position ${stage.orderIndex} already exists in this stroll.`);
+			}
+			throw error;
+		}
 	}
 
 	async reorder(strollId: string, dto: ReorderStagesDto, currentUser: AuthenticatedUser) {
@@ -115,7 +127,7 @@ export class StagesService {
 		if (dto.longitude !== undefined) stage.longitude = dto.longitude;
 		if (dto.riddleAnswer !== undefined) stage.riddleAnswer = dto.riddleAnswer.trim().toLowerCase();
 
-		const savedStage = await this.stagesRepository.save(stage);
+		const savedStage = await this.saveStageOrThrow(stage);
 		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
 		if (stroll) {
 			stroll.length = await this.calculateLength(strollId);

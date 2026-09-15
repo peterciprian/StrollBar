@@ -1,5 +1,19 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsEnum, IsInt, IsOptional, IsString, IsUrl, IsNumber, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import {
+	ArrayMaxSize,
+	IsArray,
+	IsEnum,
+	IsInt,
+	IsOptional,
+	IsString,
+	IsUrl,
+	IsNumber,
+	Max,
+	MaxLength,
+	Min,
+	MinLength,
+	ValidateNested
+} from 'class-validator';
 import { StrollActiveStatus, StrollPublicityFlag } from '../entities/stroll.entity';
 import { StrollCategory } from './stroll-category.enum';
 import { StrollPriceDto } from './stroll-price.dto';
@@ -7,11 +21,13 @@ import { StrollPriceDto } from './stroll-price.dto';
 class BulkMediaUrlsDto {
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(3)
 	@IsUrl({}, { each: true })
 	imageUrls?: string[];
 
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(1)
 	@IsUrl({}, { each: true })
 	videoUrls?: string[];
 }
@@ -105,11 +121,13 @@ export class BulkImportStageDto {
 
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(5)
 	@IsUrl({}, { each: true })
 	imageUrls?: string[];
 
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(1)
 	@IsUrl({}, { each: true })
 	videoUrls?: string[];
 

@@ -1,23 +1,27 @@
 <div class="media-manager">
-	<app-media-upload-control
-		[purpose]="purpose"
-		[entityId]="entityId"
-		[locked]="!entityId"
-		[hintKey]="purpose === 'stage' ? 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_HINT' : 'SCREENS.ADMIN_STATION_EDITOR.COVER_IMAGE_HINT'"
-		[lockedHintKey]="lockedHintKey"
-		accept="image/*"
-		(uploaded)="change('image', [...imageUrls, $event])"
-	></app-media-upload-control>
-	<app-media-upload-control
-		[purpose]="purpose"
-		[entityId]="entityId"
-		[locked]="!entityId"
-		[hintKey]="purpose === 'stage' ? 'SCREENS.ADMIN_STATION_EDITOR.STAGE_VIDEO_HINT' : 'SCREENS.ADMIN_STATION_EDITOR.COVER_VIDEO_HINT'"
-		[lockedHintKey]="lockedHintKey"
-		accept="video/*"
-		icon="video_library"
-		(uploaded)="change('video', [...videoUrls, $event])"
-	></app-media-upload-control>
+	@if (imageUrls.length < maxImages) {
+		<app-media-upload-control
+			[purpose]="purpose"
+			[entityId]="entityId"
+			[locked]="!entityId"
+			[hintKey]="purpose === 'stage' ? 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_HINT' : 'SCREENS.ADMIN_STATION_EDITOR.COVER_IMAGE_HINT'"
+			[lockedHintKey]="lockedHintKey"
+			accept="image/*"
+			(uploaded)="change('image', [...imageUrls, $event])"
+		></app-media-upload-control>
+	}
+	@if (videoUrls.length < maxVideos) {
+		<app-media-upload-control
+			[purpose]="purpose"
+			[entityId]="entityId"
+			[locked]="!entityId"
+			[hintKey]="purpose === 'stage' ? 'SCREENS.ADMIN_STATION_EDITOR.STAGE_VIDEO_HINT' : 'SCREENS.ADMIN_STATION_EDITOR.COVER_VIDEO_HINT'"
+			[lockedHintKey]="lockedHintKey"
+			accept="video/*"
+			icon="video_library"
+			(uploaded)="change('video', [...videoUrls, $event])"
+		></app-media-upload-control>
+	}
 	@if (imageUrls.length || videoUrls.length) {
 		<div class="media-manager__grid">
 			@for (url of imageUrls; track url; let i = $index) {

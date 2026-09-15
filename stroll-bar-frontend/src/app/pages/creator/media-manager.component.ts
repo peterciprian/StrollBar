@@ -29,6 +29,15 @@ export class MediaManagerComponent {
 	@Input() lockedHintKey = 'SCREENS.ADMIN_STATION_EDITOR.UPLOAD_LOCKED_HINT';
 	@Output() mediaChange = new EventEmitter<MediaChange>();
 
+	// Mirrors the backend's ArrayMaxSize limits (stroll: 3 images/1 video, stage: 5 images/1 video).
+	protected get maxImages(): number {
+		return this.purpose === 'stage' ? 5 : 3;
+	}
+
+	protected get maxVideos(): number {
+		return 1;
+	}
+
 	protected change(kind: MediaKind, urls: string[]): void {
 		this.mediaChange.emit({ imageUrls: kind === 'image' ? urls : [...this.imageUrls], videoUrls: kind === 'video' ? urls : [...this.videoUrls] });
 	}

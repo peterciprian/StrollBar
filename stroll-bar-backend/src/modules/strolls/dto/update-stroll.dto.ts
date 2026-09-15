@@ -1,4 +1,4 @@
-import { IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { StrollActiveStatus, StrollPublicityFlag } from '../entities/stroll.entity';
 import { StrollCategory } from './stroll-category.enum';
@@ -36,15 +36,17 @@ export class UpdateStrollDto {
 	@IsEnum(StrollCategory)
 	category?: StrollCategory;
 
-	@ApiPropertyOptional({ type: [String], example: ['https://example.com/cover.jpg'] })
+	@ApiPropertyOptional({ type: [String], example: ['https://example.com/cover.jpg'], maxItems: 3 })
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(3)
 	@IsUrl({}, { each: true })
 	imageUrls?: string[];
 
-	@ApiPropertyOptional({ type: [String], example: ['https://example.com/intro.mp4'] })
+	@ApiPropertyOptional({ type: [String], example: ['https://example.com/intro.mp4'], maxItems: 1 })
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(1)
 	@IsUrl({}, { each: true })
 	videoUrls?: string[];
 

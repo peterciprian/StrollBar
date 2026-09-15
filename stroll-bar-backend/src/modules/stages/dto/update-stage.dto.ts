@@ -1,15 +1,4 @@
-import {
-	IsArray,
-	IsInt,
-	IsNumber,
-	IsOptional,
-	IsString,
-	IsUrl,
-	Max,
-	MaxLength,
-	Min,
-	MinLength,
-} from 'class-validator';
+import { ArrayMaxSize, IsArray, IsInt, IsNumber, IsOptional, IsString, IsUrl, Max, MaxLength, Min, MinLength } from 'class-validator';
 
 export class UpdateStageDto {
 	@IsOptional()
@@ -34,11 +23,13 @@ export class UpdateStageDto {
 
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(5)
 	@IsUrl({}, { each: true })
 	imageUrls?: string[];
 
 	@IsOptional()
 	@IsArray()
+	@ArrayMaxSize(1)
 	@IsUrl({}, { each: true })
 	videoUrls?: string[];
 
