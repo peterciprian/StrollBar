@@ -46,7 +46,7 @@
 						<mat-label>{{ 'SCREENS.ADVENTURE.ANSWER_LABEL' | translate }}</mat-label>
 						<input matInput [(ngModel)]="answer" [placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate" />
 					</mat-form-field>
-					<button mat-flat-button class="adventure__submit-btn" (click)="submitAnswer()">
+					<button mat-flat-button class="adventure__submit-btn" (click)="submitAnswer()" [disabled]="!answer">
 						<mat-icon>send</mat-icon>
 						{{ 'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase }}
 					</button>

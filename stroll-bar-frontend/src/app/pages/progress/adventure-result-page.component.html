@@ -22,6 +22,10 @@
 				<mat-icon>straighten</mat-icon><strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.DISTANCE' | translate }}</span>
 			</div>
+			<div>
+				<mat-icon>psychology</mat-icon><strong>{{ result.correctAnswerCount }}/{{ result.totalStageCount }}</strong
+				><span>{{ 'SCREENS.ADVENTURE_RESULT.RIDDLES' | translate }}</span>
+			</div>
 		</div>
 		@if (canReview) {
 			<section class="adventure-result__review">

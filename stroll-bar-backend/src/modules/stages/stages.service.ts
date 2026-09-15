@@ -11,6 +11,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { StrollActiveStatus, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserRole } from '../users/entities/user.entity';
 import { calculateRouteLengthKm } from '../strolls/route-length.util';
+import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
 
 @Injectable()
 export class StagesService {
@@ -32,10 +33,14 @@ export class StagesService {
 
 		await this.assertCanRead(stroll, currentUser);
 
-		return this.stagesRepository.find({
+		const stages = await this.stagesRepository.find({
 			where: { strollId },
 			order: { orderIndex: 'ASC' }
 		});
+
+		const isOwnerOrAdmin = !!currentUser && (stroll.authorId === currentUser.userId || currentUser.role === UserRole.ADMIN);
+		// Only the stroll's author/admin may see riddle answers; anyone else (including active players) must not.
+		return isOwnerOrAdmin ? stages : stages.map((stage) => stripRiddleAnswer(stage));
 	}
 
 	async create(strollId: string, dto: CreateStageDto, currentUser: AuthenticatedUser) {

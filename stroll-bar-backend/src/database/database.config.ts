@@ -15,6 +15,7 @@ import { StrollReviews1753400000000 } from './migrations/1753400000000-stroll-re
 import { UserBadges1753600000000 } from './migrations/1753600000000-user-badges';
 import { BadgeDefinitions1753700000000 } from './migrations/1753700000000-badge-definitions';
 import { StrollReports1753800000000 } from './migrations/1753800000000-stroll-reports';
+import { RiddleBadges1753900000000 } from './migrations/1753900000000-riddle-badges';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -76,7 +77,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			StrollReviews1753400000000,
 			UserBadges1753600000000,
 			BadgeDefinitions1753700000000,
-			StrollReports1753800000000
+			StrollReports1753800000000,
+			RiddleBadges1753900000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

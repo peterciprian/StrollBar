@@ -17,6 +17,7 @@ import { StageAttemptEntity } from './entities/stage-attempt.entity';
 import { BadgesService } from '../badges/badges.service';
 import { STROLL_PURCHASE_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
 import { AppErrorCode } from '../../common/utils/app-error-code';
+import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
 
 @Injectable()
 export class AdventuresService {
@@ -144,12 +145,16 @@ export class AdventuresService {
 			stagesByStroll.set(stage.strollId, bucket);
 		}
 
-		return adventures.map((adventure) => ({
-			adventure,
-			stroll: strollsById.get(adventure.strollId) ?? null,
-			// currentStageIndex is a 1-based ordinal position, not the raw orderIndex column value.
-			currentStage: stagesByStroll.get(adventure.strollId)?.[adventure.currentStageIndex - 1] ?? null
-		}));
+		const isAdmin = currentUser.role === UserRole.ADMIN;
+		return adventures.map((adventure) => {
+			const currentStage = stagesByStroll.get(adventure.strollId)?.[adventure.currentStageIndex - 1] ?? null;
+			return {
+				adventure,
+				stroll: strollsById.get(adventure.strollId) ?? null,
+				// currentStageIndex is a 1-based ordinal position, not the raw orderIndex column value.
+				currentStage: currentStage ? (isAdmin ? currentStage : stripRiddleAnswer(currentStage)) : null
+			};
+		});
 	}
 
 	async start(adventureId: string, currentUser: AuthenticatedUser) {
@@ -163,7 +168,11 @@ export class AdventuresService {
 
 	async get(adventureId: string, currentUser: AuthenticatedUser) {
 		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
-		const { stroll, currentStage } = await this.getStrollAndCurrentStage(adventure.strollId, adventure.currentStageIndex);
+		const { stroll, currentStage } = await this.getStrollAndCurrentStage(
+			adventure.strollId,
+			adventure.currentStageIndex,
+			currentUser.role === UserRole.ADMIN
+		);
 
 		return {
 			adventure,
@@ -195,6 +204,12 @@ export class AdventuresService {
 			adventure.progressStatus === AdventureProgressStatus.COMPLETED ? stages.length : Math.max(0, adventure.currentStageIndex - 1);
 		const routeLengthKm = stages.slice(1).reduce((total, stage, index) => total + this.distanceInKm(stages[index], stage), 0);
 
+		const attempts = await this.stageAttemptsRepository.find({ where: { adventureId: adventure.id } });
+		// A stage can be attempted more than once; count each riddle as correctly answered at most once.
+		const correctStageIds = new Set(attempts.filter((attempt) => attempt.isCorrect).map((attempt) => attempt.stageId));
+		const correctAnswerCount = correctStageIds.size;
+		const totalStageCount = stages.length;
+
 		if (adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
 			await this.adventureResultsService.recordCompletion({
 				userId: adventure.ownerUserId,
@@ -213,7 +228,9 @@ export class AdventuresService {
 			stroll,
 			completedStageCount,
 			elapsedSeconds,
-			routeLengthKm
+			routeLengthKm,
+			correctAnswerCount,
+			totalStageCount
 		};
 	}
 
@@ -281,7 +298,11 @@ export class AdventuresService {
 
 		await this.adventuresRepository.save(adventure);
 
-		const { stroll, currentStage } = await this.getStrollAndCurrentStage(adventure.strollId, adventure.currentStageIndex);
+		const { stroll, currentStage } = await this.getStrollAndCurrentStage(
+			adventure.strollId,
+			adventure.currentStageIndex,
+			currentUser.role === UserRole.ADMIN
+		);
 
 		return {
 			adventure,
@@ -336,8 +357,9 @@ export class AdventuresService {
 	 */
 	private async getStrollAndCurrentStage(
 		strollId: string,
-		stageIndex: number
-	): Promise<{ stroll: StrollEntity | null; currentStage: StageEntity | null }> {
+		stageIndex: number,
+		isAdmin = false
+	): Promise<{ stroll: StrollEntity | null; currentStage: StageEntity | Omit<StageEntity, 'riddleAnswer'> | null }> {
 		const [stroll, stages] = await Promise.all([
 			this.strollsRepository.findOne({ where: { id: strollId } }),
 			this.stagesRepository.find({ where: { strollId }, order: { orderIndex: 'ASC' } })
@@ -345,7 +367,9 @@ export class AdventuresService {
 
 		// stageIndex is a 1-based ordinal position, not the raw orderIndex column value,
 		// which may start at 0 or 1 depending on how the stroll's stages were created.
-		return { stroll, currentStage: stages[stageIndex - 1] ?? null };
+		const currentStage = stages[stageIndex - 1] ?? null;
+		// Never send the riddle answer to a non-admin player; admins may inspect it (e.g. for support/moderation).
+		return { stroll, currentStage: currentStage ? (isAdmin ? currentStage : stripRiddleAnswer(currentStage)) : null };
 	}
 
 	async listAllForAdmin(currentUser: AuthenticatedUser) {

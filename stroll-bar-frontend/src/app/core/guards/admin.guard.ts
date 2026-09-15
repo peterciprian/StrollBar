@@ -19,7 +19,7 @@ export const adminGuard: CanActivateFn = (_route, state) => {
 
 	// The profile is fetched during app initialization, so wait until it resolves before deciding.
 	return store.select(selectUser).pipe(
-		filter((user) => !user.loading),
+		filter((user) => !user.sessionChecking),
 		take(1),
 		map((user) => {
 			if (!user.id) {

@@ -414,6 +414,8 @@ export interface AdventureResultResponse {
 	completedStageCount: number;
 	elapsedSeconds: number;
 	routeLengthKm: number;
+	correctAnswerCount: number;
+	totalStageCount: number;
 }
 
 export type AdventureNavigateDirection = 'next' | 'previous';

@@ -157,6 +157,11 @@
 		mat-icon {
 			margin-right: 8px;
 		}
+
+		&:disabled {
+			background: #fde8c2 !important;
+			color: #a8a29e !important;
+		}
 	}
 
 	&__feedback {

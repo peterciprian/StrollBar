@@ -4,6 +4,9 @@ import { UserRole } from '../../core/models/user-role.enum';
 
 export type UserState = User & {
 	loading: boolean;
+	// True only while the initial /auth/me session check is in flight; kept separate from `loading`
+	// so the login/register submit buttons aren't disabled while that check resolves.
+	sessionChecking: boolean;
 	error: string | null;
 	profileSaving: boolean;
 	profileSaveError: string | null;
@@ -22,6 +25,7 @@ const initialState: UserState = {
 	createdAt: '',
 	updatedAt: '',
 	loading: false,
+	sessionChecking: false,
 	error: null,
 	profileSaving: false,
 	profileSaveError: null,
@@ -111,7 +115,7 @@ export const userReducer = createReducer(
 	on(fetchMe, (state) => {
 		return {
 			...state,
-			loading: true,
+			sessionChecking: true,
 			error: null
 		};
 	}),
@@ -119,7 +123,7 @@ export const userReducer = createReducer(
 		return {
 			...state,
 			...user,
-			loading: false,
+			sessionChecking: false,
 			error: null
 		};
 	}),
@@ -183,6 +187,8 @@ export const selectUserRole = createSelector(selectUser, (user) => user.role);
 export const selectIsAdmin = createSelector(selectUser, (user) => !!user.id && user.role === UserRole.ADMIN);
 
 export const selectAuthLoading = createSelector(selectUser, (user) => user.loading);
+
+export const selectSessionChecking = createSelector(selectUser, (user) => user.sessionChecking);
 
 export const selectAuthError = createSelector(selectUser, (user) => user.error);
 

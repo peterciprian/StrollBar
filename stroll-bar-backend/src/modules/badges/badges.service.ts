@@ -283,6 +283,17 @@ export class BadgesService {
 			flawlessCompletions = adventureIds.filter((id) => !adventuresWithMistakes.has(id)).length;
 		}
 
+		const correctAttemptRows = await this.stageAttemptsRepository
+			.createQueryBuilder('attempt')
+			.innerJoin(AdventureEntity, 'adventure', 'adventure.id = attempt.adventureId')
+			.select('attempt.adventureId', 'adventureId')
+			.addSelect('attempt.stageId', 'stageId')
+			.where('adventure.ownerUserId = :userId', { userId })
+			.andWhere('attempt.isCorrect = :isCorrect', { isCorrect: true })
+			.getRawMany<{ adventureId: string; stageId: string }>();
+		// A stage can be attempted more than once before it's answered correctly; count each riddle once.
+		const correctRiddleAnswersCount = new Set(correctAttemptRows.map((row) => `${row.adventureId}:${row.stageId}`)).size;
+
 		return {
 			createdStrollsCount,
 			publishedStrollsCount,
@@ -294,6 +305,7 @@ export class BadgesService {
 			shortestCompletionSeconds,
 			totalDistanceKm,
 			flawlessCompletions,
+			correctRiddleAnswersCount,
 			nightOwlCompletions,
 			earlyBirdCompletions,
 			weekendCompletions,

@@ -11,6 +11,7 @@ export interface BadgeStats {
 	shortestCompletionSeconds: number | null;
 	totalDistanceKm: number;
 	flawlessCompletions: number;
+	correctRiddleAnswersCount: number;
 	nightOwlCompletions: number;
 	earlyBirdCompletions: number;
 	weekendCompletions: number;
@@ -32,6 +33,7 @@ export const BADGE_METRICS = [
 	'shortestCompletionSeconds',
 	'totalDistanceKm',
 	'flawlessCompletions',
+	'correctRiddleAnswersCount',
 	'nightOwlCompletions',
 	'earlyBirdCompletions',
 	'weekendCompletions',
