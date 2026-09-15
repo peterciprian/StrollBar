@@ -136,8 +136,8 @@ describe('StrollBar API (e2e)', () => {
 		process.env.MEDIA_PUBLIC_BASE_URL = 'https://api.test.example.com/v1';
 		process.env.S3_FORCE_PATH_STYLE = 'true';
 		process.env.EMAIL_DELIVERY_ENABLED = 'false';
-		// Set explicitly so this suite doesn't depend on NODE_ENV/.env.test being picked up correctly by ConfigModule.
 		process.env.AUTH_EXPOSE_RESET_TOKEN = 'true';
+		process.env.AUTH_EXPOSE_VERIFICATION_TOKEN = 'true';
 
 		const dbConfig: TestDatabaseConfig = {
 			host: process.env.DB_HOST,
@@ -228,6 +228,10 @@ describe('StrollBar API (e2e)', () => {
 		expect(registerResponse.body.user.passwordHash).toBeUndefined();
 		expect(registerResponse.body.user.refreshTokenHash).toBeUndefined();
 		userId = registerResponse.body.user.id;
+
+		const verificationToken = registerResponse.body.verificationToken;
+		expect(verificationToken).toBeDefined();
+		await request(app.getHttpServer()).post('/v1/auth/verify-email').send({ token: verificationToken }).expect(201);
 
 		const loginResponse = await request(app.getHttpServer())
 			.post('/v1/auth/login')
@@ -461,7 +465,7 @@ describe('StrollBar API (e2e)', () => {
 			.send({
 				fileName: 'cover.jpg',
 				contentType: 'image/jpeg',
-				sizeBytes: 5242880,
+				sizeBytes: 2097152,
 				purpose: 'stroll',
 				entityId: strollId
 			})
