@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
@@ -34,6 +35,7 @@ export class VerifyEmailPageComponent implements OnInit {
 	private readonly store = inject(Store);
 	private readonly authFeatureService = inject(AuthFeatureService);
 	private readonly translate = inject(TranslateService);
+	private readonly destroyRef = inject(DestroyRef);
 
 	protected readonly status = signal<'pending' | 'success' | 'error'>('pending');
 	protected readonly errorMessage = signal('');
@@ -43,13 +45,19 @@ export class VerifyEmailPageComponent implements OnInit {
 
 		if (!token) {
 			this.status.set('error');
-			this.errorMessage.set(this.translate.instant('AUTH.VERIFY_EMAIL.MISSING_TOKEN'));
+			this.translate
+				.stream('AUTH.VERIFY_EMAIL.MISSING_TOKEN')
+				.pipe(takeUntilDestroyed(this.destroyRef))
+				.subscribe((message) => this.errorMessage.set(message));
 			return;
 		}
 
 		this.authFeatureService
 			.verifyEmail({ token })
-			.pipe(catchError((error) => of({ error: extractErrorMessage(error) })))
+			.pipe(
+				takeUntilDestroyed(this.destroyRef),
+				catchError((error) => of({ error: extractErrorMessage(error) }))
+			)
 			.subscribe((result) => {
 				if ('error' in result) {
 					this.status.set('error');

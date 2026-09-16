@@ -9,6 +9,11 @@ export enum UserRole {
 	ADMIN = 'admin'
 }
 
+export enum PreferredLanguage {
+	HU = 'hu',
+	EN = 'en'
+}
+
 @Entity('users')
 @Index(['isActive', 'resetPasswordTokenHash', 'resetPasswordExpiresAt'])
 @Index(['isActive', 'emailVerified', 'emailVerificationTokenHash', 'emailVerificationExpiresAt'])
@@ -49,6 +54,9 @@ export class UserEntity {
 
 	@Column({ type: 'varchar', length: 20, default: UserRole.SIMPLE })
 	role!: UserRole;
+
+	@Column({ type: 'varchar', length: 5, default: PreferredLanguage.HU })
+	preferredLanguage!: PreferredLanguage;
 
 	@Column({ type: 'boolean', default: false })
 	emailVerified!: boolean;

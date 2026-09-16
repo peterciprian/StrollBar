@@ -1,0 +1,32 @@
+{
+	"verificationSubject": "Erősítsd meg a StrollBar e-mail-címedet",
+	"verificationPreheader": "E-mail-cím megerősítése",
+	"verificationGreeting": "Szia",
+	"verificationMessage": "Már csak egy rövid lépés van hátra: erősítsd meg az e-mail-címedet, hogy aktiváld a StrollBar-fiókodat, és indulhatsz felfedezni.",
+	"verificationButton": "E-mail-cím megerősítése",
+	"verificationFooter": "A link hamarosan lejár, ezért érdemes most rákattintani. Ha nem te hoztad létre ezt a fiókot, nyugodtan hagyd figyelmen kívül ezt az e-mailt.",
+	"accountFooter": "Azért kapod ezt az e-mailt, mert StrollBar-fiókod van. Jó sétát, és kellemes felfedezést!",
+	"createdSubject": "Létrehoztad: „{{strollName}}”",
+	"createdPreheader": "Séta létrehozva",
+	"createdMessage": "A „{{strollName}}” sétád elkészült, gratulálunk!",
+	"createdBody": "Adj hozzá állomásokat és képeket, csiszold a részleteket, majd tedd közzé, amikor készen állsz. Úgy tűnik, most egy kicsit híresebb lettél.",
+	"statusSubject": "A „{{strollName}}” séta állapota: {{status}}",
+	"statusPreheader": "Sétaállapot frissítése",
+	"statusMessage": "Egy gyors frissítés: a „{{strollName}}” sétád állapota erre változott: {{status}}.",
+	"purchaseSubject": "Megvásárolták a „{{strollName}}” sétádat",
+	"purchasePreheader": "Új vásárlás",
+	"purchaseMessage": "Jó hír: valaki megvásárolta a „{{strollName}}” sétádat. Gratulálunk, most egy kicsit híresebb lettél!",
+	"purchaseBody": "Egy új felfedező indul a te útvonaladon. Folytasd a felfedezést és az alkotást: a munkád már most érdekes helyekre juttat el másokat.",
+	"statusCopy": {
+		"published": "Mostantól bárki a nyomodba szegődhet a kalandodban. Szép munka, a séta készen áll az indulásra!",
+		"draft": "Visszakerült a piszkozatok közé, hogy tovább csiszolhasd. A nagy pillanat még várat magára.",
+		"archived": "Archiváltuk a sétádat, és a folyamatban lévő kalandokról értesítettük a résztvevőket.",
+		"suspended": "Ideiglenesen felfüggesztettük, amíg felülvizsgáljuk a bejelentett tartalmat."
+	},
+	"statusLabels": {
+		"published": "közzétéve",
+		"draft": "piszkozat",
+		"archived": "archiválva",
+		"suspended": "felfüggesztve"
+	}
+}

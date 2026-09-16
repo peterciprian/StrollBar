@@ -62,7 +62,7 @@ export class AuthService {
 
 		const savedUser = await this.usersRepository.save(user);
 		const verificationToken = await this.issueEmailVerificationToken(savedUser);
-		await this.emailService.sendVerificationEmail(savedUser.email, savedUser.username, verificationToken);
+		await this.emailService.sendVerificationEmail(savedUser.email, savedUser.username, verificationToken, savedUser.preferredLanguage);
 		const tokens = await this.issueTokens(savedUser);
 
 		const shouldExposeVerificationToken = (this.configService.get<string>('AUTH_EXPOSE_VERIFICATION_TOKEN') ?? 'false').toLowerCase() === 'true';
@@ -303,7 +303,7 @@ export class AuthService {
 		}
 
 		const verificationToken = await this.issueEmailVerificationToken(user);
-		await this.emailService.sendVerificationEmail(user.email, user.username, verificationToken);
+		await this.emailService.sendVerificationEmail(user.email, user.username, verificationToken, user.preferredLanguage);
 		const shouldExposeVerificationToken = (this.configService.get<string>('AUTH_EXPOSE_VERIFICATION_TOKEN') ?? 'false').toLowerCase() === 'true';
 
 		return {

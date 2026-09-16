@@ -1,0 +1,32 @@
+{
+	"verificationSubject": "Verify your StrollBar email address",
+	"verificationPreheader": "Verify your email",
+	"verificationGreeting": "Hey",
+	"verificationMessage": "One short step before you hit the pavement: confirm your email address to activate your StrollBar account and start exploring.",
+	"verificationButton": "Verify my email",
+	"verificationFooter": "This link expires soon, so it is worth clicking now. Did not create this account? You can safely ignore this email.",
+	"accountFooter": "You're receiving this because you have a StrollBar account. Happy strolling, and enjoy the exploring!",
+	"createdSubject": "Your stroll \"{{strollName}}\" has been created",
+	"createdPreheader": "Stroll created",
+	"createdMessage": "Your stroll \"{{strollName}}\" has been created. Cheers, you have become a bit famous!",
+	"createdBody": "Add stages, include a few photos, and polish the details before publishing. There is now a new route in the world, and you are its author.",
+	"statusSubject": "Your stroll \"{{strollName}}\" is now {{status}}",
+	"statusPreheader": "Stroll status update",
+	"statusMessage": "A quick update: your stroll \"{{strollName}}\" just changed status to {{status}}.",
+	"purchaseSubject": "Your stroll \"{{strollName}}\" was just purchased",
+	"purchasePreheader": "New purchase",
+	"purchaseMessage": "Great news: someone just purchased your stroll \"{{strollName}}\". Cheers, you have become a bit famous!",
+	"purchaseBody": "A new explorer is about to follow your route. Keep exploring and creating; your work is already taking people somewhere interesting.",
+	"statusCopy": {
+		"published": "It's live and ready for the world to explore. Excellent work; your stroll is ready for its audience!",
+		"draft": "It's back in drafts so you can keep polishing it. The spotlight can wait a little longer.",
+		"archived": "It's been archived, and anyone in the middle of an adventure has been notified.",
+		"suspended": "It's been temporarily suspended while we review the reported content."
+	},
+	"statusLabels": {
+		"published": "published",
+		"draft": "draft",
+		"archived": "archived",
+		"suspended": "suspended"
+	}
+}

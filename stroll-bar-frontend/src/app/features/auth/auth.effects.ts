@@ -5,6 +5,7 @@ import { catchError, map, of, switchMap, tap } from 'rxjs';
 import { AuthFeatureService } from './auth-feature.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { extractErrorMessage } from '../../core/utils/http-error.util';
+import { LanguageService } from '../../core/services/language.service';
 import {
 	fetchMe,
 	fetchMeFailure,
@@ -30,6 +31,16 @@ export class AuthEffects {
 	private readonly authFeatureService = inject(AuthFeatureService);
 	private readonly router = inject(Router);
 	private readonly notification = inject(NotificationService);
+	private readonly languageService = inject(LanguageService);
+
+	syncLanguage$ = createEffect(
+		() =>
+			this.actions$.pipe(
+				ofType(fetchMeSuccess, loginSuccess, registerSuccess, updateProfileSuccess),
+				tap(({ user }) => this.languageService.changeLanguage(user.preferredLanguage))
+			),
+		{ dispatch: false }
+	);
 
 	loadMe$ = createEffect(() =>
 		this.actions$.pipe(

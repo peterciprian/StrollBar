@@ -90,6 +90,10 @@ export class UsersService {
 			user.profileImageUrl = dto.profileImageUrl;
 		}
 
+		if (dto.preferredLanguage !== undefined) {
+			user.preferredLanguage = dto.preferredLanguage;
+		}
+
 		const savedUser = await this.usersRepository.save(user);
 
 		return this.toUserResponse(savedUser);
@@ -132,6 +136,7 @@ export class UsersService {
 			profileImageUrl: user.profileImageUrl ?? null,
 			isActive: user.isActive,
 			role: user.role,
+			preferredLanguage: user.preferredLanguage,
 			emailVerified: user.emailVerified,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt

@@ -21,6 +21,7 @@ const initialState: UserState = {
 	profileImageUrl: null,
 	isActive: false,
 	role: UserRole.SIMPLE,
+	preferredLanguage: 'hu',
 	emailVerified: false,
 	createdAt: '',
 	updatedAt: '',

@@ -10,7 +10,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { filter, map } from 'rxjs';
 import { LanguageService } from '../../core/services/language.service';
-import { logout, selectIsAdmin, selectIsLoggedIn, selectUsername } from '../../features/auth/auth.state';
+import { logout, selectIsAdmin, selectIsLoggedIn, selectUser, selectUsername, updateProfile } from '../../features/auth/auth.state';
 import { SCREEN_DEFS, ScreenDef } from './screen-definitions';
 import { SETTINGS_SECTIONS } from '../../pages/settings/settings-nav.service';
 
@@ -47,6 +47,7 @@ export class HeaderComponent {
 	protected readonly isLoggedIn = this.store.selectSignal(selectIsLoggedIn);
 	protected readonly isAdmin = this.store.selectSignal(selectIsAdmin);
 	protected readonly username = this.store.selectSignal(selectUsername);
+	protected readonly user = this.store.selectSignal(selectUser);
 	private readonly currentUrl = toSignal(
 		this.router.events.pipe(
 			filter((event): event is NavigationEnd => event instanceof NavigationEnd),
@@ -66,6 +67,9 @@ export class HeaderComponent {
 
 	onChangeLanguage(code: string): void {
 		this.languageService.changeLanguage(code);
+		if (this.user().id) {
+			this.store.dispatch(updateProfile({ user: { preferredLanguage: code as 'hu' | 'en' } }));
+		}
 	}
 
 	languageFlagIcon(code: string | null): string {

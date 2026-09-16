@@ -37,6 +37,7 @@ export interface User {
 	profileImageUrl?: string | null;
 	isActive: boolean;
 	role: UserRole;
+	preferredLanguage: 'hu' | 'en';
 	emailVerified: boolean;
 	createdAt: string;
 	updatedAt: string;
@@ -45,6 +46,7 @@ export interface User {
 export interface UpdateUserRequest {
 	username?: string;
 	profileImageUrl?: string;
+	preferredLanguage?: 'hu' | 'en';
 }
 
 export interface UpdateUserRoleRequest {

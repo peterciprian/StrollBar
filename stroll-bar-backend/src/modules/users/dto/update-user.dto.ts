@@ -1,5 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
+import { PreferredLanguage } from '../entities/user.entity';
 
 export class UpdateUserDto {
 	@ApiPropertyOptional({ example: 'walker', minLength: 3, maxLength: 50 })
@@ -13,4 +14,9 @@ export class UpdateUserDto {
 	@IsOptional()
 	@IsUrl()
 	profileImageUrl?: string;
+
+	@ApiPropertyOptional({ enum: PreferredLanguage, example: PreferredLanguage.HU })
+	@IsOptional()
+	@IsIn(Object.values(PreferredLanguage))
+	preferredLanguage?: PreferredLanguage;
 }

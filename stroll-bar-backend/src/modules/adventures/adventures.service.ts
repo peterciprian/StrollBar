@@ -119,7 +119,7 @@ export class AdventuresService {
 			return;
 		}
 
-		await this.emailService.sendStrollPurchasedEmail(author.email, author.username, stroll.name);
+		await this.emailService.sendStrollPurchasedEmail(author.email, author.username, stroll.name, author.preferredLanguage);
 	}
 
 	async list(currentUser: AuthenticatedUser) {

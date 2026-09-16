@@ -2,6 +2,7 @@ import { ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { BrevoClient } from '@getbrevo/brevo';
 import { EmailService } from './email.service';
+import { PreferredLanguage } from '../users/entities/user.entity';
 
 jest.mock('@getbrevo/brevo', () => ({ BrevoClient: jest.fn() }));
 
@@ -57,6 +58,24 @@ describe('EmailService', () => {
 		const service = createService({ EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'brevo-api-key', EMAIL_FROM: 'no-reply@example.com' });
 		sendTransacEmail.mockRejectedValueOnce(new Error('Brevo unavailable'));
 		await expect(service.sendVerificationEmail('walker@example.com', 'Walker', validToken)).rejects.toThrow(ServiceUnavailableException);
+	});
+
+	it('renders Hungarian notification copy from the locale JSON', async () => {
+		const service = createService({
+			EMAIL_DELIVERY_ENABLED: 'true',
+			BREVO_API_KEY: 'brevo-api-key',
+			EMAIL_FROM: 'no-reply@example.com'
+		});
+
+		await service.sendStrollCreatedEmail('walker@example.com', 'Walker', 'City Lights', PreferredLanguage.HU);
+
+		expect(sendTransacEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				subject: 'Létrehoztad: „City Lights”',
+				textContent: expect.stringContaining('A „City Lights” sétád elkészült, gratulálunk!'),
+				htmlContent: expect.stringContaining('most egy kicsit híresebb lettél')
+			})
+		);
 	});
 
 	it('checks Brevo API connectivity when delivery is enabled', async () => {

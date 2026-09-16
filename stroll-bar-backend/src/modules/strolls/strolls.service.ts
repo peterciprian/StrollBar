@@ -330,7 +330,9 @@ export class StrollsService {
 			return;
 		}
 
-		await this.emailService.sendStrollStatusChangedEmail(author.email, author.username, stroll.name, stroll.activeStatus).catch(() => undefined);
+		await this.emailService
+			.sendStrollStatusChangedEmail(author.email, author.username, stroll.name, stroll.activeStatus, author.preferredLanguage)
+			.catch(() => undefined);
 	}
 
 	private async notifyAuthorOfCreation(stroll: StrollEntity): Promise<void> {
@@ -339,7 +341,7 @@ export class StrollsService {
 			return;
 		}
 
-		await this.emailService.sendStrollCreatedEmail(author.email, author.username, stroll.name).catch(() => undefined);
+		await this.emailService.sendStrollCreatedEmail(author.email, author.username, stroll.name, author.preferredLanguage).catch(() => undefined);
 	}
 
 	async remove(strollId: string, currentUser: AuthenticatedUser) {

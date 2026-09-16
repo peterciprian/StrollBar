@@ -3,6 +3,58 @@ import { ConfigService } from '@nestjs/config';
 import { BrevoClient } from '@getbrevo/brevo';
 import { withRetry, withTimeoutAndRetry } from '../../common/utils/retry.util';
 import { StrollActiveStatus } from '../strolls/entities/stroll.entity';
+import { PreferredLanguage } from '../users/entities/user.entity';
+
+interface EmailCopy {
+	verificationSubject: string;
+	verificationPreheader: string;
+	verificationGreeting: string;
+	verificationMessage: string;
+	verificationButton: string;
+	verificationFooter: string;
+	accountFooter: string;
+	createdSubject: (strollName: string) => string;
+	createdPreheader: string;
+	createdMessage: (strollName: string) => string;
+	createdBody: string;
+	statusSubject: (strollName: string, status: string) => string;
+	statusPreheader: string;
+	statusMessage: (strollName: string, status: string) => string;
+	purchaseSubject: (strollName: string) => string;
+	purchasePreheader: string;
+	purchaseMessage: (strollName: string) => string;
+	purchaseBody: string;
+	statusCopy: Record<StrollActiveStatus, string>;
+	statusLabels: Record<StrollActiveStatus, string>;
+}
+
+interface EmailLocale {
+	verificationSubject: string;
+	verificationPreheader: string;
+	verificationGreeting: string;
+	verificationMessage: string;
+	verificationButton: string;
+	verificationFooter: string;
+	accountFooter: string;
+	createdSubject: string;
+	createdPreheader: string;
+	createdMessage: string;
+	createdBody: string;
+	statusSubject: string;
+	statusPreheader: string;
+	statusMessage: string;
+	purchaseSubject: string;
+	purchasePreheader: string;
+	purchaseMessage: string;
+	purchaseBody: string;
+	statusCopy: Record<string, string>;
+	statusLabels: Record<string, string>;
+}
+
+const EMAIL_LOCALES: Record<PreferredLanguage, EmailLocale> = {
+	[PreferredLanguage.EN]: require('./locales/en.json'),
+	[PreferredLanguage.HU]: require('./locales/hu.json')
+};
 
 @Injectable()
 export class EmailService {
@@ -44,7 +96,12 @@ export class EmailService {
 		}
 	}
 
-	async sendVerificationEmail(recipient: string, username: string, token: string): Promise<void> {
+	async sendVerificationEmail(
+		recipient: string,
+		username: string,
+		token: string,
+		language: PreferredLanguage = PreferredLanguage.EN
+	): Promise<void> {
 		if (!this.isDeliveryEnabled()) {
 			return;
 		}
@@ -54,6 +111,7 @@ export class EmailService {
 		const safeUsername = this.escapeHtml(username);
 		const safeVerificationUrl = this.escapeHtml(verificationUrl);
 		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+		const copy = this.getCopy(language);
 
 		try {
 			await withRetry(
@@ -62,23 +120,24 @@ export class EmailService {
 					return this.getBrevoClient().transactionalEmails.sendTransacEmail({
 						sender,
 						to: [{ email: recipient }],
-						subject: 'Verify your StrollBar email address \uD83D\uDC63',
+						subject: copy.verificationSubject,
 						textContent: [
-							`Hey ${username},`,
+							`${copy.verificationGreeting} ${username},`,
 							'',
-							'One quick step before you hit the pavement: confirm your email to activate your account.',
+							copy.verificationMessage,
 							verificationUrl,
 							'',
-							'This link expires soon, so dont dawdle. If you did not create this account, just ignore this email.'
+							copy.verificationFooter
 						].join('\n'),
 						htmlContent: this.wrapHtml(
-							'Verify your email',
+							copy.verificationPreheader,
 							[
-								`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
-								'<p style="margin:0 0 20px;">One quick step before you hit the pavement: confirm your email to activate your StrollBar account.</p>',
-								this.button(safeVerificationUrl, 'Verify my email'),
-								'<p style="margin:24px 0 0;color:#64748b;font-size:13px;">This link expires soon, so don\u2019t dawdle. Didn\u2019t create this account? Just ignore this email.</p>'
-							].join('')
+								`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${safeUsername}! \uD83D\uDC4B</p>`,
+								`<p style="margin:0 0 20px;">${copy.verificationMessage}</p>`,
+								this.button(safeVerificationUrl, copy.verificationButton),
+								`<p style="margin:24px 0 0;color:#64748b;font-size:13px;">${copy.verificationFooter}</p>`
+							].join(''),
+							copy.accountFooter
 						)
 					});
 				},
@@ -102,7 +161,12 @@ export class EmailService {
 		}
 	}
 
-	async sendStrollCreatedEmail(recipient: string, authorUsername: string, strollName: string): Promise<void> {
+	async sendStrollCreatedEmail(
+		recipient: string,
+		authorUsername: string,
+		strollName: string,
+		language: PreferredLanguage = PreferredLanguage.EN
+	): Promise<void> {
 		if (!this.isDeliveryEnabled()) {
 			return;
 		}
@@ -110,40 +174,45 @@ export class EmailService {
 		const safeUsername = this.escapeHtml(authorUsername);
 		const safeStrollName = this.escapeHtml(strollName);
 		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+		const copy = this.getCopy(language);
 
 		await this.deliver(
 			() =>
 				this.getBrevoClient().transactionalEmails.sendTransacEmail({
 					sender,
 					to: [{ email: recipient }],
-					subject: `You created "${strollName}" \uD83C\uDF89`,
-					textContent: [
-						`Hey ${authorUsername},`,
-						'',
-						`"${strollName}" is officially born! Add some stages and polish it up whenever you're ready to publish.`
-					].join('\n'),
+					subject: copy.createdSubject(strollName),
+					textContent: [`${copy.verificationGreeting} ${authorUsername},`, '', copy.createdMessage(strollName)].join('\n'),
 					htmlContent: this.wrapHtml(
-						'Stroll created',
+						copy.createdPreheader,
 						[
-							`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
-							`<p style="margin:0 0 20px;"><strong>\u201C${safeStrollName}\u201D</strong> is officially born! \uD83C\uDF89</p>`,
-							'<p style="margin:0;">Add some stages, sprinkle in photos, and publish whenever you\u2019re ready to send people exploring.</p>'
-						].join('')
+							`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${safeUsername}! \uD83D\uDC4B</p>`,
+							`<p style="margin:0 0 20px;">${copy.createdMessage(safeStrollName)}</p>`,
+							`<p style="margin:0;">${copy.createdBody}</p>`
+						].join(''),
+						copy.accountFooter
 					)
 				}),
 			'The stroll creation notification email could not be delivered.'
 		);
 	}
 
-	async sendStrollStatusChangedEmail(recipient: string, authorUsername: string, strollName: string, newStatus: StrollActiveStatus): Promise<void> {
+	async sendStrollStatusChangedEmail(
+		recipient: string,
+		authorUsername: string,
+		strollName: string,
+		newStatus: StrollActiveStatus,
+		language: PreferredLanguage = PreferredLanguage.EN
+	): Promise<void> {
 		if (!this.isDeliveryEnabled()) {
 			return;
 		}
 		this.validateRecipientAndUsername(recipient, authorUsername);
 		const safeUsername = this.escapeHtml(authorUsername);
 		const safeStrollName = this.escapeHtml(strollName);
-		const safeStatus = this.escapeHtml(newStatus);
-		const statusCopy = this.describeStatusChange(newStatus);
+		const copy = this.getCopy(language);
+		const statusCopy = copy.statusCopy[newStatus] ?? copy.statusCopy[StrollActiveStatus.DRAFT];
+		const statusLabel = copy.statusLabels[newStatus] ?? newStatus;
 		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
 
 		await this.deliver(
@@ -151,24 +220,32 @@ export class EmailService {
 				this.getBrevoClient().transactionalEmails.sendTransacEmail({
 					sender,
 					to: [{ email: recipient }],
-					subject: `Your stroll "${strollName}" is now ${newStatus} \uD83D\uDCE2`,
-					textContent: [`Hey ${authorUsername},`, '', `Heads up: "${strollName}" just changed status to ${newStatus}. ${statusCopy}`].join(
-						'\n'
-					),
+					subject: copy.statusSubject(strollName, statusLabel),
+					textContent: [
+						`${copy.verificationGreeting} ${authorUsername},`,
+						'',
+						`${copy.statusMessage(strollName, statusLabel)} ${statusCopy}`
+					].join('\n'),
 					htmlContent: this.wrapHtml(
-						'Stroll status update',
+						copy.statusPreheader,
 						[
-							`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
-							`<p style="margin:0 0 20px;">Heads up \u2014 your stroll <strong>\u201C${safeStrollName}\u201D</strong> just changed status to ${this.statusBadge(safeStatus)}.</p>`,
+							`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${safeUsername}! \uD83D\uDC4B</p>`,
+							`<p style="margin:0 0 20px;">${copy.statusMessage(safeStrollName, statusLabel)} ${this.statusBadge(this.escapeHtml(statusLabel))}.</p>`,
 							`<p style="margin:0;">${statusCopy}</p>`
-						].join('')
+						].join(''),
+						copy.accountFooter
 					)
 				}),
 			'The stroll status notification email could not be delivered.'
 		);
 	}
 
-	async sendStrollPurchasedEmail(recipient: string, authorUsername: string, strollName: string): Promise<void> {
+	async sendStrollPurchasedEmail(
+		recipient: string,
+		authorUsername: string,
+		strollName: string,
+		language: PreferredLanguage = PreferredLanguage.EN
+	): Promise<void> {
 		if (!this.isDeliveryEnabled()) {
 			return;
 		}
@@ -176,29 +253,56 @@ export class EmailService {
 		const safeUsername = this.escapeHtml(authorUsername);
 		const safeStrollName = this.escapeHtml(strollName);
 		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+		const copy = this.getCopy(language);
 
 		await this.deliver(
 			() =>
 				this.getBrevoClient().transactionalEmails.sendTransacEmail({
 					sender,
 					to: [{ email: recipient }],
-					subject: `Cha-ching! "${strollName}" was just purchased \uD83C\uDF89`,
-					textContent: [
-						`Hey ${authorUsername},`,
-						'',
-						`Your stroll "${strollName}" was just purchased. Awesome! You've just officially become a little bit famous.`
-					].join('\n'),
+					subject: copy.purchaseSubject(strollName),
+					textContent: [`${copy.verificationGreeting} ${authorUsername},`, '', copy.purchaseMessage(strollName)].join('\n'),
 					htmlContent: this.wrapHtml(
-						'Ka-ching!',
+						copy.purchasePreheader,
 						[
-							`<p style="margin:0 0 16px;">Hey ${safeUsername}! \uD83D\uDC4B</p>`,
-							`<p style="margin:0 0 20px;">Great news \u2014 your stroll <strong>\u201C${safeStrollName}\u201D</strong> was just purchased. Awesome! You've officially become a little bit famous. \uD83C\uDF1F</p>`,
-							'<p style="margin:0;">Keep exploring, keep creating \u2014 someone out there is about to walk in your footsteps.</p>'
-						].join('')
+							`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${safeUsername}! \uD83D\uDC4B</p>`,
+							`<p style="margin:0 0 20px;">${copy.purchaseMessage(safeStrollName)}</p>`,
+							`<p style="margin:0;">${copy.purchaseBody}</p>`
+						].join(''),
+						copy.accountFooter
 					)
 				}),
 			'The stroll purchase notification email could not be delivered.'
 		);
+	}
+
+	private getCopy(language: PreferredLanguage): EmailCopy {
+		const locale = EMAIL_LOCALES[language] ?? EMAIL_LOCALES[PreferredLanguage.EN];
+		const interpolate = (value: string, replacements: Record<string, string>): string =>
+			value.replace(/\{\{(\w+)\}\}/g, (_, key: string) => replacements[key] ?? '');
+
+		return {
+			verificationSubject: locale.verificationSubject,
+			verificationPreheader: locale.verificationPreheader,
+			verificationGreeting: locale.verificationGreeting,
+			verificationMessage: locale.verificationMessage,
+			verificationButton: locale.verificationButton,
+			verificationFooter: locale.verificationFooter,
+			accountFooter: locale.accountFooter,
+			createdSubject: (strollName) => interpolate(locale.createdSubject, { strollName }),
+			createdPreheader: locale.createdPreheader,
+			createdMessage: (strollName) => interpolate(locale.createdMessage, { strollName }),
+			createdBody: locale.createdBody,
+			statusSubject: (strollName, status) => interpolate(locale.statusSubject, { strollName, status }),
+			statusPreheader: locale.statusPreheader,
+			statusMessage: (strollName, status) => interpolate(locale.statusMessage, { strollName, status }),
+			purchaseSubject: (strollName) => interpolate(locale.purchaseSubject, { strollName }),
+			purchasePreheader: locale.purchasePreheader,
+			purchaseMessage: (strollName) => interpolate(locale.purchaseMessage, { strollName }),
+			purchaseBody: locale.purchaseBody,
+			statusCopy: locale.statusCopy as Record<StrollActiveStatus, string>,
+			statusLabels: locale.statusLabels as Record<StrollActiveStatus, string>
+		};
 	}
 
 	private describeStatusChange(status: StrollActiveStatus): string {
@@ -223,7 +327,11 @@ export class EmailService {
 		].join('');
 	}
 
-	private wrapHtml(preheader: string, bodyHtml: string): string {
+	private wrapHtml(
+		preheader: string,
+		bodyHtml: string,
+		accountFooter = "You're receiving this because you have a StrollBar account. Happy strolling! \uD83C\uDF3F"
+	): string {
 		return [
 			'<div style="background:#f1f5f9;padding:32px 16px;font-family:\'Segoe UI\',Tahoma,Geneva,Verdana,sans-serif;">',
 			`<span style="display:none;max-height:0;overflow:hidden;">${this.escapeHtml(preheader)}</span>`,
@@ -233,7 +341,7 @@ export class EmailService {
 			'</div>',
 			`<div style="padding:28px;color:#0f172a;font-size:15px;line-height:1.5;">${bodyHtml}</div>`,
 			'<div style="padding:16px 28px;background:#f8fafc;border-top:1px solid #e2e8f0;color:#94a3b8;font-size:12px;">',
-			"You're receiving this because you have a StrollBar account. Happy strolling! \uD83C\uDF3F",
+			this.escapeHtml(accountFooter),
 			'</div>',
 			'</div>',
 			'</div>'
