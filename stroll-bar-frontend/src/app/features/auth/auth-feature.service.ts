@@ -12,15 +12,17 @@ import {
 	VerifyEmailRequest
 } from '../../core/api/models';
 import { TokenStorageService } from '../../core/services/token-storage.service';
+import { LanguageService } from '../../core/services/language.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthFeatureService {
 	private readonly api = inject(ApiClientService);
 	private readonly tokenStorage = inject(TokenStorageService);
 	private readonly router = inject(Router);
+	private readonly languageService = inject(LanguageService);
 
 	register(input: RegisterRequest) {
-		return this.api.register(input).pipe(
+		return this.api.register({ ...input, preferredLanguage: (this.languageService.currentLang() as 'hu' | 'en' | null) ?? 'hu' }).pipe(
 			tap((response) => this.tokenStorage.setTokens(response.accessToken, response.refreshToken)),
 			map((response) => response.user)
 		);

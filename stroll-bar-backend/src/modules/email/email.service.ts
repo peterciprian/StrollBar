@@ -305,16 +305,6 @@ export class EmailService {
 		};
 	}
 
-	private describeStatusChange(status: StrollActiveStatus): string {
-		const copy: Record<StrollActiveStatus, string> = {
-			[StrollActiveStatus.PUBLISHED]: "It's live and ready for the world to explore. Go you!",
-			[StrollActiveStatus.DRAFT]: "It's tucked back into drafts \u2014 keep polishing, it'll shine.",
-			[StrollActiveStatus.ARCHIVED]: "It's been archived. Anyone mid-adventure has been notified.",
-			[StrollActiveStatus.SUSPENDED]: "It's been temporarily suspended pending a review of some reported content."
-		};
-		return copy[status] ?? 'Take a look next time you\u2019re in the app.';
-	}
-
 	private statusBadge(safeStatus: string): string {
 		return `<span style="display:inline-block;padding:2px 10px;border-radius:999px;background:#ecfeff;color:#0e7490;font-weight:600;font-size:13px;">${safeStatus}</span>`;
 	}
@@ -327,11 +317,7 @@ export class EmailService {
 		].join('');
 	}
 
-	private wrapHtml(
-		preheader: string,
-		bodyHtml: string,
-		accountFooter = "You're receiving this because you have a StrollBar account. Happy strolling! \uD83C\uDF3F"
-	): string {
+	private wrapHtml(preheader: string, bodyHtml: string, accountFooter: string): string {
 		return [
 			'<div style="background:#f1f5f9;padding:32px 16px;font-family:\'Segoe UI\',Tahoma,Geneva,Verdana,sans-serif;">',
 			`<span style="display:none;max-height:0;overflow:hidden;">${this.escapeHtml(preheader)}</span>`,

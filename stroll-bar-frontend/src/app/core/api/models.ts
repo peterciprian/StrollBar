@@ -77,6 +77,7 @@ export interface RegisterRequest {
 	email: string;
 	password: string;
 	recaptchaToken?: string;
+	preferredLanguage?: 'hu' | 'en';
 }
 
 export interface LoginRequest {

@@ -78,6 +78,25 @@ describe('EmailService', () => {
 		);
 	});
 
+	it('renders Hungarian verification copy from the locale JSON', async () => {
+		const service = createService({
+			EMAIL_DELIVERY_ENABLED: 'true',
+			EMAIL_VERIFICATION_URL: 'https://example.com/#/auth/verify-email',
+			BREVO_API_KEY: 'brevo-api-key',
+			EMAIL_FROM: 'no-reply@example.com'
+		});
+
+		await service.sendVerificationEmail('walker@example.com', 'Walker', validToken, PreferredLanguage.HU);
+
+		expect(sendTransacEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				subject: 'Erősítsd meg a StrollBar e-mail-címedet',
+				textContent: expect.stringContaining('Már csak egy rövid lépés van hátra'),
+				htmlContent: expect.stringContaining('Jó sétát, és kellemes felfedezést!')
+			})
+		);
+	});
+
 	it('checks Brevo API connectivity when delivery is enabled', async () => {
 		const service = createService({ EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'brevo-api-key' });
 		await expect(service.checkDeliveryConnectivity()).resolves.toMatchObject({ status: 'up', provider: 'brevo' });
