@@ -156,7 +156,7 @@ describe('StrollsService authorization', () => {
 		await expect(service.findOne(privateStroll.id, simpleUser)).resolves.toEqual({ stroll: privateStroll, stages: [] });
 	});
 
-	it('returns a sanitized advertising extract for every browsable stroll', async () => {
+	it('returns the full description for every browsable stroll', async () => {
 		const publicStroll = buildStroll({
 			description: 'A'.repeat(300),
 			proposerText: 'Private creator notes',
@@ -170,8 +170,7 @@ describe('StrollsService authorization', () => {
 		const result = await service.list({});
 		const extract = result.items[0];
 
-		expect(extract.description).toHaveLength(243);
-		expect(extract.description.endsWith('...')).toBe(true);
+		expect(extract.description).toBe(publicStroll.description);
 		expect(extract).not.toHaveProperty('proposerText');
 		expect(extract.mediaUrls).toEqual({ imageUrls: ['https://example.com/cover.jpg'], videoUrls: [] });
 		expect(extract).toMatchObject({ id: publicStroll.id, name: publicStroll.name, stageCount: publicStroll.stageCount });

@@ -18,7 +18,6 @@ import { BadgesService } from '../badges/badges.service';
 import { STROLL_CREATION_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
 import { AppErrorCode } from '../../common/utils/app-error-code';
 
-const PRIVATE_STROLL_EXTRACT_LENGTH = 240;
 // Sorts strolls without a first-stage coordinate to the end of the nearest-first list.
 const MISSING_COORDINATE_FALLBACK = 10000;
 type StrollListResponse = { items: ReturnType<StrollsService['createSummary']>[]; page: number; limit: number; total: number };
@@ -429,9 +428,6 @@ export class StrollsService {
 	}
 
 	private createSummary(stroll: StrollEntity) {
-		const description = stroll.description.trim();
-		const descriptionExtract =
-			description.length > PRIVATE_STROLL_EXTRACT_LENGTH ? `${description.slice(0, PRIVATE_STROLL_EXTRACT_LENGTH).trimEnd()}...` : description;
 		const firstImageUrl = stroll.mediaUrls?.imageUrls?.[0];
 
 		return {
@@ -440,7 +436,7 @@ export class StrollsService {
 			authorId: stroll.authorId,
 			labels: stroll.labels,
 			category: stroll.category,
-			description: descriptionExtract,
+			description: stroll.description,
 			mediaUrls: firstImageUrl ? { imageUrls: [firstImageUrl], videoUrls: [] } : null,
 			price: stroll.publicityFlag === StrollPublicityFlag.PRIVATE ? (stroll.price ?? null) : null,
 			length: stroll.length,

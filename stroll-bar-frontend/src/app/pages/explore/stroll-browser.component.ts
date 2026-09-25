@@ -122,6 +122,11 @@ export class StrollBrowserScreenComponent implements OnInit {
 		this.loadReviews(stroll.id);
 	}
 
+	protected calculateDuration(stroll: StrollSummary): number {
+		const walkingSpeed = 3;
+		return (stroll.length / walkingSpeed) * 60 + stroll.stageCount * 10;
+	}
+
 	protected get visibleReviews(): StrollReview[] {
 		return this.showAllReviews ? this.reviews : this.reviews.slice(0, VISIBLE_REVIEW_COUNT);
 	}

@@ -88,7 +88,7 @@
 				<div class="stroll-browser__stats">
 					<div class="stroll-browser__stat">
 						<mat-icon>straighten</mat-icon>
-						<span class="stroll-browser__stat-value">{{ stroll.length }} {{ 'COMMON.KM_SUFFIX' | translate }}</span>
+						<span class="stroll-browser__stat-value">{{ stroll.length.toFixed(1) }} {{ 'COMMON.KM_SUFFIX' | translate }}</span>
 						<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_DISTANCE' | translate }}</span>
 					</div>
 					<div class="stroll-browser__stat">
@@ -98,7 +98,9 @@
 					</div>
 					<div class="stroll-browser__stat">
 						<mat-icon>schedule</mat-icon>
-						<span class="stroll-browser__stat-value">{{ stroll.stageCount * 15 }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span>
+						<span class="stroll-browser__stat-value"
+							>{{ calculateDuration(stroll).toFixed(0) }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span
+						>
 						<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_TIME' | translate }}</span>
 					</div>
 				</div>

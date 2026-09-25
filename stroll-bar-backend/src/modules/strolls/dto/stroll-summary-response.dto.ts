@@ -19,7 +19,7 @@ export class StrollSummaryResponseDto {
 	@ApiProperty({ enum: StrollCategory })
 	category!: StrollCategory;
 
-	@ApiProperty({ description: 'Advertising extract, limited to 240 characters.' })
+	@ApiProperty({ description: 'Full stroll description.' })
 	description!: string;
 
 	@ApiPropertyOptional({
