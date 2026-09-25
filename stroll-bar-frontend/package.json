@@ -6,6 +6,9 @@
 		"start": "ng serve",
 		"build": "ng build",
 		"lint": "ng lint",
+		"test": "jest --config jest.config.cjs",
+		"test:watch": "jest --config jest.config.cjs --watch",
+		"test:coverage": "jest --config jest.config.cjs --coverage",
 		"test:e2e": "playwright test",
 		"build:production": "ng build --configuration production",
 		"serve:ssr:strollbar-frontend": "node dist/strollbar-frontend/server/server.mjs"
@@ -45,10 +48,14 @@
 		"@angular/compiler-cli": "^22.0.7",
 		"@playwright/test": "^1.62.1",
 		"@types/express": "^5.0.1",
+		"@types/jest": "^30.0.0",
 		"@types/node": "^20.17.19",
 		"@typescript-eslint/eslint-plugin": "^8.66.0",
 		"@typescript-eslint/parser": "^8.66.0",
 		"eslint": "^10.8.1",
+		"jest": "^30.5.2",
+		"jest-environment-jsdom": "^30.5.2",
+		"jest-preset-angular": "^17.0.0",
 		"typescript": "^5.4.5"
 	}
 }

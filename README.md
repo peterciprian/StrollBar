@@ -211,6 +211,26 @@ npm run start:frontend
 
 Frontend starts on Angular dev server (default http://localhost:4200).
 
+### Frontend tests
+
+The frontend uses Jest for Angular unit/component tests and Playwright for browser E2E tests.
+
+Run the Jest suite from the workspace root:
+
+`npm --workspace stroll-bar-frontend run test`
+
+Run it in watch mode while developing:
+
+`npm --workspace stroll-bar-frontend run test:watch`
+
+Generate a coverage report:
+
+`npm --workspace stroll-bar-frontend run test:coverage`
+
+Run browser E2E tests:
+
+`npm --workspace stroll-bar-frontend run test:e2e`
+
 In production, the frontend registers a service worker. It caches the application shell and
 static same-origin assets, and uses network-first caching for unauthenticated public `GET`
 responses. Authenticated responses and all mutations remain network-only, so stale private data
