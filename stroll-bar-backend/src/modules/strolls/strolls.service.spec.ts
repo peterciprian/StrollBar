@@ -7,6 +7,7 @@ import { UserRole } from '../users/entities/user.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
 import { StrollCategory } from './dto/stroll-category.enum';
 import { StrollsService } from './strolls.service';
+import { AppErrorCode } from '../../common/utils/app-error-code';
 
 describe('StrollsService authorization', () => {
 	const listQueryBuilder: Record<string, jest.Mock> = {
@@ -51,7 +52,8 @@ describe('StrollsService authorization', () => {
 		evaluateAndAward: jest.fn().mockResolvedValue([])
 	};
 	const emailService = {
-		sendStrollStatusChangedEmail: jest.fn().mockResolvedValue(undefined)
+		sendStrollStatusChangedEmail: jest.fn().mockResolvedValue(undefined),
+		sendStrollCreatedEmail: jest.fn().mockResolvedValue(undefined)
 	};
 	const service = new StrollsService(
 		strollsRepository as unknown as Repository<StrollEntity>,
@@ -97,7 +99,12 @@ describe('StrollsService authorization', () => {
 	});
 
 	it('rejects a private stroll for a simple user without counting', async () => {
-		await expect(service.create({ ...createDto, publicityFlag: StrollPublicityFlag.PRIVATE }, simpleUser)).rejects.toThrow(ForbiddenException);
+		await expect(service.create({ ...createDto, publicityFlag: StrollPublicityFlag.PRIVATE }, simpleUser)).rejects.toMatchObject({
+			response: {
+				code: AppErrorCode.STROLL_PUBLICITY_NOT_ALLOWED,
+				message: 'Your account type cannot create private or unlisted strolls.'
+			}
+		});
 		expect(strollsRepository.count).not.toHaveBeenCalled();
 	});
 
@@ -113,9 +120,28 @@ describe('StrollsService authorization', () => {
 
 	it('rejects a 101st public stroll for a creator', async () => {
 		const creatorUser = { ...simpleUser, role: UserRole.CREATOR };
-		strollsRepository.count.mockResolvedValue(100);
+		strollsRepository.count.mockResolvedValue(20);
 
-		await expect(service.create(createDto, creatorUser)).rejects.toThrow(ForbiddenException);
+		await expect(service.create(createDto, creatorUser)).rejects.toMatchObject({
+			response: {
+				code: AppErrorCode.STROLL_QUOTA_REACHED,
+				message: 'Your account type can create up to 20 public strolls.'
+			}
+		});
+	});
+
+	it('invalidates browse cache, awards badges, and notifies the author after creating a stroll', async () => {
+		const savedStroll = buildStroll({ authorId: simpleUser.userId, activeStatus: StrollActiveStatus.DRAFT });
+		strollsRepository.count.mockResolvedValue(0);
+		strollsRepository.save.mockResolvedValue(savedStroll);
+		usersRepository.findOne.mockResolvedValue({ email: simpleUser.email, username: simpleUser.username, preferredLanguage: 'hu' });
+
+		const result = await service.create(createDto, simpleUser);
+
+		expect(result).toBe(savedStroll);
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
+		expect(badgesService.evaluateAndAward).toHaveBeenCalledWith(simpleUser.userId);
+		expect(emailService.sendStrollCreatedEmail).toHaveBeenCalledWith(simpleUser.email, simpleUser.username, savedStroll.name, 'hu');
 	});
 
 	it('requires purchase before another user can read private stroll details', async () => {
@@ -158,6 +184,60 @@ describe('StrollsService authorization', () => {
 		strollsRepository.save.mockImplementationOnce(async (value) => value);
 
 		await expect(service.update(stroll.id, { name: 'Updated' }, adminUser)).resolves.toMatchObject({ name: 'Updated' });
+	});
+
+	it('rejects suspension changes from non-admin users', async () => {
+		const stroll = buildStroll({ authorId: simpleUser.userId, activeStatus: StrollActiveStatus.PUBLISHED });
+		strollsRepository.findOne.mockResolvedValue(stroll);
+
+		await expect(service.update(stroll.id, { activeStatus: StrollActiveStatus.SUSPENDED }, simpleUser)).rejects.toThrow(ForbiddenException);
+		expect(strollsRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('allows admins to reinstate a suspended stroll and notifies the author', async () => {
+		const stroll = buildStroll({ authorId: 'another-user', activeStatus: StrollActiveStatus.SUSPENDED });
+		const adminUser = { ...simpleUser, role: UserRole.ADMIN };
+		strollsRepository.findOne.mockResolvedValue(stroll);
+		strollsRepository.save.mockImplementationOnce(async (value) => value);
+		usersRepository.findOne.mockResolvedValue({ email: 'author@example.com', username: 'author', preferredLanguage: 'en' });
+
+		await expect(service.update(stroll.id, { activeStatus: StrollActiveStatus.PUBLISHED }, adminUser)).resolves.toMatchObject({
+			activeStatus: StrollActiveStatus.PUBLISHED
+		});
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
+		expect(emailService.sendStrollStatusChangedEmail).toHaveBeenCalledWith(
+			'author@example.com',
+			'author',
+			stroll.name,
+			StrollActiveStatus.PUBLISHED,
+			'en'
+		);
+	});
+
+	it('clears private pricing when a stroll becomes public', async () => {
+		const stroll = buildStroll({
+			authorId: simpleUser.userId,
+			publicityFlag: StrollPublicityFlag.PRIVATE,
+			price: { amount: 1200, currency: 'HUF' }
+		});
+		const premiumUser = { ...simpleUser, role: UserRole.PREMIUM };
+		strollsRepository.findOne.mockResolvedValue(stroll);
+		strollsRepository.save.mockImplementationOnce(async (value) => value);
+
+		await expect(service.update(stroll.id, { publicityFlag: StrollPublicityFlag.PUBLIC }, premiumUser)).resolves.toMatchObject({
+			publicityFlag: StrollPublicityFlag.PUBLIC,
+			price: null
+		});
+	});
+
+	it('invalidates browse cache after deleting a stroll and its stages', async () => {
+		const stroll = buildStroll({ authorId: simpleUser.userId });
+		strollsRepository.findOne.mockResolvedValue(stroll);
+
+		await expect(service.remove(stroll.id, simpleUser)).resolves.toEqual({ id: stroll.id, deleted: true });
+		expect(stagesRepository.delete).toHaveBeenCalledWith({ strollId: stroll.id });
+		expect(strollsRepository.delete).toHaveBeenCalledWith({ id: stroll.id });
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
 	});
 
 	it('bulk imports a stroll and stages in one admin transaction', async () => {
