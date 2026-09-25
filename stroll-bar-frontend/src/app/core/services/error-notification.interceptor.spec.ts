@@ -20,7 +20,7 @@ describe('errorNotificationInterceptor', () => {
 			status: 403,
 			error: { error: { message: 'Please verify your email before continuing.' } }
 		});
-		const request = new HttpRequest('POST', '/v1/strolls');
+		const request = new HttpRequest('POST', '/v1/strolls', {});
 
 		const result = TestBed.runInInjectionContext(() =>
 			errorNotificationInterceptor(request, () => throwError(() => error) as Observable<HttpEvent<unknown>>)
