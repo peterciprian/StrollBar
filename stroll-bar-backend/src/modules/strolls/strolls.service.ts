@@ -184,31 +184,30 @@ export class StrollsService {
 			throw new ForbiddenException('Only administrators can bulk import strolls.');
 		}
 
-		const stageOrderOffset = dto.stages.some((stage) => stage.orderIndex === 0) ? 1 : 0;
-		const publicityFlag = dto.stroll.publicityFlag ?? StrollPublicityFlag.PRIVATE;
+		const publicityFlag = dto.stroll.publicityFlag ?? StrollPublicityFlag.PUBLIC;
 		this.assertPriceAllowed(publicityFlag, dto.stroll.price);
 		const result = await this.dataSource.transaction(async (manager) => {
 			const stroll = manager.create(StrollEntity, {
 				name: dto.stroll.name,
 				authorId: currentUser.userId,
 				activeStatus: dto.stroll.activeStatus ?? StrollActiveStatus.DRAFT,
-				labels: dto.stroll.labels.map((label) => label.trim().toLowerCase()),
+				labels: (dto.stroll.labels ?? []).map((label) => label.trim().toLowerCase()),
 				category: dto.stroll.category ?? StrollCategory.ENTERTAINMENT,
 				description: dto.stroll.description,
 				proposerText: dto.stroll.proposerText ?? null,
 				mediaUrls: {
-					imageUrls: dto.stroll.mediaUrls?.imageUrls ?? [],
-					videoUrls: dto.stroll.mediaUrls?.videoUrls ?? []
+					imageUrls: dto.stroll.imageUrls ?? [],
+					videoUrls: dto.stroll.videoUrls ?? []
 				},
 				publicityFlag,
-				price: dto.stroll.price ?? null,
+				price: publicityFlag === StrollPublicityFlag.PRIVATE ? (dto.stroll.price ?? null) : null,
 				stageCount: dto.stages.length
 			});
 			const savedStroll = await manager.save(StrollEntity, stroll);
 			const stages = dto.stages.map((stage) =>
 				manager.create(StageEntity, {
 					strollId: savedStroll.id,
-					orderIndex: stage.orderIndex + stageOrderOffset,
+					orderIndex: stage.orderIndex,
 					name: stage.name,
 					description: stage.description,
 					notes: stage.notes ?? null,
@@ -216,7 +215,8 @@ export class StrollsService {
 					videoUrls: stage.videoUrls ?? [],
 					address: stage.address ?? null,
 					latitude: stage.latitude ?? null,
-					longitude: stage.longitude ?? null
+					longitude: stage.longitude ?? null,
+					riddleAnswer: stage.riddleAnswer ?? null
 				})
 			);
 			const savedStages = stages.length ? await manager.save(StageEntity, stages) : [];

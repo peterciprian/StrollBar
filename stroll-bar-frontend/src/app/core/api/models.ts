@@ -286,8 +286,8 @@ export interface StrollDetailResponse {
 }
 
 export interface BulkImportStrollRequest {
-	stroll: Stroll;
-	stages: Stage[];
+	stroll: CreateStrollRequest;
+	stages: CreateStageRequest[];
 }
 
 export interface BulkImportStrollResponse {

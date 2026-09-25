@@ -130,14 +130,13 @@ export class StrollListScreenComponent implements OnInit {
 		if (!value || typeof value !== 'object') return false;
 		const payload = value as { stroll?: unknown; stages?: unknown };
 		if (!payload.stroll || typeof payload.stroll !== 'object' || !Array.isArray(payload.stages)) return false;
-		const stroll = payload.stroll as { name?: unknown; description?: unknown; labels?: unknown; mediaUrls?: unknown };
+		const stroll = payload.stroll as { name?: unknown; description?: unknown; labels?: unknown };
 		return (
 			typeof stroll.name === 'string' &&
 			stroll.name.trim().length >= 3 &&
 			typeof stroll.description === 'string' &&
 			stroll.description.trim().length >= 10 &&
-			Array.isArray(stroll.labels) &&
-			stroll.labels.every((label) => typeof label === 'string') &&
+			(stroll.labels === undefined || (Array.isArray(stroll.labels) && stroll.labels.every((label) => typeof label === 'string'))) &&
 			payload.stages.every((stage) => this.isStage(stage))
 		);
 	}
@@ -152,7 +151,7 @@ export class StrollListScreenComponent implements OnInit {
 			stage.description.trim().length >= 10 &&
 			typeof stage.orderIndex === 'number' &&
 			Number.isInteger(stage.orderIndex) &&
-			stage.orderIndex >= 0
+			stage.orderIndex >= 1
 		);
 	}
 }
