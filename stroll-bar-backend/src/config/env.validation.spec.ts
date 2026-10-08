@@ -11,8 +11,27 @@ describe('Password reset environment validation', () => {
 	it.each(['https://example.com/auth/reset-password', 'https://example.com/app/#/auth/reset-password'])('accepts trusted path and hash URLs %s', (url) => {
 		expect(() => validateEnvironment({ ...base, PASSWORD_RESET_URL: url })).not.toThrow();
 	});
-	it('rejects legacy token exposure in production', () => {
-		expect(() => validateEnvironment({ ...base, NODE_ENV: 'production', AUTH_EXPOSE_RESET_TOKEN: 'true' })).toThrow('AUTH_EXPOSE_RESET_TOKEN');
+	it.each(['true', 'false', 'obsolete-value'])('ignores the obsolete reset-token exposure flag %s in production', (value) => {
+		const config = {
+			...base,
+			NODE_ENV: 'production',
+			AUTH_EXPOSE_RESET_TOKEN: value,
+			PASSWORD_RESET_URL: 'https://strollbar.app/auth/reset-password',
+			EMAIL_DELIVERY_ENABLED: 'true',
+			BREVO_API_KEY: 'test-api-key',
+			EMAIL_FROM: 'StrollBar <sender@example.com>',
+			DB_HOST: 'db.example.com',
+			DB_USERNAME: 'test-user',
+			DB_PASSWORD: 'test-password',
+			DB_NAME: 'test-db',
+			S3_REGION: 'eu-central-1',
+			S3_BUCKET_NAME: 'test-bucket',
+			S3_ACCESS_KEY_ID: 'test-access-key',
+			S3_SECRET_ACCESS_KEY: 'test-secret-key',
+			S3_PUBLIC_BASE_URL: 'https://media.example.com'
+		};
+		expect(() => validateEnvironment(config)).not.toThrow();
+		expect(validateEnvironment(config)).toBe(config);
 	});
 	it('requires email delivery in production', () => {
 		expect(() => validateEnvironment({ ...base, NODE_ENV: 'production', PASSWORD_RESET_URL: 'https://example.com/#/auth/reset-password' })).toThrow('EMAIL_DELIVERY_ENABLED');

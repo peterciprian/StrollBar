@@ -35,9 +35,6 @@ export function validateEnvironment(config: Record<string, unknown>): Record<str
 		throw new Error('Environment validation failed: PASSWORD_RESET_TOKEN_TTL_MINUTES must be an integer between 1 and 1440.');
 	}
 	const production = config.NODE_ENV === 'production' || config.NODE_ENV === 'staging';
-	if (String(config.AUTH_EXPOSE_RESET_TOKEN ?? 'false').toLowerCase() === 'true') {
-		throw new Error('Environment validation failed: AUTH_EXPOSE_RESET_TOKEN is no longer supported. Capture reset emails in tests instead.');
-	}
 	if (config.PASSWORD_RESET_URL) {
 		let url: URL;
 		try {

@@ -222,8 +222,8 @@ password. Links are delivered through Brevo transactional email. Configure `EMAI
 `BREVO_API_KEY`, `EMAIL_FROM`, `PASSWORD_RESET_TOKEN_TTL_MINUTES` (15 minutes by default), and
 `PASSWORD_RESET_URL` (for production, `https://strollbar.app/auth/reset-password`; the Render
 Blueprint already sets this Vercel path URL). Keep provider credentials and database secrets
-managed in Render, not in source control. The API never returns reset tokens, and
-`AUTH_EXPOSE_RESET_TOKEN=true` is rejected at startup.
+managed in Render, not in source control. Verify the required password-recovery settings in the
+actual service environment: Blueprint values only update it when Blueprint synchronization applies them.
 
 Apply the required `1754100000000-user-auth-version` migration before relying on resets. It adds
 `users.authVersion`, which invalidates prior access and refresh credentials after a successful
