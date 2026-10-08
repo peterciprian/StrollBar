@@ -2,6 +2,11 @@
 
 @include sb.sb-form-field;
 
+.sb-input__hint {
+	margin-block: var(--sb-space-1) var(--sb-space-2);
+	overflow-wrap: anywhere;
+}
+
 .sb-input__affix {
 	margin-inline: var(--sb-space-2);
 	color: var(--sb-color-text-muted);

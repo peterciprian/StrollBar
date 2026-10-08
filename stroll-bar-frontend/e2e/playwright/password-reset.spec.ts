@@ -8,6 +8,103 @@ const replacementPassword = 'RecoveredPassword!2026';
 const mailboxResponse = (request: APIRequestContext, email: string) =>
 	request.get(`${harnessOrigin}/__e2e/mailbox?email=${encodeURIComponent(email)}`);
 
+test.describe('password reset helper/error layout', () => {
+	for (const width of [375, 1280]) {
+		test(`keeps conditional text below outlines at ${width}px without a backend`, async ({ page }) => {
+			test.setTimeout(45_000);
+			await page.setViewportSize({ width, height: 900 });
+			// Layout needs only the client and its translations, never the integration database.
+			await page.route('**/*', async (route) => {
+				const url = new URL(route.request().url());
+				if (url.pathname.startsWith('/v1/')) {
+					await route.fulfill({ status: 200, contentType: 'application/json', body: '{"data":[]}' });
+				} else if (url.origin === new URL(page.url()).origin || ['127.0.0.1', 'localhost'].includes(url.hostname)) {
+					await route.continue();
+				} else {
+					await route.abort('blockedbyclient');
+				}
+			});
+			await page.goto(`auth/reset-password?token=${'a'.repeat(64)}`);
+			const first = page.getByTestId('reset-password-new');
+			const second = page.getByTestId('reset-password-confirm');
+			const button = page.getByTestId('reset-password-submit').locator('button');
+			await expect(first.locator('mat-hint')).toBeVisible();
+
+			async function measure(id: string, messageSelector: string, nextSelector: string, state: string) {
+				const field = page.getByTestId(id);
+				await expect(field.locator(messageSelector)).toBeVisible();
+				const geometry = await field.evaluate((host, { messageSelector, nextSelector }) => {
+					const message = host.querySelector<HTMLElement>(messageSelector)!;
+					const outline = host.querySelector<HTMLElement>('.mat-mdc-text-field-wrapper')!;
+					const next = document.querySelector<HTMLElement>(nextSelector)!;
+					const rect = message.getBoundingClientRect();
+					const style = getComputedStyle(message);
+					const hostRect = host.getBoundingClientRect();
+					return {
+						outlineGap: rect.top - outline.getBoundingClientRect().bottom,
+						nextGap: next.getBoundingClientRect().top - rect.bottom,
+						textHeight: rect.height,
+						lineHeight: parseFloat(style.lineHeight),
+						fontSize: style.fontSize,
+						color: style.color,
+						danger: getComputedStyle(host).getPropertyValue('--sb-color-danger').trim(),
+						insideSubscript: !!message.closest('.mat-mdc-form-field-subscript-wrapper'),
+						insideInfix: !!message.closest('.mat-mdc-form-field-infix'),
+						fitsHost: rect.left >= hostRect.left && rect.right <= hostRect.right && rect.bottom <= hostRect.bottom,
+						overflow: document.documentElement.scrollWidth > window.innerWidth || message.scrollWidth > message.clientWidth
+					};
+				}, { messageSelector, nextSelector });
+				console.log(JSON.stringify({ width, state, ...geometry }));
+				expect(geometry.outlineGap).toBeGreaterThanOrEqual(4);
+				expect(geometry.nextGap).toBeGreaterThanOrEqual(8);
+				expect(geometry.fontSize).toBe('13px');
+				expect(geometry.insideInfix).toBe(false);
+				expect(geometry.insideSubscript).toBe(messageSelector === 'mat-hint');
+				expect(geometry.fitsHost).toBe(true);
+				expect(geometry.overflow).toBe(false);
+				if (messageSelector === '[role="alert"]') {
+					// Resolve the existing token in-browser, independent of hex/rgb token notation.
+					const dangerColor = await field.evaluate((host) => {
+						const probe = document.createElement('span');
+						probe.style.color = 'var(--sb-color-danger)';
+						host.append(probe);
+						const color = getComputedStyle(probe).color;
+						probe.remove();
+						return color;
+					});
+					expect(geometry.color).toBe(dangerColor);
+				}
+				return geometry;
+			}
+
+			const nextField = '[data-testid="reset-password-confirm"] .mat-mdc-text-field-wrapper';
+			const nextButton = '[data-testid="reset-password-submit"] button';
+			const hint = await measure('reset-password-new', 'mat-hint', nextField, 'initial-hint');
+			if (width === 375) expect(hint.textHeight).toBeGreaterThan(hint.lineHeight);
+			await expect(page.locator('app-reset-password-page [role="alert"]')).toHaveCount(0);
+			await button.click();
+			await expect(first.locator('mat-hint')).toHaveCount(0);
+			await measure('reset-password-new', '[role="alert"]', nextField, 'required');
+			await measure('reset-password-confirm', '[role="alert"]', nextButton, 'confirm-required');
+
+			for (const [password, state] of [['Sh0rt!', 'short'], ['alllowercase1!', 'complexity'], ['Password123!', 'common']]) {
+				await first.locator('input').fill(password);
+				await first.locator('input').blur();
+				await expect(first.locator('mat-hint')).toHaveCount(0);
+				await measure('reset-password-new', '[role="alert"]', nextField, state);
+			}
+			await first.locator('input').fill(replacementPassword);
+			await second.locator('input').fill('DifferentPassword!2026');
+			await second.locator('input').blur();
+			await measure('reset-password-new', 'mat-hint', nextField, 'accepted-hint');
+			await measure('reset-password-confirm', '[role="alert"]', nextButton, 'mismatch');
+			await second.locator('input').fill(replacementPassword);
+			await second.locator('input').blur();
+			await expect(page.locator('app-reset-password-page [role="alert"]')).toHaveCount(0);
+		});
+	}
+});
+
 type TestAccount = { email: string; password: string };
 type CapturedResetEmail = { subject: string; textContent: string; htmlContent: string };
 

@@ -132,6 +132,31 @@ describe('ResetPasswordPageComponent', () => {
 	describe('form validation', () => {
 		beforeEach(async () => open(`/auth/reset-password?token=${TOKEN}`));
 
+		it('projects the initial requirements below the input and transitions through error to accepted hint', async () => {
+			const field = byTestId('reset-password-new')!;
+			const hint = () => field.querySelector('.mat-mdc-form-field-subscript-wrapper mat-hint');
+			expect(hint()!.textContent).toContain('AUTH.REGISTER.PASSWORD_REQUIREMENTS');
+			expect(field.querySelector('.mat-mdc-form-field-infix mat-hint')).toBeNull();
+			expect(host.querySelector('[role="alert"]')).toBeNull();
+
+			await submit();
+			expect(field.querySelector('mat-hint')).toBeNull();
+			expect(field.querySelector('[role="alert"]')!.textContent).toContain('AUTH.REGISTER.PASSWORD_REQUIRED_ERROR');
+			expect(byTestId('reset-password-confirm')!.querySelector('[role="alert"]')!.textContent).toContain(
+				'AUTH.RESET_PASSWORD.CONFIRM_REQUIRED_ERROR'
+			);
+
+			type('reset-password-new', 'Sh0rt!');
+			expect(field.querySelector('mat-hint')).toBeNull();
+			expect(field.querySelector('[role="alert"]')!.textContent).toContain('AUTH.REGISTER.PASSWORD_MIN_LENGTH_ERROR');
+
+			fill(STRONG_PASSWORD);
+			expect(hint()!.textContent).toContain('AUTH.REGISTER.PASSWORD_ACCEPTED');
+			expect(field.querySelector('.mat-mdc-form-field-infix mat-hint')).toBeNull();
+			expect(host.querySelector('[role="alert"]')).toBeNull();
+			expect(authFeature.resetPassword).not.toHaveBeenCalled();
+		});
+
 		it('uses labelled password fields with new-password autocomplete', () => {
 			for (const id of ['reset-password-new', 'reset-password-confirm']) {
 				expect(input(id).type).toBe('password');

@@ -48,7 +48,7 @@ class SbInputValidationHostComponent {
 	imports: [ReactiveFormsModule, SbInputComponent],
 	template: `
 		<form [formGroup]="form">
-			<sb-input formControlName="password" [errorMessages]="errorMessages" />
+			<sb-input formControlName="password" hint="Use at least eight characters for your password." [errorMessages]="errorMessages" />
 		</form>
 	`
 })
@@ -242,6 +242,70 @@ describe('atom library', () => {
 	});
 
 	describe('form atoms', () => {
+		it('projects a conditional hint into the dynamic subscript, never the input infix', () => {
+			const fixture = TestBed.createComponent(SbInputComponent);
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('mat-hint')).toBeNull();
+
+			fixture.componentRef.setInput('hint', 'A longer helper that can wrap below the outline.');
+			fixture.detectChanges();
+			const host = fixture.nativeElement as HTMLElement;
+			const hint = host.querySelector('mat-hint')!;
+			expect(host.querySelector('.mat-mdc-form-field-subscript-wrapper')!.contains(hint)).toBe(true);
+			expect(host.querySelector('.mat-mdc-form-field-infix')!.contains(hint)).toBe(false);
+			expect(host.querySelector('.mat-mdc-form-field-subscript-dynamic-size')).not.toBeNull();
+			expect(host.querySelector('input')!.getAttribute('aria-describedby')?.split(' ')).toContain(hint.id);
+
+			fixture.componentRef.setInput('hint', null);
+			fixture.detectChanges();
+			expect(host.querySelector('mat-hint')).toBeNull();
+			expect(host.querySelector('input')!.getAttribute('aria-describedby')).toBeNull();
+		});
+
+		it('replaces the projected hint with an external alert only when invalid, and restores it when valid', () => {
+			const fixture = TestBed.createComponent(SbInputChangingErrorHostComponent);
+			fixture.detectChanges();
+			const host = fixture.nativeElement as HTMLElement;
+			const input = host.querySelector('input')!;
+			expect(host.querySelector('.mat-mdc-form-field-subscript-wrapper mat-hint')).not.toBeNull();
+			expect(host.querySelector('[role="alert"]')).toBeNull();
+
+			input.dispatchEvent(new Event('blur'));
+			fixture.detectChanges();
+			expect(host.querySelector('mat-hint')).toBeNull();
+			const alert = host.querySelector('[role="alert"]')!;
+			expect(alert.textContent).toContain('Required');
+			expect(host.querySelector('mat-form-field')!.contains(alert)).toBe(false);
+
+			input.value = 'long-enough';
+			input.dispatchEvent(new Event('input'));
+			fixture.detectChanges();
+			expect(host.querySelector('[role="alert"]')).toBeNull();
+			expect(host.querySelector('.mat-mdc-form-field-subscript-wrapper mat-hint')).not.toBeNull();
+			expect(host.querySelector('.mat-mdc-form-field-infix mat-hint')).toBeNull();
+		});
+
+		it.each([SbSelectComponent, SbTextareaComponent])('keeps shared control errors external and conditional for %p', (component) => {
+			const fixture = component === SbSelectComponent
+				? TestBed.createComponent(SbSelectComponent)
+				: TestBed.createComponent(SbTextareaComponent);
+			if (component === SbSelectComponent) {
+				fixture.componentRef.setInput('options', []);
+			}
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('[role="alert"]')).toBeNull();
+			fixture.componentRef.setInput('errorMessage', 'A validation message that may wrap.');
+			fixture.detectChanges();
+			const host = fixture.nativeElement as HTMLElement;
+			const alert = host.querySelector('.sb-form-control__error[role="alert"]')!;
+			expect(alert.textContent).toContain('A validation message that may wrap.');
+			expect(host.querySelector('mat-form-field')!.contains(alert)).toBe(false);
+			expect(host.querySelector('.mat-mdc-form-field-subscript-dynamic-size')).not.toBeNull();
+			fixture.componentRef.setInput('errorMessage', null);
+			fixture.detectChanges();
+			expect(host.querySelector('[role="alert"]')).toBeNull();
+		});
+
 		it('propagates input changes through the value accessor', () => {
 			const fixture = TestBed.createComponent(SbInputComponent);
 			const spy = jest.fn();

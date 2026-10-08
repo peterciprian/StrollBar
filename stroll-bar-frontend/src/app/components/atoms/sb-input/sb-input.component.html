@@ -20,10 +20,8 @@
 	@if (suffixIcon(); as glyph) {
 		<sb-icon matSuffix class="sb-input__affix" [name]="glyph" size="md" />
 	}
-	@if (!showError()) {
-		@if (hint(); as text) {
-			<mat-hint>{{ text }}</mat-hint>
-		}
+	@if (!showError() && hint(); as text) {
+		<mat-hint class="sb-input__hint">{{ text }}</mat-hint>
 	}
 </mat-form-field>
 @if (showError()) {
