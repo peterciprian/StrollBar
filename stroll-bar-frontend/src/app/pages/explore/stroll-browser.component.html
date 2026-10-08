@@ -1,43 +1,49 @@
 <div class="stroll-browser">
 	<div class="stroll-browser__left">
-		<mat-form-field appearance="outline" class="stroll-browser__search">
-			<mat-label>{{ 'SCREENS.STROLL_BROWSER.SEARCH_LABEL' | translate }}</mat-label>
-			<input matInput [(ngModel)]="searchTerm" [placeholder]="'SCREENS.STROLL_BROWSER.SEARCH_PLACEHOLDER' | translate" />
-			<mat-icon matPrefix>search</mat-icon>
-		</mat-form-field>
+		<section class="stroll-browser__controls">
+			<div class="stroll-browser__control-fields">
+				<sb-search-field
+					class="stroll-browser__search"
+					[value]="searchTerm"
+					[debounce]="150"
+					[label]="'SCREENS.STROLL_BROWSER.SEARCH_LABEL' | translate"
+					[placeholder]="'SCREENS.STROLL_BROWSER.SEARCH_PLACEHOLDER' | translate"
+					(searched)="searchTerm = $event"
+				/>
 
-		<mat-form-field appearance="outline" class="stroll-browser__sort">
-			<mat-label>{{ 'SCREENS.STROLL_BROWSER.SORT_LABEL' | translate }}</mat-label>
-			<mat-select [ngModel]="sortBy" (ngModelChange)="changeSort($event)" [disabled]="locatingUser()">
-				@for (sort of sortOptions; track sort) {
-					<mat-option [value]="sort">{{ sortLabelKey(sort) | translate }}</mat-option>
-				}
-			</mat-select>
-			<mat-icon matPrefix>sort</mat-icon>
-		</mat-form-field>
+				<sb-select
+					class="stroll-browser__sort"
+					[ngModel]="sortBy"
+					(ngModelChange)="changeSort($event)"
+					[disabled]="locatingUser()"
+					[label]="'SCREENS.STROLL_BROWSER.SORT_LABEL' | translate"
+					[options]="sortSelectOptions"
+				/>
+			</div>
 
-		@if (locatingUser()) {
-			<p class="stroll-browser__hint">{{ 'SCREENS.STROLL_BROWSER.LOCATING' | translate }}</p>
-		}
-		@if (locationError()) {
-			<p class="stroll-browser__hint stroll-browser__hint--error">{{ 'SCREENS.STROLL_BROWSER.LOCATION_ERROR' | translate }}</p>
-		}
-
-		<div class="stroll-browser__chips" role="radiogroup" [attr.aria-label]="'SCREENS.STROLL_BROWSER.CATEGORY_FILTER_ARIA' | translate">
-			@for (category of categories; track category) {
-				<button
-					type="button"
-					class="stroll-browser__category-chip"
-					[class.stroll-browser__category-chip--active]="activeCategory === category"
-					role="radio"
-					[attr.aria-checked]="activeCategory === category"
-					(click)="selectCategory(category)"
-				>
-					<span class="stroll-browser__category-marker" aria-hidden="true"></span>
-					{{ categoryLabelKey(category) | translate }}
-				</button>
+			@if (locatingUser()) {
+				<p class="stroll-browser__hint" role="status">{{ 'SCREENS.STROLL_BROWSER.LOCATING' | translate }}</p>
 			}
-		</div>
+			@if (locationError()) {
+				<p class="stroll-browser__hint stroll-browser__hint--error" role="alert">{{ 'SCREENS.STROLL_BROWSER.LOCATION_ERROR' | translate }}</p>
+			}
+
+			<div class="stroll-browser__chips" role="radiogroup" [attr.aria-label]="'SCREENS.STROLL_BROWSER.CATEGORY_FILTER_ARIA' | translate">
+				@for (category of categories; track category) {
+					<button
+						type="button"
+						class="stroll-browser__category-chip"
+						[class.stroll-browser__category-chip--active]="activeCategory === category"
+						role="radio"
+						[attr.aria-checked]="activeCategory === category"
+						(click)="selectCategory(category)"
+					>
+						<span class="stroll-browser__category-marker" aria-hidden="true"></span>
+						{{ categoryLabelKey(category) | translate }}
+					</button>
+				}
+			</div>
+		</section>
 
 		<div class="stroll-browser__list">
 			@for (stroll of filteredStrolls; track stroll.id) {
@@ -57,7 +63,9 @@
 		<div class="stroll-browser__right">
 			<div
 				class="stroll-browser__cover"
-				[style.background-image]="stroll.mediaUrls?.imageUrls?.[0] ? null : 'linear-gradient(135deg, #155e75, #0f172a)'"
+				[style.background-image]="
+					stroll.mediaUrls?.imageUrls?.[0] ? null : 'linear-gradient(135deg, var(--sb-color-brand-deep), var(--sb-color-brand-dark))'
+				"
 			>
 				@if (stroll.mediaUrls?.imageUrls?.[0]; as imageUrl) {
 					<img [src]="imageUrl" alt="" />
@@ -70,10 +78,10 @@
 
 			<div class="stroll-browser__content">
 				@if (stroll.publicityFlag === 'private') {
-					<p class="stroll-browser__privacy"><mat-icon>lock</mat-icon>{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</p>
+					<p class="stroll-browser__privacy"><sb-icon name="lock" size="sm" />{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</p>
 				}
 				<div class="stroll-browser__rating">
-					<app-star-rating [value]="stroll.ratingAverage" [readonly]="true"></app-star-rating>
+					<sb-star-rating [value]="stroll.ratingAverage" [readonly]="true" />
 					@if (stroll.ratingCount) {
 						<span class="stroll-browser__rating-value">{{ stroll.ratingAverage | number: '1.1-1' }}</span>
 						<span class="stroll-browser__rating-count">
@@ -87,17 +95,17 @@
 
 				<div class="stroll-browser__stats">
 					<div class="stroll-browser__stat">
-						<mat-icon>straighten</mat-icon>
+						<sb-icon name="straighten" size="md" />
 						<span class="stroll-browser__stat-value">{{ stroll.length.toFixed(1) }} {{ 'COMMON.KM_SUFFIX' | translate }}</span>
 						<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_DISTANCE' | translate }}</span>
 					</div>
 					<div class="stroll-browser__stat">
-						<mat-icon>place</mat-icon>
+						<sb-icon name="place" size="md" />
 						<span class="stroll-browser__stat-value">{{ stroll.stageCount }}</span>
 						<span class="stroll-browser__stat-label">{{ 'SCREENS.STROLL_BROWSER.STAT_STATIONS' | translate }}</span>
 					</div>
 					<div class="stroll-browser__stat">
-						<mat-icon>schedule</mat-icon>
+						<sb-icon name="schedule" size="md" />
 						<span class="stroll-browser__stat-value"
 							>{{ calculateDuration(stroll).toFixed(0) }} {{ 'COMMON.MIN_SUFFIX' | translate }}</span
 						>
@@ -106,14 +114,13 @@
 				</div>
 
 				<div class="stroll-browser__report-row">
-					<button
-						mat-icon-button
+					<sb-icon-button
 						class="stroll-browser__report-btn"
-						[matTooltip]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
-						(click)="reportProblem()"
-					>
-						<mat-icon>report_problem</mat-icon>
-					</button>
+						icon="report_problem"
+						[ariaLabel]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
+						[tooltip]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
+						(clicked)="reportProblem()"
+					/>
 				</div>
 
 				@if (reviews.length) {
@@ -122,7 +129,7 @@
 						@for (review of visibleReviews; track review.id) {
 							<article class="stroll-browser__review">
 								<header>
-									<app-star-rating [value]="review.rating" [readonly]="true"></app-star-rating>
+									<sb-star-rating [value]="review.rating" [readonly]="true" />
 									<span class="stroll-browser__review-author">{{ review.authorName }}</span>
 									<span class="stroll-browser__review-date">{{ review.createdAt | date: 'mediumDate' }}</span>
 								</header>
@@ -132,21 +139,29 @@
 							</article>
 						}
 						@if (hasMoreReviews) {
-							<button mat-button type="button" class="stroll-browser__reviews-toggle" (click)="toggleReviews()">
-								<mat-icon>{{ showAllReviews ? 'expand_less' : 'expand_more' }}</mat-icon>
-								{{ (showAllReviews ? 'SCREENS.STROLL_BROWSER.SHOW_LESS' : 'SCREENS.STROLL_BROWSER.SHOW_MORE') | translate }}
-							</button>
+							<sb-button
+								class="stroll-browser__reviews-toggle"
+								variant="ghost"
+								[icon]="showAllReviews ? 'expand_less' : 'expand_more'"
+								[label]="(showAllReviews ? 'SCREENS.STROLL_BROWSER.SHOW_LESS' : 'SCREENS.STROLL_BROWSER.SHOW_MORE') | translate"
+								(clicked)="toggleReviews()"
+							/>
 						}
 					</section>
 				}
 
 				@if (startAdventureError(); as startErrorKey) {
-					<p class="stroll-browser__start-error"><mat-icon>error_outline</mat-icon>{{ startErrorKey | translate }}</p>
+					<sb-alert tone="danger" [message]="startErrorKey | translate" />
 				}
-				<button mat-flat-button color="primary" class="stroll-browser__start-btn" [disabled]="startingAdventure()" (click)="startAdventure()">
-					<mat-icon>{{ startingAdventure() ? 'hourglass_top' : 'hiking' }}</mat-icon>
-					{{ (startingAdventure() ? 'SCREENS.STROLL_BROWSER.STARTING' : 'SCREENS.STROLL_BROWSER.START_ADVENTURE') | translate | uppercase }}
-				</button>
+				<sb-button
+					class="stroll-browser__start-btn"
+					[icon]="startingAdventure() ? 'hourglass_top' : 'hiking'"
+					[loading]="startingAdventure()"
+					[label]="
+						(startingAdventure() ? 'SCREENS.STROLL_BROWSER.STARTING' : 'SCREENS.STROLL_BROWSER.START_ADVENTURE') | translate | uppercase
+					"
+					(clicked)="startAdventure()"
+				/>
 			</div>
 		</div>
 	}

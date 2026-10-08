@@ -14,44 +14,48 @@
 
 			@if (showPreferences) {
 				<div class="cookie-consent__preferences">
-					<label>
-						<input type="checkbox" checked disabled />
-						<span
-							><strong>{{ 'COOKIE_CONSENT.NECESSARY_TITLE' | translate }}</strong
-							><small>{{ 'COOKIE_CONSENT.NECESSARY_TEXT' | translate }}</small></span
-						>
-					</label>
-					<label>
-						<input type="checkbox" [(ngModel)]="preferences" />
-						<span
-							><strong>{{ 'COOKIE_CONSENT.PREFERENCES_TITLE' | translate }}</strong
-							><small>{{ 'COOKIE_CONSENT.PREFERENCES_TEXT' | translate }}</small></span
-						>
-					</label>
-					<label>
-						<input type="checkbox" [(ngModel)]="analytics" />
-						<span
-							><strong>{{ 'COOKIE_CONSENT.ANALYTICS_TITLE' | translate }}</strong
-							><small>{{ 'COOKIE_CONSENT.ANALYTICS_TEXT' | translate }}</small></span
-						>
-					</label>
+					<sb-checkbox
+						[ngModel]="true"
+						[disabled]="true"
+						[label]="'COOKIE_CONSENT.NECESSARY_TITLE' | translate"
+						[hint]="'COOKIE_CONSENT.NECESSARY_TEXT' | translate"
+					/>
+					<sb-checkbox
+						[(ngModel)]="preferences"
+						[label]="'COOKIE_CONSENT.PREFERENCES_TITLE' | translate"
+						[hint]="'COOKIE_CONSENT.PREFERENCES_TEXT' | translate"
+					/>
+					<sb-checkbox
+						[(ngModel)]="analytics"
+						[label]="'COOKIE_CONSENT.ANALYTICS_TITLE' | translate"
+						[hint]="'COOKIE_CONSENT.ANALYTICS_TEXT' | translate"
+					/>
 				</div>
 			}
 
 			<div class="cookie-consent__actions">
 				@if (showPreferences) {
-					<button type="button" class="cookie-consent__button cookie-consent__button--primary" (click)="savePreferences()">
-						{{ 'COOKIE_CONSENT.SAVE' | translate }}
-					</button>
-					<button type="button" class="cookie-consent__button" (click)="rejectOptional()">{{ 'COOKIE_CONSENT.REJECT' | translate }}</button>
+					<sb-button class="cookie-consent__button" [label]="'COOKIE_CONSENT.SAVE' | translate" (clicked)="savePreferences()" />
+					<sb-button
+						class="cookie-consent__button"
+						variant="secondary"
+						[label]="'COOKIE_CONSENT.REJECT' | translate"
+						(clicked)="rejectOptional()"
+					/>
 				} @else {
-					<button type="button" class="cookie-consent__button cookie-consent__button--primary" (click)="acceptAll()">
-						{{ 'COOKIE_CONSENT.ACCEPT_ALL' | translate }}
-					</button>
-					<button type="button" class="cookie-consent__button" (click)="openPreferences()">
-						{{ 'COOKIE_CONSENT.CUSTOMIZE' | translate }}
-					</button>
-					<button type="button" class="cookie-consent__button" (click)="rejectOptional()">{{ 'COOKIE_CONSENT.REJECT' | translate }}</button>
+					<sb-button class="cookie-consent__button" [label]="'COOKIE_CONSENT.ACCEPT_ALL' | translate" (clicked)="acceptAll()" />
+					<sb-button
+						class="cookie-consent__button"
+						variant="secondary"
+						[label]="'COOKIE_CONSENT.CUSTOMIZE' | translate"
+						(clicked)="openPreferences()"
+					/>
+					<sb-button
+						class="cookie-consent__button"
+						variant="secondary"
+						[label]="'COOKIE_CONSENT.REJECT' | translate"
+						(clicked)="rejectOptional()"
+					/>
 				}
 			</div>
 		</div>

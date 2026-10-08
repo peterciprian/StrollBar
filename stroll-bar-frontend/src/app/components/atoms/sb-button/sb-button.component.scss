@@ -1,0 +1,155 @@
+@use 'design' as sb;
+
+:host {
+	display: inline-flex;
+	flex: 0 0 auto;
+	max-width: 100%;
+	vertical-align: middle;
+}
+
+:host(.sb-button--full-width) {
+	display: flex;
+	width: 100%;
+}
+
+.sb-button__content {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--sb-space-2);
+	width: 100%;
+	min-width: 0;
+}
+
+.sb-button__el {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--sb-space-2);
+	width: 100%;
+	min-width: 0;
+	font-family: var(--sb-font-family);
+	font-weight: var(--sb-font-weight-medium);
+	text-decoration: none;
+	transition:
+		background-color var(--sb-transition-fast),
+		border-color var(--sb-transition-fast);
+
+	// Drive Material's own tokens instead of fighting them with `!important`.
+	--mat-button-filled-container-shape: var(--sb-radius-md);
+	--mat-button-filled-container-color: var(--sb-button-bg);
+	--mat-button-filled-label-text-color: var(--sb-button-fg);
+	--mat-button-filled-disabled-container-color: var(--sb-color-surface-sunken);
+	--mat-button-filled-disabled-label-text-color: var(--sb-color-text-muted);
+	--mat-button-filled-container-height: var(--sb-button-height);
+	--mat-button-filled-horizontal-padding: var(--sb-button-padding);
+	--mat-button-filled-label-text-size: var(--sb-button-font-size);
+	--mat-button-filled-label-text-weight: var(--sb-font-weight-medium);
+
+	background-color: var(--sb-button-bg);
+	color: var(--sb-button-fg);
+	border: 1px solid var(--sb-button-border, transparent);
+
+	@include sb.sb-focus-visible;
+}
+
+.sb-button__label {
+	@include sb.sb-truncate(1);
+}
+
+.sb-button__icon {
+	flex: 0 0 auto;
+}
+
+.sb-button__spinner {
+	--mat-progress-spinner-active-indicator-color: currentColor;
+	flex: 0 0 auto;
+}
+
+// Size scale.
+:host([data-size='sm']) {
+	--sb-button-height: var(--sb-control-height-sm);
+	--sb-button-padding: var(--sb-space-3);
+	--sb-button-font-size: var(--sb-font-size-sm);
+}
+
+:host([data-size='md']) {
+	--sb-button-height: var(--sb-control-height-md);
+	--sb-button-padding: var(--sb-space-4);
+	--sb-button-font-size: var(--sb-font-size-md);
+}
+
+:host([data-size='lg']) {
+	--sb-button-height: var(--sb-control-height-lg);
+	--sb-button-padding: var(--sb-space-6);
+	--sb-button-font-size: var(--sb-font-size-lg);
+}
+
+:host([data-size='lg']) .sb-button__el {
+	height: var(--sb-button-height);
+	min-height: var(--sb-button-height);
+	padding-inline: var(--sb-button-padding);
+}
+
+// Variants.
+:host([data-variant='primary']) {
+	--sb-button-bg: var(--sb-color-primary);
+	--sb-button-fg: var(--sb-color-on-primary);
+	--sb-button-border: transparent;
+}
+
+:host([data-variant='secondary']) {
+	--sb-button-bg: transparent;
+	--sb-button-fg: var(--sb-color-primary);
+	--sb-button-border: var(--sb-color-border-strong);
+}
+
+:host([data-variant='tertiary']) {
+	--sb-button-bg: var(--sb-color-surface-sunken);
+	--sb-button-fg: var(--sb-color-text);
+	--sb-button-border: transparent;
+}
+
+:host([data-variant='danger']) {
+	--sb-button-bg: var(--sb-color-danger);
+	--sb-button-fg: var(--sb-color-on-danger);
+	--sb-button-border: transparent;
+}
+
+:host([data-variant='ghost']) {
+	--sb-button-bg: transparent;
+	--sb-button-fg: var(--sb-color-text);
+	--sb-button-border: transparent;
+}
+
+:host([data-variant='inverse']) {
+	--sb-button-bg: transparent;
+	--sb-button-fg: var(--sb-color-text-inverse);
+	--sb-button-border: rgba(255, 255, 255, 0.6);
+}
+
+:host([data-variant='secondary']) .sb-button__el:hover:not([disabled]),
+:host([data-variant='ghost']) .sb-button__el:hover:not([disabled]) {
+	background-color: var(--sb-color-surface-hover);
+}
+
+:host([data-variant='inverse']) .sb-button__el:hover:not([disabled]) {
+	background-color: rgba(255, 255, 255, 0.12);
+}
+
+.sb-button__el[disabled],
+.sb-button__el[aria-disabled='true'] {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+
+:host(.sb-button--active) {
+	--sb-button-bg: transparent;
+	--sb-button-fg: var(--sb-color-primary);
+	--sb-button-border: var(--sb-color-border-strong);
+}
+
+:host(.sb-button--active) .sb-button__el {
+	border-radius: var(--sb-radius-sm);
+	box-shadow: 0 1px 5px rgba(15, 23, 42, 0.28);
+}

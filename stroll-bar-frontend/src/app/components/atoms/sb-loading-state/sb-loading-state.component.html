@@ -1,0 +1,18 @@
+@switch (state()) {
+	@case ('loading') {
+		<sb-spinner [block]="true" [label]="loadingText()" size="lg" />
+	}
+	@case ('error') {
+		<sb-empty-state icon="error_outline" [title]="errorTitle()" [description]="errorDescription()">
+			@if (retryLabel(); as text) {
+				<sb-button variant="secondary" icon="refresh" [label]="text" (clicked)="retried.emit()" />
+			}
+		</sb-empty-state>
+	}
+	@case ('empty') {
+		<sb-empty-state [title]="emptyTitle()" [description]="emptyDescription()" />
+	}
+	@default {
+		<ng-content />
+	}
+}

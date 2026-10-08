@@ -1,106 +1,67 @@
 <div class="admin-user-list">
-	<div class="admin-user-list__header">
-		<div>
-			<span class="admin-user-list__brand"><mat-icon>group</mat-icon>{{ 'SCREENS.ADMIN_USER_LIST.HEADER_TITLE' | translate }}</span>
-			<p class="admin-user-list__subtitle">{{ 'SCREENS.ADMIN_USER_LIST.SUBTITLE' | translate }}</p>
-		</div>
-	</div>
+	<sb-page-header
+		icon="group"
+		[title]="'SCREENS.ADMIN_USER_LIST.HEADER_TITLE' | translate"
+		[subtitle]="'SCREENS.ADMIN_USER_LIST.SUBTITLE' | translate"
+	/>
 
-	<div class="admin-user-list__summary" aria-live="polite">
-		<div>
-			<span>{{ users().length }}</span
-			>{{ 'SCREENS.ADMIN_USER_LIST.METRIC_TOTAL' | translate }}
-		</div>
-		<div>
-			<span>{{ activeCount() }}</span
-			>{{ 'SCREENS.ADMIN_USER_LIST.METRIC_ACTIVE' | translate }}
-		</div>
-		<div>
-			<span>{{ creatorCount() }}</span
-			>{{ 'SCREENS.ADMIN_USER_LIST.METRIC_CREATORS' | translate }}
-		</div>
-		<div>
-			<span>{{ adminCount() }}</span
-			>{{ 'SCREENS.ADMIN_USER_LIST.METRIC_ADMINS' | translate }}
-		</div>
-	</div>
+	<sb-stat-grid class="admin-user-list__summary" aria-live="polite" [stats]="summaryStats()" />
 
-	<div class="admin-user-list__content">
-		@if (loading()) {
-			<p class="admin-user-list__message">{{ 'SCREENS.ADMIN_USER_LIST.LOADING' | translate }}</p>
-		} @else if (loadError()) {
-			<p class="admin-user-list__message admin-user-list__message--error">{{ 'SCREENS.ADMIN_USER_LIST.LOAD_ERROR' | translate }}</p>
-		} @else if (saveError()) {
-			<p class="admin-user-list__message admin-user-list__message--error">{{ 'SCREENS.ADMIN_USER_LIST.SAVE_ERROR' | translate }}</p>
-		}
+	@if (saveError()) {
+		<sb-alert tone="danger" [message]="'SCREENS.ADMIN_USER_LIST.SAVE_ERROR' | translate" />
+	}
 
-		<table mat-table [dataSource]="users()" class="admin-user-list__table" [hidden]="loading() || loadError()">
-			<ng-container matColumnDef="user">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_USER_LIST.COL_USERNAME' | translate }}</th>
-				<td mat-cell *matCellDef="let user" class="admin-user-list__name-cell">
-					<strong>{{ user.username }}</strong>
-					<small>{{ user.id }}</small>
-				</td>
-			</ng-container>
+	<sb-table
+		class="admin-user-list__table"
+		[columns]="columns()"
+		[rows]="rows()"
+		[loading]="loading()"
+		[error]="loadError()"
+		[cardOnMobile]="true"
+		[loadingText]="'SCREENS.ADMIN_USER_LIST.LOADING' | translate"
+		[errorTitle]="'SCREENS.ADMIN_USER_LIST.LOAD_ERROR' | translate"
+		[emptyTitle]="'SCREENS.ADMIN_USER_LIST.EMPTY' | translate"
+	>
+		<ng-template sbCell="user" let-user>
+			<div class="admin-user-list__name-cell">
+				<strong>{{ user.username }}</strong>
+				<small>{{ user.id }}</small>
+			</div>
+		</ng-template>
 
-			<ng-container matColumnDef="email">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_USER_LIST.COL_EMAIL' | translate }}</th>
-				<td mat-cell *matCellDef="let user">{{ user.email }}</td>
-			</ng-container>
+		<ng-template sbCell="status" let-user>
+			<sb-badge
+				role="status"
+				[tone]="user.isActive ? 'success' : 'neutral'"
+				[icon]="user.isActive ? 'check_circle' : 'block'"
+				[label]="(user.isActive ? 'SCREENS.ADMIN_USER_LIST.ACTIVE' : 'SCREENS.ADMIN_USER_LIST.INACTIVE') | translate"
+			/>
+		</ng-template>
 
-			<ng-container matColumnDef="status">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_USER_LIST.COL_ACTIVE' | translate }}</th>
-				<td mat-cell *matCellDef="let user">
-					<span class="admin-user-list__status" [class.admin-user-list__status--active]="user.isActive" role="status">
-						<mat-icon aria-hidden="true">{{ user.isActive ? 'check_circle' : 'block' }}</mat-icon>
-						{{ (user.isActive ? 'SCREENS.ADMIN_USER_LIST.ACTIVE' : 'SCREENS.ADMIN_USER_LIST.INACTIVE') | translate }}
-					</span>
-				</td>
-			</ng-container>
+		<ng-template sbCell="verified" let-user>
+			<sb-badge
+				[tone]="user.emailVerified ? 'info' : 'neutral'"
+				[icon]="user.emailVerified ? 'verified' : 'mark_email_unread'"
+				[label]="(user.emailVerified ? 'SCREENS.ADMIN_USER_LIST.VERIFIED' : 'SCREENS.ADMIN_USER_LIST.UNVERIFIED') | translate"
+			/>
+		</ng-template>
 
-			<ng-container matColumnDef="verified">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_USER_LIST.COL_EMAIL_VERIFIED' | translate }}</th>
-				<td mat-cell *matCellDef="let user">
-					<span class="admin-user-list__numeric">
-						<mat-icon aria-hidden="true">{{ user.emailVerified ? 'verified' : 'mark_email_unread' }}</mat-icon>
-						{{ (user.emailVerified ? 'SCREENS.ADMIN_USER_LIST.VERIFIED' : 'SCREENS.ADMIN_USER_LIST.UNVERIFIED') | translate }}
-					</span>
-				</td>
-			</ng-container>
+		<ng-template sbCell="created" let-user>
+			<div class="admin-user-list__date">
+				<strong>{{ user.createdAt | date: 'mediumDate' }}</strong>
+				<span>{{ user.createdAt | date: 'shortTime' }}</span>
+			</div>
+		</ng-template>
 
-			<ng-container matColumnDef="created">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_USER_LIST.COL_CREATED_AT' | translate }}</th>
-				<td mat-cell *matCellDef="let user" class="admin-user-list__date">
-					<strong>{{ user.createdAt | date: 'mediumDate' }}</strong
-					><span>{{ user.createdAt | date: 'shortTime' }}</span>
-				</td>
-			</ng-container>
-
-			<ng-container matColumnDef="role">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_USER_LIST.COL_ROLE' | translate }}</th>
-				<td mat-cell *matCellDef="let user" class="admin-user-list__role-cell">
-					<mat-form-field appearance="outline" subscriptSizing="dynamic" class="admin-user-list__role-select">
-						<mat-select
-							[value]="user.role"
-							[disabled]="savingUserId() === user.id"
-							[attr.aria-label]="'SCREENS.ADMIN_USER_LIST.ROLE_SELECT_ARIA' | translate"
-							(selectionChange)="changeRole(user, $event)"
-						>
-							@for (option of roleOptions; track option.value) {
-								<mat-option [value]="option.value">{{ option.labelKey | translate }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-				</td>
-			</ng-container>
-
-			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-			<tr class="mat-row" *matNoDataRow>
-				<td class="mat-cell admin-user-list__message" [attr.colspan]="displayedColumns.length">
-					{{ 'SCREENS.ADMIN_USER_LIST.EMPTY' | translate }}
-				</td>
-			</tr>
-		</table>
-	</div>
+		<ng-template sbCell="role" let-user>
+			<sb-select
+				class="admin-user-list__role-select"
+				[attr.aria-label]="'SCREENS.ADMIN_USER_LIST.ROLE_SELECT_ARIA' | translate"
+				[options]="roleSelectOptions()"
+				[disabled]="savingUserId() === user.id"
+				[ngModel]="roleFor(user)"
+				(ngModelChange)="changeRole(user, $event)"
+			/>
+		</ng-template>
+	</sb-table>
 </div>

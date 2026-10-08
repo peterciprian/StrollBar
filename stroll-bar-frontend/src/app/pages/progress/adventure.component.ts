@@ -2,13 +2,7 @@ import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject } from '@angul
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
@@ -20,6 +14,12 @@ import { StrollsFeatureService } from '../../features/strolls/strolls-feature.se
 import { NotificationService } from '../../core/services/notification.service';
 import { ReportProblemDialogComponent } from '../../shared/report-problem-dialog/report-problem-dialog.component';
 import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage, Stroll } from '../../core/api/models';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
+import { SbIconButtonComponent } from '../../components/atoms/sb-icon-button/sb-icon-button.component';
+import { SbInputComponent } from '../../components/atoms/sb-input/sb-input.component';
+import { SbProgressBarComponent } from '../../components/atoms/sb-progress-bar/sb-progress-bar.component';
+import { SbSpinnerComponent } from '../../components/atoms/sb-spinner/sb-spinner.component';
 
 @Component({
 	selector: 'app-adventure-screen',
@@ -28,13 +28,13 @@ import { Adventure, AdventureDetailResponse, AdventureNavigateDirection, Stage, 
 		CommonModule,
 		UpperCasePipe,
 		FormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatIconModule,
-		MatButtonModule,
 		MatDialogModule,
-		MatProgressBarModule,
-		MatTooltipModule,
+		SbButtonComponent,
+		SbIconComponent,
+		SbIconButtonComponent,
+		SbInputComponent,
+		SbProgressBarComponent,
+		SbSpinnerComponent,
 		TranslatePipe,
 		StageLocationMapComponent,
 		MediaGalleryComponent

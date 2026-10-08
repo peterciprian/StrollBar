@@ -1,21 +1,15 @@
 import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { catchError, firstValueFrom, map, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
 import { StrollCategory, StrollReview, StrollSortOption, StrollSummary } from '../../core/api/models';
-import { StarRatingComponent } from '../../shared/star-rating.component';
+import { SbStarRatingComponent } from '../../components/atoms/sb-star-rating/sb-star-rating.component';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { TokenStorageService } from '../../core/services/token-storage.service';
@@ -24,6 +18,12 @@ import { ReportProblemDialogComponent } from '../../shared/report-problem-dialog
 import { MockPaymentDialogComponent } from './mock-payment-dialog.component';
 import { extractErrorCode } from '../../core/utils/http-error.util';
 import { AppErrorCode } from '../../core/models/app-error-code';
+import { SbAlertComponent } from '../../components/atoms/sb-alert/sb-alert.component';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
+import { SbIconButtonComponent } from '../../components/atoms/sb-icon-button/sb-icon-button.component';
+import { SbSearchFieldComponent } from '../../components/atoms/sb-search-field/sb-search-field.component';
+import { SbSelectComponent, SbSelectOption } from '../../components/atoms/sb-select/sb-select.component';
 
 type CategoryFilter = StrollCategory | 'ALL';
 
@@ -36,16 +36,16 @@ const VISIBLE_REVIEW_COUNT = 3;
 		CommonModule,
 		UpperCasePipe,
 		FormsModule,
-		MatFormFieldModule,
-		MatInputModule,
-		MatSelectModule,
-		MatIconModule,
-		MatButtonModule,
 		MatDialogModule,
-		MatTooltipModule,
+		SbAlertComponent,
+		SbButtonComponent,
+		SbIconComponent,
+		SbIconButtonComponent,
+		SbSearchFieldComponent,
+		SbSelectComponent,
 		TranslatePipe,
 		StrollCardComponent,
-		StarRatingComponent
+		SbStarRatingComponent
 	],
 	templateUrl: './stroll-browser.component.html',
 	styleUrls: ['./stroll-browser.component.scss']
@@ -58,6 +58,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 	private readonly translate = inject(TranslateService);
 	private readonly dialog = inject(MatDialog);
 	private readonly router = inject(Router);
+	private readonly route = inject(ActivatedRoute);
 	private readonly destroyRef = inject(DestroyRef);
 	private readonly cdr = inject(ChangeDetectorRef);
 
@@ -76,8 +77,14 @@ export class StrollBrowserScreenComponent implements OnInit {
 	protected reviews: StrollReview[] = [];
 	protected showAllReviews = false;
 	private userLocation: { latitude: number; longitude: number } | null = null;
+	private requestedStrollId: string | null = null;
+	private readonly requestedDetailIds = new Set<string>();
 
 	ngOnInit(): void {
+		this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+			this.requestedStrollId = params.get('strollId');
+			if (this.strolls.length) this.syncSelectionFromUrl();
+		});
 		this.loadStrolls();
 	}
 
@@ -101,6 +108,10 @@ export class StrollBrowserScreenComponent implements OnInit {
 		return `SCREENS.STROLL_BROWSER.SORT_${sort.toUpperCase()}`;
 	}
 
+	protected get sortSelectOptions(): SbSelectOption<StrollSortOption>[] {
+		return this.sortOptions.map((sort) => ({ value: sort, label: this.translate.instant(this.sortLabelKey(sort)) }));
+	}
+
 	protected async changeSort(sort: StrollSortOption): Promise<void> {
 		this.sortBy = sort;
 		this.locationError.set(false);
@@ -117,9 +128,13 @@ export class StrollBrowserScreenComponent implements OnInit {
 	}
 
 	protected selectStrollCard(stroll: StrollSummary): void {
-		this.selectedStroll = stroll;
-		this.startAdventureError.set(null);
-		this.loadReviews(stroll.id);
+		this.applySelectedStroll(stroll);
+		void this.router.navigate([], {
+			relativeTo: this.route,
+			queryParams: { strollId: stroll.id },
+			queryParamsHandling: 'merge',
+			replaceUrl: true
+		});
 	}
 
 	protected calculateDuration(stroll: StrollSummary): number {
@@ -267,11 +282,76 @@ export class StrollBrowserScreenComponent implements OnInit {
 				catchError(() => of([] as StrollSummary[]))
 			)
 			.subscribe((strolls) => {
-				this.strolls = strolls;
-				this.selectedStroll = this.strolls[0] ?? null;
+				const requestedStroll = this.requestedStrollId
+					? (strolls.find((stroll) => stroll.id === this.requestedStrollId) ??
+						(this.selectedStroll?.id === this.requestedStrollId ? this.selectedStroll : null))
+					: null;
+				this.strolls =
+					requestedStroll && !strolls.some((stroll) => stroll.id === requestedStroll.id) ? [requestedStroll, ...strolls] : strolls;
+				if (requestedStroll) {
+					this.applySelectedStroll(requestedStroll);
+				} else if (this.requestedStrollId) {
+					this.applySelectedStroll(null);
+					this.loadRequestedStroll(this.requestedStrollId);
+				} else {
+					this.applySelectedStroll(this.strolls[0] ?? null);
+				}
 				// HTTP subscribe callbacks in this app don't reliably re-enter Angular's zone, so force a refresh.
 				this.cdr.detectChanges();
-				if (this.selectedStroll) this.loadReviews(this.selectedStroll.id);
 			});
+	}
+
+	private syncSelectionFromUrl(): void {
+		if (!this.requestedStrollId) {
+			this.applySelectedStroll(this.strolls[0] ?? null);
+			return;
+		}
+
+		const requestedStroll = this.strolls.find((stroll) => stroll.id === this.requestedStrollId);
+		if (requestedStroll) {
+			this.applySelectedStroll(requestedStroll);
+			return;
+		}
+
+		this.applySelectedStroll(null);
+		this.loadRequestedStroll(this.requestedStrollId);
+	}
+
+	private loadRequestedStroll(strollId: string): void {
+		if (this.requestedDetailIds.has(strollId)) return;
+		this.requestedDetailIds.add(strollId);
+		this.strollsFeature
+			.getDetail(strollId)
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe({
+				next: (response) => {
+					const stroll = response.stroll;
+					if (!this.strolls.some((item) => item.id === strollId)) this.strolls = [stroll, ...this.strolls];
+					if (this.requestedStrollId === strollId) this.applySelectedStroll(stroll);
+					this.cdr.detectChanges();
+				},
+				error: () => {
+					if (this.requestedStrollId === strollId) {
+						this.requestedStrollId = null;
+						this.applySelectedStroll(this.strolls[0] ?? null);
+						void this.router.navigate([], {
+							relativeTo: this.route,
+							queryParams: { strollId: null },
+							queryParamsHandling: 'merge',
+							replaceUrl: true
+						});
+					}
+					this.cdr.detectChanges();
+				}
+			});
+	}
+
+	private applySelectedStroll(stroll: StrollSummary | null): void {
+		if (this.selectedStroll?.id === stroll?.id) return;
+		this.selectedStroll = stroll;
+		this.startAdventureError.set(null);
+		this.reviews = [];
+		this.showAllReviews = false;
+		if (stroll) this.loadReviews(stroll.id);
 	}
 }

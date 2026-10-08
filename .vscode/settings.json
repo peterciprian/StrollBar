@@ -28,6 +28,8 @@
 		"npm --workspace stroll-bar-frontend": true,
 		"npm --workspace stroll-bar-backend": true,
 		"npx ng": true,
-		"npx tsc": true
+		"npx tsc": true,
+		"Set-Content": true,
+		"npx playwright": true
 	}
 }

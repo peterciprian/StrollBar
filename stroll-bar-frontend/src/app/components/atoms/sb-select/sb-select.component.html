@@ -1,0 +1,32 @@
+<mat-form-field class="sb-select__field" appearance="outline" subscriptSizing="dynamic">
+	@if (label(); as text) {
+		<mat-label>{{ text }}</mat-label>
+	}
+	<mat-select
+		[value]="value()"
+		[multiple]="multiple()"
+		[required]="required()"
+		[disabled]="isDisabled"
+		[panelClass]="panelClass()"
+		[placeholder]="placeholder()"
+		(selectionChange)="onSelectionChange($event.value)"
+		(blur)="markTouched()"
+	>
+		@for (option of options(); track option.value) {
+			<mat-option [value]="option.value" [disabled]="option.disabled ?? false">
+				@if (option.icon; as glyph) {
+					<sb-icon class="sb-select__option-icon" [name]="glyph" size="sm" />
+				}
+				{{ option.label }}
+			</mat-option>
+		}
+	</mat-select>
+	@if (!showError()) {
+		@if (hint(); as text) {
+			<mat-hint>{{ text }}</mat-hint>
+		}
+	}
+</mat-form-field>
+@if (showError()) {
+	<p class="sb-form-control__error" role="alert">{{ errorText() }}</p>
+}

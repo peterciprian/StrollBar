@@ -3,11 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CookieConsentService } from '../../core/services/cookie-consent.service';
+import { SbButtonComponent } from '../atoms/sb-button/sb-button.component';
+import { SbCheckboxComponent } from '../atoms/sb-checkbox/sb-checkbox.component';
 
 @Component({
 	selector: 'app-cookie-consent',
 	standalone: true,
-	imports: [FormsModule, RouterLink, TranslatePipe],
+	imports: [FormsModule, RouterLink, TranslatePipe, SbButtonComponent, SbCheckboxComponent],
 	templateUrl: './cookie-consent.component.html',
 	styleUrl: './cookie-consent.component.scss'
 })

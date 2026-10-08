@@ -2,28 +2,28 @@
 	@if (loading) {
 		<p>{{ 'SCREENS.ADVENTURE_RESULT.LOADING' | translate }}</p>
 	} @else if (error || !result) {
-		<p class="adventure-result__error">{{ 'SCREENS.ADVENTURE_RESULT.ERROR' | translate }}</p>
-		<button mat-flat-button color="primary" (click)="backToAdventures()">{{ 'SCREENS.ADVENTURE_RESULT.BACK' | translate }}</button>
+		<sb-alert tone="danger" [message]="'SCREENS.ADVENTURE_RESULT.ERROR' | translate" />
+		<sb-button icon="arrow_back" [label]="'SCREENS.ADVENTURE_RESULT.BACK' | translate" (clicked)="backToAdventures()" />
 	} @else {
-		<div class="adventure-result__icon"><mat-icon>emoji_events</mat-icon></div>
+		<div class="adventure-result__icon"><sb-icon name="emoji_events" size="xl" /></div>
 		<p class="adventure-result__eyebrow">{{ 'SCREENS.ADVENTURE_RESULT.COMPLETE' | translate }}</p>
 		<h1>{{ 'SCREENS.ADVENTURE_RESULT.TITLE' | translate }}</h1>
 		<p class="adventure-result__congratulations">{{ 'SCREENS.ADVENTURE_RESULT.CONGRATULATIONS' | translate }}</p>
 		<div class="adventure-result__stats">
 			<div>
-				<mat-icon>schedule</mat-icon><strong>{{ formatTime(result.elapsedSeconds) }}</strong
+				<sb-icon name="schedule" size="md" /><strong>{{ formatTime(result.elapsedSeconds) }}</strong
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.TIME' | translate }}</span>
 			</div>
 			<div>
-				<mat-icon>flag</mat-icon><strong>{{ result.completedStageCount }}</strong
+				<sb-icon name="flag" size="md" /><strong>{{ result.completedStageCount }}</strong
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.STAGES' | translate }}</span>
 			</div>
 			<div>
-				<mat-icon>straighten</mat-icon><strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong
+				<sb-icon name="straighten" size="md" /><strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.DISTANCE' | translate }}</span>
 			</div>
 			<div>
-				<mat-icon>psychology</mat-icon><strong>{{ result.correctAnswerCount }}/{{ result.totalStageCount }}</strong
+				<sb-icon name="psychology" size="md" /><strong>{{ result.correctAnswerCount }}/{{ result.totalStageCount }}</strong
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.RIDDLES' | translate }}</span>
 			</div>
 		</div>
@@ -31,26 +31,32 @@
 			<section class="adventure-result__review">
 				<h2>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_TITLE' | translate }}</h2>
 				<p class="adventure-result__review-hint">{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_HINT' | translate }}</p>
-				<app-star-rating [value]="reviewRating" (valueChange)="reviewRating = $event"></app-star-rating>
-				<mat-form-field appearance="outline" class="adventure-result__review-comment">
-					<mat-label>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_COMMENT_LABEL' | translate }}</mat-label>
-					<textarea matInput rows="3" maxlength="1000" [(ngModel)]="reviewComment"></textarea>
-				</mat-form-field>
+				<sb-star-rating [value]="reviewRating" (valueChange)="reviewRating = $event" />
+				<sb-textarea
+					class="adventure-result__review-comment"
+					[rows]="3"
+					[maxlength]="1000"
+					[(ngModel)]="reviewComment"
+					[label]="'SCREENS.ADVENTURE_RESULT.REVIEW_COMMENT_LABEL' | translate"
+				/>
 				@if (reviewSaved) {
 					<p class="adventure-result__review-saved">
-						<mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_SAVED' | translate }}
+						<sb-icon name="check_circle" size="sm" />{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_SAVED' | translate }}
 					</p>
 				}
 				@if (reviewError) {
-					<p class="adventure-result__error">{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_ERROR' | translate }}</p>
+					<sb-alert tone="danger" [message]="'SCREENS.ADVENTURE_RESULT.REVIEW_ERROR' | translate" />
 				}
-				<button mat-stroked-button color="primary" [disabled]="!reviewRating || reviewSaving" (click)="submitReview()">
-					<mat-icon>rate_review</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.REVIEW_SUBMIT' | translate }}
-				</button>
+				<sb-button
+					variant="secondary"
+					icon="rate_review"
+					[disabled]="!reviewRating"
+					[loading]="reviewSaving"
+					[label]="'SCREENS.ADVENTURE_RESULT.REVIEW_SUBMIT' | translate"
+					(clicked)="submitReview()"
+				/>
 			</section>
 		}
-		<button mat-flat-button color="primary" (click)="backToAdventures()">
-			<mat-icon>dashboard</mat-icon>{{ 'SCREENS.ADVENTURE_RESULT.BACK' | translate }}
-		</button>
+		<sb-button icon="dashboard" [label]="'SCREENS.ADVENTURE_RESULT.BACK' | translate" (clicked)="backToAdventures()" />
 	}
 </section>

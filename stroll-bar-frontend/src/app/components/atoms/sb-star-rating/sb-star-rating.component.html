@@ -1,0 +1,27 @@
+<div class="sb-star-rating__row" role="img" [attr.aria-label]="ariaLabel()">
+	@for (star of stars; track star) {
+		@if (readonly()) {
+			<sb-icon
+				class="sb-star-rating__star"
+				[class.sb-star-rating__star--filled]="star <= rounded()"
+				[name]="star <= rounded() ? 'star' : 'star_border'"
+				size="sm"
+			/>
+		} @else {
+			<button
+				type="button"
+				class="sb-star-rating__button"
+				[attr.aria-label]="star"
+				[attr.aria-pressed]="star === value()"
+				(click)="select(star)"
+			>
+				<sb-icon
+					class="sb-star-rating__star"
+					[class.sb-star-rating__star--filled]="star <= value()"
+					[name]="star <= value() ? 'star' : 'star_border'"
+					size="md"
+				/>
+			</button>
+		}
+	}
+</div>

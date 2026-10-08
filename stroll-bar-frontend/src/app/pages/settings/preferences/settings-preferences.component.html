@@ -1,10 +1,8 @@
-<h1>{{ 'SETTINGS.SECTION_SETTINGS' | translate }}</h1>
+<sb-page-header [title]="'SETTINGS.SECTION_SETTINGS' | translate" />
 <div class="settings-page__toggle-row">
-	<span>{{ 'SETTINGS.NOTIFICATIONS_LABEL' | translate }}</span>
-	<mat-slide-toggle disabled [(ngModel)]="notificationsEnabled"></mat-slide-toggle>
+	<sb-checkbox [disabled]="true" [label]="'SETTINGS.NOTIFICATIONS_LABEL' | translate" [(ngModel)]="notificationsEnabled" />
 </div>
 <div class="settings-page__toggle-row">
-	<span>{{ 'SETTINGS.DARK_MODE_LABEL' | translate }}</span>
-	<mat-slide-toggle [checked]="themeService.isDarkMode()" disabled (change)="onDarkModeChange($event.checked)"></mat-slide-toggle>
+	<sb-checkbox [label]="'SETTINGS.DARK_MODE_LABEL' | translate" [ngModel]="themeService.isDarkMode()" (ngModelChange)="onDarkModeChange($event)" />
 </div>
-<button mat-flat-button color="primary" disabled>{{ 'SETTINGS.SAVE_SETTINGS' | translate | uppercase }}</button>
+<sb-button [label]="'SETTINGS.SAVE_SETTINGS' | translate | uppercase" />

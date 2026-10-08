@@ -1,39 +1,50 @@
-import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 
+import { SbTone } from '../../../components/atoms/atom.types';
+import { SbAlertComponent } from '../../../components/atoms/sb-alert/sb-alert.component';
+import { SbBadgeComponent } from '../../../components/atoms/sb-badge/sb-badge.component';
+import { SbButtonComponent } from '../../../components/atoms/sb-button/sb-button.component';
+import { SbIconButtonComponent } from '../../../components/atoms/sb-icon-button/sb-icon-button.component';
+import { SbPageHeaderComponent } from '../../../components/atoms/sb-page-header/sb-page-header.component';
+import { SbSelectComponent, SbSelectOption } from '../../../components/atoms/sb-select/sb-select.component';
+import { SbStatGridComponent } from '../../../components/atoms/sb-stat-grid/sb-stat-grid.component';
+import { SbCellDirective } from '../../../components/atoms/sb-table/sb-cell.directive';
+import { SbTableComponent } from '../../../components/atoms/sb-table/sb-table.component';
+import { SbTableColumn } from '../../../components/atoms/sb-table/sb-table.models';
 import { AdminAdventureEntry, Stroll, User } from '../../../core/api/models';
 import { AdventuresFeatureService } from '../../../features/adventures/adventures-feature.service';
 import { StrollsFeatureService } from '../../../features/strolls/strolls-feature.service';
 import { UsersFeatureService } from '../../../features/users/users-feature.service';
 import { ConfirmDeleteDialogComponent } from '../../../shared/confirm-delete-dialog.component';
 
+type AdventureRow = AdminAdventureEntry & Record<string, unknown>;
+
 @Component({
 	selector: 'app-admin-adventure-list-screen',
 	standalone: true,
 	imports: [
-		CommonModule,
+		DatePipe,
 		FormsModule,
-		MatButtonModule,
-		MatFormFieldModule,
-		MatIconModule,
-		MatSelectModule,
-		MatTableModule,
-		MatTooltipModule,
-		TranslatePipe
+		TranslatePipe,
+		SbAlertComponent,
+		SbBadgeComponent,
+		SbButtonComponent,
+		SbCellDirective,
+		SbIconButtonComponent,
+		SbPageHeaderComponent,
+		SbSelectComponent,
+		SbStatGridComponent,
+		SbTableComponent
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './admin-adventure-list.component.html',
-	styleUrls: ['./admin-adventure-list.component.scss']
+	styleUrl: './admin-adventure-list.component.scss'
 })
 export class AdminAdventureListScreenComponent implements OnInit {
 	private readonly adventuresFeature = inject(AdventuresFeatureService);
@@ -41,6 +52,7 @@ export class AdminAdventureListScreenComponent implements OnInit {
 	private readonly usersFeature = inject(UsersFeatureService);
 	private readonly dialog = inject(MatDialog);
 	private readonly destroyRef = inject(DestroyRef);
+	private readonly translate = inject(TranslateService);
 
 	protected readonly displayedColumns = ['owner', 'stroll', 'status', 'purchased', 'actions'];
 	protected readonly entries = signal<AdminAdventureEntry[]>([]);
@@ -49,10 +61,10 @@ export class AdminAdventureListScreenComponent implements OnInit {
 
 	protected readonly users = signal<User[]>([]);
 	protected readonly assignableStrolls = signal<Stroll[]>([]);
-	protected selectedUserId = '';
-	protected selectedStrollId = '';
-	protected assigning = false;
-	protected assignError = '';
+	protected readonly selectedUserId = signal('');
+	protected readonly selectedStrollId = signal('');
+	protected readonly assigning = signal(false);
+	protected readonly assignError = signal('');
 
 	protected readonly activeCount = computed(
 		() =>
@@ -61,6 +73,45 @@ export class AdminAdventureListScreenComponent implements OnInit {
 	);
 	protected readonly completedCount = computed(() => this.entries().filter((entry) => entry.adventure.progressStatus === 'completed').length);
 	protected readonly revokedCount = computed(() => this.entries().filter((entry) => entry.adventure.progressStatus === 'revoked').length);
+
+	protected readonly userOptions = computed<SbSelectOption<string>[]>(() =>
+		this.users().map((user) => ({ value: user.id, label: `${user.username} (${user.email})` }))
+	);
+	protected readonly strollOptions = computed<SbSelectOption<string>[]>(() =>
+		this.assignableStrolls().map((stroll) => ({ value: stroll.id, label: stroll.name }))
+	);
+
+	protected readonly summaryStats = computed(() => {
+		this.translate.currentLang();
+		return [
+			{ label: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.METRIC_TOTAL'), value: this.entries().length },
+			{ label: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.METRIC_ACTIVE'), value: this.activeCount(), tone: 'info' as SbTone },
+			{
+				label: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.METRIC_COMPLETED'),
+				value: this.completedCount(),
+				tone: 'success' as SbTone
+			},
+			{ label: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.METRIC_REVOKED'), value: this.revokedCount(), tone: 'danger' as SbTone }
+		];
+	});
+
+	protected readonly rows = computed(() => this.entries() as AdventureRow[]);
+
+	protected readonly columns = computed<SbTableColumn<AdventureRow>[]>(() => {
+		this.translate.currentLang();
+		return [
+			{ key: 'owner', header: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.COL_OWNER') },
+			{ key: 'stroll', header: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.COL_STROLL') },
+			{ key: 'status', header: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.COL_STATUS') },
+			{ key: 'purchased', header: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.COL_PURCHASED'), hideBelow: 'sm' },
+			{ key: 'actions', header: this.translate.instant('SCREENS.ADMIN_ADVENTURE_LIST.COL_ACTIONS'), align: 'end' }
+		];
+	});
+
+	protected statusTone(status: string): SbTone {
+		if (status === 'completed') return 'success';
+		return status === 'revoked' ? 'danger' : 'neutral';
+	}
 
 	ngOnInit(): void {
 		this.loadEntries();
@@ -110,20 +161,22 @@ export class AdminAdventureListScreenComponent implements OnInit {
 	}
 
 	protected assign(): void {
-		if (!this.selectedUserId || !this.selectedStrollId) return;
+		const userId = this.selectedUserId();
+		const strollId = this.selectedStrollId();
+		if (!userId || !strollId) return;
 
-		this.assignError = '';
-		this.assigning = true;
-		this.adventuresFeature.assign(this.selectedUserId, this.selectedStrollId).subscribe({
+		this.assignError.set('');
+		this.assigning.set(true);
+		this.adventuresFeature.assign(userId, strollId).subscribe({
 			next: () => {
-				this.assigning = false;
-				this.selectedUserId = '';
-				this.selectedStrollId = '';
+				this.assigning.set(false);
+				this.selectedUserId.set('');
+				this.selectedStrollId.set('');
 				this.loadEntries();
 			},
 			error: () => {
-				this.assigning = false;
-				this.assignError = 'SCREENS.ADMIN_ADVENTURE_LIST.ASSIGN_ERROR';
+				this.assigning.set(false);
+				this.assignError.set('SCREENS.ADMIN_ADVENTURE_LIST.ASSIGN_ERROR');
 			}
 		});
 	}

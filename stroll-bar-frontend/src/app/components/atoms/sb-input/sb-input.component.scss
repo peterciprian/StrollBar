@@ -1,0 +1,8 @@
+@use 'design' as sb;
+
+@include sb.sb-form-field;
+
+.sb-input__affix {
+	margin-inline: var(--sb-space-2);
+	color: var(--sb-color-text-muted);
+}

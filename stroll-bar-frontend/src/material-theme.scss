@@ -17,11 +17,16 @@ html {
 			density: 0
 		)
 	);
+
+	--mat-sys-primary-container: var(--mat-sys-surface-container-high);
+	--mat-sys-on-primary-container: var(--mat-sys-on-surface);
 }
 
 html.dark-theme {
 	color-scheme: dark;
 
+	--mat-sys-primary: #c58a4a;
+	--mat-sys-on-primary: #21170c;
 	--mat-sys-surface: #111827;
 	--mat-sys-surface-container: #1f2937;
 	--mat-sys-surface-container-high: #273548;

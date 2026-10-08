@@ -1,18 +1,19 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 import { StrollCategory, StrollSummary } from '../../core/api/models';
-import { StarRatingComponent } from '../../shared/star-rating.component';
+import { SbCardComponent } from '../atoms/sb-card/sb-card.component';
+import { SbIconComponent } from '../atoms/sb-icon/sb-icon.component';
+import { SbStarRatingComponent } from '../atoms/sb-star-rating/sb-star-rating.component';
+import { SbBadgeComponent } from '../atoms/sb-badge/sb-badge.component';
 
 export type StrollCardData = StrollSummary;
 
 @Component({
 	selector: 'app-stroll-card',
 	standalone: true,
-	imports: [CommonModule, MatCardModule, MatIconModule, TranslatePipe, StarRatingComponent],
+	imports: [CommonModule, TranslatePipe, SbCardComponent, SbIconComponent, SbStarRatingComponent, SbBadgeComponent],
 	templateUrl: './stroll-card.component.html',
 	styleUrls: ['./stroll-card.component.scss']
 })

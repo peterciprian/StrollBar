@@ -1,0 +1,42 @@
+:host {
+	display: block;
+	min-width: 0;
+}
+
+.sb-dialog-shell__title {
+	display: flex;
+	align-items: center;
+	gap: var(--sb-space-2);
+	margin: 0;
+	padding: var(--sb-space-5) var(--sb-space-5) var(--sb-space-3);
+	font-size: var(--sb-font-size-xl);
+	font-weight: var(--sb-font-weight-bold);
+	line-height: var(--sb-line-height-tight);
+	color: var(--sb-dialog-accent, var(--sb-color-text));
+}
+
+.sb-dialog-shell__content {
+	padding: 0 var(--sb-space-5);
+	font-size: var(--sb-font-size-md);
+	line-height: var(--sb-line-height-base);
+	color: var(--sb-color-text);
+}
+
+.sb-dialog-shell__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sb-space-2);
+	padding: var(--sb-space-4) var(--sb-space-5) var(--sb-space-5);
+}
+
+:host([data-tone='danger']) {
+	--sb-dialog-accent: var(--sb-color-danger);
+}
+
+:host([data-tone='warning']) {
+	--sb-dialog-accent: var(--sb-color-warning);
+}
+
+:host([data-tone='primary']) {
+	--sb-dialog-accent: var(--sb-color-primary);
+}

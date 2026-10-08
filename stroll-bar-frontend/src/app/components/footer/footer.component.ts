@@ -1,16 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer } from '@angular/platform-browser';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TranslatePipe } from '@ngx-translate/core';
 import { CookieConsentService } from '../../core/services/cookie-consent.service';
+import { SbButtonComponent } from '../atoms/sb-button/sb-button.component';
+import { SbIconComponent } from '../atoms/sb-icon/sb-icon.component';
 
 @Component({
 	selector: 'app-footer',
 	standalone: true,
-	imports: [RouterLink, MatToolbarModule, MatButtonModule, MatIconModule, TranslatePipe],
+	imports: [RouterLink, MatToolbarModule, MatIconModule, TranslatePipe, SbButtonComponent, SbIconComponent],
 	templateUrl: './footer.component.html',
 	styleUrl: './footer.component.scss'
 })

@@ -1,0 +1,4 @@
+// Barrel for the shared style layer. Component styles use: `@use 'design' as sb;`
+@forward 'breakpoints';
+@forward 'mixins';
+@forward 'form-field';

@@ -1,15 +1,17 @@
+@use 'design' as sb;
+
 .settings-page__toggle-row {
 	display: flex;
 	align-items: flex-start;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--sb-space-2);
 	justify-content: space-between;
 	max-width: 100%;
-	padding: 12px 0;
-	border-bottom: 1px solid #e2e8f0;
+	padding: var(--sb-space-3) 0;
+	border-bottom: 1px solid var(--sb-color-border);
 }
 
-@media (min-width: 600px) {
+@include sb.sb-up(sm) {
 	.settings-page__toggle-row {
 		align-items: center;
 		flex-direction: row;

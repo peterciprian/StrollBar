@@ -1,0 +1,8 @@
+<mat-checkbox class="sb-checkbox__el" [checked]="!!value()" [required]="required()" [disabled]="isDisabled" (change)="onToggle($event.checked)">
+	{{ label() }}
+</mat-checkbox>
+@if (showError()) {
+	<p class="sb-checkbox__error" role="alert">{{ errorText() }}</p>
+} @else if (hint(); as text) {
+	<p class="sb-checkbox__hint">{{ text }}</p>
+}

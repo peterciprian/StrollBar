@@ -1,0 +1,16 @@
+<div class="sb-page-header__main">
+	@if (icon(); as glyph) {
+		<span class="sb-page-header__icon"><sb-icon [name]="glyph" size="lg" /></span>
+	}
+	<div class="sb-page-header__text">
+		@if (headingLevel() === 1) {
+			<h1 class="sb-page-header__title">{{ title() }}</h1>
+		} @else {
+			<h2 class="sb-page-header__title">{{ title() }}</h2>
+		}
+		@if (subtitle(); as text) {
+			<p class="sb-page-header__subtitle">{{ text }}</p>
+		}
+	</div>
+</div>
+<div class="sb-page-header__actions"><ng-content /></div>

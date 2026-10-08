@@ -1,12 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Location } from '@angular/common';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
 
 @Component({
-	// tslint:disable-next-line:component-selector
-	selector: 'not-found',
+	selector: 'app-not-found',
 	standalone: true,
-	imports: [TranslatePipe],
+	imports: [TranslatePipe, SbButtonComponent],
 	templateUrl: './not-found.component.html'
 })
 export class NotFoundComponent implements OnInit {

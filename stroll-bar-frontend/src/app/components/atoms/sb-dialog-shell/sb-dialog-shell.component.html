@@ -1,0 +1,12 @@
+<h2 mat-dialog-title class="sb-dialog-shell__title">
+	@if (icon(); as glyph) {
+		<sb-icon [name]="glyph" size="md" />
+	}
+	<span>{{ title() }}</span>
+</h2>
+<mat-dialog-content class="sb-dialog-shell__content">
+	<ng-content />
+</mat-dialog-content>
+<mat-dialog-actions class="sb-dialog-shell__actions" align="end">
+	<ng-content select="[sbDialogActions]" />
+</mat-dialog-actions>

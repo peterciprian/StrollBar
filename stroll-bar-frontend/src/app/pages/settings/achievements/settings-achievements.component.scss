@@ -1,131 +1,112 @@
-.settings-page__achievements {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 16px;
-}
+@use 'design' as sb;
 
-h1 {
-	margin: 0 0 20px;
-	font-size: 22px;
-	font-weight: 700;
+.settings-page__achievements {
+	@include sb.sb-auto-grid(260px, var(--sb-space-4));
+	grid-template-columns: 1fr;
 }
 
 .settings-page__achievement-card {
 	display: flex;
 	align-items: flex-start;
-	gap: 12px;
-	padding: 16px;
-	border-radius: 14px;
-	background: #fef3c7;
+	gap: var(--sb-space-3);
+	padding: var(--sb-space-4);
+	border-radius: var(--sb-radius-md);
+	background: var(--sb-color-warning-container);
+	color: var(--sb-color-on-warning-container);
 
-	mat-icon {
-		color: #b45309;
+	sb-icon {
+		color: var(--sb-color-warning);
 	}
 
 	h3 {
-		margin: 0 0 4px;
-		font-size: 14px;
+		margin: 0 0 var(--sb-space-1);
+		font-size: var(--sb-font-size-md);
 	}
 
 	p {
-		margin: 0 0 4px;
-		font-size: 13px;
-		color: #475569;
+		margin: 0 0 var(--sb-space-1);
+		font-size: var(--sb-font-size-sm);
+		color: var(--sb-color-text-muted);
 	}
 }
 
 .settings-page__achievement-card--locked {
-	background: #f1f5f9;
+	background: var(--sb-color-surface-sunken);
+	color: var(--sb-color-text);
 	opacity: 0.65;
 
-	mat-icon {
-		color: #94a3b8;
+	sb-icon {
+		color: var(--sb-color-text-muted);
 	}
 }
 
 .settings-page__muted {
-	color: #64748b;
-	font-size: 12px;
-}
-
-.settings-page__error {
-	color: #b91c1c;
-	font-size: 13px;
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-xs);
 }
 
 .settings-page__results,
 .settings-page__badges {
-	margin-bottom: 28px;
+	margin-bottom: var(--sb-space-7);
 
 	h2 {
-		margin: 0 0 12px;
-		font-size: 16px;
-		font-weight: 700;
-		color: #0f172a;
+		margin: 0 0 var(--sb-space-3);
+		font-size: var(--sb-font-size-lg);
+		font-weight: var(--sb-font-weight-bold);
+		color: var(--sb-color-text);
 	}
 }
 
 .settings-page__result-groups {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 20px;
+	gap: var(--sb-space-5);
 }
 
 .settings-page__result-group {
-	h3 {
-		margin: 0 0 8px;
-		font-size: 14px;
-		font-weight: 700;
-		color: var(--mat-sys-primary, #0891b2);
-	}
-
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: var(--sb-space-3);
+
+	h3 {
+		margin: 0 0 var(--sb-space-2);
+		font-size: var(--sb-font-size-md);
+		font-weight: var(--sb-font-weight-bold);
+		color: var(--sb-color-primary);
+	}
 }
 
-.settings-page__result-card {
+.settings-page__result-row {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
-	gap: 18px;
-	padding: 14px 16px;
-	border-radius: 14px;
-	background: #fff;
-	box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+	gap: var(--sb-space-5);
 }
 
 .settings-page__result-stat {
 	display: flex;
 	align-items: center;
-	gap: 6px;
-
-	mat-icon {
-		color: var(--mat-sys-primary, #0891b2);
-		font-size: 18px;
-		width: 18px;
-		height: 18px;
-	}
+	gap: var(--sb-space-2);
 
 	strong {
-		font-size: 14px;
-		font-weight: 700;
-		color: #0f172a;
+		font-size: var(--sb-font-size-md);
+		font-weight: var(--sb-font-weight-bold);
+		color: var(--sb-color-text);
 	}
 
 	span {
-		font-size: 12px;
-		color: #64748b;
+		font-size: var(--sb-font-size-xs);
+		color: var(--sb-color-text-muted);
 	}
 }
 
 .settings-page__result-date {
 	margin-left: auto;
-	font-size: 12px;
-	color: #64748b;
+	font-size: var(--sb-font-size-xs);
+	color: var(--sb-color-text-muted);
 }
 
-@media (min-width: 600px) {
+@include sb.sb-up(sm) {
 	.settings-page__achievements {
 		grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
 	}

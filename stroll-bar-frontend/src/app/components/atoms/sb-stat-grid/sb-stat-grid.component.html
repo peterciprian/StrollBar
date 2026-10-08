@@ -1,0 +1,9 @@
+@for (stat of stats(); track stat.label) {
+	<div class="sb-stat-grid__tile" [attr.data-tone]="stat.tone ?? 'neutral'">
+		@if (stat.icon; as glyph) {
+			<sb-icon class="sb-stat-grid__icon" [name]="glyph" size="md" />
+		}
+		<span class="sb-stat-grid__value">{{ stat.value }}</span>
+		<span class="sb-stat-grid__label">{{ stat.label }}</span>
+	</div>
+}

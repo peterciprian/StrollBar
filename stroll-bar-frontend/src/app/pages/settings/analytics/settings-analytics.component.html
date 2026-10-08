@@ -1,27 +1,16 @@
-<h1>{{ 'SETTINGS.SECTION_ANALYTICS' | translate }}</h1>
+<sb-page-header [title]="'SETTINGS.SECTION_ANALYTICS' | translate" />
 
-@if (loading()) {
-	<p class="settings-page__muted">{{ 'SETTINGS.ANALYTICS_LOADING' | translate }}</p>
-} @else if (loadError()) {
-	<p class="settings-page__error">{{ 'SETTINGS.ANALYTICS_ERROR' | translate }}</p>
-} @else {
+<sb-loading-state [state]="state()" [loadingText]="'SETTINGS.ANALYTICS_LOADING' | translate" [errorTitle]="'SETTINGS.ANALYTICS_ERROR' | translate">
 	<div class="settings-page__analytics">
 		@for (stat of analyticsStats(); track stat.labelKey) {
-			<div
-				class="settings-page__stat-card"
-				[class.settings-page__stat-card--clickable]="!!stat.route"
-				(click)="openStat(stat)"
-				(keyup.enter)="openStat(stat)"
-				[attr.tabindex]="stat.route ? 0 : null"
-				[attr.role]="stat.route ? 'button' : null"
-			>
-				<mat-icon>{{ stat.icon }}</mat-icon>
+			<sb-card class="settings-page__stat-card" padding="md" [clickable]="!!stat.route" (activated)="openStat(stat)">
+				<sb-icon tone="primary" [name]="stat.icon" />
 				<span class="settings-page__stat-value">{{ stat.value }}</span>
 				<span class="settings-page__muted">{{ stat.labelKey | translate }}</span>
 				@if (stat.subtitle) {
 					<span class="settings-page__stat-subtitle">{{ stat.subtitle }}</span>
 				}
-			</div>
+			</sb-card>
 		}
 	</div>
-}
+</sb-loading-state>

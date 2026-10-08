@@ -1,17 +1,19 @@
+@use 'design' as sb;
+
 footer {
-	border-top: 1px solid #dbe4ea;
-	background: #f8fafc;
-	color: #334155;
+	border-top: 1px solid var(--sb-color-border);
+	background: var(--sb-color-surface-sunken);
+	color: var(--sb-color-text);
 }
 
 .footer-inner {
 	display: flex;
 	flex-direction: column;
-	gap: 18px;
+	gap: var(--sb-space-4);
 	width: 100%;
-	max-width: 1280px;
+	max-width: var(--sb-container-max);
 	margin-inline: auto;
-	padding: 20px 16px;
+	padding: var(--sb-space-5) var(--sb-space-4);
 	box-sizing: border-box;
 }
 
@@ -22,7 +24,7 @@ footer {
 }
 
 .footer-brand {
-	gap: 10px;
+	gap: var(--sb-space-3);
 
 	strong,
 	span {
@@ -30,14 +32,14 @@ footer {
 	}
 
 	strong {
-		color: #0f172a;
-		font-size: 15px;
+		color: var(--sb-color-text);
+		font-size: var(--sb-font-size-lg);
 	}
 
 	span {
-		margin-top: 3px;
-		color: #64748b;
-		font-size: 12px;
+		margin-top: var(--sb-space-1);
+		color: var(--sb-color-text-muted);
+		font-size: var(--sb-font-size-xs);
 	}
 }
 
@@ -45,24 +47,24 @@ footer {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 34px;
-	height: 34px;
-	border-radius: 10px;
-	background: #155e75;
-	color: #fff;
+	width: var(--sb-control-height-sm);
+	height: var(--sb-control-height-sm);
+	border-radius: var(--sb-radius-sm);
+	background: var(--sb-color-primary);
+	color: var(--sb-color-on-primary);
 
 	mat-icon {
-		font-size: 20px;
-		width: 20px;
-		height: 20px;
+		font-size: var(--sb-icon-size-md);
+		width: var(--sb-icon-size-md);
+		height: var(--sb-icon-size-md);
 	}
 }
 
 .footer-meta {
 	flex-wrap: wrap;
-	gap: 10px;
-	color: #64748b;
-	font-size: 12px;
+	gap: var(--sb-space-3);
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-xs);
 }
 
 .copyright,
@@ -73,21 +75,21 @@ footer {
 .footer-divider {
 	display: none;
 	width: 1px;
-	height: 16px;
-	background: #cbd5e1;
+	height: var(--sb-space-4);
+	background: var(--sb-color-border-strong);
 }
 
 .footer-links {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 8px 12px;
+	gap: var(--sb-space-2) var(--sb-space-3);
 	width: 100%;
 }
 
 .footer-links a,
 .cookie-settings-link {
-	color: #64748b;
-	font-size: 12px;
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-xs);
 	text-decoration: none;
 }
 
@@ -101,31 +103,30 @@ footer {
 
 .footer-links a:hover,
 .cookie-settings-link:hover {
-	color: #155e75;
+	color: var(--sb-color-primary);
 	text-decoration: underline;
 }
 
 .github-btn {
-	min-height: 36px;
 	margin-left: auto;
-	border-color: #cbd5e1 !important;
-	border-radius: 9px;
-	color: #334155 !important;
-	font-size: 12px;
+	--sb-button-height: 36px;
+	--sb-button-font-size: var(--sb-font-size-xs);
+	--sb-button-fg: var(--sb-color-text);
+	--sb-button-border: var(--sb-color-border-strong);
 
 	mat-icon {
-		width: 18px;
-		height: 18px;
+		width: var(--sb-icon-size-sm);
+		height: var(--sb-icon-size-sm);
 		fill: currentColor;
 	}
 }
 
-@media (min-width: 600px) {
+@include sb.sb-up(sm) {
 	.footer-inner {
 		flex-direction: row;
 		align-items: center;
 		justify-content: space-between;
-		padding-inline: 24px;
+		padding-inline: var(--sb-space-6);
 	}
 
 	.footer-meta {
@@ -142,6 +143,6 @@ footer {
 	}
 
 	.github-btn {
-		margin-left: 4px;
+		margin-left: var(--sb-space-1);
 	}
 }

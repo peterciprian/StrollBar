@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
+import { Component, inject } from '@angular/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbDialogShellComponent } from '../../components/atoms/sb-dialog-shell/sb-dialog-shell.component';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
 
 export interface MockPaymentDialogData {
 	strollName: string;
@@ -13,37 +14,34 @@ export interface MockPaymentDialogData {
 @Component({
 	selector: 'app-mock-payment-dialog',
 	standalone: true,
-	imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, TranslatePipe],
+	imports: [CommonModule, TranslatePipe, SbButtonComponent, SbDialogShellComponent, SbIconComponent],
 	template: `
-		<div class="mock-payment">
-			<div class="mock-payment__eyebrow"><mat-icon>science</mat-icon>{{ 'SCREENS.MOCK_PAYMENT.BADGE' | translate }}</div>
-			<h2 mat-dialog-title>{{ 'SCREENS.MOCK_PAYMENT.TITLE' | translate }}</h2>
-			<mat-dialog-content>
+		<sb-dialog-shell [title]="'SCREENS.MOCK_PAYMENT.TITLE' | translate" icon="science" tone="primary">
+			<div class="mock-payment">
+				<div class="mock-payment__eyebrow">{{ 'SCREENS.MOCK_PAYMENT.BADGE' | translate }}</div>
 				<p class="mock-payment__intro">{{ 'SCREENS.MOCK_PAYMENT.DESCRIPTION' | translate }}</p>
 				<div class="mock-payment__order">
 					<div>
-						<span>{{ 'SCREENS.MOCK_PAYMENT.STROLL' | translate }}</span
-						><strong>{{ data.strollName }}</strong>
+						<span>{{ 'SCREENS.MOCK_PAYMENT.STROLL' | translate }}</span>
+						<strong>{{ data.strollName }}</strong>
 					</div>
 					<strong>{{ data.price | number }} {{ 'COMMON.HUF_SUFFIX' | translate }}</strong>
 				</div>
 				<div class="mock-payment__method">
-					<mat-icon>credit_card</mat-icon>
+					<sb-icon name="credit_card" size="md" />
 					<div>
-						<strong>{{ 'SCREENS.MOCK_PAYMENT.METHOD' | translate }}</strong
-						><span>{{ 'SCREENS.MOCK_PAYMENT.METHOD_DETAIL' | translate }}</span>
+						<strong>{{ 'SCREENS.MOCK_PAYMENT.METHOD' | translate }}</strong>
+						<span>{{ 'SCREENS.MOCK_PAYMENT.METHOD_DETAIL' | translate }}</span>
 					</div>
-					<mat-icon class="mock-payment__approved">check_circle</mat-icon>
+					<sb-icon class="mock-payment__approved" name="check_circle" size="md" />
 				</div>
-				<p class="mock-payment__notice"><mat-icon>info</mat-icon>{{ 'SCREENS.MOCK_PAYMENT.NO_CHARGE' | translate }}</p>
-			</mat-dialog-content>
-			<mat-dialog-actions align="end">
-				<button mat-button [mat-dialog-close]="false">{{ 'SCREENS.MOCK_PAYMENT.CANCEL' | translate }}</button>
-				<button mat-flat-button color="primary" [mat-dialog-close]="true">
-					<mat-icon>lock_open</mat-icon>{{ 'SCREENS.MOCK_PAYMENT.CONFIRM' | translate }}
-				</button>
-			</mat-dialog-actions>
-		</div>
+				<p class="mock-payment__notice"><sb-icon name="info" size="sm" />{{ 'SCREENS.MOCK_PAYMENT.NO_CHARGE' | translate }}</p>
+			</div>
+			<ng-container sbDialogActions>
+				<sb-button variant="ghost" [label]="'SCREENS.MOCK_PAYMENT.CANCEL' | translate" (clicked)="close(false)" />
+				<sb-button icon="lock_open" [label]="'SCREENS.MOCK_PAYMENT.CONFIRM' | translate" (clicked)="close(true)" />
+			</ng-container>
+		</sb-dialog-shell>
 	`,
 	styles: [
 		`
@@ -52,18 +50,13 @@ export interface MockPaymentDialogData {
 			}
 			.mock-payment__eyebrow {
 				align-items: center;
-				color: #0e7490;
+				color: var(--sb-color-primary);
 				display: flex;
 				font-size: 11px;
 				font-weight: 800;
 				gap: 6px;
 				padding: 0 24px;
 				text-transform: uppercase;
-			}
-			.mock-payment__eyebrow mat-icon {
-				font-size: 17px;
-				height: 17px;
-				width: 17px;
 			}
 			h2 {
 				font-size: 22px;
@@ -107,7 +100,7 @@ export interface MockPaymentDialogData {
 				grid-template-columns: auto 1fr auto;
 				padding: 12px;
 			}
-			.mock-payment__method > mat-icon {
+			.mock-payment__method > sb-icon {
 				color: #475569;
 			}
 			.mock-payment__method .mock-payment__approved {
@@ -122,22 +115,22 @@ export interface MockPaymentDialogData {
 				line-height: 1.45;
 				margin: 14px 0 0;
 			}
-			.mock-payment__notice mat-icon {
-				color: #0891b2;
+			.mock-payment__notice sb-icon {
+				color: var(--sb-color-primary);
 				flex: 0 0 17px;
 				font-size: 17px;
 				height: 17px;
 				margin-top: 1px;
 				width: 17px;
 			}
-			mat-dialog-actions {
-				border-top: 1px solid #e2e8f0;
-				margin-top: 8px;
-				padding: 12px 24px 16px;
-			}
 		`
 	]
 })
 export class MockPaymentDialogComponent {
-	constructor(@Inject(MAT_DIALOG_DATA) readonly data: MockPaymentDialogData) {}
+	readonly data = inject<MockPaymentDialogData>(MAT_DIALOG_DATA);
+	private readonly dialogRef = inject(MatDialogRef<MockPaymentDialogComponent, boolean>);
+
+	protected close(confirmed: boolean): void {
+		this.dialogRef.close(confirmed);
+	}
 }

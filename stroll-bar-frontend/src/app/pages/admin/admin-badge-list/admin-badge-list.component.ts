@@ -1,37 +1,63 @@
-import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 
+import { SbButtonComponent } from '../../../components/atoms/sb-button/sb-button.component';
+import { SbIconComponent } from '../../../components/atoms/sb-icon/sb-icon.component';
+import { SbIconButtonComponent } from '../../../components/atoms/sb-icon-button/sb-icon-button.component';
+import { SbPageHeaderComponent } from '../../../components/atoms/sb-page-header/sb-page-header.component';
+import { SbCellDirective } from '../../../components/atoms/sb-table/sb-cell.directive';
+import { SbTableComponent } from '../../../components/atoms/sb-table/sb-table.component';
+import { SbTableColumn } from '../../../components/atoms/sb-table/sb-table.models';
 import { BadgeDefinition, CreateBadgeDefinitionRequest } from '../../../core/api/models';
 import { BadgesAdminFeatureService } from '../../../features/badges/badges-admin-feature.service';
 import { ConfirmDeleteDialogComponent } from '../../../shared/confirm-delete-dialog.component';
 import { BadgeDefinitionFormDialogComponent, BadgeDefinitionFormDialogData } from './badge-definition-form-dialog.component';
 
+type BadgeRow = BadgeDefinition & Record<string, unknown>;
+
 @Component({
 	selector: 'app-admin-badge-list-screen',
 	standalone: true,
-	imports: [CommonModule, MatButtonModule, MatChipsModule, MatIconModule, MatSlideToggleModule, MatTableModule, MatTooltipModule, TranslatePipe],
+	imports: [
+		MatSlideToggleModule,
+		TranslatePipe,
+		SbButtonComponent,
+		SbCellDirective,
+		SbIconButtonComponent,
+		SbIconComponent,
+		SbPageHeaderComponent,
+		SbTableComponent
+	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './admin-badge-list.component.html',
-	styleUrls: ['./admin-badge-list.component.scss']
+	styleUrl: './admin-badge-list.component.scss'
 })
 export class AdminBadgeListScreenComponent implements OnInit {
 	private readonly badgesAdminFeature = inject(BadgesAdminFeatureService);
 	private readonly dialog = inject(MatDialog);
 	private readonly destroyRef = inject(DestroyRef);
+	private readonly translate = inject(TranslateService);
 
 	protected readonly displayedColumns = ['badge', 'rules', 'active', 'actions'];
 	protected readonly definitions = signal<BadgeDefinition[]>([]);
 	protected readonly loading = signal(true);
 	protected readonly loadError = signal(false);
+
+	protected readonly rows = computed(() => this.definitions() as BadgeRow[]);
+
+	protected readonly columns = computed<SbTableColumn<BadgeRow>[]>(() => {
+		this.translate.currentLang();
+		return [
+			{ key: 'badge', header: this.translate.instant('SCREENS.ADMIN_BADGE_LIST.COL_BADGE') },
+			{ key: 'rules', header: this.translate.instant('SCREENS.ADMIN_BADGE_LIST.COL_RULES'), hideBelow: 'md' },
+			{ key: 'active', header: this.translate.instant('SCREENS.ADMIN_BADGE_LIST.COL_ACTIVE'), align: 'center' },
+			{ key: 'actions', header: this.translate.instant('SCREENS.ADMIN_BADGE_LIST.COL_ACTIONS'), align: 'end' }
+		];
+	});
 
 	ngOnInit(): void {
 		this.loadDefinitions();

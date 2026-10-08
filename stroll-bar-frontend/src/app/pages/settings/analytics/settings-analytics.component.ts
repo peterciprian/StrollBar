@@ -1,8 +1,12 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { SbLoadState } from '../../../components/atoms/atom.types';
+import { SbCardComponent } from '../../../components/atoms/sb-card/sb-card.component';
+import { SbIconComponent } from '../../../components/atoms/sb-icon/sb-icon.component';
+import { SbLoadingStateComponent } from '../../../components/atoms/sb-loading-state/sb-loading-state.component';
+import { SbPageHeaderComponent } from '../../../components/atoms/sb-page-header/sb-page-header.component';
 import { AnalyticsFeatureService } from '../../../features/analytics/analytics-feature.service';
 import { AnalyticsSummaryResponse } from '../../../core/api/models';
 import { formatDuration } from '../../../core/utils/duration.util';
@@ -18,7 +22,7 @@ interface AnalyticsStatCard {
 @Component({
 	selector: 'app-settings-analytics',
 	standalone: true,
-	imports: [MatIconModule, TranslatePipe],
+	imports: [TranslatePipe, SbCardComponent, SbIconComponent, SbLoadingStateComponent, SbPageHeaderComponent],
 	templateUrl: './settings-analytics.component.html',
 	styleUrls: ['./settings-analytics.component.scss']
 })
@@ -31,6 +35,11 @@ export class SettingsAnalyticsComponent implements OnInit {
 	protected readonly summary = signal<AnalyticsSummaryResponse | null>(null);
 	protected readonly loading = signal(true);
 	protected readonly loadError = signal(false);
+
+	protected readonly state = computed<SbLoadState>(() => {
+		if (this.loading()) return 'loading';
+		return this.loadError() ? 'error' : 'idle';
+	});
 
 	protected readonly analyticsStats = computed<AnalyticsStatCard[]>(() => {
 		const summary = this.summary();

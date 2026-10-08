@@ -1,0 +1,7 @@
+@if (icon(); as glyph) {
+	<sb-icon class="sb-badge__icon" [name]="glyph" size="sm" />
+}
+@if (label(); as text) {
+	<span class="sb-badge__label">{{ text }}</span>
+}
+<ng-content />

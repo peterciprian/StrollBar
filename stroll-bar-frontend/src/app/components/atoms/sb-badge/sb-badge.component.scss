@@ -1,0 +1,62 @@
+@use 'design' as sb;
+
+:host {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sb-space-1);
+	flex: 0 0 auto;
+	max-width: 100%;
+	padding: var(--sb-badge-padding);
+	font-size: var(--sb-badge-font-size);
+	font-weight: var(--sb-font-weight-medium);
+	line-height: 1;
+	white-space: nowrap;
+	border-radius: var(--sb-radius-pill);
+	background: var(--sb-badge-bg);
+	color: var(--sb-badge-fg);
+	vertical-align: middle;
+}
+
+.sb-badge__label {
+	@include sb.sb-truncate(1);
+}
+
+:host([data-size='sm']) {
+	--sb-badge-padding: 2px var(--sb-space-2);
+	--sb-badge-font-size: var(--sb-font-size-xs);
+}
+
+:host([data-size='md']) {
+	--sb-badge-padding: var(--sb-space-1) var(--sb-space-3);
+	--sb-badge-font-size: var(--sb-font-size-sm);
+}
+
+:host([data-tone='neutral']) {
+	--sb-badge-bg: var(--sb-color-surface-sunken);
+	--sb-badge-fg: var(--sb-color-text-muted);
+}
+
+:host([data-tone='primary']) {
+	--sb-badge-bg: var(--sb-color-surface-sunken);
+	--sb-badge-fg: var(--sb-color-text);
+}
+
+:host([data-tone='success']) {
+	--sb-badge-bg: var(--sb-color-success-container);
+	--sb-badge-fg: var(--sb-color-on-success-container);
+}
+
+:host([data-tone='warning']) {
+	--sb-badge-bg: var(--sb-color-warning-container);
+	--sb-badge-fg: var(--sb-color-on-warning-container);
+}
+
+:host([data-tone='danger']) {
+	--sb-badge-bg: var(--sb-color-danger-container);
+	--sb-badge-fg: var(--sb-color-on-danger-container);
+}
+
+:host([data-tone='info']) {
+	--sb-badge-bg: var(--sb-color-info-container);
+	--sb-badge-fg: var(--sb-color-on-info-container);
+}

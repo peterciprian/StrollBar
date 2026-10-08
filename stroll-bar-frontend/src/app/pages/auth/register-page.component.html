@@ -1,7 +1,7 @@
 <section class="auth-page">
 	<div class="auth-page__card">
 		<aside class="auth-page__intro" aria-hidden="true">
-			<mat-icon>map</mat-icon>
+			<sb-icon name="map" size="xl" />
 			<h2>{{ 'AUTH.REGISTER.INTRO_TITLE' | translate }}</h2>
 			<p>{{ 'AUTH.REGISTER.INTRO_TEXT' | translate }}</p>
 		</aside>
@@ -12,70 +12,71 @@
 			</header>
 
 			<form class="auth-page__form" [formGroup]="form" (ngSubmit)="onSubmit()">
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'AUTH.REGISTER.USERNAME_LABEL' | translate }}</mat-label>
-					<input matInput type="text" formControlName="username" autocomplete="username" />
-					@if (form.controls.username.invalid && form.controls.username.touched) {
-						<mat-error>{{ 'AUTH.REGISTER.USERNAME_ERROR' | translate }}</mat-error>
-					}
-				</mat-form-field>
+				<sb-input
+					formControlName="username"
+					type="text"
+					autocomplete="username"
+					[label]="'AUTH.REGISTER.USERNAME_LABEL' | translate"
+					[errorMessages]="{
+						required: 'AUTH.REGISTER.USERNAME_ERROR' | translate,
+						minlength: 'AUTH.REGISTER.USERNAME_ERROR' | translate
+					}"
+				/>
 
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'AUTH.REGISTER.EMAIL_LABEL' | translate }}</mat-label>
-					<input matInput type="email" formControlName="email" autocomplete="email" />
-					@if (form.controls.email.invalid && form.controls.email.touched) {
-						<mat-error>{{ 'AUTH.REGISTER.EMAIL_ERROR' | translate }}</mat-error>
-					}
-				</mat-form-field>
+				<sb-input
+					formControlName="email"
+					type="email"
+					autocomplete="email"
+					[label]="'AUTH.REGISTER.EMAIL_LABEL' | translate"
+					[errorMessages]="{
+						required: 'AUTH.REGISTER.EMAIL_ERROR' | translate,
+						email: 'AUTH.REGISTER.EMAIL_ERROR' | translate
+					}"
+				/>
 
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'AUTH.REGISTER.PASSWORD_LABEL' | translate }}</mat-label>
-					<input matInput type="password" formControlName="password" autocomplete="new-password" />
-					@if (form.controls.password.invalid && form.controls.password.touched) {
-						<mat-error>
-							@if (form.controls.password.hasError('required')) {
-								{{ 'AUTH.REGISTER.PASSWORD_REQUIRED_ERROR' | translate }}
-							} @else if (form.controls.password.hasError('minlength')) {
-								{{ 'AUTH.REGISTER.PASSWORD_MIN_LENGTH_ERROR' | translate }}
-							} @else if (form.controls.password.hasError('maxlength')) {
-								{{ 'AUTH.REGISTER.PASSWORD_MAX_LENGTH_ERROR' | translate }}
-							} @else if (form.controls.password.hasError('commonPassword')) {
-								{{ 'AUTH.REGISTER.PASSWORD_COMMON_ERROR' | translate }}
-							} @else {
-								{{ 'AUTH.REGISTER.PASSWORD_COMPLEXITY_ERROR' | translate }}
-							}
-						</mat-error>
-					}
-					@if (form.controls.password.valid) {
-						<mat-hint>{{ 'AUTH.REGISTER.PASSWORD_ACCEPTED' | translate }}</mat-hint>
-					} @else if (!form.controls.password.touched) {
-						<mat-hint>{{ 'AUTH.REGISTER.PASSWORD_REQUIREMENTS' | translate }}</mat-hint>
-					}
-				</mat-form-field>
+				<sb-input
+					formControlName="password"
+					type="password"
+					autocomplete="new-password"
+					[label]="'AUTH.REGISTER.PASSWORD_LABEL' | translate"
+					[hint]="
+						form.controls.password.valid
+							? ('AUTH.REGISTER.PASSWORD_ACCEPTED' | translate)
+							: !form.controls.password.touched
+								? ('AUTH.REGISTER.PASSWORD_REQUIREMENTS' | translate)
+								: null
+					"
+					[errorMessages]="{
+						required: 'AUTH.REGISTER.PASSWORD_REQUIRED_ERROR' | translate,
+						minlength: 'AUTH.REGISTER.PASSWORD_MIN_LENGTH_ERROR' | translate,
+						maxlength: 'AUTH.REGISTER.PASSWORD_MAX_LENGTH_ERROR' | translate,
+						commonPassword: 'AUTH.REGISTER.PASSWORD_COMMON_ERROR' | translate,
+						passwordComplexity: 'AUTH.REGISTER.PASSWORD_COMPLEXITY_ERROR' | translate
+					}"
+				/>
 
-				@if (error()) {
-					<p class="auth-error">{{ error() }}</p>
+				@if (error(); as message) {
+					<sb-alert tone="danger" [message]="message" />
 				}
 				@if (captchaFailed()) {
-					<p class="auth-error">{{ 'AUTH.REGISTER.CAPTCHA_ERROR' | translate }}</p>
+					<sb-alert tone="danger" [message]="'AUTH.REGISTER.CAPTCHA_ERROR' | translate" />
 				}
 
-				<button
-					mat-flat-button
-					color="primary"
+				<sb-button
 					class="auth-page__submit"
 					type="submit"
-					[disabled]="loading() || verifying() || !captchaReady()"
-				>
-					<mat-icon>person_add</mat-icon>
-					@if (!captchaReady()) {
-						{{ 'AUTH.REGISTER.CAPTCHA_LOADING' | translate }}
-					} @else if (verifying()) {
-						{{ 'AUTH.REGISTER.CAPTCHA_VERIFYING' | translate }}
-					} @else {
-						{{ (loading() ? 'AUTH.REGISTER.SUBMIT_LOADING' : 'AUTH.REGISTER.SUBMIT') | translate }}
-					}
-				</button>
+					icon="person_add"
+					[fullWidth]="true"
+					[loading]="loading() || verifying()"
+					[disabled]="!captchaReady()"
+					[label]="
+						!captchaReady()
+							? ('AUTH.REGISTER.CAPTCHA_LOADING' | translate)
+							: verifying()
+								? ('AUTH.REGISTER.CAPTCHA_VERIFYING' | translate)
+								: ((loading() ? 'AUTH.REGISTER.SUBMIT_LOADING' : 'AUTH.REGISTER.SUBMIT') | translate)
+					"
+				/>
 				<p class="auth-page__captcha-notice">
 					{{ 'AUTH.REGISTER.CAPTCHA_NOTICE' | translate }}
 				</p>

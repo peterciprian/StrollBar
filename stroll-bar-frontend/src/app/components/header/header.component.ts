@@ -1,11 +1,9 @@
 import { Component, Signal, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
-import { MatButton, MatIconButton } from '@angular/material/button';
 import { MatOption, MatSelect, MatSelectTrigger } from '@angular/material/select';
 import { MatToolbar } from '@angular/material/toolbar';
-import { MatIcon } from '@angular/material/icon';
-import { MatMenu, MatMenuTrigger, MatMenuItem } from '@angular/material/menu';
+import { MatMenu, MatMenuItem } from '@angular/material/menu';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { filter, map } from 'rxjs';
@@ -13,6 +11,9 @@ import { LanguageService } from '../../core/services/language.service';
 import { logout, selectIsAdmin, selectIsLoggedIn, selectUser, selectUsername, updateProfile } from '../../features/auth/auth.state';
 import { SCREEN_DEFS, ScreenDef } from './screen-definitions';
 import { SETTINGS_SECTIONS } from '../../pages/settings/settings-nav.service';
+import { SbButtonComponent } from '../atoms/sb-button/sb-button.component';
+import { SbIconButtonComponent } from '../atoms/sb-icon-button/sb-icon-button.component';
+import { SbIconComponent } from '../atoms/sb-icon/sb-icon.component';
 
 @Component({
 	selector: 'app-header',
@@ -21,14 +22,13 @@ import { SETTINGS_SECTIONS } from '../../pages/settings/settings-nav.service';
 		RouterLink,
 		RouterLinkActive,
 		MatToolbar,
-		MatButton,
-		MatIconButton,
+		SbButtonComponent,
+		SbIconButtonComponent,
 		MatSelect,
 		MatSelectTrigger,
 		MatOption,
-		MatIcon,
+		SbIconComponent,
 		MatMenu,
-		MatMenuTrigger,
 		MatMenuItem,
 		TranslatePipe
 	],

@@ -10,7 +10,7 @@
 					routerLinkActive="settings-page__nav-item--active"
 					[routerLinkActiveOptions]="{ exact: true }"
 				>
-					<mat-icon matListItemIcon>{{ section.icon }}</mat-icon>
+					<sb-icon matListItemIcon [name]="section.icon" size="md" />
 					<span matListItemTitle>{{ section.labelKey | translate }}</span>
 				</a>
 			}

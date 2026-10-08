@@ -1,0 +1,33 @@
+// Single source of truth for responsive breakpoints. Mobile-first: prefer `sb-up`.
+@use 'sass:map';
+
+$sb-bp-sm: 600px;
+$sb-bp-tablet: 768px;
+$sb-bp-md: 900px;
+$sb-bp-lg: 1280px;
+
+$sb-breakpoints: (
+	sm: $sb-bp-sm,
+	tablet: $sb-bp-tablet,
+	md: $sb-bp-md,
+	lg: $sb-bp-lg
+);
+
+@function sb-bp($name) {
+	@if not map.has-key($sb-breakpoints, $name) {
+		@error 'Unknown breakpoint `#{$name}`. Use one of: #{map.keys($sb-breakpoints)}.';
+	}
+	@return map.get($sb-breakpoints, $name);
+}
+
+@mixin sb-up($name) {
+	@media (min-width: sb-bp($name)) {
+		@content;
+	}
+}
+
+@mixin sb-down($name) {
+	@media (max-width: #{sb-bp($name) - 0.02px}) {
+		@content;
+	}
+}

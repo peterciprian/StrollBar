@@ -1,0 +1,12 @@
+<button
+	mat-icon-button
+	class="sb-icon-button__el"
+	[type]="type()"
+	[disabled]="disabled()"
+	[matMenuTriggerFor]="menuTriggerFor()"
+	[attr.aria-label]="ariaLabel()"
+	[matTooltip]="tooltip() ?? ariaLabel()"
+	(click)="onClick($event)"
+>
+	<sb-icon [name]="icon()" [size]="iconSize()" />
+</button>

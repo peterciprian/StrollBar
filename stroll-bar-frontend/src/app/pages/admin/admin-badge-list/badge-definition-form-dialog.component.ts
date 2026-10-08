@@ -1,15 +1,16 @@
-import { Component, Inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectionStrategy, Component, Inject, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
+import { SbButtonComponent } from '../../../components/atoms/sb-button/sb-button.component';
+import { SbAlertComponent } from '../../../components/atoms/sb-alert/sb-alert.component';
+import { SbCheckboxComponent } from '../../../components/atoms/sb-checkbox/sb-checkbox.component';
+import { SbDialogShellComponent } from '../../../components/atoms/sb-dialog-shell/sb-dialog-shell.component';
+import { SbIconButtonComponent } from '../../../components/atoms/sb-icon-button/sb-icon-button.component';
+import { SbInputComponent } from '../../../components/atoms/sb-input/sb-input.component';
+import { SbSelectComponent, SbSelectOption } from '../../../components/atoms/sb-select/sb-select.component';
+import { SbTextareaComponent } from '../../../components/atoms/sb-textarea/sb-textarea.component';
 import {
 	BADGE_METRICS,
 	BADGE_OPERATORS,
@@ -34,21 +35,24 @@ interface RuleRow {
 	selector: 'app-badge-definition-form-dialog',
 	standalone: true,
 	imports: [
-		CommonModule,
 		FormsModule,
-		MatDialogModule,
-		MatButtonModule,
-		MatCheckboxModule,
-		MatFormFieldModule,
-		MatIconModule,
-		MatInputModule,
-		MatSelectModule,
-		TranslatePipe
+		TranslatePipe,
+		SbAlertComponent,
+		SbButtonComponent,
+		SbCheckboxComponent,
+		SbDialogShellComponent,
+		SbIconButtonComponent,
+		SbInputComponent,
+		SbSelectComponent,
+		SbTextareaComponent
 	],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: './badge-definition-form-dialog.component.html',
-	styleUrls: ['./badge-definition-form-dialog.component.scss']
+	styleUrl: './badge-definition-form-dialog.component.scss'
 })
 export class BadgeDefinitionFormDialogComponent {
+	private readonly translate = inject(TranslateService);
+
 	protected readonly metrics = BADGE_METRICS;
 	protected readonly operators = BADGE_OPERATORS;
 	protected readonly categories = Object.values(StrollCategory);
@@ -60,7 +64,17 @@ export class BadgeDefinitionFormDialogComponent {
 	protected description: string;
 	protected active: boolean;
 	protected readonly rules = signal<RuleRow[]>([]);
-	protected formError = '';
+	protected readonly formError = signal('');
+
+	protected readonly metricOptions = computed<SbSelectOption<BadgeMetric>[]>(() =>
+		this.metrics.map((metric) => ({ value: metric, label: this.translate.instant(`SCREENS.ADMIN_BADGE_LIST.METRIC_${metric}`) }))
+	);
+	protected readonly operatorOptions = computed<SbSelectOption<BadgeOperator>[]>(() =>
+		this.operators.map((operator) => ({ value: operator, label: this.translate.instant(`SCREENS.ADMIN_BADGE_LIST.OPERATOR_${operator}`) }))
+	);
+	protected readonly categoryOptions = computed<SbSelectOption<string>[]>(() =>
+		this.categories.map((category) => ({ value: category, label: category }))
+	);
 
 	constructor(
 		private readonly dialogRef: MatDialogRef<BadgeDefinitionFormDialogComponent>,
@@ -103,18 +117,18 @@ export class BadgeDefinitionFormDialogComponent {
 	}
 
 	protected save(): void {
-		this.formError = '';
+		this.formError.set('');
 
 		if (!this.code.trim() || !/^[A-Z0-9_]+$/.test(this.code.trim())) {
-			this.formError = 'SCREENS.ADMIN_BADGE_LIST.FORM_CODE_ERROR';
+			this.formError.set('SCREENS.ADMIN_BADGE_LIST.FORM_CODE_ERROR');
 			return;
 		}
 		if (!this.icon.trim() || !this.title.trim() || !this.description.trim()) {
-			this.formError = 'SCREENS.ADMIN_BADGE_LIST.FORM_REQUIRED_ERROR';
+			this.formError.set('SCREENS.ADMIN_BADGE_LIST.FORM_REQUIRED_ERROR');
 			return;
 		}
 		if (!this.rules().length) {
-			this.formError = 'SCREENS.ADMIN_BADGE_LIST.FORM_RULES_ERROR';
+			this.formError.set('SCREENS.ADMIN_BADGE_LIST.FORM_RULES_ERROR');
 			return;
 		}
 

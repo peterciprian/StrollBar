@@ -30,20 +30,22 @@
 		</div>
 		<div class="stroll-editor-page__feedback">
 			@if (saved) {
-				<p class="stroll-editor-page__saved"><mat-icon>check_circle</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVED' | translate }}</p>
+				<sb-alert tone="success" [message]="'SCREENS.ADMIN_STATION_EDITOR.SAVED' | translate" />
 			}
 			@if (saveError) {
-				<p class="stroll-editor-page__error"><mat-icon>error_outline</mat-icon>{{ saveErrorKey | translate }}</p>
+				<sb-alert tone="danger" [message]="saveErrorKey | translate" />
 			}
 			@if (validationError) {
 				<p class="stroll-editor-page__error">
-					<mat-icon>error_outline</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.VALIDATION_ERROR' | translate }}
+					{{ 'SCREENS.ADMIN_STATION_EDITOR.VALIDATION_ERROR' | translate }}
 				</p>
 			}
-			<button mat-flat-button color="primary" [disabled]="saving" (click)="saveChanges()">
-				<mat-icon>save</mat-icon
-				>{{ (isNewStroll ? 'SCREENS.ADMIN_STATION_EDITOR.CREATE_STROLL' : 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES') | translate }}
-			</button>
+			<sb-button
+				icon="save"
+				[disabled]="saving"
+				[label]="(isNewStroll ? 'SCREENS.ADMIN_STATION_EDITOR.CREATE_STROLL' : 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES') | translate"
+				(clicked)="saveChanges()"
+			/>
 		</div>
 	}
 </div>

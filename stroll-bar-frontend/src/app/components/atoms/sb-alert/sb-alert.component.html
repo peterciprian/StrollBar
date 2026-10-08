@@ -1,0 +1,13 @@
+<sb-icon class="sb-alert__icon" [name]="resolvedIcon()" size="md" />
+<div class="sb-alert__content">
+	@if (title(); as text) {
+		<p class="sb-alert__title">{{ text }}</p>
+	}
+	@if (message(); as text) {
+		<p class="sb-alert__message">{{ text }}</p>
+	}
+	<ng-content />
+</div>
+@if (dismissLabel(); as text) {
+	<sb-icon-button class="sb-alert__dismiss" icon="close" size="sm" [ariaLabel]="text" (clicked)="dismissed.emit()" />
+}

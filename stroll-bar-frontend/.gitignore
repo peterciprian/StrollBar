@@ -4,6 +4,7 @@
 /dist
 /tmp
 /out-tsc
+/test-results/
 *.tsbuildinfo
 /.angular
 /.angular/*

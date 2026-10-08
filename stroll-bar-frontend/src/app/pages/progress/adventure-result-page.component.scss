@@ -1,110 +1,125 @@
+@use 'design' as sb;
+
 .adventure-result {
+	width: 100%;
 	max-width: 760px;
 	margin: 0 auto;
-	padding: 48px 16px;
+	padding: var(--sb-space-8) var(--sb-space-4);
 	text-align: center;
+
+	h1 {
+		margin: var(--sb-space-2) 0;
+		color: var(--sb-color-text);
+		font-size: 40px;
+		line-height: var(--sb-line-height-tight);
+	}
+
+	&__icon {
+		display: grid;
+		place-items: center;
+		width: 72px;
+		height: 72px;
+		margin: 0 auto var(--sb-space-4);
+		border-radius: var(--sb-radius-circle);
+		background: var(--sb-color-warning-container);
+		color: var(--sb-color-warning);
+	}
+
+	&__eyebrow {
+		margin: 0;
+		color: var(--sb-color-primary);
+		font-size: var(--sb-font-size-xs);
+		font-weight: var(--sb-font-weight-bold);
+		text-transform: uppercase;
+	}
+
+	&__congratulations {
+		color: var(--sb-color-text-muted);
+		font-size: var(--sb-font-size-xl);
+	}
+
+	&__stats {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: var(--sb-space-3);
+		margin: var(--sb-space-7) 0;
+
+		> div {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: var(--sb-space-2);
+			padding: var(--sb-space-5) var(--sb-space-3);
+			border: 1px solid var(--sb-color-border);
+			border-radius: var(--sb-radius-sm);
+			background: var(--sb-color-surface-raised);
+		}
+
+		sb-icon {
+			color: var(--sb-color-primary);
+		}
+
+		strong {
+			color: var(--sb-color-text);
+			font-size: var(--sb-font-size-xl);
+		}
+
+		span {
+			color: var(--sb-color-text-muted);
+			font-size: var(--sb-font-size-xs);
+			text-transform: uppercase;
+		}
+	}
+
+	&__error {
+		color: var(--sb-color-danger);
+	}
+
+	&__review {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--sb-space-3);
+		margin: 0 0 var(--sb-space-7);
+		padding: var(--sb-space-6) var(--sb-space-4);
+		border: 1px solid var(--sb-color-border);
+		border-radius: var(--sb-radius-md);
+		background: var(--sb-color-surface-raised);
+
+		h2 {
+			margin: 0;
+			color: var(--sb-color-text);
+			font-size: var(--sb-font-size-xl);
+		}
+	}
+
+	&__review-hint {
+		margin: 0;
+		color: var(--sb-color-text-muted);
+		font-size: var(--sb-font-size-md);
+	}
+
+	&__review-comment {
+		width: 100%;
+		max-width: 480px;
+	}
+
+	&__review-saved {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sb-space-2);
+		margin: 0;
+		color: var(--sb-color-success);
+	}
 }
-.adventure-result__icon {
-	display: grid;
-	place-items: center;
-	width: 72px;
-	height: 72px;
-	margin: 0 auto 16px;
-	border-radius: 50%;
-	background: #fef3c7;
-	color: #b45309;
-}
-.adventure-result__icon mat-icon {
-	font-size: 40px;
-	width: 40px;
-	height: 40px;
-}
-.adventure-result__eyebrow {
-	margin: 0;
-	color: #0e7490;
-	font-size: 12px;
-	font-weight: 800;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-}
-.adventure-result h1 {
-	margin: 8px 0;
-	font-size: clamp(28px, 6vw, 48px);
-	color: #0f172a;
-}
-.adventure-result__congratulations {
-	color: #475569;
-	font-size: 18px;
-}
-.adventure-result__stats {
-	display: grid;
-	grid-template-columns: 1fr;
-	gap: 12px;
-	margin: 32px 0;
-}
-.adventure-result__stats div {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 6px;
-	padding: 20px 12px;
-	border: 1px solid #e2e8f0;
-	border-radius: 8px;
-	background: #fff;
-}
-.adventure-result__stats mat-icon {
-	color: #0e7490;
-}
-.adventure-result__stats strong {
-	font-size: 24px;
-	color: #0f172a;
-}
-.adventure-result__stats span {
-	color: #64748b;
-	font-size: 12px;
-	text-transform: uppercase;
-}
-.adventure-result__error {
-	color: #b91c1c;
-}
-.adventure-result__review {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 12px;
-	margin: 0 0 32px;
-	padding: 24px 16px;
-	border: 1px solid #e2e8f0;
-	border-radius: 12px;
-	background: #fff;
-}
-.adventure-result__review h2 {
-	margin: 0;
-	font-size: 20px;
-	color: #0f172a;
-}
-.adventure-result__review-hint {
-	margin: 0;
-	color: #64748b;
-	font-size: 14px;
-}
-.adventure-result__review-comment {
-	width: 100%;
-	max-width: 480px;
-}
-.adventure-result__review-saved {
-	align-items: center;
-	color: #047857;
-	display: inline-flex;
-	gap: 6px;
-	margin: 0;
-}
-@media (min-width: 600px) {
+
+@include sb.sb-up(sm) {
 	.adventure-result__stats {
 		grid-template-columns: repeat(2, 1fr);
 	}
 }
-@media (min-width: 900px) {
+
+@include sb.sb-up(md) {
 	.adventure-result__stats {
 		grid-template-columns: repeat(4, 1fr);
 	}

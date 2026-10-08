@@ -1,44 +1,47 @@
+@use 'design' as sb;
+
 .stroll-editor-page {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: var(--sb-space-4);
 	min-height: 0;
 }
 .stroll-editor-page__loading {
 	padding: 48px 0;
-	color: #64748b;
+	color: var(--sb-color-text-muted);
 	text-align: center;
 }
 .stroll-editor-page__workspace {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: var(--sb-space-4);
 	min-width: 0;
 }
 .stroll-editor-page__feedback {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--sb-space-2);
 	align-items: stretch;
 }
-.stroll-editor-page__feedback button {
+.stroll-editor-page__feedback sb-button {
 	width: 100%;
 }
 .stroll-editor-page__saved,
 .stroll-editor-page__error {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: var(--sb-space-2);
 	margin: 0;
-	font-weight: 600;
+	font-weight: var(--sb-font-weight-medium);
 }
 .stroll-editor-page__saved {
-	color: #15803d;
+	color: var(--sb-color-success);
 }
 .stroll-editor-page__error {
-	color: #b91c1c;
+	color: var(--sb-color-danger);
 }
-@media (min-width: 900px) {
+
+@include sb.sb-up(md) {
 	.stroll-editor-page__workspace {
 		flex-direction: row;
 		align-items: flex-start;
@@ -51,7 +54,7 @@
 		align-items: center;
 		justify-content: flex-end;
 	}
-	.stroll-editor-page__feedback button {
+	.stroll-editor-page__feedback sb-button {
 		width: auto;
 	}
 }

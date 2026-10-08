@@ -2,21 +2,30 @@ import { Component, ChangeDetectorRef, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AdventuresFeatureService } from '../../features/adventures/adventures-feature.service';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import { AdventureResultResponse } from '../../core/api/models';
 import { formatDuration } from '../../core/utils/duration.util';
-import { StarRatingComponent } from '../../shared/star-rating.component';
+import { SbAlertComponent } from '../../components/atoms/sb-alert/sb-alert.component';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
+import { SbStarRatingComponent } from '../../components/atoms/sb-star-rating/sb-star-rating.component';
+import { SbTextareaComponent } from '../../components/atoms/sb-textarea/sb-textarea.component';
 
 @Component({
 	selector: 'app-adventure-result-page',
 	standalone: true,
-	imports: [CommonModule, FormsModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslatePipe, StarRatingComponent],
+	imports: [
+		CommonModule,
+		FormsModule,
+		TranslatePipe,
+		SbAlertComponent,
+		SbButtonComponent,
+		SbIconComponent,
+		SbStarRatingComponent,
+		SbTextareaComponent
+	],
 	templateUrl: './adventure-result-page.component.html',
 	styleUrls: ['./adventure-result-page.component.scss']
 })

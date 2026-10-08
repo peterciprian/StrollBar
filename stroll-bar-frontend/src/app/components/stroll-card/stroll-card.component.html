@@ -1,20 +1,26 @@
 @if (stroll; as t) {
-	<mat-card class="stroll-card" [class.selected]="selected" (click)="cardClick.emit()">
-		<div class="stroll-card__cover" [style.background-image]="t.mediaUrls?.imageUrls?.[0] ? null : 'linear-gradient(135deg, #155e75, #0f172a)'">
+	<sb-card class="stroll-card" padding="none" [selected]="selected" [clickable]="true" (activated)="cardClick.emit()">
+		<div
+			sbCardMedia
+			class="stroll-card__cover"
+			[style.background-image]="
+				t.mediaUrls?.imageUrls?.[0] ? null : 'linear-gradient(135deg, var(--sb-color-brand-deep), var(--sb-color-brand-dark))'
+			"
+		>
 			@if (t.mediaUrls?.imageUrls?.[0]; as imageUrl) {
 				<img [src]="imageUrl" alt="" />
 			}
 			@if (t.publicityFlag === 'private') {
-				<span class="stroll-card__private"><mat-icon>lock</mat-icon>{{ 'SCREENS.STROLL_BROWSER.PRIVATE' | translate }}</span>
+				<sb-badge class="stroll-card__private" icon="lock" [label]="'SCREENS.STROLL_BROWSER.PRIVATE' | translate" />
 			}
 			@if (t.category; as category) {
 				<span class="stroll-card__category">{{ categoryLabelKey(category) | translate }}</span>
 			}
 		</div>
-		<mat-card-content>
+		<div class="stroll-card__content">
 			<h3 class="stroll-card__title">{{ t.name }}</h3>
 			<div class="stroll-card__rating">
-				<app-star-rating [value]="t.ratingAverage" [readonly]="true"></app-star-rating>
+				<sb-star-rating [value]="t.ratingAverage" [readonly]="true" />
 				@if (t.ratingCount) {
 					<span>{{ t.ratingAverage | number: '1.1-1' }} ({{ t.ratingCount }})</span>
 				} @else {
@@ -23,13 +29,15 @@
 			</div>
 			<div class="stroll-card__meta">
 				<span class="stroll-card__meta-item"
-					><mat-icon>straighten</mat-icon>{{ t.length | number: '1.1-2' }} {{ 'COMMON.KM_SUFFIX' | translate }}</span
+					><sb-icon name="straighten" size="sm" />{{ t.length | number: '1.1-2' }} {{ 'COMMON.KM_SUFFIX' | translate }}</span
 				>
-				<span class="stroll-card__meta-item"><mat-icon>place</mat-icon>{{ t.stageCount }} {{ 'COMMON.STATIONS_SUFFIX' | translate }}</span>
+				<span class="stroll-card__meta-item"
+					><sb-icon name="place" size="sm" />{{ t.stageCount }} {{ 'COMMON.STATIONS_SUFFIX' | translate }}</span
+				>
 				<span class="stroll-card__meta-item stroll-card__price"
-					><mat-icon>sell</mat-icon>{{ t.price?.amount ?? 0 | number }} {{ t.price?.currency ?? 'HUF' }}</span
+					><sb-icon name="sell" size="sm" />{{ t.price?.amount ?? 0 | number }} {{ t.price?.currency ?? 'HUF' }}</span
 				>
 			</div>
-		</mat-card-content>
-	</mat-card>
+		</div>
+	</sb-card>
 }

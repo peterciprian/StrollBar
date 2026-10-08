@@ -1,0 +1,7 @@
+@if (showImage()) {
+	<img class="sb-avatar__image" [src]="src()" [alt]="name() ?? ''" loading="lazy" (error)="onImageError()" />
+} @else if (initials()) {
+	<span class="sb-avatar__initials" aria-hidden="true">{{ initials() }}</span>
+} @else {
+	<sb-icon name="person" [size]="size()" />
+}

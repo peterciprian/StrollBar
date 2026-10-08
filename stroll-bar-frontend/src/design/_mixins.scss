@@ -1,0 +1,87 @@
+// Reusable style fragments built on the design tokens.
+@use 'breakpoints' as bp;
+
+// Elevated panel surface used by cards, tables, dialogs and editor sections.
+@mixin sb-surface($radius: var(--sb-radius-lg), $shadow: var(--sb-shadow-2)) {
+	background: var(--sb-color-surface-raised);
+	border: 1px solid var(--sb-color-border);
+	border-radius: #{$radius};
+	box-shadow: #{$shadow};
+}
+
+// Subtle lift on hover. Disabled for reduced-motion users.
+@mixin sb-elevated-hover($lift: 2px) {
+	transition:
+		transform var(--sb-transition-base),
+		box-shadow var(--sb-transition-base);
+
+	&:hover {
+		transform: translateY(-#{$lift});
+		box-shadow: var(--sb-shadow-3);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+
+		&:hover {
+			transform: none;
+		}
+	}
+}
+
+@mixin sb-focus-ring {
+	outline: none;
+	box-shadow: var(--sb-shadow-focus);
+}
+
+@mixin sb-focus-visible {
+	&:focus-visible {
+		@include sb-focus-ring;
+	}
+}
+
+@mixin sb-truncate($lines: 1) {
+	@if $lines == 1 {
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	} @else {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: $lines;
+		line-clamp: $lines;
+		overflow: hidden;
+	}
+}
+
+// Centred page container with responsive inline padding.
+@mixin sb-container($max: var(--sb-container-max)) {
+	width: 100%;
+	max-width: #{$max};
+	margin-inline: auto;
+	padding-inline: var(--sb-space-4);
+
+	@include bp.sb-up(md) {
+		padding-inline: var(--sb-space-6);
+	}
+}
+
+// Responsive auto-fill grid used by card/tile listings.
+@mixin sb-auto-grid($min: 260px, $gap: var(--sb-space-4)) {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(#{$min}, 1fr));
+	gap: #{$gap};
+}
+
+@mixin sb-visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}

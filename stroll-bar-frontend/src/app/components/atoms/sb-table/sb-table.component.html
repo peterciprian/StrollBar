@@ -1,0 +1,72 @@
+<sb-loading-state
+	[state]="state()"
+	[loadingText]="loadingText()"
+	[errorTitle]="errorTitle()"
+	[errorDescription]="errorDescription()"
+	[emptyTitle]="emptyTitle()"
+	[emptyDescription]="emptyDescription()"
+	[retryLabel]="retryLabel()"
+	(retried)="retried.emit()"
+>
+	<div class="sb-table__scroll">
+		<table class="sb-table__table">
+			@if (caption(); as text) {
+				<caption class="sb-table__caption">
+					{{
+						text
+					}}
+				</caption>
+			}
+			<thead class="sb-table__head">
+				<tr>
+					@for (column of columns(); track column.key) {
+						<th
+							scope="col"
+							class="sb-table__th"
+							[attr.data-align]="column.align ?? 'start'"
+							[attr.data-hide-below]="column.hideBelow ?? null"
+							[attr.aria-sort]="ariaSort(column)"
+							[style.width]="column.width"
+						>
+							@if (column.sortable) {
+								<button type="button" class="sb-table__sort" (click)="toggleSort(column)">
+									<span>{{ column.header }}</span>
+									<sb-icon [name]="sortIcon(column)" size="sm" />
+								</button>
+							} @else {
+								{{ column.header }}
+							}
+						</th>
+					}
+				</tr>
+			</thead>
+			<tbody class="sb-table__body">
+				@for (row of rows(); track $index; let rowIndex = $index) {
+					<tr
+						class="sb-table__row"
+						[class.sb-table__row--clickable]="rowClickable()"
+						[attr.tabindex]="rowClickable() ? 0 : null"
+						(click)="onRowClick(row)"
+						(dblclick)="onRowDoubleClick(row, $event)"
+						(keydown.enter)="onRowClick(row)"
+					>
+						@for (column of columns(); track column.key) {
+							<td
+								class="sb-table__td"
+								[attr.data-align]="column.align ?? 'start'"
+								[attr.data-hide-below]="column.hideBelow ?? null"
+								[attr.data-label]="column.header"
+							>
+								@if (templateFor(column.key); as tpl) {
+									<ng-container *ngTemplateOutlet="tpl; context: { $implicit: row, index: rowIndex }" />
+								} @else {
+									{{ cellText(column, row, rowIndex) }}
+								}
+							</td>
+						}
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</sb-loading-state>

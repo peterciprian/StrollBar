@@ -2,11 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, Inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbDialogShellComponent } from '../../components/atoms/sb-dialog-shell/sb-dialog-shell.component';
+import { SbTextareaComponent } from '../../components/atoms/sb-textarea/sb-textarea.component';
 
 export interface ReportProblemDialogData {
 	strollName: string;
@@ -17,7 +16,7 @@ export const REPORT_PROBLEM_MAX_LENGTH = 300;
 @Component({
 	selector: 'app-report-problem-dialog',
 	standalone: true,
-	imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslatePipe],
+	imports: [CommonModule, FormsModule, MatDialogModule, TranslatePipe, SbButtonComponent, SbDialogShellComponent, SbTextareaComponent],
 	templateUrl: './report-problem-dialog.component.html',
 	styleUrls: ['./report-problem-dialog.component.scss']
 })

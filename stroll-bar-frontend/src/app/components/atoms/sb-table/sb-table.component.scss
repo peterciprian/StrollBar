@@ -1,0 +1,137 @@
+@use 'design' as sb;
+
+:host {
+	display: block;
+	width: 100%;
+	min-width: 0;
+	overflow: hidden;
+	@include sb.sb-surface(var(--sb-radius-md), var(--sb-shadow-1));
+}
+
+.sb-table__scroll {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.sb-table__table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: var(--sb-font-size-md);
+	color: var(--sb-color-text);
+}
+
+.sb-table__caption {
+	padding: var(--sb-space-3) var(--sb-space-4);
+	font-size: var(--sb-font-size-sm);
+	color: var(--sb-color-text-muted);
+	text-align: start;
+}
+
+.sb-table__th {
+	position: sticky;
+	top: 0;
+	z-index: var(--sb-z-sticky);
+	padding: var(--sb-space-3) var(--sb-space-4);
+	background: var(--sb-color-surface-sunken);
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-sm);
+	font-weight: var(--sb-font-weight-medium);
+	text-align: start;
+	white-space: nowrap;
+	border-bottom: 1px solid var(--sb-color-border);
+}
+
+.sb-table__td {
+	padding: var(--sb-space-3) var(--sb-space-4);
+	border-bottom: 1px solid var(--sb-color-border);
+	vertical-align: middle;
+	max-width: 250px;
+}
+
+.sb-table__row:last-child .sb-table__td {
+	border-bottom: 0;
+}
+
+.sb-table__row--clickable {
+	cursor: pointer;
+
+	&:hover,
+	&:focus-visible {
+		background: var(--sb-color-surface-hover);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--sb-color-primary);
+		outline-offset: -2px;
+	}
+}
+
+.sb-table__sort {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sb-space-1);
+	padding: 0;
+	color: inherit;
+	font: inherit;
+	background: none;
+	border: 0;
+	cursor: pointer;
+
+	@include sb.sb-focus-visible;
+}
+
+[data-align='center'] {
+	text-align: center;
+}
+
+[data-align='end'] {
+	text-align: end;
+}
+
+@include sb.sb-down(sm) {
+	[data-hide-below='sm'] {
+		display: none;
+	}
+}
+
+@include sb.sb-down(md) {
+	[data-hide-below='md'] {
+		display: none;
+	}
+}
+
+// Card mode: each row becomes a stacked block with the header rendered as a label.
+@include sb.sb-down(sm) {
+	:host(.sb-table--cards-on-mobile) {
+		border: 0;
+		background: transparent;
+		box-shadow: var(--sb-shadow-0);
+
+		.sb-table__head {
+			@include sb.sb-visually-hidden;
+		}
+
+		.sb-table__row {
+			display: block;
+			margin-bottom: var(--sb-space-3);
+			@include sb.sb-surface(var(--sb-radius-md), var(--sb-shadow-1));
+		}
+
+		.sb-table__td {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: var(--sb-space-3);
+			text-align: end;
+
+			&::before {
+				content: attr(data-label);
+				flex: 0 0 auto;
+				color: var(--sb-color-text-muted);
+				font-size: var(--sb-font-size-sm);
+				text-align: start;
+			}
+		}
+	}
+}

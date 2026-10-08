@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
 import { MediaUploadControlComponent } from './media-upload-control.component';
+import { SbIconButtonComponent } from '../../components/atoms/sb-icon-button/sb-icon-button.component';
 
 export type MediaKind = 'image' | 'video';
 export interface MediaChange {
@@ -16,7 +16,7 @@ export interface MediaChange {
 @Component({
 	selector: 'app-media-manager',
 	standalone: true,
-	imports: [CommonModule, MatButtonModule, MatIconModule, MediaUploadControlComponent],
+	imports: [CommonModule, TranslatePipe, MediaUploadControlComponent, SbIconButtonComponent],
 	templateUrl: './media-manager.component.html',
 	styleUrls: ['./media-manager.component.scss']
 })

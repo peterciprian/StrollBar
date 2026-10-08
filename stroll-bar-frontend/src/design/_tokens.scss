@@ -1,0 +1,134 @@
+// Design tokens. Single source of truth for colour, spacing, radius, shadow and motion.
+// Component styles must reference these variables instead of hard-coded values.
+
+:root {
+	// Brand / semantic colours, mapped onto Material system variables where possible.
+	--sb-color-primary: var(--mat-sys-primary, #0891b2);
+	--sb-color-on-primary: var(--mat-sys-on-primary, #ffffff);
+	--sb-color-accent: #fbbf24;
+	--sb-color-on-accent: var(--mat-sys-on-tertiary, #1f2937);
+	--sb-color-brand-bright: #0891b2;
+	--sb-color-brand-deep: #155e75;
+	--sb-color-brand-dark: #0f172a;
+
+	--sb-color-success: #16a34a;
+	--sb-color-on-success: #ffffff;
+	--sb-color-success-container: #dcfce7;
+	--sb-color-on-success-container: #14532d;
+
+	--sb-color-warning: #d97706;
+	--sb-color-on-warning: #ffffff;
+	--sb-color-warning-container: #fef3c7;
+	--sb-color-on-warning-container: #78350f;
+	--sb-color-light-warning: #fbbf24;
+
+	--sb-color-danger: var(--mat-sys-error, #dc2626);
+	--sb-color-on-danger: var(--mat-sys-on-error, #ffffff);
+	--sb-color-danger-container: var(--mat-sys-error-container, #fee2e2);
+	--sb-color-on-danger-container: var(--mat-sys-on-error-container, #7f1d1d);
+
+	--sb-color-info: #2563eb;
+	--sb-color-on-info: #ffffff;
+	--sb-color-info-container: #dbeafe;
+	--sb-color-on-info-container: #1e3a8a;
+
+	// Surfaces and text.
+	--sb-color-surface: var(--mat-sys-surface, #f8fafc);
+	--sb-color-surface-raised: var(--mat-sys-surface-container-lowest, #ffffff);
+	--sb-color-surface-sunken: var(--mat-sys-surface-container, #f1f5f9);
+	--sb-color-surface-hover: rgba(15, 23, 42, 0.04);
+	--sb-color-text: var(--mat-sys-on-surface, #0f172a);
+	--sb-color-text-muted: var(--mat-sys-on-surface-variant, #64748b);
+	--sb-color-text-inverse: #ffffff;
+	--sb-color-border: var(--mat-sys-outline-variant, #e2e8f0);
+	--sb-color-border-strong: var(--mat-sys-outline, #cbd5e1);
+	--sb-color-overlay: rgba(15, 23, 42, 0.55);
+
+	// Spacing scale (4px base).
+	--sb-space-0: 0;
+	--sb-space-1: 4px;
+	--sb-space-2: 8px;
+	--sb-space-3: 12px;
+	--sb-space-4: 16px;
+	--sb-space-5: 20px;
+	--sb-space-6: 24px;
+	--sb-space-7: 32px;
+	--sb-space-8: 40px;
+	--sb-space-9: 56px;
+	--sb-space-card-block: 28px;
+
+	// Radii.
+	--sb-radius-xs: 6px;
+	--sb-radius-sm: 8px;
+	--sb-radius-md: 12px;
+	--sb-radius-lg: 16px;
+	--sb-radius-xl: 20px;
+	--sb-radius-pill: 999px;
+	--sb-radius-circle: 50%;
+
+	// Elevation.
+	--sb-shadow-0: none;
+	--sb-shadow-1: 0 1px 2px rgba(15, 23, 42, 0.06);
+	--sb-shadow-2: 0 4px 16px rgba(15, 23, 42, 0.08);
+	--sb-shadow-3: 0 12px 32px rgba(15, 23, 42, 0.12);
+	--sb-shadow-focus: 0 0 0 3px rgba(8, 145, 178, 0.35);
+
+	// Typography.
+	--sb-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	--sb-font-size-xs: 11px;
+	--sb-font-size-sm: 13px;
+	--sb-font-size-md: 14px;
+	--sb-font-size-lg: 16px;
+	--sb-font-size-xl: 20px;
+	--sb-font-size-2xl: 28px;
+	--sb-font-weight-regular: 400;
+	--sb-font-weight-medium: 600;
+	--sb-font-weight-bold: 700;
+	--sb-line-height-tight: 1.15;
+	--sb-line-height-base: 1.5;
+
+	// Control sizing, shared by buttons and form fields so they line up in a row.
+	--sb-control-height-sm: 32px;
+	--sb-control-height-md: 40px;
+	--sb-control-height-lg: 48px;
+
+	// Icon sizing.
+	--sb-icon-size-sm: 16px;
+	--sb-icon-size-md: 20px;
+	--sb-icon-size-lg: 24px;
+	--sb-icon-size-xl: 40px;
+	--sb-icon-size-display: 32px;
+
+	// Motion.
+	--sb-transition-fast: 120ms ease;
+	--sb-transition-base: 200ms ease;
+
+	// Layout.
+	--sb-container-max: 1280px;
+
+	// Stacking order.
+	--sb-z-sticky: 10;
+	--sb-z-overlay: 100;
+	--sb-z-toast: 200;
+}
+
+html.dark-theme {
+	--sb-color-success-container: #14532d;
+	--sb-color-on-success-container: #bbf7d0;
+	--sb-color-warning-container: #78350f;
+	--sb-color-on-warning-container: #fde68a;
+	--sb-color-danger-container: #7f1d1d;
+	--sb-color-on-danger-container: #fecaca;
+	--sb-color-info-container: #1e3a8a;
+	--sb-color-on-info-container: #bfdbfe;
+
+	--sb-color-surface-raised: #1f2937;
+	--sb-color-surface-sunken: #273548;
+	--sb-color-surface-hover: rgba(255, 255, 255, 0.06);
+	--sb-color-overlay: rgba(0, 0, 0, 0.66);
+
+	--sb-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
+	--sb-shadow-2: 0 4px 16px rgba(0, 0, 0, 0.32);
+	--sb-shadow-3: 0 12px 32px rgba(0, 0, 0, 0.42);
+	--sb-shadow-focus: 0 0 0 3px rgba(197, 138, 74, 0.35);
+}

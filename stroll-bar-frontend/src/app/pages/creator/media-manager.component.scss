@@ -1,23 +1,25 @@
+@use 'design' as sb;
+
 .media-manager {
 	&__grid {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-		gap: 10px;
-		margin: 8px 0 12px;
+		gap: var(--sb-space-3);
+		margin: var(--sb-space-2) 0 var(--sb-space-3);
 	}
 	&__item {
 		min-width: 0;
-		border: 1px solid #e2e8f0;
-		border-radius: 8px;
+		border: 1px solid var(--sb-color-border);
+		border-radius: var(--sb-radius-sm);
 		overflow: hidden;
-		background: #f8fafc;
+		background: var(--sb-color-surface-sunken);
 		img,
 		video {
 			display: block;
 			width: 100%;
 			height: 100px;
 			object-fit: cover;
-			background: #0f172a;
+			background: var(--sb-color-text);
 		}
 	}
 	&__actions {

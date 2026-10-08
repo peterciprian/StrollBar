@@ -1,3 +1,5 @@
+@use 'design' as sb;
+
 .settings-page__full {
 	width: 100%;
 	max-width: 100%;
@@ -7,70 +9,40 @@
 .settings-page__static-field {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	margin-bottom: 20px;
+	align-items: flex-start;
+	gap: var(--sb-space-1);
+	margin-bottom: var(--sb-space-5);
 }
 
 .settings-page__static-field-label {
-	font-size: 12px;
-	color: #64748b;
+	font-size: var(--sb-font-size-xs);
+	color: var(--sb-color-text-muted);
 }
 
 .settings-page__static-field-value {
-	font-size: 16px;
-	color: #0f172a;
-}
-
-.settings-page__badge {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
-	width: fit-content;
-	font-size: 12px;
-	font-weight: 600;
-
-	mat-icon {
-		font-size: 16px;
-		width: 16px;
-		height: 16px;
-	}
-
-	&--verified {
-		color: #16a34a;
-	}
-
-	&--unverified {
-		color: #d97706;
-	}
+	font-size: var(--sb-font-size-lg);
+	color: var(--sb-color-text);
 }
 
 .settings-page__resend-button {
 	width: fit-content;
-	padding: 0;
-	min-width: 0;
-}
-
-h1 {
-	margin: 0 0 20px;
-	font-size: 22px;
-	font-weight: 700;
 }
 
 .settings-page__subheading {
-	margin: 28px 0 16px;
-	font-size: 16px;
-	font-weight: 700;
+	margin: var(--sb-space-7) 0 var(--sb-space-4);
+	font-size: var(--sb-font-size-lg);
+	font-weight: var(--sb-font-weight-bold);
 }
 
 .settings-page__profile-card {
 	display: flex;
 	align-items: flex-start;
 	flex-direction: column;
-	gap: 16px;
-	margin-bottom: 24px;
+	gap: var(--sb-space-4);
+	margin-bottom: var(--sb-space-6);
 
 	h2 {
-		margin: 0 0 4px;
+		margin: 0 0 var(--sb-space-1);
 	}
 
 	p {
@@ -78,35 +50,12 @@ h1 {
 	}
 }
 
-.settings-page__avatar {
-	width: 64px;
-	height: 64px;
-	border-radius: 50%;
-	background: #f1f5f9;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	mat-icon {
-		font-size: 40px;
-		width: 40px;
-		height: 40px;
-		color: #94a3b8;
-	}
-}
-
 .settings-page__muted {
-	color: #64748b;
-	font-size: 12px;
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-xs);
 }
 
-.settings-page__error {
-	color: #dc2626;
-	font-size: 13px;
-	margin: -8px 0 12px;
-}
-
-@media (min-width: 600px) {
+@include sb.sb-up(sm) {
 	.settings-page__full {
 		max-width: 420px;
 	}

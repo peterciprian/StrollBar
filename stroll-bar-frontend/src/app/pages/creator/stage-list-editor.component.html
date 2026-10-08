@@ -8,20 +8,21 @@
 				cdkDrag
 				(click)="stageSelected.emit(stage.id)"
 			>
-				<mat-icon cdkDragHandle>drag_indicator</mat-icon
+				<sb-icon cdkDragHandle name="drag_indicator" size="md" />
 				><span>{{ 'SCREENS.ADMIN_STATION_EDITOR.STATION_ITEM' | translate: { index: i + 1, title: stage.name } }}</span
-				><button type="button" mat-icon-button (click)="$event.stopPropagation(); stageDeleted.emit(stage)">
-					<mat-icon>delete</mat-icon>
-				</button>
+				><sb-icon-button
+					icon="delete"
+					tone="danger"
+					[ariaLabel]="'COMMON.DELETE' | translate"
+					(click)="$event.stopPropagation()"
+					(clicked)="stageDeleted.emit(stage)"
+				/>
 			</div>
 		}
 		@if (!stages.length) {
 			<p>{{ 'SCREENS.ADMIN_STATION_EDITOR.EMPTY_STATIONS' | translate }}</p>
 		}
 	</div>
-	<button mat-stroked-button (click)="stageAdded.emit()">
-		<mat-icon>add</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.ADD_STATION' | translate }}</button
-	><button mat-flat-button color="primary" [disabled]="saving" (click)="saveRequested.emit()">
-		<mat-icon>save</mat-icon>{{ 'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES' | translate }}
-	</button>
+	<sb-button variant="secondary" icon="add" [label]="'SCREENS.ADMIN_STATION_EDITOR.ADD_STATION' | translate" (clicked)="stageAdded.emit()" />
+	<sb-button icon="save" [label]="'SCREENS.ADMIN_STATION_EDITOR.SAVE_CHANGES' | translate" [disabled]="saving" (clicked)="saveRequested.emit()" />
 </div>

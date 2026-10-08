@@ -1,0 +1,53 @@
+:host {
+	display: block;
+	width: 100%;
+}
+
+.sb-progress-bar__head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: var(--sb-space-2);
+	margin-bottom: var(--sb-space-1);
+	font-size: var(--sb-font-size-sm);
+	color: var(--sb-color-text-muted);
+}
+
+.sb-progress-bar__value {
+	font-weight: var(--sb-font-weight-medium);
+	color: var(--sb-color-text);
+}
+
+.sb-progress-bar__track {
+	--mat-progress-bar-active-indicator-color: var(--sb-progress-color);
+	--mat-progress-bar-track-color: var(--sb-color-surface-sunken);
+	--mat-progress-bar-track-shape: var(--sb-radius-pill);
+	--mat-progress-bar-active-indicator-height: 8px;
+	--mat-progress-bar-track-height: 8px;
+	border-radius: var(--sb-radius-pill);
+	overflow: hidden;
+}
+
+:host([data-tone='neutral']) {
+	--sb-progress-color: var(--sb-color-text-muted);
+}
+
+:host([data-tone='primary']) {
+	--sb-progress-color: var(--sb-color-primary);
+}
+
+:host([data-tone='success']) {
+	--sb-progress-color: var(--sb-color-success);
+}
+
+:host([data-tone='warning']) {
+	--sb-progress-color: var(--sb-color-warning);
+}
+
+:host([data-tone='danger']) {
+	--sb-progress-color: var(--sb-color-danger);
+}
+
+:host([data-tone='info']) {
+	--sb-progress-color: var(--sb-color-info);
+}

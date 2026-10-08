@@ -1,0 +1,6 @@
+<sb-icon class="sb-empty-state__icon" [name]="icon()" size="xl" />
+<p class="sb-empty-state__title">{{ title() }}</p>
+@if (description(); as text) {
+	<p class="sb-empty-state__description">{{ text }}</p>
+}
+<div class="sb-empty-state__actions"><ng-content /></div>

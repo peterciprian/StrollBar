@@ -3,7 +3,7 @@
 		<span class="stage-card__badge"
 			>{{ index !== null ? index : '' }}
 			@if (index === null) {
-				<mat-icon>place</mat-icon>
+				<sb-icon name="place" size="sm" />
 			}
 		</span>
 		@if (!last) {
@@ -13,7 +13,7 @@
 	<div class="stage-card__body">
 		<h2>{{ title }}</h2>
 		@if (address) {
-			<p class="stage-card__address"><mat-icon>near_me</mat-icon>{{ address }}</p>
+			<p class="stage-card__address"><sb-icon name="near_me" size="sm" />{{ address }}</p>
 		}
 		@if (description) {
 			<p class="stage-card__description">{{ description }}</p>

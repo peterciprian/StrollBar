@@ -1,0 +1,14 @@
+@use 'design' as sb;
+
+@include sb.sb-form-field;
+
+mat-form-field {
+	--mat-select-trigger-text-size: var(--sb-font-size-md);
+	--mat-select-enabled-trigger-text-color: var(--sb-color-text);
+	--mat-select-enabled-arrow-color: var(--sb-color-text-muted);
+}
+
+.sb-select__option-icon {
+	margin-inline-end: var(--sb-space-2);
+	color: var(--sb-color-text-muted);
+}

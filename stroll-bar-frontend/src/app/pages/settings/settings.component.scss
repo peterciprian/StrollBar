@@ -1,19 +1,20 @@
+@use 'design' as sb;
+
 .settings-page {
-	gap: 16px;
+	gap: var(--sb-space-4);
 	min-height: 0;
 
 	&__nav {
 		flex: none;
-		background: #fff;
-		border-radius: 16px;
-		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-		padding: 16px 8px;
+		padding: var(--sb-space-4) var(--sb-space-2);
 		box-sizing: border-box;
 		height: fit-content;
+		@include sb.sb-surface(var(--sb-radius-lg), var(--sb-shadow-2));
+
 		mat-nav-list {
 			display: flex;
 			overflow-x: auto;
-			padding: 0 4px;
+			padding: 0 var(--sb-space-1);
 			scrollbar-width: none;
 
 			&::-webkit-scrollbar {
@@ -23,57 +24,59 @@
 	}
 
 	&__nav-title {
-		margin: 8px 12px 4px;
-		font-size: 13px;
-		font-weight: 700;
+		margin: var(--sb-space-2) var(--sb-space-3) var(--sb-space-1);
+		font-size: var(--sb-font-size-xs);
+		font-weight: var(--sb-font-weight-bold);
 		text-transform: uppercase;
 		letter-spacing: 0.5px;
-		color: #64748b;
+		color: var(--sb-color-text-muted);
 	}
 
 	&__nav-item {
 		cursor: pointer;
-		border-radius: 12px;
+		border-radius: var(--sb-radius-md);
 		flex: 0 0 auto;
 
 		&--active {
-			background: #ecfeff;
-			color: var(--mat-sys-primary, #0891b2);
-			font-weight: 700;
+			background: transparent;
+			color: var(--sb-color-primary);
+			border: 1px solid var(--sb-color-border-strong);
+			box-shadow: var(--sb-shadow-1);
+			font-weight: var(--sb-font-weight-bold);
+			--mat-list-list-item-label-text-color: var(--sb-color-primary);
+			--mat-list-list-item-leading-icon-color: var(--sb-color-primary);
 		}
 	}
 
 	&__content {
 		flex: 1;
 		min-width: 0;
-		background: #fff;
-		border-radius: 16px;
-		box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-		padding: 16px;
+		padding: var(--sb-space-4);
 		box-sizing: border-box;
+		@include sb.sb-surface(var(--sb-radius-lg), var(--sb-shadow-2));
 	}
 }
 
-@media (min-width: 900px) {
+@include sb.sb-up(md) {
 	.settings-page {
 		flex-direction: row;
-		gap: 24px;
+		gap: var(--sb-space-6);
 		min-height: calc(100vh - 220px);
 
 		&__nav {
 			flex: 0 0 260px;
-			border-radius: 20px;
+			border-radius: var(--sb-radius-xl);
 
 			mat-nav-list {
 				display: block;
 				overflow-x: visible;
-				padding: 8px 0;
+				padding: var(--sb-space-2) 0;
 			}
 		}
 
 		&__content {
-			border-radius: 20px;
-			padding: 24px;
+			border-radius: var(--sb-radius-xl);
+			padding: var(--sb-space-6);
 		}
 	}
 }

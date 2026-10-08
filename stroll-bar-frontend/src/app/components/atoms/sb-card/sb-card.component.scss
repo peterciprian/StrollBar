@@ -1,0 +1,77 @@
+@use 'design' as sb;
+
+:host {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	overflow: hidden;
+	@include sb.sb-surface;
+}
+
+:host(.sb-card--flat) {
+	box-shadow: var(--sb-shadow-0);
+}
+
+:host(.sb-card--clickable) {
+	cursor: pointer;
+	@include sb.sb-elevated-hover;
+
+	&:focus-visible {
+		@include sb.sb-focus-ring;
+	}
+}
+
+:host(.sb-card--selected) {
+	border-color: var(--sb-color-primary);
+}
+
+// Slots collapse when nothing is projected into them.
+.sb-card__media:empty,
+.sb-card__header:empty,
+.sb-card__body:empty,
+.sb-card__footer:empty {
+	display: none;
+}
+
+.sb-card__media {
+	margin: calc(-1 * var(--sb-card-padding)) calc(-1 * var(--sb-card-padding)) 0;
+}
+
+.sb-card__header,
+.sb-card__body,
+.sb-card__footer {
+	min-width: 0;
+	padding: var(--sb-card-padding);
+}
+
+.sb-card__header {
+	padding-bottom: 0;
+}
+
+.sb-card__body {
+	flex: 1 1 auto;
+}
+
+.sb-card__footer {
+	display: flex;
+	align-items: center;
+	gap: var(--sb-space-2);
+	flex-wrap: wrap;
+	padding-top: 0;
+}
+
+:host([data-padding='none']) {
+	--sb-card-padding: 0;
+}
+
+:host([data-padding='sm']) {
+	--sb-card-padding: var(--sb-space-3);
+}
+
+:host([data-padding='md']) {
+	--sb-card-padding: var(--sb-space-4);
+}
+
+:host([data-padding='lg']) {
+	--sb-card-padding: var(--sb-space-6);
+}

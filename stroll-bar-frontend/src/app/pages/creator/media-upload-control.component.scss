@@ -1,23 +1,25 @@
+@use 'design' as sb;
+
 .media-upload {
 	display: block;
 	cursor: pointer;
-	border: 2px dashed #cbd5e1;
-	border-radius: 12px;
+	border: 2px dashed var(--sb-color-border-strong);
+	border-radius: var(--sb-radius-md);
 	padding: 14px;
 	text-align: center;
-	color: #64748b;
-	margin: 8px 0 0;
+	color: var(--sb-color-text-muted);
+	margin: var(--sb-space-2) 0 0;
 
 	mat-icon {
 		font-size: 28px;
 		width: 28px;
 		height: 28px;
-		color: #94a3b8;
+		color: var(--sb-color-text-muted);
 	}
 
 	p {
 		margin: 6px 0 0;
-		font-size: 13px;
+		font-size: var(--sb-font-size-sm);
 	}
 	&--locked {
 		cursor: not-allowed;

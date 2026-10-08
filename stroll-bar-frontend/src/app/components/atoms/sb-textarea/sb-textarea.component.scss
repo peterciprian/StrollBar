@@ -1,0 +1,8 @@
+@use 'design' as sb;
+
+@include sb.sb-form-field;
+
+textarea {
+	resize: vertical;
+	line-height: var(--sb-line-height-base);
+}

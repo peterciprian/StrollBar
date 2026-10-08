@@ -1,0 +1,34 @@
+// Shared look for every form atom so inputs, selects and textareas stay visually identical.
+@mixin sb-form-field {
+	:host {
+		display: block;
+		width: 100%;
+	}
+
+	.sb-form-field,
+	> :first-child {
+		width: 100%;
+	}
+
+	mat-form-field {
+		width: 100%;
+
+		--mat-form-field-outlined-outline-color: var(--sb-color-border-strong);
+		--mat-form-field-outlined-hover-outline-color: var(--sb-color-primary);
+		--mat-form-field-outlined-focus-outline-color: var(--sb-color-primary);
+		--mat-form-field-outlined-container-shape: var(--sb-radius-sm);
+		--mat-form-field-outlined-label-text-color: var(--sb-color-text-muted);
+		--mat-form-field-outlined-input-text-color: var(--sb-color-text);
+		--mat-form-field-outlined-error-outline-color: var(--sb-color-danger);
+		--mat-form-field-outlined-error-label-text-color: var(--sb-color-danger);
+		--mat-form-field-outlined-caret-color: var(--sb-color-primary);
+		--mat-form-field-subscript-text-size: var(--sb-font-size-xs);
+	}
+
+	.sb-form-control__error {
+		margin: calc(-1 * var(--sb-space-2)) 0 var(--sb-space-3);
+		color: var(--sb-color-danger);
+		font-size: var(--sb-font-size-xs);
+		line-height: var(--sb-line-height-base);
+	}
+}

@@ -1,13 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { CommonModule, UpperCasePipe } from '@angular/common';
+import { DatePipe, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { firstValueFrom } from 'rxjs';
 
@@ -15,11 +11,37 @@ import { BulkImportStrollRequest, Stroll } from '../../core/api/models';
 import { selectEmailVerified, selectIsAdmin } from '../../features/auth/auth.state';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import { ConfirmDeleteDialogComponent } from '../../shared/confirm-delete-dialog.component';
+import { SbTone } from '../../components/atoms/atom.types';
+import { SbAlertComponent } from '../../components/atoms/sb-alert/sb-alert.component';
+import { SbBadgeComponent } from '../../components/atoms/sb-badge/sb-badge.component';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbIconButtonComponent } from '../../components/atoms/sb-icon-button/sb-icon-button.component';
+import { SbPageHeaderComponent } from '../../components/atoms/sb-page-header/sb-page-header.component';
+import { SbStatGridComponent } from '../../components/atoms/sb-stat-grid/sb-stat-grid.component';
+import { SbCellDirective } from '../../components/atoms/sb-table/sb-cell.directive';
+import { SbTableComponent } from '../../components/atoms/sb-table/sb-table.component';
+import { SbTableColumn } from '../../components/atoms/sb-table/sb-table.models';
+import { SbTextareaComponent } from '../../components/atoms/sb-textarea/sb-textarea.component';
 
 @Component({
 	selector: 'app-stroll-list-screen',
 	standalone: true,
-	imports: [CommonModule, FormsModule, RouterLink, UpperCasePipe, MatButtonModule, MatIconModule, MatTableModule, MatTooltipModule, TranslatePipe],
+	imports: [
+		DatePipe,
+		FormsModule,
+		RouterLink,
+		UpperCasePipe,
+		TranslatePipe,
+		SbAlertComponent,
+		SbBadgeComponent,
+		SbButtonComponent,
+		SbCellDirective,
+		SbIconButtonComponent,
+		SbPageHeaderComponent,
+		SbStatGridComponent,
+		SbTableComponent,
+		SbTextareaComponent
+	],
 	templateUrl: './stroll-list.component.html',
 	styleUrls: ['./stroll-list.component.scss']
 })
@@ -28,10 +50,10 @@ export class StrollListScreenComponent implements OnInit {
 	private readonly strollsFeature = inject(StrollsFeatureService);
 	private readonly dialog = inject(MatDialog);
 	private readonly store = inject(Store);
+	private readonly translate = inject(TranslateService);
 
 	protected readonly isAdmin = this.store.selectSignal(selectIsAdmin);
 	protected readonly emailVerified = this.store.selectSignal(selectEmailVerified);
-	protected readonly displayedColumns = ['name', 'status', 'visibility', 'stations', 'labels', 'media', 'updated', 'actions'];
 	protected readonly strolls = signal<Stroll[]>([]);
 	protected readonly loading = signal(true);
 	protected readonly loadError = signal(false);
@@ -42,6 +64,28 @@ export class StrollListScreenComponent implements OnInit {
 	protected bulkImporting = false;
 	protected bulkImportError = '';
 	protected bulkImportSuccess = false;
+	protected readonly summaryStats = computed(() => {
+		this.translate.currentLang();
+		return [
+			{ label: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.METRIC_TOTAL'), value: this.strolls().length },
+			{ label: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.METRIC_PUBLISHED'), value: this.publishedCount(), tone: 'success' as SbTone },
+			{ label: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.METRIC_DRAFTS'), value: this.draftCount(), tone: 'warning' as SbTone },
+			{ label: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.METRIC_STAGES'), value: this.totalStages() }
+		];
+	});
+	protected readonly columns = computed<SbTableColumn<Stroll>[]>(() => {
+		this.translate.currentLang();
+		return [
+			{ key: 'name', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_NAME') },
+			{ key: 'status', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_STATUS') },
+			{ key: 'visibility', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_VISIBILITY'), hideBelow: 'md' },
+			{ key: 'stageCount', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_STATIONS'), align: 'center', hideBelow: 'sm' },
+			{ key: 'labels', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_LABELS'), hideBelow: 'md' },
+			{ key: 'media', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_MEDIA'), align: 'center', hideBelow: 'md' },
+			{ key: 'updated', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_UPDATED'), hideBelow: 'sm' },
+			{ key: 'actions', header: this.translate.instant('SCREENS.ADMIN_STROLL_LIST.COL_ACTIONS'), align: 'end' }
+		];
+	});
 
 	ngOnInit(): void {
 		this.strollsFeature.listOwned({ limit: 100 }).subscribe({
@@ -70,6 +114,27 @@ export class StrollListScreenComponent implements OnInit {
 
 	protected mediaCount(stroll: Stroll): number {
 		return (stroll.mediaUrls?.imageUrls?.length ?? 0) + (stroll.mediaUrls?.videoUrls?.length ?? 0);
+	}
+
+	protected editIfAllowed(stroll: Stroll): void {
+		if (this.emailVerified()) this.editStroll(stroll.id);
+	}
+
+	protected statusTone(status: string): SbTone {
+		if (status === 'published') return 'success';
+		if (status === 'draft') return 'warning';
+		return status === 'suspended' ? 'danger' : 'neutral';
+	}
+
+	protected statusIcon(status: string): string {
+		if (status === 'published') return 'check_circle';
+		if (status === 'draft') return 'edit_note';
+		return status === 'suspended' ? 'block' : 'archive';
+	}
+
+	protected visibilityIcon(flag: string): string {
+		if (flag === 'public') return 'public';
+		return flag === 'unlisted' ? 'link' : 'lock';
 	}
 
 	protected async deleteStroll(stroll: Stroll): Promise<void> {

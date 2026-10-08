@@ -2,9 +2,9 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SbAlertComponent } from '../../components/atoms/sb-alert/sb-alert.component';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
 import { firstValueFrom } from 'rxjs';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
 import {
@@ -32,8 +32,8 @@ import { AppErrorCode } from '../../core/models/app-error-code';
 	standalone: true,
 	imports: [
 		CommonModule,
-		MatButtonModule,
-		MatIconModule,
+		SbAlertComponent,
+		SbButtonComponent,
 		TranslatePipe,
 		StrollDetailsEditorComponent,
 		StageListEditorComponent,

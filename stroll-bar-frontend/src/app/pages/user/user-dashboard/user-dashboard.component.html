@@ -1,173 +1,125 @@
 <div class="user-dashboard">
-	<div class="user-dashboard__header">
-		<div>
-			<span class="user-dashboard__brand"><mat-icon>explore</mat-icon>{{ 'SCREENS.USER_DASHBOARD.HEADER_TITLE' | translate }}</span>
-			<p class="user-dashboard__subtitle">{{ 'SCREENS.USER_DASHBOARD.SUBTITLE' | translate }}</p>
-		</div>
-	</div>
-	<div class="user-dashboard__summary" aria-live="polite">
-		<div>
-			<span>{{ adventures().length }}</span
-			>{{ 'SCREENS.USER_DASHBOARD.METRIC_TOTAL' | translate }}
-		</div>
-		<div>
-			<span>{{ activeCount() }}</span
-			>{{ 'SCREENS.USER_DASHBOARD.METRIC_ACTIVE' | translate }}
-		</div>
-		<div>
-			<span>{{ completedCount() }}</span
-			>{{ 'SCREENS.USER_DASHBOARD.METRIC_COMPLETED' | translate }}
-		</div>
-		<div>
-			<span>{{ totalStages() }}</span
-			>{{ 'SCREENS.USER_DASHBOARD.METRIC_STAGES' | translate }}
-		</div>
-	</div>
-	<div class="user-dashboard__content">
-		@if (loading()) {
-			<p class="user-dashboard__message">{{ 'SCREENS.USER_DASHBOARD.LOADING' | translate }}</p>
-		} @else if (loadError()) {
-			<p class="user-dashboard__message user-dashboard__message--error">{{ 'SCREENS.USER_DASHBOARD.LOAD_ERROR' | translate }}</p>
-		}
-		<table mat-table [dataSource]="adventures()" class="user-dashboard__table" [hidden]="loading() || loadError()">
-			<ng-container matColumnDef="name">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_NAME' | translate }}</th>
-				<td mat-cell *matCellDef="let detail" class="user-dashboard__name-cell">
-					<strong>{{ detail.stroll?.name || '—' }}</strong
-					><span>{{ detail.stroll?.description || '—' }}</span>
-					<div class="user-dashboard__labels">
-						@for (label of (detail.stroll?.labels || []).slice(0, 3); track label) {
-							<span>{{ label }}</span>
-						}
-					</div>
-				</td>
-			</ng-container>
+	<sb-page-header
+		icon="explore"
+		[title]="'SCREENS.USER_DASHBOARD.HEADER_TITLE' | translate"
+		[subtitle]="'SCREENS.USER_DASHBOARD.SUBTITLE' | translate"
+	/>
 
-			<ng-container matColumnDef="status">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_STATUS' | translate }}</th>
-				<td mat-cell *matCellDef="let detail">
-					<span
-						class="user-dashboard__status"
-						[class.user-dashboard__status--completed]="detail.adventure.progressStatus === 'completed'"
-						[class.user-dashboard__status--progress]="detail.adventure.progressStatus === 'in_progress'"
-						[class.user-dashboard__status--purchased]="detail.adventure.progressStatus === 'purchased'"
-						[class.user-dashboard__status--abandoned]="detail.adventure.progressStatus === 'abandoned'"
-						[class.user-dashboard__status--revoked]="detail.adventure.progressStatus === 'revoked'"
-						role="status"
-					>
-						<mat-icon aria-hidden="true">{{
-							detail.adventure.progressStatus === 'completed'
-								? 'check_circle'
-								: detail.adventure.progressStatus === 'in_progress'
-									? 'directions_walk'
-									: detail.adventure.progressStatus === 'purchased'
-										? 'play_circle'
-										: detail.adventure.progressStatus === 'revoked'
-											? 'block'
-											: 'pause_circle'
-						}}</mat-icon>
-						{{ 'SCREENS.USER_DASHBOARD.STATUS_' + detail.adventure.progressStatus.toUpperCase() | translate }}
-					</span>
-				</td>
-			</ng-container>
+	<sb-stat-grid class="user-dashboard__summary" aria-live="polite" [stats]="summaryStats()" />
 
-			<ng-container matColumnDef="progress">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_PROGRESS' | translate }}</th>
-				<td mat-cell *matCellDef="let detail">
-					<div class="user-dashboard__progress">
-						<div><span [style.width.%]="progressPercent(detail)"></span></div>
-						<strong>{{ detail.adventure.currentStageIndex }} / {{ detail.stroll?.stageCount || 0 }}</strong>
-					</div>
-				</td>
-			</ng-container>
-
-			<ng-container matColumnDef="currentStage">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_CURRENT_STAGE' | translate }}</th>
-				<td mat-cell *matCellDef="let detail" class="user-dashboard__stage">
-					<strong>{{ detail.currentStage?.name || '—' }}</strong
-					><span>{{ detail.currentStage?.address || '—' }}</span>
-				</td>
-			</ng-container>
-
-			<ng-container matColumnDef="purchased">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_PURCHASED' | translate }}</th>
-				<td mat-cell *matCellDef="let detail" class="user-dashboard__date">
-					<strong>{{ detail.adventure.purchaseTime | date: 'mediumDate' }}</strong
-					><span>{{ detail.adventure.purchaseTime | date: 'shortTime' }}</span>
-				</td>
-			</ng-container>
-
-			<ng-container matColumnDef="activity">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_ACTIVITY' | translate }}</th>
-				<td mat-cell *matCellDef="let detail" class="user-dashboard__date">
-					<strong>{{
-						detail.adventure.completionDateTime ||
-							detail.adventure.startDateTime ||
-							detail.adventure.updatedAt ||
-							detail.adventure.purchaseTime | date: 'mediumDate'
-					}}</strong>
-					<span>{{
-						detail.adventure.completionDateTime
-							? ('SCREENS.USER_DASHBOARD.ACTIVITY_COMPLETED' | translate)
-							: detail.adventure.startDateTime
-								? ('SCREENS.USER_DASHBOARD.ACTIVITY_STARTED' | translate)
-								: ('SCREENS.USER_DASHBOARD.ACTIVITY_UNLOCKED' | translate)
-					}}</span>
-				</td>
-			</ng-container>
-
-			<ng-container matColumnDef="actions">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.USER_DASHBOARD.COL_ACTIONS' | translate }}</th>
-				<td mat-cell *matCellDef="let detail" class="user-dashboard__actions">
-					@if (detail.adventure.progressStatus === 'completed') {
-						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.SUMMARY_TOOLTIP' | translate" (click)="viewResult(detail)">
-							<mat-icon>emoji_events</mat-icon>
-						</button>
-						<button mat-icon-button [matTooltip]="'SCREENS.USER_DASHBOARD.ACHIEVEMENTS_TOOLTIP' | translate" (click)="viewAchievements()">
-							<mat-icon>military_tech</mat-icon>
-						</button>
-						<button
-							mat-icon-button
-							[disabled]="replayingAdventureId() === detail.adventure.id"
-							[matTooltip]="'SCREENS.USER_DASHBOARD.REPLAY_TOOLTIP' | translate"
-							(click)="replayAdventure(detail)"
-						>
-							<mat-icon>replay</mat-icon>
-						</button>
+	<sb-table
+		class="user-dashboard__table"
+		[columns]="columns()"
+		[rows]="rows()"
+		[loading]="loading()"
+		[error]="loadError()"
+		[cardOnMobile]="true"
+		[loadingText]="'SCREENS.USER_DASHBOARD.LOADING' | translate"
+		[errorTitle]="'SCREENS.USER_DASHBOARD.LOAD_ERROR' | translate"
+		[emptyTitle]="'SCREENS.USER_DASHBOARD.EMPTY' | translate"
+	>
+		<ng-template sbCell="name" let-row>
+			<div class="user-dashboard__name-cell">
+				<strong>{{ row.detail.stroll?.name || '—' }}</strong>
+				<span>{{ row.detail.stroll?.description || '—' }}</span>
+				<div class="user-dashboard__labels">
+					@for (label of (row.detail.stroll?.labels || []).slice(0, 3); track label) {
+						<sb-badge size="sm" tone="success" [label]="label" />
 					}
-					<!-- @else if (detail.adventure.progressStatus === 'revoked') {
-						<span class="user-dashboard__muted">{{ 'SCREENS.USER_DASHBOARD.REVOKED_HINT' | translate }}</span>
-					}  -->
-					@else {
-						<button
-							mat-icon-button
-							[matTooltip]="
-								(detail.adventure.progressStatus === 'purchased'
-									? 'SCREENS.USER_DASHBOARD.START_TOOLTIP'
-									: 'SCREENS.USER_DASHBOARD.CONTINUE_TOOLTIP'
-								) | translate
-							"
-							(click)="openAdventure(detail)"
-						>
-							<mat-icon>{{ detail.adventure.progressStatus === 'purchased' ? 'play_arrow' : 'arrow_forward' }}</mat-icon>
-						</button>
-					}
-				</td>
-			</ng-container>
+				</div>
+			</div>
+		</ng-template>
 
-			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr
-				mat-row
-				*matRowDef="let row; columns: displayedColumns"
-				class="user-dashboard__row"
-				[class.user-dashboard__row--completed]="row.adventure.progressStatus === 'completed'"
-				(dblclick)="openAdventure(row)"
-			></tr>
-			<tr class="mat-row" *matNoDataRow>
-				<td class="mat-cell user-dashboard__message" [attr.colspan]="displayedColumns.length">
-					{{ 'SCREENS.USER_DASHBOARD.EMPTY' | translate }}
-				</td>
-			</tr>
-		</table>
-	</div>
+		<ng-template sbCell="status" let-row>
+			<sb-badge
+				[tone]="statusTone(row.detail.adventure.progressStatus)"
+				[icon]="statusIcon(row.detail.adventure.progressStatus)"
+				[label]="'SCREENS.USER_DASHBOARD.STATUS_' + row.detail.adventure.progressStatus.toUpperCase() | translate"
+			/>
+		</ng-template>
+
+		<ng-template sbCell="progress" let-row>
+			<div class="user-dashboard__progress">
+				<sb-progress-bar [value]="progressPercent(row.detail)" />
+				<strong>{{ row.detail.adventure.currentStageIndex }} / {{ row.detail.stroll?.stageCount || 0 }}</strong>
+			</div>
+		</ng-template>
+
+		<ng-template sbCell="currentStage" let-row>
+			<div class="user-dashboard__stage">
+				<strong>{{ row.detail.currentStage?.name || '—' }}</strong>
+				<span>{{ row.detail.currentStage?.address || '—' }}</span>
+			</div>
+		</ng-template>
+
+		<ng-template sbCell="purchased" let-row>
+			<div class="user-dashboard__date">
+				<strong>{{ row.detail.adventure.purchaseTime | date: 'mediumDate' }}</strong>
+				<span>{{ row.detail.adventure.purchaseTime | date: 'shortTime' }}</span>
+			</div>
+		</ng-template>
+
+		<ng-template sbCell="activity" let-row>
+			<div class="user-dashboard__date">
+				<strong>{{
+					row.detail.adventure.completionDateTime ||
+						row.detail.adventure.startDateTime ||
+						row.detail.adventure.updatedAt ||
+						row.detail.adventure.purchaseTime | date: 'mediumDate'
+				}}</strong>
+				<span>{{
+					row.detail.adventure.completionDateTime
+						? ('SCREENS.USER_DASHBOARD.ACTIVITY_COMPLETED' | translate)
+						: row.detail.adventure.startDateTime
+							? ('SCREENS.USER_DASHBOARD.ACTIVITY_STARTED' | translate)
+							: ('SCREENS.USER_DASHBOARD.ACTIVITY_UNLOCKED' | translate)
+				}}</span>
+			</div>
+		</ng-template>
+
+		<ng-template sbCell="actions" let-row>
+			<div class="user-dashboard__actions">
+				@if (row.detail.adventure.progressStatus === 'completed') {
+					<sb-icon-button
+						icon="emoji_events"
+						tone="primary"
+						[ariaLabel]="'SCREENS.USER_DASHBOARD.SUMMARY_TOOLTIP' | translate"
+						[tooltip]="'SCREENS.USER_DASHBOARD.SUMMARY_TOOLTIP' | translate"
+						(clicked)="viewResult(row.detail)"
+					/>
+					<sb-icon-button
+						icon="military_tech"
+						[ariaLabel]="'SCREENS.USER_DASHBOARD.ACHIEVEMENTS_TOOLTIP' | translate"
+						[tooltip]="'SCREENS.USER_DASHBOARD.ACHIEVEMENTS_TOOLTIP' | translate"
+						(clicked)="viewAchievements()"
+					/>
+					<sb-icon-button
+						icon="replay"
+						[disabled]="replayingAdventureId() === row.detail.adventure.id"
+						[ariaLabel]="'SCREENS.USER_DASHBOARD.REPLAY_TOOLTIP' | translate"
+						[tooltip]="'SCREENS.USER_DASHBOARD.REPLAY_TOOLTIP' | translate"
+						(clicked)="replayAdventure(row.detail)"
+					/>
+				} @else {
+					<sb-icon-button
+						tone="primary"
+						[icon]="row.detail.adventure.progressStatus === 'purchased' ? 'play_arrow' : 'arrow_forward'"
+						[ariaLabel]="
+							(row.detail.adventure.progressStatus === 'purchased'
+								? 'SCREENS.USER_DASHBOARD.START_TOOLTIP'
+								: 'SCREENS.USER_DASHBOARD.CONTINUE_TOOLTIP'
+							) | translate
+						"
+						[tooltip]="
+							(row.detail.adventure.progressStatus === 'purchased'
+								? 'SCREENS.USER_DASHBOARD.START_TOOLTIP'
+								: 'SCREENS.USER_DASHBOARD.CONTINUE_TOOLTIP'
+							) | translate
+						"
+						(clicked)="openAdventure(row.detail)"
+					/>
+				}
+			</div>
+		</ng-template>
+	</sb-table>
 </div>

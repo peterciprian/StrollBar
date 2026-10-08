@@ -1,10 +1,10 @@
 <section class="map-preview" [class.map-preview--full]="variant === 'full'">
 	<div class="map-preview__canvas">
 		<span class="map-preview__pin map-preview__pin--user" [title]="'MAP_PREVIEW.YOUR_LOCATION' | translate">
-			<mat-icon>navigation</mat-icon>
+			<sb-icon name="navigation" size="md" />
 		</span>
 		<span class="map-preview__pin map-preview__pin--target" [title]="'MAP_PREVIEW.TARGET_STATION' | translate">
-			<mat-icon>location_on</mat-icon>
+			<sb-icon name="location_on" size="md" />
 			@if (targetLabel) {
 				<span class="map-preview__label">{{ targetLabel }}</span>
 			}
@@ -12,7 +12,7 @@
 	</div>
 	@if (latitude !== null && longitude !== null) {
 		<div class="map-preview__coords">
-			<mat-icon>my_location</mat-icon>
+			<sb-icon name="my_location" size="md" />
 			<span>{{ latitude }}, {{ longitude }}</span>
 		</div>
 	}

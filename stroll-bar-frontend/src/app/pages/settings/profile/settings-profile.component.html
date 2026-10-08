@@ -1,6 +1,6 @@
-<h1>{{ 'SETTINGS.SECTION_PROFILE' | translate }}</h1>
+<sb-page-header [title]="'SETTINGS.SECTION_PROFILE' | translate" />
 <div class="settings-page__profile-card">
-	<div class="settings-page__avatar"><mat-icon>account_circle</mat-icon></div>
+	<sb-avatar size="lg" />
 	<div>
 		<h2>{{ user().username }}</h2>
 		<p>{{ user().email }}</p>
@@ -10,73 +10,63 @@
 	</div>
 </div>
 <form [formGroup]="form" (ngSubmit)="onSubmit()">
-	<mat-form-field appearance="outline" class="settings-page__full">
-		<mat-label>{{ 'SETTINGS.DISPLAY_NAME_LABEL' | translate }}</mat-label>
-		<input matInput formControlName="username" />
-	</mat-form-field>
+	<sb-input class="settings-page__full" formControlName="username" [label]="'SETTINGS.DISPLAY_NAME_LABEL' | translate" />
 	<div class="settings-page__static-field settings-page__full">
 		<span class="settings-page__static-field-label">{{ 'SETTINGS.EMAIL_LABEL' | translate }}</span>
 		<span class="settings-page__static-field-value">{{ user().email }}</span>
 		@if (user().emailVerified) {
-			<span class="settings-page__badge settings-page__badge--verified">
-				<mat-icon>check_circle</mat-icon>
-				{{ 'SETTINGS.EMAIL_VERIFIED' | translate }}
-			</span>
+			<sb-badge tone="success" icon="check_circle" [label]="'SETTINGS.EMAIL_VERIFIED' | translate" />
 		} @else {
-			<span class="settings-page__badge settings-page__badge--unverified">
-				<mat-icon>error</mat-icon>
-				{{ 'SETTINGS.EMAIL_NOT_VERIFIED' | translate }}
-			</span>
-			<button
-				mat-button
-				type="button"
-				color="primary"
+			<sb-badge tone="warning" icon="error" [label]="'SETTINGS.EMAIL_NOT_VERIFIED' | translate" />
+			<sb-button
 				class="settings-page__resend-button"
+				variant="tertiary"
+				type="button"
 				[disabled]="resendingVerification()"
-				(click)="onResendVerification()"
-			>
-				{{ 'SETTINGS.RESEND_VERIFICATION' | translate }}
-			</button>
+				[label]="'SETTINGS.RESEND_VERIFICATION' | translate"
+				(clicked)="onResendVerification()"
+			/>
 		}
 	</div>
-	@if (saveError()) {
-		<p class="settings-page__error">{{ saveError() }}</p>
+	@if (saveError(); as message) {
+		<sb-alert tone="danger" [message]="message" />
 	}
-	<button mat-flat-button color="primary" type="submit" [disabled]="saving() || form.invalid">
-		{{ (saving() ? 'SETTINGS.SAVING' : 'SETTINGS.SAVE_PROFILE') | translate | uppercase }}
-	</button>
+	<sb-button
+		type="submit"
+		[disabled]="saving() || form.invalid"
+		[label]="(saving() ? 'SETTINGS.SAVING' : 'SETTINGS.SAVE_PROFILE') | translate | uppercase"
+	/>
 </form>
 
 <h2 class="settings-page__subheading">{{ 'SETTINGS.CHANGE_PASSWORD_TITLE' | translate }}</h2>
 <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
-	<mat-form-field appearance="outline" class="settings-page__full">
-		<mat-label>{{ 'SETTINGS.CURRENT_PASSWORD_LABEL' | translate }}</mat-label>
-		<input matInput type="password" formControlName="currentPassword" />
-	</mat-form-field>
-	<mat-form-field appearance="outline" class="settings-page__full">
-		<mat-label>{{ 'SETTINGS.NEW_PASSWORD_LABEL' | translate }}</mat-label>
-		<input matInput type="password" formControlName="newPassword" />
-		@if (passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid) {
-			<mat-error>
-				@if (passwordForm.get('newPassword')?.hasError('commonPassword')) {
-					{{ 'SETTINGS.PASSWORD_COMMON_ERROR' | translate }}
-				} @else {
-					{{ 'SETTINGS.PASSWORD_POLICY_ERROR' | translate }}
-				}
-			</mat-error>
-		}
-	</mat-form-field>
-	<mat-form-field appearance="outline" class="settings-page__full">
-		<mat-label>{{ 'SETTINGS.CONFIRM_PASSWORD_LABEL' | translate }}</mat-label>
-		<input matInput type="password" formControlName="confirmPassword" />
-		@if (passwordForm.get('confirmPassword')?.touched && passwordForm.get('confirmPassword')?.hasError('passwordMismatch')) {
-			<mat-error>{{ 'SETTINGS.PASSWORDS_DO_NOT_MATCH' | translate }}</mat-error>
-		}
-	</mat-form-field>
-	@if (passwordSaveError()) {
-		<p class="settings-page__error">{{ passwordSaveError() }}</p>
+	<sb-input class="settings-page__full" formControlName="currentPassword" type="password" [label]="'SETTINGS.CURRENT_PASSWORD_LABEL' | translate" />
+	<sb-input
+		class="settings-page__full"
+		formControlName="newPassword"
+		type="password"
+		[label]="'SETTINGS.NEW_PASSWORD_LABEL' | translate"
+		[errorMessages]="{
+			required: 'SETTINGS.PASSWORD_POLICY_ERROR' | translate,
+			minlength: 'SETTINGS.PASSWORD_POLICY_ERROR' | translate,
+			maxlength: 'SETTINGS.PASSWORD_POLICY_ERROR' | translate,
+			passwordComplexity: 'SETTINGS.PASSWORD_POLICY_ERROR' | translate,
+			commonPassword: 'SETTINGS.PASSWORD_COMMON_ERROR' | translate
+		}"
+	/>
+	<sb-input
+		class="settings-page__full"
+		formControlName="confirmPassword"
+		type="password"
+		[label]="'SETTINGS.CONFIRM_PASSWORD_LABEL' | translate"
+		[errorMessages]="{ passwordMismatch: 'SETTINGS.PASSWORDS_DO_NOT_MATCH' | translate }"
+	/>
+	@if (passwordSaveError(); as message) {
+		<sb-alert tone="danger" [message]="message" />
 	}
-	<button mat-flat-button color="primary" type="submit" [disabled]="passwordSaving() || passwordForm.invalid">
-		{{ (passwordSaving() ? 'SETTINGS.SAVING' : 'SETTINGS.SAVE_PASSWORD') | translate | uppercase }}
-	</button>
+	<sb-button
+		type="submit"
+		[disabled]="passwordSaving() || passwordForm.invalid"
+		[label]="(passwordSaving() ? 'SETTINGS.SAVING' : 'SETTINGS.SAVE_PASSWORD') | translate | uppercase"
+	/>
 </form>

@@ -1,0 +1,20 @@
+:host {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sb-space-2);
+	flex: 0 0 auto;
+	color: var(--sb-color-text-muted);
+
+	--mat-progress-spinner-active-indicator-color: var(--sb-color-primary);
+}
+
+:host(.sb-spinner--block) {
+	display: flex;
+	flex: 1 1 auto;
+	justify-content: center;
+	padding: var(--sb-space-7) var(--sb-space-4);
+}
+
+.sb-spinner__label {
+	font-size: var(--sb-font-size-md);
+}

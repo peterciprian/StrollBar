@@ -1,17 +1,18 @@
+@use 'design' as sb;
+
 .brand {
-	font-size: 1.1rem;
-	font-weight: 700;
-	text-decoration: none;
+	margin-right: var(--sb-space-2);
 	color: inherit;
-	margin-right: 8px;
-	letter-spacing: 0.5px;
+	font-size: var(--sb-font-size-lg);
+	font-weight: var(--sb-font-weight-bold);
+	text-decoration: none;
 	white-space: nowrap;
 }
 
 .main-nav {
 	display: none;
 	align-items: center;
-	gap: 4px;
+	gap: var(--sb-space-1);
 }
 
 .spacer {
@@ -20,38 +21,37 @@
 
 .lang-select {
 	width: 62px;
-	color: inherit;
-	margin-right: 4px;
-	border-radius: 999px;
+	margin-right: var(--sb-space-1);
+	padding: 0 var(--sb-space-2) 0 var(--sb-space-3);
+	border-radius: var(--sb-radius-pill);
 	background: rgba(255, 255, 255, 0.12);
-	padding: 0 6px 0 10px;
+	color: inherit;
 
-	// Force the select text/arrow to inherit toolbar contrast colour
 	.mat-mdc-select-value,
 	.mat-mdc-select-arrow {
 		color: inherit;
 	}
 
 	.mat-mdc-select-trigger {
-		align-items: center;
 		display: flex;
-		gap: 6px;
-		height: 32px;
+		align-items: center;
+		gap: var(--sb-space-2);
+		height: var(--sb-control-height-sm);
 	}
 
 	.mat-mdc-select-value {
 		display: flex;
 		align-items: center;
+		padding-top: var(--sb-space-2);
 		line-height: 1;
-		padding-top: 6px;
 	}
 
 	.mat-mdc-select-arrow-wrapper {
-		align-items: center;
 		display: flex;
-		height: 32px;
-		transform: none;
+		align-items: center;
+		height: var(--sb-control-height-sm);
 		margin-top: 0;
+		transform: none;
 	}
 
 	.mat-mdc-select-arrow {
@@ -66,21 +66,21 @@
 	justify-content: center;
 	width: 24px;
 	height: 16px;
-	border-radius: 3px;
+	border-radius: var(--sb-radius-xs);
 	object-fit: cover;
 	box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
 }
 
 .lang-option-icon {
-	margin-right: 8px;
+	margin-right: var(--sb-space-2);
 }
 
 mat-toolbar {
 	min-height: 64px;
 	height: auto;
-	padding-block: 8px;
+	padding-block: var(--sb-space-2);
 	flex-wrap: nowrap;
-	gap: 4px;
+	gap: var(--sb-space-1);
 }
 
 .mobile-menu-trigger {
@@ -88,44 +88,25 @@ mat-toolbar {
 }
 
 .desktop-auth {
-	display: none !important;
+	display: none;
 }
 
 .profile-trigger {
-	align-items: center;
-	gap: 6px;
 	max-width: 220px;
-}
-
-.current-user {
-	max-width: 96px;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-a.active {
-	font-weight: 600;
-	opacity: 1;
-}
-
-.main-nav a.active,
-.desktop-auth.active {
-	background: rgba(255, 255, 255, 0.2);
-	box-shadow: inset 0 -2px 0 currentColor;
 }
 
 .mobile-menu-item.active,
 a[mat-menu-item].active {
-	background: #ecfeff;
-	color: var(--mat-sys-primary, #0891b2);
-	font-weight: 700;
+	background: transparent;
+	box-shadow: inset 3px 0 0 var(--sb-color-primary);
+	color: var(--sb-color-primary);
+	font-weight: var(--sb-font-weight-bold);
 }
 
-@media (min-width: 768px) {
+@include sb.sb-up(tablet) {
 	.brand {
-		font-size: 1.25rem;
-		margin-right: 16px;
+		margin-right: var(--sb-space-4);
+		font-size: var(--sb-font-size-xl);
 	}
 
 	.main-nav {
@@ -138,15 +119,11 @@ a[mat-menu-item].active {
 	}
 
 	.desktop-auth {
-		display: inline-flex !important;
+		display: inline-flex;
 	}
 
 	.lang-select {
 		width: 62px;
-		margin-right: 8px;
-	}
-
-	.current-user {
-		max-width: 160px;
+		margin-right: var(--sb-space-2);
 	}
 }

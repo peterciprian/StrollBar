@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
 import { selectIsAdmin } from '../../features/auth/auth.state';
 
 import { SETTINGS_SECTIONS } from './settings-nav.service';
@@ -11,7 +11,7 @@ import { SETTINGS_SECTIONS } from './settings-nav.service';
 @Component({
 	selector: 'app-settings-page',
 	standalone: true,
-	imports: [RouterLink, RouterLinkActive, RouterOutlet, MatIconModule, MatListModule, TranslatePipe],
+	imports: [RouterLink, RouterLinkActive, RouterOutlet, MatListModule, TranslatePipe, SbIconComponent],
 	templateUrl: './settings.component.html',
 	styleUrls: ['./settings.component.scss']
 })

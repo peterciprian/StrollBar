@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MediaUploadFeatureService } from '../../features/media/media-upload-feature.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { environment } from '../../../environments/environment';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
 
 @Component({
 	selector: 'app-media-upload-control',
 	standalone: true,
-	imports: [MatIconModule, TranslatePipe],
+	imports: [SbIconComponent, TranslatePipe],
 	templateUrl: './media-upload-control.component.html',
 	styleUrls: ['./media-upload-control.component.scss']
 })

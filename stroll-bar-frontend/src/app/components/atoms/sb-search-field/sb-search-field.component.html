@@ -1,0 +1,10 @@
+<mat-form-field class="sb-search-field__field" appearance="outline" subscriptSizing="dynamic">
+	@if (label(); as text) {
+		<mat-label>{{ text }}</mat-label>
+	}
+	<sb-icon matPrefix class="sb-search-field__affix" name="search" size="md" />
+	<input matInput type="text" [value]="current()" [placeholder]="placeholder()" (input)="onInput($event)" />
+	@if (current()) {
+		<sb-icon-button matSuffix icon="close" size="sm" [ariaLabel]="clearLabel()" (clicked)="clear()" />
+	}
+</mat-form-field>

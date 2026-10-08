@@ -7,7 +7,7 @@
 				} @else {
 					<img [src]="activeItem?.url" alt="" loading="lazy" />
 				}
-				<span class="media-gallery__zoom"><mat-icon>zoom_in</mat-icon></span>
+				<span class="media-gallery__zoom"><sb-icon name="zoom_in" size="md" /></span>
 			</figure>
 			@if (items.length > 1) {
 				<div class="media-gallery__thumbs">
@@ -20,7 +20,7 @@
 						>
 							@if (item.type === 'video') {
 								<video [src]="item.url" muted playsinline preload="metadata"></video>
-								<mat-icon class="media-gallery__thumb-icon">play_circle</mat-icon>
+								<sb-icon class="media-gallery__thumb-icon" name="play_circle" size="lg" />
 							} @else {
 								<img [src]="item.url" alt="" loading="lazy" />
 							}
@@ -33,7 +33,7 @@
 				<figure class="media-gallery__tile" (click)="openLightbox(i)">
 					@if (item.type === 'video') {
 						<video [src]="item.url" muted playsinline preload="metadata"></video>
-						<mat-icon class="media-gallery__tile-icon">play_circle</mat-icon>
+						<sb-icon class="media-gallery__tile-icon" name="play_circle" size="xl" />
 					} @else {
 						<img [src]="item.url" alt="" loading="lazy" />
 					}
@@ -42,7 +42,7 @@
 		}
 	} @else {
 		<figure class="media-gallery__tile media-gallery__tile--empty">
-			<mat-icon>image</mat-icon>
+			<sb-icon name="image" size="xl" />
 			<figcaption>{{ 'MEDIA_GALLERY.EMPTY' | translate }}</figcaption>
 		</figure>
 	}
@@ -51,12 +51,12 @@
 @if (lightboxOpen && activeItem) {
 	<div class="media-gallery__lightbox" (click)="closeLightbox()">
 		<button type="button" class="media-gallery__lightbox-close" (click)="closeLightbox()">
-			<mat-icon>close</mat-icon>
+			<sb-icon name="close" size="lg" />
 		</button>
 
 		@if (items.length > 1) {
 			<button type="button" class="media-gallery__lightbox-nav media-gallery__lightbox-nav--prev" (click)="showPrevious($event)">
-				<mat-icon>chevron_left</mat-icon>
+				<sb-icon name="chevron_left" size="lg" />
 			</button>
 		}
 
@@ -70,7 +70,7 @@
 
 		@if (items.length > 1) {
 			<button type="button" class="media-gallery__lightbox-nav media-gallery__lightbox-nav--next" (click)="showNext($event)">
-				<mat-icon>chevron_right</mat-icon>
+				<sb-icon name="chevron_right" size="lg" />
 			</button>
 		}
 	</div>

@@ -9,8 +9,16 @@
 	height: 280px;
 	width: 100%;
 	min-width: 0;
-	border: 1px solid #cbd5e1;
+	border: 1px solid var(--sb-color-border-strong);
 	border-radius: 8px;
 	overflow: hidden;
 	margin: 4px 0 12px;
+}
+
+.stage-location-map--fill {
+	height: 100%;
+	min-height: 0;
+	margin: 0;
+	border: 0;
+	border-radius: 0;
 }

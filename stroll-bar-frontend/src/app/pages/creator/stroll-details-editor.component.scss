@@ -1,26 +1,31 @@
+@use 'design' as sb;
+
 .stroll-details-editor {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
-	background: #fff;
-	border-radius: 16px;
-	box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-	padding: 16px;
+	gap: var(--sb-space-1);
+	background: var(--sb-color-surface-raised);
+	border-radius: var(--sb-radius-lg);
+	box-shadow: var(--sb-shadow-2);
+	padding: var(--sb-space-4);
 }
 .stroll-details-editor h2 {
-	margin: 0 0 12px;
-	font-size: 15px;
-	color: #334155;
+	margin: 0 0 var(--sb-space-3);
+	font-size: var(--sb-font-size-md);
+	color: var(--sb-color-text);
 }
-.stroll-details-editor mat-form-field {
+.stroll-details-editor sb-input,
+.stroll-details-editor sb-select,
+.stroll-details-editor sb-textarea {
 	width: 100%;
 }
 .stroll-details-editor__row {
 	display: grid;
 	grid-template-columns: 1fr;
-	gap: 16px;
+	gap: var(--sb-space-4);
 }
-@media (min-width: 700px) {
+
+@include sb.sb-up(sm) {
 	.stroll-details-editor__row {
 		grid-template-columns: repeat(3, 1fr);
 	}

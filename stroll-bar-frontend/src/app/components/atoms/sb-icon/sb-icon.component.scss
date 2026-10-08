@@ -1,0 +1,70 @@
+:host {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	line-height: 0;
+}
+
+.sb-icon__glyph {
+	display: block;
+	overflow: hidden;
+}
+
+.sb-icon--sm {
+	font-size: var(--sb-icon-size-sm);
+	width: var(--sb-icon-size-sm);
+	height: var(--sb-icon-size-sm);
+}
+
+.sb-icon--md {
+	font-size: var(--sb-icon-size-md);
+	width: var(--sb-icon-size-md);
+	height: var(--sb-icon-size-md);
+}
+
+.sb-icon--lg {
+	font-size: var(--sb-icon-size-lg);
+	width: var(--sb-icon-size-lg);
+	height: var(--sb-icon-size-lg);
+}
+
+.sb-icon--xl {
+	font-size: var(--sb-icon-size-xl);
+	width: var(--sb-icon-size-xl);
+	height: var(--sb-icon-size-xl);
+}
+
+.sb-icon--feature {
+	font-size: var(--sb-icon-size-display);
+	width: var(--sb-icon-size-display);
+	height: var(--sb-icon-size-display);
+}
+
+.sb-icon--inherit {
+	color: inherit;
+}
+
+.sb-icon--neutral {
+	color: var(--sb-color-text-muted);
+}
+
+.sb-icon--primary {
+	color: var(--sb-color-primary);
+}
+
+.sb-icon--success {
+	color: var(--sb-color-success);
+}
+
+.sb-icon--warning {
+	color: var(--sb-color-warning);
+}
+
+.sb-icon--danger {
+	color: var(--sb-color-danger);
+}
+
+.sb-icon--info {
+	color: var(--sb-color-info);
+}

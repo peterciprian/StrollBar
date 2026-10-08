@@ -1,82 +1,49 @@
-<h2 mat-dialog-title>
-	{{ (isEdit ? 'SCREENS.ADMIN_BADGE_LIST.FORM_EDIT_TITLE' : 'SCREENS.ADMIN_BADGE_LIST.FORM_CREATE_TITLE') | translate }}
-</h2>
-<mat-dialog-content class="badge-form">
-	<mat-form-field appearance="outline" subscriptSizing="dynamic">
-		<mat-label>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_CODE' | translate }}</mat-label>
-		<input matInput [(ngModel)]="code" [disabled]="isEdit" maxlength="64" />
-	</mat-form-field>
+<sb-dialog-shell
+	icon="emoji_events"
+	[title]="(isEdit ? 'SCREENS.ADMIN_BADGE_LIST.FORM_EDIT_TITLE' : 'SCREENS.ADMIN_BADGE_LIST.FORM_CREATE_TITLE') | translate"
+>
+	<div class="badge-form">
+		<sb-input [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_CODE' | translate" [disabled]="isEdit" [maxlength]="64" [(ngModel)]="code" />
 
-	<mat-form-field appearance="outline" subscriptSizing="dynamic">
-		<mat-label>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_ICON' | translate }}</mat-label>
-		<input matInput [(ngModel)]="icon" maxlength="64" placeholder="emoji_events" />
-	</mat-form-field>
+		<sb-input [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_ICON' | translate" placeholder="emoji_events" [maxlength]="64" [(ngModel)]="icon" />
 
-	<mat-form-field appearance="outline" subscriptSizing="dynamic">
-		<mat-label>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_TITLE_FIELD' | translate }}</mat-label>
-		<input matInput [(ngModel)]="title" maxlength="150" />
-	</mat-form-field>
+		<sb-input [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_TITLE_FIELD' | translate" [maxlength]="150" [(ngModel)]="title" />
 
-	<mat-form-field appearance="outline" subscriptSizing="dynamic">
-		<mat-label>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_DESCRIPTION' | translate }}</mat-label>
-		<textarea matInput [(ngModel)]="description" rows="2"></textarea>
-	</mat-form-field>
+		<sb-textarea [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_DESCRIPTION' | translate" [rows]="2" [(ngModel)]="description" />
 
-	<mat-checkbox [(ngModel)]="active">{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_ACTIVE' | translate }}</mat-checkbox>
+		<sb-checkbox [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_ACTIVE' | translate" [(ngModel)]="active" />
 
-	<div class="badge-form__rules">
-		<div class="badge-form__rules-header">
-			<h3>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_RULES_TITLE' | translate }}</h3>
-			<button mat-stroked-button type="button" (click)="addRule()">
-				<mat-icon>add</mat-icon>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_ADD_RULE' | translate }}
-			</button>
-		</div>
-		<p class="badge-form__rules-hint">{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_RULES_HINT' | translate }}</p>
-
-		@for (rule of rules(); track $index) {
-			<div class="badge-form__rule-row">
-				<mat-form-field appearance="outline" subscriptSizing="dynamic">
-					<mat-select [value]="rule.metric" (selectionChange)="updateRule($index, { metric: $event.value })">
-						@for (metric of metrics; track metric) {
-							<mat-option [value]="metric">{{ 'SCREENS.ADMIN_BADGE_LIST.METRIC_' + metric | translate }}</mat-option>
-						}
-					</mat-select>
-				</mat-form-field>
-
-				<mat-form-field appearance="outline" subscriptSizing="dynamic">
-					<mat-select [value]="rule.operator" (selectionChange)="updateRule($index, { operator: $event.value })">
-						@for (operator of operators; track operator) {
-							<mat-option [value]="operator">{{ 'SCREENS.ADMIN_BADGE_LIST.OPERATOR_' + operator | translate }}</mat-option>
-						}
-					</mat-select>
-				</mat-form-field>
-
-				@if (isCategoryMetric(rule.metric)) {
-					<mat-form-field appearance="outline" subscriptSizing="dynamic">
-						<mat-select [value]="rule.value" (selectionChange)="updateRule($index, { value: $event.value })">
-							@for (category of categories; track category) {
-								<mat-option [value]="category">{{ category }}</mat-option>
-							}
-						</mat-select>
-					</mat-form-field>
-				} @else {
-					<mat-form-field appearance="outline" subscriptSizing="dynamic">
-						<input matInput type="number" [value]="rule.value" (input)="updateRule($index, { value: $any($event.target).value })" />
-					</mat-form-field>
-				}
-
-				<button mat-icon-button color="warn" type="button" (click)="removeRule($index)">
-					<mat-icon>delete</mat-icon>
-				</button>
+		<div class="badge-form__rules">
+			<div class="badge-form__rules-header">
+				<h3>{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_RULES_TITLE' | translate }}</h3>
+				<sb-button variant="secondary" icon="add" [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_ADD_RULE' | translate" (clicked)="addRule()" />
 			</div>
+			<p class="badge-form__rules-hint">{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_RULES_HINT' | translate }}</p>
+
+			@for (rule of rules(); track $index) {
+				<div class="badge-form__rule-row">
+					<sb-select [options]="metricOptions()" [ngModel]="rule.metric" (ngModelChange)="updateRule($index, { metric: $event })" />
+
+					<sb-select [options]="operatorOptions()" [ngModel]="rule.operator" (ngModelChange)="updateRule($index, { operator: $event })" />
+
+					@if (isCategoryMetric(rule.metric)) {
+						<sb-select [options]="categoryOptions()" [ngModel]="rule.value" (ngModelChange)="updateRule($index, { value: $event })" />
+					} @else {
+						<sb-input type="number" [ngModel]="rule.value" (ngModelChange)="updateRule($index, { value: $event })" />
+					}
+
+					<sb-icon-button icon="delete" tone="danger" [ariaLabel]="'COMMON.DELETE' | translate" (clicked)="removeRule($index)" />
+				</div>
+			}
+		</div>
+
+		@if (formError()) {
+			<sb-alert tone="danger" [message]="formError() | translate" />
 		}
 	</div>
 
-	@if (formError) {
-		<p class="badge-form__error">{{ formError | translate }}</p>
-	}
-</mat-dialog-content>
-<mat-dialog-actions align="end">
-	<button mat-button (click)="cancel()">{{ 'COMMON.CANCEL' | translate }}</button>
-	<button mat-flat-button color="primary" (click)="save()">{{ 'SCREENS.ADMIN_BADGE_LIST.FORM_SAVE' | translate }}</button>
-</mat-dialog-actions>
+	<ng-container sbDialogActions>
+		<sb-button variant="tertiary" [label]="'COMMON.CANCEL' | translate" (clicked)="cancel()" />
+		<sb-button [label]="'SCREENS.ADMIN_BADGE_LIST.FORM_SAVE' | translate" (clicked)="save()" />
+	</ng-container>
+</sb-dialog-shell>

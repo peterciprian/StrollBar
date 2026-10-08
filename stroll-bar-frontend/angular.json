@@ -26,6 +26,9 @@
 							}
 						],
 						"styles": ["src/material-theme.scss", "src/styles.scss"],
+						"stylePreprocessorOptions": {
+							"includePaths": ["src", "src/design"]
+						},
 						"scripts": [],
 						"server": "src/main.server.ts",
 						"outputMode": "server",
@@ -46,6 +49,11 @@
 									"type": "initial",
 									"maximumWarning": "1mb",
 									"maximumError": "2mb"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "8kb",
+									"maximumError": "16kb"
 								}
 							],
 							"outputHashing": "all",

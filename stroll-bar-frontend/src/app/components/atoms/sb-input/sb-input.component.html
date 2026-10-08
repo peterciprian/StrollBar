@@ -1,0 +1,31 @@
+<mat-form-field class="sb-input__field" appearance="outline" subscriptSizing="dynamic">
+	@if (label(); as text) {
+		<mat-label>{{ text }}</mat-label>
+	}
+	@if (prefixIcon(); as glyph) {
+		<sb-icon matPrefix class="sb-input__affix" [name]="glyph" size="md" />
+	}
+	<input
+		matInput
+		[type]="type()"
+		[value]="value() ?? ''"
+		[placeholder]="placeholder()"
+		[required]="required()"
+		[disabled]="isDisabled"
+		[attr.maxlength]="maxlength()"
+		[attr.autocomplete]="autocomplete()"
+		(input)="onInput($event)"
+		(blur)="markTouched()"
+	/>
+	@if (suffixIcon(); as glyph) {
+		<sb-icon matSuffix class="sb-input__affix" [name]="glyph" size="md" />
+	}
+	@if (!showError()) {
+		@if (hint(); as text) {
+			<mat-hint>{{ text }}</mat-hint>
+		}
+	}
+</mat-form-field>
+@if (showError()) {
+	<p class="sb-form-control__error" role="alert">{{ errorText() }}</p>
+}

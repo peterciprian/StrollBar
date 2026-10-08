@@ -1,0 +1,63 @@
+@if (routerLink(); as link) {
+	<a
+		mat-flat-button
+		class="sb-button__el"
+		[routerLink]="isDisabled() ? null : link"
+		[attr.aria-label]="ariaLabel()"
+		[attr.aria-disabled]="isDisabled()"
+		[attr.tabindex]="isDisabled() ? -1 : null"
+		[matTooltip]="tooltip() ?? ''"
+		[matTooltipDisabled]="!tooltip()"
+		(click)="onClick($event)"
+	>
+		<ng-container *ngTemplateOutlet="contentTpl" />
+	</a>
+} @else if (href(); as url) {
+	<a
+		mat-flat-button
+		class="sb-button__el"
+		[attr.href]="isDisabled() ? null : url"
+		[disabled]="isDisabled()"
+		[attr.target]="target()"
+		[attr.rel]="target() === '_blank' ? 'noopener noreferrer' : null"
+		[attr.aria-label]="ariaLabel()"
+		[attr.aria-disabled]="isDisabled()"
+		[attr.tabindex]="isDisabled() ? -1 : null"
+		[matTooltip]="tooltip() ?? ''"
+		[matTooltipDisabled]="!tooltip()"
+		(click)="onClick($event)"
+	>
+		<ng-container *ngTemplateOutlet="contentTpl" />
+	</a>
+} @else {
+	<button
+		mat-flat-button
+		class="sb-button__el"
+		[type]="type()"
+		[disabled]="isDisabled()"
+		[attr.aria-label]="ariaLabel()"
+		[attr.aria-busy]="loading()"
+		[matMenuTriggerFor]="menuTriggerFor()"
+		[matTooltip]="tooltip() ?? ''"
+		[matTooltipDisabled]="!tooltip()"
+		(click)="onClick($event)"
+	>
+		<ng-container *ngTemplateOutlet="contentTpl" />
+	</button>
+}
+
+<ng-template #contentTpl>
+	<div class="sb-button__content">
+		@if (loading()) {
+			<mat-progress-spinner class="sb-button__spinner" mode="indeterminate" [diameter]="16" [strokeWidth]="2" />
+		} @else if (icon() || svgIcon()) {
+			<sb-icon class="sb-button__icon" [name]="icon() ?? ''" [svgIcon]="svgIcon()" [size]="iconSize()" />
+		}
+		@if (label(); as text) {
+			<span class="sb-button__label">{{ text }}</span>
+		}
+		@if (trailingIcon(); as trailing) {
+			<sb-icon class="sb-button__icon" [name]="trailing" [size]="iconSize()" />
+		}
+	</div>
+</ng-template>

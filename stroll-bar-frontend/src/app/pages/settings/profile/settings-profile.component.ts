@@ -1,13 +1,15 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { DatePipe, UpperCasePipe } from '@angular/common';
 import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
 import { catchError, finalize, of } from 'rxjs';
+import { SbAlertComponent } from '../../../components/atoms/sb-alert/sb-alert.component';
+import { SbAvatarComponent } from '../../../components/atoms/sb-avatar/sb-avatar.component';
+import { SbBadgeComponent } from '../../../components/atoms/sb-badge/sb-badge.component';
+import { SbButtonComponent } from '../../../components/atoms/sb-button/sb-button.component';
+import { SbInputComponent } from '../../../components/atoms/sb-input/sb-input.component';
+import { SbPageHeaderComponent } from '../../../components/atoms/sb-page-header/sb-page-header.component';
 import { AuthFeatureService } from '../../../features/auth/auth-feature.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { extractErrorMessage } from '../../../core/utils/http-error.util';
@@ -30,7 +32,17 @@ function matchesNewPasswordValidator(control: AbstractControl): ValidationErrors
 @Component({
 	selector: 'app-settings-profile',
 	standalone: true,
-	imports: [UpperCasePipe, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, TranslatePipe],
+	imports: [
+		UpperCasePipe,
+		ReactiveFormsModule,
+		TranslatePipe,
+		SbAlertComponent,
+		SbAvatarComponent,
+		SbBadgeComponent,
+		SbButtonComponent,
+		SbInputComponent,
+		SbPageHeaderComponent
+	],
 	templateUrl: './settings-profile.component.html',
 	styleUrls: ['./settings-profile.component.scss']
 })

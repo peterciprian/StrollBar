@@ -1,3 +1,5 @@
+@use 'design' as sb;
+
 .stage-card {
 	display: flex;
 	gap: 16px;
@@ -13,16 +15,16 @@
 	&__badge {
 		width: 32px;
 		height: 32px;
-		border-radius: 50%;
+		border-radius: var(--sb-radius-circle);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		background: var(--mat-sys-surface-variant, #e2e8f0);
-		color: var(--mat-sys-on-surface-variant, #334155);
+		background: var(--sb-color-surface-sunken);
+		color: var(--sb-color-text-muted);
 		font-weight: 600;
 		font-size: 13px;
 
-		mat-icon {
+		sb-icon {
 			font-size: 18px;
 			width: 18px;
 			height: 18px;
@@ -30,15 +32,15 @@
 	}
 
 	&.active &__badge {
-		background: var(--mat-sys-primary, #0891b2);
-		color: #fff;
+		background: var(--sb-color-primary);
+		color: var(--sb-color-on-primary);
 	}
 
 	&__line {
 		flex: 1;
 		width: 2px;
 		min-height: 20px;
-		background: var(--mat-sys-outline-variant, #cbd5e1);
+		background: var(--sb-color-border-strong);
 		margin-top: 4px;
 	}
 
@@ -58,9 +60,9 @@
 		gap: 4px;
 		margin: 0 0 4px;
 		font-size: 12px;
-		color: var(--mat-sys-on-surface-variant, #64748b);
+		color: var(--sb-color-text-muted);
 
-		mat-icon {
+		sb-icon {
 			font-size: 14px;
 			width: 14px;
 			height: 14px;
@@ -70,6 +72,6 @@
 	&__description {
 		margin: 0;
 		font-size: 13px;
-		color: var(--mat-sys-on-surface-variant, #475569);
+		color: var(--sb-color-text-muted);
 	}
 }

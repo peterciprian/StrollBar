@@ -1,59 +1,60 @@
-<h1>{{ 'SETTINGS.SECTION_ACHIEVEMENTS' | translate }}</h1>
+<sb-page-header [title]="'SETTINGS.SECTION_ACHIEVEMENTS' | translate" />
 
 <section class="settings-page__results">
 	<h2>{{ 'SETTINGS.RESULTS_SECTION_TITLE' | translate }}</h2>
 
-	@if (resultsLoading()) {
-		<p class="settings-page__muted">{{ 'SETTINGS.RESULTS_LOADING' | translate }}</p>
-	} @else if (resultsError()) {
-		<p class="settings-page__error">{{ 'SETTINGS.RESULTS_ERROR' | translate }}</p>
-	} @else if (!resultGroups().length) {
-		<p class="settings-page__muted">{{ 'SETTINGS.RESULTS_EMPTY' | translate }}</p>
-	} @else {
+	<sb-loading-state
+		[state]="resultsState()"
+		[loadingText]="'SETTINGS.RESULTS_LOADING' | translate"
+		[errorTitle]="'SETTINGS.RESULTS_ERROR' | translate"
+		[emptyTitle]="'SETTINGS.RESULTS_EMPTY' | translate"
+	>
 		<div class="settings-page__result-groups">
 			@for (group of resultGroups(); track group.strollId) {
 				<div class="settings-page__result-group">
 					<h3>{{ group.strollName }}</h3>
 					@for (result of group.results; track result.id) {
-						<div class="settings-page__result-card">
-							<div class="settings-page__result-stat">
-								<mat-icon>schedule</mat-icon>
-								<strong>{{ formatTime(result.elapsedSeconds) }}</strong>
-								<span>{{ 'SETTINGS.RESULT_STAT_TIME' | translate }}</span>
+						<sb-card class="settings-page__result-card" padding="sm">
+							<div class="settings-page__result-row">
+								<div class="settings-page__result-stat">
+									<sb-icon name="schedule" size="sm" tone="primary" />
+									<strong>{{ formatTime(result.elapsedSeconds) }}</strong>
+									<span>{{ 'SETTINGS.RESULT_STAT_TIME' | translate }}</span>
+								</div>
+								<div class="settings-page__result-stat">
+									<sb-icon name="flag" size="sm" tone="primary" />
+									<strong>{{ result.completedStageCount }}</strong>
+									<span>{{ 'SETTINGS.RESULT_STAT_STAGES' | translate }}</span>
+								</div>
+								<div class="settings-page__result-stat">
+									<sb-icon name="straighten" size="sm" tone="primary" />
+									<strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong>
+									<span>{{ 'SETTINGS.RESULT_STAT_DISTANCE' | translate }}</span>
+								</div>
+								<span class="settings-page__result-date">{{
+									'SETTINGS.RESULT_COMPLETED_ON' | translate: { date: (result.completedAt | date: 'mediumDate') }
+								}}</span>
 							</div>
-							<div class="settings-page__result-stat">
-								<mat-icon>flag</mat-icon>
-								<strong>{{ result.completedStageCount }}</strong>
-								<span>{{ 'SETTINGS.RESULT_STAT_STAGES' | translate }}</span>
-							</div>
-							<div class="settings-page__result-stat">
-								<mat-icon>straighten</mat-icon>
-								<strong>{{ result.routeLengthKm | number: '1.1-2' }} km</strong>
-								<span>{{ 'SETTINGS.RESULT_STAT_DISTANCE' | translate }}</span>
-							</div>
-							<span class="settings-page__result-date">{{
-								'SETTINGS.RESULT_COMPLETED_ON' | translate: { date: (result.completedAt | date: 'mediumDate') }
-							}}</span>
-						</div>
+						</sb-card>
 					}
 				</div>
 			}
 		</div>
-	}
+	</sb-loading-state>
 </section>
 
 <section class="settings-page__badges">
 	<h2>{{ 'SETTINGS.BADGES_SECTION_TITLE' | translate }}</h2>
 
-	@if (badgesLoading()) {
-		<p class="settings-page__muted">{{ 'SETTINGS.BADGES_LOADING' | translate }}</p>
-	} @else if (badgesError()) {
-		<p class="settings-page__error">{{ 'SETTINGS.BADGES_ERROR' | translate }}</p>
-	} @else {
+	<sb-loading-state
+		[state]="badgesState()"
+		[loadingText]="'SETTINGS.BADGES_LOADING' | translate"
+		[errorTitle]="'SETTINGS.BADGES_ERROR' | translate"
+	>
 		<div class="settings-page__achievements">
 			@for (badge of badges(); track badge.code) {
 				<div class="settings-page__achievement-card" [class.settings-page__achievement-card--locked]="!badge.earned">
-					<mat-icon>{{ badge.icon }}</mat-icon>
+					<sb-icon [name]="badge.icon" size="md" />
 					<div>
 						<h3>{{ badge.title }}</h3>
 						<p>{{ badge.description }}</p>
@@ -68,5 +69,5 @@
 				</div>
 			}
 		</div>
-	}
+	</sb-loading-state>
 </section>

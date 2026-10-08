@@ -1,145 +1,92 @@
 <div class="admin-stroll-list">
-	<div class="admin-stroll-list__header">
-		<div>
-			<span class="admin-stroll-list__brand"><mat-icon>route</mat-icon>{{ 'SCREENS.ADMIN_STROLL_LIST.HEADER_TITLE' | translate }}</span>
-			<p class="admin-stroll-list__subtitle">{{ 'SCREENS.ADMIN_STROLL_LIST.SUBTITLE' | translate }}</p>
-		</div>
-		<button mat-flat-button color="primary" class="admin-stroll-list__create-btn" (click)="createStroll()">
-			<mat-icon>add</mat-icon>
-			{{ 'SCREENS.ADMIN_STROLL_LIST.CREATE_BUTTON' | translate | uppercase }}
-		</button>
-	</div>
-	<div class="admin-stroll-list__summary" aria-live="polite">
-		<div>
-			<span>{{ strolls().length }}</span
-			>{{ 'SCREENS.ADMIN_STROLL_LIST.METRIC_TOTAL' | translate }}
-		</div>
-		<div>
-			<span>{{ publishedCount() }}</span
-			>{{ 'SCREENS.ADMIN_STROLL_LIST.METRIC_PUBLISHED' | translate }}
-		</div>
-		<div>
-			<span>{{ draftCount() }}</span
-			>{{ 'SCREENS.ADMIN_STROLL_LIST.METRIC_DRAFTS' | translate }}
-		</div>
-		<div>
-			<span>{{ totalStages() }}</span
-			>{{ 'SCREENS.ADMIN_STROLL_LIST.METRIC_STAGES' | translate }}
-		</div>
-	</div>
+	<sb-page-header
+		icon="route"
+		[title]="'SCREENS.ADMIN_STROLL_LIST.HEADER_TITLE' | translate"
+		[subtitle]="'SCREENS.ADMIN_STROLL_LIST.SUBTITLE' | translate"
+	>
+		<sb-button icon="add" [label]="'SCREENS.ADMIN_STROLL_LIST.CREATE_BUTTON' | translate" (clicked)="createStroll()" />
+	</sb-page-header>
 
-	<div class="admin-stroll-list__content">
-		@if (loading()) {
-			<p class="admin-stroll-list__message">{{ 'SCREENS.ADMIN_STROLL_LIST.LOADING' | translate }}</p>
-		} @else if (loadError()) {
-			<p class="admin-stroll-list__message admin-stroll-list__message--error">{{ 'SCREENS.ADMIN_STROLL_LIST.LOAD_ERROR' | translate }}</p>
-		}
+	<sb-stat-grid class="admin-stroll-list__summary" aria-live="polite" [stats]="summaryStats()" />
 
-		<table mat-table [dataSource]="strolls()" class="admin-stroll-list__table" [hidden]="loading() || loadError()">
-			<ng-container matColumnDef="name">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_NAME' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll" class="admin-stroll-list__name-cell">
-					<strong>{{ stroll.name }}</strong>
-					<span>{{ stroll.description }}</span>
-					@if (stroll.proposerText) {
-						<small>{{ stroll.proposerText }}</small>
-					}
-				</td>
-			</ng-container>
+	<sb-table
+		class="admin-stroll-list__table"
+		[columns]="columns()"
+		[rows]="strolls()"
+		[loading]="loading()"
+		[error]="loadError()"
+		[cardOnMobile]="true"
+		[loadingText]="'SCREENS.ADMIN_STROLL_LIST.LOADING' | translate"
+		[errorTitle]="'SCREENS.ADMIN_STROLL_LIST.LOAD_ERROR' | translate"
+		[emptyTitle]="'SCREENS.ADMIN_STROLL_LIST.EMPTY' | translate"
+	>
+		<ng-template sbCell="name" let-stroll>
+			<div class="admin-stroll-list__name-cell">
+				<strong>{{ stroll.name }}</strong>
+				<span>{{ stroll.description }}</span>
+				@if (stroll.proposerText) {
+					<small>{{ stroll.proposerText }}</small>
+				}
+			</div>
+		</ng-template>
 
-			<ng-container matColumnDef="stations">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_STATIONS' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll">{{ stroll.stageCount }}</td>
-			</ng-container>
+		<ng-template sbCell="status" let-stroll>
+			<sb-badge
+				[tone]="statusTone(stroll.activeStatus)"
+				[icon]="statusIcon(stroll.activeStatus)"
+				[label]="'SCREENS.ADMIN_STATION_EDITOR.STATUS_' + stroll.activeStatus.toUpperCase() | translate"
+			/>
+		</ng-template>
 
-			<ng-container matColumnDef="labels">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_LABELS' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll">
-					<div class="admin-stroll-list__labels">
-						@for (label of stroll.labels.slice(0, 3); track label) {
-							<span>{{ label }}</span>
-						}
-						@if (!stroll.labels.length) {
-							<span class="admin-stroll-list__muted">—</span>
-						}
-						@if (stroll.labels.length > 3) {
-							<span>+{{ stroll.labels.length - 3 }}</span>
-						}
-					</div>
-				</td>
-			</ng-container>
+		<ng-template sbCell="visibility" let-stroll>
+			<sb-badge
+				[icon]="visibilityIcon(stroll.publicityFlag)"
+				[label]="'SCREENS.ADMIN_STATION_EDITOR.PUBLICITY_' + stroll.publicityFlag.toUpperCase() | translate"
+			/>
+		</ng-template>
 
-			<ng-container matColumnDef="visibility">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_VISIBILITY' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll">
-					<span class="admin-stroll-list__visibility">
-						<mat-icon aria-hidden="true">{{
-							stroll.publicityFlag === 'public' ? 'public' : stroll.publicityFlag === 'unlisted' ? 'link' : 'lock'
-						}}</mat-icon>
-						<span>{{ 'SCREENS.ADMIN_STATION_EDITOR.PUBLICITY_' + stroll.publicityFlag.toUpperCase() | translate }}</span>
-					</span>
-				</td>
-			</ng-container>
+		<ng-template sbCell="labels" let-stroll>
+			<div class="admin-stroll-list__labels">
+				@for (label of stroll.labels.slice(0, 3); track label) {
+					<sb-badge size="sm" [label]="label" />
+				}
+				@if (!stroll.labels.length) {
+					<span class="admin-stroll-list__muted">—</span>
+				}
+				@if (stroll.labels.length > 3) {
+					<sb-badge size="sm" [label]="'+' + (stroll.labels.length - 3)" />
+				}
+			</div>
+		</ng-template>
 
-			<ng-container matColumnDef="media">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_MEDIA' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll">
-					<span class="admin-stroll-list__numeric"><mat-icon>perm_media</mat-icon>{{ mediaCount(stroll) }}</span>
-				</td>
-			</ng-container>
+		<ng-template sbCell="media" let-stroll>
+			<sb-badge icon="perm_media" [label]="mediaCount(stroll) + ''" />
+		</ng-template>
 
-			<ng-container matColumnDef="updated">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_UPDATED' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll" class="admin-stroll-list__date">
-					<strong>{{ stroll.updatedAt | date: 'mediumDate' }}</strong
-					><span>{{ stroll.updatedAt | date: 'shortTime' }}</span>
-				</td>
-			</ng-container>
+		<ng-template sbCell="updated" let-stroll>
+			<div class="admin-stroll-list__date">
+				<strong>{{ stroll.updatedAt | date: 'mediumDate' }}</strong>
+				<span>{{ stroll.updatedAt | date: 'shortTime' }}</span>
+			</div>
+		</ng-template>
 
-			<ng-container matColumnDef="status">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_STATUS' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll">
-					<span
-						class="admin-stroll-list__status"
-						[class.admin-stroll-list__status--published]="stroll.activeStatus === 'published'"
-						[class.admin-stroll-list__status--draft]="stroll.activeStatus === 'draft'"
-						[class.admin-stroll-list__status--archived]="stroll.activeStatus === 'archived'"
-						role="status"
-					>
-						<mat-icon aria-hidden="true">{{
-							stroll.activeStatus === 'published' ? 'check_circle' : stroll.activeStatus === 'draft' ? 'edit_note' : 'archive'
-						}}</mat-icon>
-						{{ 'SCREENS.ADMIN_STATION_EDITOR.STATUS_' + stroll.activeStatus.toUpperCase() | translate }}
-					</span>
-				</td>
-			</ng-container>
-
-			<ng-container matColumnDef="actions">
-				<th mat-header-cell *matHeaderCellDef>{{ 'SCREENS.ADMIN_STROLL_LIST.COL_ACTIONS' | translate }}</th>
-				<td mat-cell *matCellDef="let stroll" class="admin-stroll-list__actions">
-					<button mat-icon-button [matTooltip]="'SCREENS.ADMIN_STROLL_LIST.EDIT_TOOLTIP' | translate" (click)="editStroll(stroll.id)">
-						<mat-icon>edit</mat-icon>
-					</button>
-					<button
-						mat-icon-button
-						[matTooltip]="'SCREENS.ADMIN_STROLL_LIST.DELETE_TOOLTIP' | translate"
-						color="warn"
-						(click)="deleteStroll(stroll)"
-					>
-						<mat-icon>delete</mat-icon>
-					</button>
-				</td>
-			</ng-container>
-
-			<tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-			<tr mat-row *matRowDef="let row; columns: displayedColumns" (dblclick)="editStroll(row.id)"></tr>
-			<tr class="mat-row" *matNoDataRow>
-				<td class="mat-cell admin-stroll-list__message" [attr.colspan]="displayedColumns.length">
-					{{ 'SCREENS.ADMIN_STROLL_LIST.EMPTY' | translate }}
-				</td>
-			</tr>
-		</table>
-	</div>
+		<ng-template sbCell="actions" let-stroll>
+			<div class="admin-stroll-list__actions">
+				<sb-icon-button
+					icon="edit"
+					tone="primary"
+					[ariaLabel]="'SCREENS.ADMIN_STROLL_LIST.EDIT_TOOLTIP' | translate"
+					(clicked)="editStroll(stroll.id)"
+				/>
+				<sb-icon-button
+					icon="delete"
+					tone="danger"
+					[ariaLabel]="'SCREENS.ADMIN_STROLL_LIST.DELETE_TOOLTIP' | translate"
+					(clicked)="deleteStroll(stroll)"
+				/>
+			</div>
+		</ng-template>
+	</sb-table>
 
 	@if (isAdmin()) {
 		<section class="admin-stroll-list__bulk-import">
@@ -147,19 +94,25 @@
 				<h2>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_TITLE' | translate }}</h2>
 				<p>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_HINT' | translate }}</p>
 			</div>
-			<textarea [(ngModel)]="bulkJson" rows="8" [placeholder]="'SCREENS.ADMIN_STROLL_LIST.BULK_PLACEHOLDER' | translate"></textarea>
+			<sb-textarea
+				[rows]="8"
+				[placeholder]="'SCREENS.ADMIN_STROLL_LIST.BULK_PLACEHOLDER' | translate"
+				[ngModel]="bulkJson()"
+				(ngModelChange)="bulkJson.set($event)"
+			/>
 			<div class="admin-stroll-list__bulk-actions">
-				<button mat-flat-button color="primary" [disabled]="bulkImporting || !bulkJson.trim()" (click)="importBulkJson()">
-					<mat-icon>upload_file</mat-icon>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_BUTTON' | translate | uppercase }}
-				</button>
-				@if (bulkImporting) {
-					<span>{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_IMPORTING' | translate }}</span>
+				<sb-button
+					icon="upload_file"
+					[label]="'SCREENS.ADMIN_STROLL_LIST.BULK_BUTTON' | translate"
+					[loading]="bulkImporting()"
+					[disabled]="!bulkJson().trim()"
+					(clicked)="importBulkJson()"
+				/>
+				@if (bulkImportSuccess()) {
+					<sb-alert tone="success" [message]="'SCREENS.ADMIN_STROLL_LIST.BULK_SUCCESS' | translate" />
 				}
-				@if (bulkImportSuccess) {
-					<span class="admin-stroll-list__bulk-success">{{ 'SCREENS.ADMIN_STROLL_LIST.BULK_SUCCESS' | translate }}</span>
-				}
-				@if (bulkImportError) {
-					<span class="admin-stroll-list__bulk-error">{{ bulkImportError | translate }}</span>
+				@if (bulkImportError()) {
+					<sb-alert tone="danger" [message]="bulkImportError() | translate" />
 				}
 			</div>
 		</section>

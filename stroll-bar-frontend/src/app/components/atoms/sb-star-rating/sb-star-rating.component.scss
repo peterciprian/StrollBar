@@ -1,0 +1,33 @@
+@use 'design' as sb;
+
+:host {
+	display: inline-flex;
+	flex: 0 0 auto;
+	vertical-align: middle;
+}
+
+.sb-star-rating__row {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.sb-star-rating__button {
+	display: inline-flex;
+	padding: 2px;
+	appearance: none;
+	background: none;
+	border: 0;
+	border-radius: var(--sb-radius-xs);
+	cursor: pointer;
+
+	@include sb.sb-focus-visible;
+}
+
+.sb-star-rating__star {
+	color: var(--sb-color-border-strong);
+}
+
+.sb-star-rating__star--filled {
+	color: var(--sb-color-accent);
+}

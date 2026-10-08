@@ -1,0 +1,11 @@
+@if (label() || valueText()) {
+	<div class="sb-progress-bar__head">
+		@if (label(); as text) {
+			<span class="sb-progress-bar__label">{{ text }}</span>
+		}
+		@if (valueText(); as text) {
+			<span class="sb-progress-bar__value">{{ text }}</span>
+		}
+	</div>
+}
+<mat-progress-bar class="sb-progress-bar__track" [mode]="mode()" [value]="value()" [attr.aria-label]="label()" />

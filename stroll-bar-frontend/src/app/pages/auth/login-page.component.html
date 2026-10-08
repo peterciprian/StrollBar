@@ -1,7 +1,7 @@
 <section class="auth-page">
 	<div class="auth-page__card">
 		<aside class="auth-page__intro" aria-hidden="true">
-			<mat-icon>explore</mat-icon>
+			<sb-icon name="explore" size="xl" />
 			<h2>{{ 'AUTH.LOGIN.INTRO_TITLE' | translate }}</h2>
 			<p>{{ 'AUTH.LOGIN.INTRO_TEXT' | translate }}</p>
 		</aside>
@@ -12,38 +12,48 @@
 			</header>
 
 			<form class="auth-page__form" [formGroup]="form" (ngSubmit)="onSubmit()">
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'AUTH.LOGIN.EMAIL_LABEL' | translate }}</mat-label>
-					<input matInput type="email" formControlName="email" autocomplete="email" />
-					@if (form.controls.email.invalid && form.controls.email.touched) {
-						<mat-error>{{ 'AUTH.LOGIN.EMAIL_ERROR' | translate }}</mat-error>
-					}
-				</mat-form-field>
+				<sb-input
+					formControlName="email"
+					type="email"
+					autocomplete="email"
+					[label]="'AUTH.LOGIN.EMAIL_LABEL' | translate"
+					[errorMessages]="{
+						required: 'AUTH.LOGIN.EMAIL_ERROR' | translate,
+						email: 'AUTH.LOGIN.EMAIL_ERROR' | translate
+					}"
+				/>
 
-				<mat-form-field appearance="outline">
-					<mat-label>{{ 'AUTH.LOGIN.PASSWORD_LABEL' | translate }}</mat-label>
-					<input matInput type="password" formControlName="password" autocomplete="current-password" />
-					@if (form.controls.password.invalid && form.controls.password.touched) {
-						<mat-error>{{ 'AUTH.LOGIN.PASSWORD_ERROR' | translate }}</mat-error>
-					}
-				</mat-form-field>
+				<sb-input
+					formControlName="password"
+					type="password"
+					autocomplete="current-password"
+					[label]="'AUTH.LOGIN.PASSWORD_LABEL' | translate"
+					[errorMessages]="{ required: 'AUTH.LOGIN.PASSWORD_ERROR' | translate }"
+				/>
 
-				@if (error()) {
-					<p class="auth-error">{{ error() }}</p>
+				@if (error(); as message) {
+					<sb-alert tone="danger" [message]="message" />
 				}
 
-				<button mat-flat-button color="primary" class="auth-page__submit" type="submit" [disabled]="loading()">
-					<mat-icon>login</mat-icon>
-					{{ (loading() ? 'AUTH.LOGIN.SUBMIT_LOADING' : 'AUTH.LOGIN.SUBMIT') | translate }}
-				</button>
+				<sb-button
+					class="auth-page__submit"
+					type="submit"
+					icon="login"
+					[fullWidth]="true"
+					[loading]="loading()"
+					[label]="(loading() ? 'AUTH.LOGIN.SUBMIT_LOADING' : 'AUTH.LOGIN.SUBMIT') | translate"
+				/>
 			</form>
 
 			<!-- <div class="social-login" aria-label="Social login options">
 				<p>{{ 'AUTH.LOGIN.SOCIAL.TITLE' | translate }}</p>
 				@for (item of socialProviders; track item.provider) {
-					<button mat-stroked-button type="button" [disabled]="!!socialProviderLoading" (click)="onSocialLogin(item.provider)">
-						{{ item.labelKey | translate }}
-					</button>
+					<sb-button
+						variant="secondary"
+						[label]="item.labelKey | translate"
+						[disabled]="!!socialProviderLoading"
+						(clicked)="onSocialLogin(item.provider)"
+					/>
 				}
 			</div> -->
 			<p class="auth-page__switch">

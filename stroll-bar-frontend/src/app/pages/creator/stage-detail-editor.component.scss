@@ -1,3 +1,5 @@
+@use 'design' as sb;
+
 :host {
 	display: block;
 	flex: 1 1 720px;
@@ -7,26 +9,27 @@
 .stage-detail-editor {
 	width: 100%;
 	min-width: 0;
-	background: #fff;
-	border-radius: 16px;
-	box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-	padding: 16px;
+	background: var(--sb-color-surface-raised);
+	border-radius: var(--sb-radius-lg);
+	box-shadow: var(--sb-shadow-2);
+	padding: var(--sb-space-4);
 }
 .stage-detail-editor__header {
-	margin: -16px -16px 8px;
-	padding: 16px;
-	border-bottom: 1px solid #e2e8f0;
+	margin: calc(-1 * var(--sb-space-4)) calc(-1 * var(--sb-space-4)) var(--sb-space-2);
+	padding: var(--sb-space-4);
+	border-bottom: 1px solid var(--sb-color-border);
 }
 .stage-detail-editor h1 {
 	margin: 0;
-	font-size: 20px;
+	font-size: var(--sb-font-size-xl);
 }
 .stage-detail-editor form {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
-.stage-detail-editor mat-form-field {
+.stage-detail-editor sb-input,
+.stage-detail-editor sb-textarea {
 	width: 100%;
 }
 .stage-detail-editor__coords {
@@ -34,7 +37,7 @@
 	grid-template-columns: 1fr;
 	gap: 16px;
 }
-@media (min-width: 700px) {
+@include sb.sb-up(sm) {
 	.stage-detail-editor__coords {
 		grid-template-columns: 1fr 1fr;
 	}

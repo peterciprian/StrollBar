@@ -28,4 +28,15 @@ test.describe('critical browser flows', () => {
 		await search.fill('Budapest');
 		await expect(search).toHaveValue('Budapest');
 	});
+
+	test('home stroll card opens that stroll selected in explore', async ({ page }) => {
+		await page.goto('/');
+		const card = page.locator('app-stroll-card').first();
+		await expect(card).toBeVisible();
+		const strollName = await card.locator('.stroll-card__title').innerText();
+		await card.locator('.stroll-card').click();
+
+		await expect(page).toHaveURL(/\/explore\?strollId=[^&]+/);
+		await expect(page.locator('.stroll-browser__right h1')).toHaveText(strollName);
+	});
 });

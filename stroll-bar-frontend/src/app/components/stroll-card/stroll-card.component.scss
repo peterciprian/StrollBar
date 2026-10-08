@@ -1,117 +1,101 @@
+@use 'design' as sb;
+
+:host {
+	display: block;
+	min-width: 0;
+}
+
 .stroll-card {
 	cursor: pointer;
-	border-radius: 16px;
-	overflow: hidden;
-	margin-bottom: 12px;
+	margin-bottom: var(--sb-space-3);
 	border: 2px solid transparent;
-	transition:
-		box-shadow 0.2s ease,
-		border-color 0.2s ease,
-		transform 0.15s ease;
+	transition: border-color var(--sb-transition-base);
+}
 
-	&:hover {
-		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-		transform: translateY(-1px);
+.stroll-card__cover {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	justify-content: flex-end;
+	height: 96px;
+	overflow: hidden;
+	padding: var(--sb-space-2);
+	background: linear-gradient(135deg, var(--sb-color-primary), var(--sb-color-surface-sunken));
+	background-position: center;
+	background-size: cover;
+
+	img {
+		position: absolute;
+		inset: 0;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
+}
 
-	&.selected {
-		border-color: var(--mat-sys-primary, #0891b2);
-	}
+.stroll-card__category {
+	z-index: 1;
+	max-width: 100%;
+	overflow: hidden;
+	padding: var(--sb-space-1) var(--sb-space-2);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	border-radius: var(--sb-radius-pill);
+	background: rgba(255, 255, 255, 0.84);
+	color: var(--sb-color-text);
+	font-size: var(--sb-font-size-xs);
+	font-weight: var(--sb-font-weight-bold);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	backdrop-filter: blur(8px);
+}
 
-	&__cover {
-		height: 96px;
-		display: flex;
-		align-items: flex-start;
-		justify-content: flex-end;
-		padding: 8px;
-		box-sizing: border-box;
-		background: #155e75;
-		background-position: center;
-		background-size: cover;
-		position: relative;
+.stroll-card__private {
+	z-index: 1;
+	margin-right: auto;
+	--sb-badge-bg: var(--sb-color-overlay);
+	--sb-badge-fg: var(--sb-color-text-inverse);
+}
 
-		img {
-			height: 100%;
-			inset: 0;
-			object-fit: cover;
-			position: absolute;
-			width: 100%;
-		}
-	}
+.stroll-card__content {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding: var(--sb-space-3) var(--sb-space-4) var(--sb-space-4);
+}
 
-	&__category {
-		backdrop-filter: blur(8px);
-		background: rgba(255, 255, 255, 0.8);
-		border: 1px solid rgba(255, 255, 255, 0.6);
-		border-radius: 999px;
-		box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
-		color: #164e63;
-		font-size: 10px;
-		font-weight: 700;
-		line-height: 20px;
-		padding: 0 8px;
-		white-space: nowrap;
-		z-index: 1;
-	}
+.stroll-card__title {
+	margin: 0 0 var(--sb-space-2);
+	font-size: var(--sb-font-size-lg);
+	font-weight: var(--sb-font-weight-medium);
+	line-height: var(--sb-line-height-tight);
+	color: var(--sb-color-text);
+	@include sb.sb-truncate(2);
+}
 
-	&__private {
-		align-items: center;
-		background: rgba(15, 23, 42, 0.88);
-		border-radius: 4px;
-		color: #fff;
-		display: inline-flex;
-		font-size: 10px;
-		font-weight: 700;
-		gap: 3px;
-		line-height: 20px;
-		margin-right: auto;
-		padding: 0 7px;
-		z-index: 1;
+.stroll-card__rating {
+	display: flex;
+	align-items: center;
+	gap: var(--sb-space-2);
+	margin-bottom: var(--sb-space-2);
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-xs);
+}
 
-		mat-icon {
-			font-size: 13px;
-			height: 13px;
-			width: 13px;
-		}
-	}
+.stroll-card__meta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--sb-space-2) var(--sb-space-3);
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-sm);
+}
 
-	&__title {
-		margin: 12px 0 8px;
-		font-size: 16px;
-		font-weight: 600;
-	}
+.stroll-card__meta-item {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--sb-space-1);
+}
 
-	&__rating {
-		align-items: center;
-		color: var(--mat-sys-on-surface-variant, #616161);
-		display: flex;
-		font-size: 12px;
-		gap: 6px;
-		margin-bottom: 8px;
-	}
-
-	&__meta {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 12px;
-		color: var(--mat-sys-on-surface-variant, #616161);
-		font-size: 13px;
-	}
-
-	&__meta-item {
-		display: inline-flex;
-		align-items: center;
-		gap: 4px;
-
-		mat-icon {
-			font-size: 16px;
-			width: 16px;
-			height: 16px;
-		}
-	}
-
-	&__price {
-		font-weight: 600;
-		color: var(--mat-sys-primary, #0891b2);
-	}
+.stroll-card__price {
+	font-weight: var(--sb-font-weight-medium);
+	color: var(--sb-color-primary);
 }

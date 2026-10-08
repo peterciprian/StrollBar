@@ -20,7 +20,8 @@ import type * as L from 'leaflet';
 @Component({
 	selector: 'app-stage-location-map',
 	standalone: true,
-	template: '<div #map class="stage-location-map" role="application" aria-label="Stage location map"></div>',
+	template:
+		'<div #map class="stage-location-map" [class.stage-location-map--fill]="fill" role="application" aria-label="Stage location map"></div>',
 	styleUrls: ['./stage-location-map.component.scss']
 })
 export class StageLocationMapComponent implements AfterViewInit, OnChanges, OnDestroy {
@@ -28,6 +29,7 @@ export class StageLocationMapComponent implements AfterViewInit, OnChanges, OnDe
 	@Input() latitude = 47.4979;
 	@Input() longitude = 19.0402;
 	@Input() readonly = false;
+	@Input() fill = false;
 	@Output() locationSelected = new EventEmitter<{ latitude: number; longitude: number }>();
 	@ViewChild('map') private mapElement?: ElementRef<HTMLDivElement>;
 	private leaflet: typeof L | null = null;

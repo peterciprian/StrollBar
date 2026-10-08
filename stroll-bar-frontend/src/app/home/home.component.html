@@ -1,38 +1,46 @@
 <section class="welcome">
 	<div class="welcome__content">
-		<span class="welcome__eyebrow"><mat-icon>auto_awesome</mat-icon>{{ 'HOME.EYEBROW' | translate }}</span>
+		<span class="welcome__eyebrow"><sb-icon name="auto_awesome" size="sm" />{{ 'HOME.EYEBROW' | translate }}</span>
 		<h1 class="welcome__title">{{ 'HOME.WELCOME_TITLE' | translate }}</h1>
 		<p class="welcome__subtitle">
 			{{ 'HOME.WELCOME_SUBTITLE' | translate }}
 		</p>
 		<div class="welcome__actions">
 			@if (!isLoggedIn()) {
-				<a mat-flat-button color="primary" class="welcome__cta welcome__cta--primary" routerLink="/auth/register">
-					<mat-icon>person_add</mat-icon>
-					{{ 'HOME.REGISTER' | translate | uppercase }}
-				</a>
+				<sb-button
+					class="welcome__cta welcome__cta--primary"
+					variant="primary"
+					size="lg"
+					icon="person_add"
+					[label]="'HOME.REGISTER' | translate | uppercase"
+					[routerLink]="['/auth/register']"
+				/>
 			}
-			<a mat-stroked-button class="welcome__cta welcome__cta--secondary" routerLink="/explore">
-				<mat-icon>hiking</mat-icon>
-				{{ 'HOME.SHOW_STROLLS' | translate | uppercase }}
-			</a>
+			<sb-button
+				class="welcome__cta welcome__cta--secondary"
+				variant="inverse"
+				size="lg"
+				icon="hiking"
+				[label]="'HOME.SHOW_STROLLS' | translate | uppercase"
+				[routerLink]="['/explore']"
+			/>
 		</div>
 	</div>
 </section>
 
 <section class="features">
 	<div class="features__item">
-		<mat-icon>castle</mat-icon>
+		<sb-icon name="castle" size="feature" />
 		<h3>{{ 'HOME.FEATURE1_TITLE' | translate }}</h3>
 		<p>{{ 'HOME.FEATURE1_DESC' | translate }}</p>
 	</div>
 	<div class="features__item">
-		<mat-icon>extension</mat-icon>
+		<sb-icon name="extension" size="feature" />
 		<h3>{{ 'HOME.FEATURE2_TITLE' | translate }}</h3>
 		<p>{{ 'HOME.FEATURE2_DESC' | translate }}</p>
 	</div>
 	<div class="features__item">
-		<mat-icon>emoji_events</mat-icon>
+		<sb-icon name="emoji_events" size="feature" />
 		<h3>{{ 'HOME.FEATURE3_TITLE' | translate }}</h3>
 		<p>{{ 'HOME.FEATURE3_DESC' | translate }}</p>
 	</div>
@@ -41,16 +49,16 @@
 <section class="showcase">
 	<div class="showcase__header">
 		<h2>{{ 'HOME.SHOWCASE_TITLE' | translate }}</h2>
-		<a mat-button color="primary" routerLink="/explore">{{ 'HOME.SHOWCASE_LINK' | translate }}<mat-icon>arrow_forward</mat-icon></a>
+		<sb-button variant="ghost" trailingIcon="arrow_forward" [label]="'HOME.SHOWCASE_LINK' | translate" [routerLink]="['/explore']" />
 	</div>
 	<div class="showcase__grid">
 		@if (strollsState.loading()) {
-			<p>{{ 'COMMON.LOADING' | translate }}</p>
+			<sb-spinner [block]="true" [label]="'COMMON.LOADING' | translate" />
 		} @else if (strollsState.error()) {
-			<p class="error">{{ 'COMMON.ERROR_LOADING' | translate }}</p>
+			<sb-alert tone="danger" [message]="'COMMON.ERROR_LOADING' | translate" />
 		} @else if (strollsState.data() && strollsState.data()!.length > 0) {
 			@for (stroll of strollsState.data(); track stroll.id) {
-				<app-stroll-card [stroll]="stroll"></app-stroll-card>
+				<app-stroll-card [stroll]="stroll" (cardClick)="openStroll(stroll.id)"></app-stroll-card>
 			}
 		}
 	</div>
@@ -61,14 +69,8 @@
 	<p>{{ 'HOME.CTA_SUBTITLE' | translate }}</p>
 	<div class="cta-banner__actions">
 		@if (!isLoggedIn()) {
-			<a mat-flat-button color="primary" routerLink="/auth/register">
-				<mat-icon>person_add</mat-icon>
-				{{ 'HOME.REGISTER' | translate | uppercase }}
-			</a>
+			<sb-button variant="primary" icon="person_add" [label]="'HOME.REGISTER' | translate | uppercase" [routerLink]="['/auth/register']" />
 		}
-		<a mat-stroked-button routerLink="/explore">
-			<mat-icon>hiking</mat-icon>
-			{{ 'HOME.SHOW_STROLLS' | translate | uppercase }}
-		</a>
+		<sb-button variant="secondary" icon="hiking" [label]="'HOME.SHOW_STROLLS' | translate | uppercase" [routerLink]="['/explore']" />
 	</div>
 </section>

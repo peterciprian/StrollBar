@@ -1,11 +1,11 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
+import { SbIconComponent } from '../atoms/sb-icon/sb-icon.component';
 
 @Component({
 	selector: 'app-stage-card',
 	standalone: true,
-	imports: [CommonModule, MatIconModule],
+	imports: [CommonModule, SbIconComponent],
 	templateUrl: './stage-card.component.html',
 	styleUrls: ['./stage-card.component.scss']
 })

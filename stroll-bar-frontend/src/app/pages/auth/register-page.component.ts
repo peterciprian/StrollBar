@@ -1,13 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Store } from '@ngrx/store';
+import { SbAlertComponent } from '../../components/atoms/sb-alert/sb-alert.component';
+import { SbButtonComponent } from '../../components/atoms/sb-button/sb-button.component';
+import { SbIconComponent } from '../../components/atoms/sb-icon/sb-icon.component';
+import { SbInputComponent } from '../../components/atoms/sb-input/sb-input.component';
 import { register, selectAuthError, selectAuthLoading } from '../../features/auth/auth.state';
 import { passwordPolicyValidator } from '../../core/validators/password-policy.validator';
 import { RecaptchaService } from '../../core/services/recaptcha.service';
@@ -15,7 +14,7 @@ import { RecaptchaService } from '../../core/services/recaptcha.service';
 @Component({
 	selector: 'app-register-page',
 	standalone: true,
-	imports: [CommonModule, ReactiveFormsModule, RouterLink, MatButtonModule, MatFormFieldModule, MatIconModule, MatInputModule, TranslatePipe],
+	imports: [ReactiveFormsModule, RouterLink, TranslatePipe, SbAlertComponent, SbButtonComponent, SbIconComponent, SbInputComponent],
 	templateUrl: './register-page.component.html'
 })
 export class RegisterPageComponent implements OnInit {

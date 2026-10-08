@@ -1,19 +1,18 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SbPageHeaderComponent } from '../../components/atoms/sb-page-header/sb-page-header.component';
 import { AuthFeatureService } from '../../features/auth/auth-feature.service';
 import { fetchMe, socialLoginFailure } from '../../features/auth/auth.state';
 
 @Component({
 	selector: 'app-social-callback-page',
 	standalone: true,
-	imports: [CommonModule, TranslatePipe],
+	imports: [TranslatePipe, SbPageHeaderComponent],
 	template: `
 		<section>
-			<h1>{{ 'AUTH.SOCIAL_CALLBACK.TITLE' | translate }}</h1>
-			<p>{{ 'AUTH.SOCIAL_CALLBACK.MESSAGE' | translate }}</p>
+			<sb-page-header icon="sync" [title]="'AUTH.SOCIAL_CALLBACK.TITLE' | translate" [subtitle]="'AUTH.SOCIAL_CALLBACK.MESSAGE' | translate" />
 		</section>
 	`
 })

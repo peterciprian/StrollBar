@@ -1,0 +1,54 @@
+@use 'design' as sb;
+
+:host {
+	@include sb.sb-auto-grid(140px, var(--sb-space-3));
+	width: 100%;
+}
+
+.sb-stat-grid__tile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sb-space-1);
+	min-width: 0;
+	padding: var(--sb-space-4);
+	border-radius: var(--sb-radius-md);
+	background: var(--sb-color-surface-sunken);
+	color: var(--sb-color-text);
+}
+
+.sb-stat-grid__icon {
+	color: var(--sb-stat-tone, var(--sb-color-text-muted));
+}
+
+.sb-stat-grid__value {
+	font-size: var(--sb-font-size-xl);
+	font-weight: var(--sb-font-weight-bold);
+	line-height: var(--sb-line-height-tight);
+	color: var(--sb-stat-tone, var(--sb-color-text));
+}
+
+.sb-stat-grid__label {
+	font-size: var(--sb-font-size-sm);
+	color: var(--sb-color-text-muted);
+	@include sb.sb-truncate(2);
+}
+
+.sb-stat-grid__tile[data-tone='primary'] {
+	--sb-stat-tone: var(--sb-color-primary);
+}
+
+.sb-stat-grid__tile[data-tone='success'] {
+	--sb-stat-tone: var(--sb-color-success);
+}
+
+.sb-stat-grid__tile[data-tone='warning'] {
+	--sb-stat-tone: var(--sb-color-warning);
+}
+
+.sb-stat-grid__tile[data-tone='danger'] {
+	--sb-stat-tone: var(--sb-color-danger);
+}
+
+.sb-stat-grid__tile[data-tone='info'] {
+	--sb-stat-tone: var(--sb-color-info);
+}

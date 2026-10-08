@@ -1,0 +1,12 @@
+<sb-dialog-shell [title]="data.title" [icon]="data.icon ?? null" [tone]="data.tone ?? 'neutral'">
+	<p>{{ data.message }}</p>
+	<ng-container sbDialogActions>
+		<sb-button variant="ghost" [label]="data.cancelLabel" (clicked)="close(false)" />
+		<sb-button
+			[variant]="data.confirmVariant ?? 'danger'"
+			[icon]="data.confirmIcon ?? null"
+			[label]="data.confirmLabel"
+			(clicked)="close(true)"
+		/>
+	</ng-container>
+</sb-dialog-shell>

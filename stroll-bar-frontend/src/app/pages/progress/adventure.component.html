@@ -1,8 +1,8 @@
 <div class="adventure">
-	<mat-progress-bar class="adventure__progress" mode="determinate" [value]="progressPercent"></mat-progress-bar>
+	<sb-progress-bar class="adventure__progress" [value]="progressPercent" />
 
 	@if (loading) {
-		<p class="adventure__loading">{{ 'SCREENS.ADVENTURE.LOADING' | translate }}</p>
+		<sb-spinner class="adventure__loading" [block]="true" [label]="'SCREENS.ADVENTURE.LOADING' | translate" />
 	} @else {
 		<div class="adventure__split">
 			<div class="adventure__side">
@@ -15,6 +15,7 @@
 						[latitude]="currentStage?.latitude ?? 47.4979"
 						[longitude]="currentStage?.longitude ?? 19.0402"
 						[readonly]="true"
+						[fill]="true"
 					></app-stage-location-map>
 				</div>
 			</div>
@@ -26,7 +27,7 @@
 					}}</span>
 					<h1>{{ currentStage?.name }}</h1>
 					@if (currentStage?.address) {
-						<p class="adventure__address"><mat-icon>near_me</mat-icon>{{ currentStage!.address }}</p>
+						<p class="adventure__address"><sb-icon name="near_me" size="sm" />{{ currentStage!.address }}</p>
 					}
 				</div>
 
@@ -34,55 +35,61 @@
 					<p>{{ currentStage?.description }}</p>
 					@if (currentStage?.notes) {
 						<p class="adventure__riddle">
-							<mat-icon>help_outline</mat-icon>
+							<sb-icon name="help_outline" size="sm" />
 							{{ currentStage!.notes }}
 						</p>
 					}
 				</div>
 
 				<div class="adventure__task">
-					<h2><mat-icon>flag</mat-icon>{{ 'SCREENS.ADVENTURE.YOUR_TASK' | translate | uppercase }}</h2>
-					<mat-form-field appearance="outline" class="adventure__answer-field">
-						<mat-label>{{ 'SCREENS.ADVENTURE.ANSWER_LABEL' | translate }}</mat-label>
-						<input matInput [(ngModel)]="answer" [placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate" />
-					</mat-form-field>
-					<button mat-flat-button class="adventure__submit-btn" (click)="submitAnswer()" [disabled]="!answer">
-						<mat-icon>send</mat-icon>
-						{{ 'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase }}
-					</button>
+					<h2><sb-icon name="flag" size="md" />{{ 'SCREENS.ADVENTURE.YOUR_TASK' | translate | uppercase }}</h2>
+					<sb-input
+						class="adventure__answer-field"
+						[(ngModel)]="answer"
+						[label]="'SCREENS.ADVENTURE.ANSWER_LABEL' | translate"
+						[placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate"
+					/>
+					<sb-button
+						class="adventure__submit-btn"
+						icon="send"
+						[label]="'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase"
+						[disabled]="!answer"
+						(clicked)="submitAnswer()"
+					/>
 					@if (submitted) {
 						<p class="adventure__feedback" [class.adventure__feedback--incorrect]="!feedbackCorrect">
-							<mat-icon>{{ feedbackCorrect ? 'check_circle' : 'error_outline' }}</mat-icon>
+							<sb-icon [name]="feedbackCorrect ? 'check_circle' : 'error_outline'" size="sm" />
 							{{ (feedbackCorrect ? 'SCREENS.ADVENTURE.FEEDBACK' : 'SCREENS.ADVENTURE.FEEDBACK_INCORRECT') | translate }}
 						</p>
 					}
 
 					<div class="adventure__report-row">
-						<button
-							mat-icon-button
+						<sb-icon-button
 							class="adventure__report-btn"
-							[matTooltip]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
-							(click)="reportProblem()"
-						>
-							<mat-icon>report_problem</mat-icon>
-						</button>
+							icon="report_problem"
+							[ariaLabel]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
+							[tooltip]="'SHARED.REPORT_PROBLEM.TOOLTIP' | translate"
+							(clicked)="reportProblem()"
+						/>
 					</div>
 
 					<div class="adventure__nav-buttons">
-						<button mat-stroked-button [disabled]="!canGoPrevious" (click)="goToPreviousStage()">
-							<mat-icon>arrow_back</mat-icon>
-							{{ 'SCREENS.ADVENTURE.PREVIOUS_STAGE' | translate }}
-						</button>
+						<sb-button
+							variant="secondary"
+							icon="arrow_back"
+							[disabled]="!canGoPrevious"
+							[label]="'SCREENS.ADVENTURE.PREVIOUS_STAGE' | translate"
+							(clicked)="goToPreviousStage()"
+						/>
 						@if (canGoNext) {
-							<button mat-stroked-button (click)="goToNextStage()">
-								{{ 'SCREENS.ADVENTURE.NEXT_STAGE' | translate }}
-								<mat-icon>arrow_forward</mat-icon>
-							</button>
+							<sb-button
+								variant="secondary"
+								trailingIcon="arrow_forward"
+								[label]="'SCREENS.ADVENTURE.NEXT_STAGE' | translate"
+								(clicked)="goToNextStage()"
+							/>
 						} @else {
-							<button mat-flat-button color="primary" (click)="goToNextStage()">
-								{{ 'SCREENS.ADVENTURE.FINISH' | translate }}
-								<mat-icon>flag</mat-icon>
-							</button>
+							<sb-button icon="flag" [label]="'SCREENS.ADVENTURE.FINISH' | translate" (clicked)="goToNextStage()" />
 						}
 					</div>
 				</div>

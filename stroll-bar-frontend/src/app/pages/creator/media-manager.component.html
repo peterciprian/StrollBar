@@ -28,13 +28,19 @@
 				<div class="media-manager__item">
 					<img [src]="url" alt="" />
 					<div class="media-manager__actions">
-						<button type="button" mat-icon-button [disabled]="i === 0" (click)="move('image', i, -1)">
-							<mat-icon>arrow_back</mat-icon>
-						</button>
-						<button type="button" mat-icon-button [disabled]="i === imageUrls.length - 1" (click)="move('image', i, 1)">
-							<mat-icon>arrow_forward</mat-icon>
-						</button>
-						<button type="button" mat-icon-button (click)="remove('image', i)"><mat-icon>delete</mat-icon></button>
+						<sb-icon-button
+							icon="arrow_back"
+							[ariaLabel]="'COMMON.MOVE_BACK' | translate"
+							[disabled]="i === 0"
+							(clicked)="move('image', i, -1)"
+						/>
+						<sb-icon-button
+							icon="arrow_forward"
+							[ariaLabel]="'COMMON.MOVE_FORWARD' | translate"
+							[disabled]="i === imageUrls.length - 1"
+							(clicked)="move('image', i, 1)"
+						/>
+						<sb-icon-button icon="delete" tone="danger" [ariaLabel]="'COMMON.DELETE' | translate" (clicked)="remove('image', i)" />
 					</div>
 				</div>
 			}
@@ -42,13 +48,19 @@
 				<div class="media-manager__item">
 					<video [src]="url" controls preload="metadata"></video>
 					<div class="media-manager__actions">
-						<button type="button" mat-icon-button [disabled]="i === 0" (click)="move('video', i, -1)">
-							<mat-icon>arrow_back</mat-icon>
-						</button>
-						<button type="button" mat-icon-button [disabled]="i === videoUrls.length - 1" (click)="move('video', i, 1)">
-							<mat-icon>arrow_forward</mat-icon>
-						</button>
-						<button type="button" mat-icon-button (click)="remove('video', i)"><mat-icon>delete</mat-icon></button>
+						<sb-icon-button
+							icon="arrow_back"
+							[ariaLabel]="'COMMON.MOVE_BACK' | translate"
+							[disabled]="i === 0"
+							(clicked)="move('video', i, -1)"
+						/>
+						<sb-icon-button
+							icon="arrow_forward"
+							[ariaLabel]="'COMMON.MOVE_FORWARD' | translate"
+							[disabled]="i === videoUrls.length - 1"
+							(clicked)="move('video', i, 1)"
+						/>
+						<sb-icon-button icon="delete" tone="danger" [ariaLabel]="'COMMON.DELETE' | translate" (clicked)="remove('video', i)" />
 					</div>
 				</div>
 			}

@@ -1,8 +1,9 @@
-import { Component, Inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+
+import { SbButtonComponent } from '../../../components/atoms/sb-button/sb-button.component';
+import { SbDialogShellComponent } from '../../../components/atoms/sb-dialog-shell/sb-dialog-shell.component';
 
 export interface RoleChangeConfirmDialogData {
 	username: string;
@@ -13,10 +14,10 @@ export interface RoleChangeConfirmDialogData {
 @Component({
 	selector: 'app-role-change-confirm-dialog',
 	standalone: true,
-	imports: [MatDialogModule, MatButtonModule, MatIconModule, TranslatePipe],
+	imports: [MatDialogModule, TranslatePipe, SbButtonComponent, SbDialogShellComponent],
+	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
-		<h2 mat-dialog-title>{{ 'SCREENS.ADMIN_USER_LIST.CONFIRM_TITLE' | translate }}</h2>
-		<mat-dialog-content>
+		<sb-dialog-shell icon="admin_panel_settings" [title]="'SCREENS.ADMIN_USER_LIST.CONFIRM_TITLE' | translate">
 			<p>
 				{{
 					'SCREENS.ADMIN_USER_LIST.CONFIRM_MESSAGE'
@@ -28,13 +29,11 @@ export interface RoleChangeConfirmDialogData {
 							  }
 				}}
 			</p>
-		</mat-dialog-content>
-		<mat-dialog-actions align="end">
-			<button mat-button [mat-dialog-close]="false">{{ 'SCREENS.ADMIN_USER_LIST.CONFIRM_CANCEL' | translate }}</button>
-			<button mat-flat-button color="primary" [mat-dialog-close]="true">
-				<mat-icon>admin_panel_settings</mat-icon>{{ 'SCREENS.ADMIN_USER_LIST.CONFIRM_APPLY' | translate }}
-			</button>
-		</mat-dialog-actions>
+			<ng-container sbDialogActions>
+				<sb-button variant="tertiary" [label]="'SCREENS.ADMIN_USER_LIST.CONFIRM_CANCEL' | translate" [mat-dialog-close]="false" />
+				<sb-button icon="admin_panel_settings" [label]="'SCREENS.ADMIN_USER_LIST.CONFIRM_APPLY' | translate" [mat-dialog-close]="true" />
+			</ng-container>
+		</sb-dialog-shell>
 	`
 })
 export class RoleChangeConfirmDialogComponent {

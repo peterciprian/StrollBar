@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
+import { SbIconComponent } from '../atoms/sb-icon/sb-icon.component';
 
 export interface MapMarker {
 	name: string;
@@ -10,7 +10,7 @@ export interface MapMarker {
 @Component({
 	selector: 'app-map-preview',
 	standalone: true,
-	imports: [CommonModule, MatIconModule, TranslatePipe],
+	imports: [CommonModule, SbIconComponent, TranslatePipe],
 	templateUrl: './map-preview.component.html',
 	styleUrls: ['./map-preview.component.scss']
 })
