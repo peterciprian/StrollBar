@@ -59,7 +59,9 @@ main > router-outlet + * {
 }
 
 app-login-page > section,
-app-register-page > section {
+app-register-page > section,
+app-forgot-password-page > section,
+app-reset-password-page > section {
 	flex: 1 1 auto;
 	display: flex;
 	flex-direction: column;
@@ -127,6 +129,43 @@ app-register-page > section {
 	color: var(--sb-color-text-muted);
 }
 
+// Headings receive programmatic focus when a page switches state; keep the ring for keyboard users only.
+.auth-page__heading h1:focus:not(:focus-visible) {
+	outline: none;
+}
+
+.auth-page__forgot {
+	margin: 0;
+	font-size: var(--sb-font-size-sm);
+	text-align: right;
+}
+
+.auth-page__forgot a,
+.auth-page__switch a {
+	color: var(--sb-color-primary);
+	font-weight: var(--sb-font-weight-bold);
+	text-decoration: none;
+}
+
+.auth-page__forgot a:hover,
+.auth-page__forgot a:focus-visible {
+	text-decoration: underline;
+}
+
+.auth-page__note {
+	margin: var(--sb-space-3) 0 0;
+	color: var(--sb-color-text-muted);
+	font-size: var(--sb-font-size-sm);
+	line-height: var(--sb-line-height-base);
+}
+
+.auth-page__actions {
+	display: flex;
+	flex-direction: column;
+	gap: var(--sb-space-2);
+	margin-top: var(--sb-space-5);
+}
+
 .auth-page__form {
 	display: flex;
 	flex-direction: column;
@@ -151,12 +190,6 @@ app-register-page > section {
 	font-size: var(--sb-font-size-xs);
 	line-height: 1.4;
 	text-align: center;
-}
-
-.auth-page__switch a {
-	color: var(--sb-color-primary);
-	font-weight: var(--sb-font-weight-bold);
-	text-decoration: none;
 }
 
 .social-login {

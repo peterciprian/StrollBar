@@ -9,9 +9,11 @@ export default defineConfig({
 	retries: environment['CI'] ? 2 : 0,
 	reporter: environment['CI'] ? 'github' : 'list',
 	use: {
-		baseURL: environment['PLAYWRIGHT_BASE_URL'] ?? 'http://127.0.0.1:4200',
+		baseURL: 'http://127.0.0.1:4201/',
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure'
 	},
-	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }]
+	projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+	workers: 1,
+	globalSetup: './e2e/playwright/build-e2e-frontend.mjs'
 });

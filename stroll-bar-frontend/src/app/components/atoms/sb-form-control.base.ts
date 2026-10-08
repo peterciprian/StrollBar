@@ -88,6 +88,7 @@ export abstract class SbFormControlBase<T> implements ControlValueAccessor, OnIn
 	});
 
 	protected readonly errorText = computed(() => {
+		this.controlStateVersion();
 		const explicit = this.errorMessage();
 		if (explicit) return explicit;
 		const errors = this.validationErrors;

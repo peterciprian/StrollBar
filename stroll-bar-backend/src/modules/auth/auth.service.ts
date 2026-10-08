@@ -1,10 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, Optional, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, Optional, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import type { StringValue } from 'ms';
-import { MoreThan, Repository } from 'typeorm';
+import { IsNull, MoreThan, Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
@@ -15,7 +15,7 @@ import { SocialUserService } from './services/social-user.service';
 import { AuditAction } from '../../common/audit.entity';
 import { AuditService } from '../../common/audit.service';
 
-type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
+type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'preferredLanguage' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
 type RegisterResponse = AuthResponse & { verificationToken?: string };
 type SocialState = {
@@ -29,6 +29,7 @@ const SOCIAL_PROVIDERS: SocialAuthProvider[] = ['apple', 'google', 'facebook', '
 
 @Injectable()
 export class AuthService {
+	private readonly logger = new Logger(AuthService.name);
 	constructor(
 		@InjectRepository(UserEntity)
 		private readonly usersRepository: Repository<UserEntity>,
@@ -79,7 +80,7 @@ export class AuthService {
 	async login(dto: LoginDto, ipAddress?: string): Promise<AuthResponse> {
 		const user = await this.usersRepository.findOne({ where: { email: dto.email } });
 
-		if (!user || !this.verifyPassword(dto.password, user.passwordHash)) {
+		if (!user || !user.isActive || !this.verifyPassword(dto.password, user.passwordHash)) {
 			await this.auditService?.record({
 				action: AuditAction.LOGIN,
 				userId: user?.id,
@@ -158,12 +159,12 @@ export class AuthService {
 	}
 
 	async refresh(refreshToken: string): Promise<AuthResponse> {
-		const payload = await this.jwtService.verifyAsync<{ sub: string; email: string; username: string }>(refreshToken, {
+		const payload = await this.jwtService.verifyAsync<{ sub: string; authVersion?: number }>(refreshToken, {
 			secret: this.getRefreshSecret()
 		});
 		const user = await this.usersRepository.findOne({ where: { id: payload.sub, isActive: true } });
 
-		if (!user || !user.refreshTokenHash || !this.verifyPassword(refreshToken, user.refreshTokenHash)) {
+		if (!user || (payload.authVersion ?? 0) !== (user.authVersion ?? 0) || !user.refreshTokenHash || !this.verifyPassword(refreshToken, user.refreshTokenHash)) {
 			throw new UnauthorizedException('Invalid refresh token.');
 		}
 
@@ -187,55 +188,66 @@ export class AuthService {
 			throw new UnauthorizedException('Invalid refresh token.');
 		}
 
-		user.refreshTokenHash = null;
-		await this.usersRepository.save(user);
+		await this.usersRepository.update(
+			{ id: user.id, authVersion: user.authVersion ?? 0, refreshTokenHash: user.refreshTokenHash ?? IsNull() },
+			{ refreshTokenHash: null }
+		);
 		await this.auditService?.record({ action: AuditAction.LOGOUT, userId, success: true, ipAddress });
 
 		return { message: 'Logged out successfully.' };
 	}
 
-	async requestPasswordReset(email: string): Promise<{ message: string; resetToken?: string }> {
-		const user = await this.usersRepository.findOne({ where: { email } });
-
-		if (!user) {
-			return { message: 'If the account exists, a password reset token has been issued.' };
-		}
-
+	async requestPasswordReset(email: string, language?: PreferredLanguage): Promise<{ message: string }> {
+		const response = { message: 'If the account exists, a password reset token has been issued.' };
+		const user = await this.usersRepository.findOne({ where: { email, isActive: true } });
+		if (!user) return response;
 		const resetToken = randomBytes(32).toString('hex');
+		const tokenHash = this.hashToken(resetToken);
 		const ttlMinutes = Number(this.configService.get<string>('PASSWORD_RESET_TOKEN_TTL_MINUTES') ?? '15');
-
-		user.resetPasswordTokenHash = this.hashToken(resetToken);
-		user.resetPasswordExpiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
-		await this.usersRepository.save(user);
-
-		const shouldExposeResetToken = (this.configService.get<string>('AUTH_EXPOSE_RESET_TOKEN') ?? 'false').toLowerCase() === 'true';
-
-		return {
-			message: 'If the account exists, a password reset token has been issued.',
-			...(shouldExposeResetToken ? { resetToken } : {})
-		};
+		const issued = await this.usersRepository.update(
+			{ id: user.id, isActive: true, authVersion: user.authVersion ?? 0 },
+			{ resetPasswordTokenHash: tokenHash, resetPasswordExpiresAt: new Date(Date.now() + ttlMinutes * 60_000) }
+		);
+		if (issued.affected !== 1) return response;
+		try {
+			await this.emailService.sendPasswordResetEmail(user.email, user.username, resetToken, ttlMinutes, language ?? user.preferredLanguage);
+		} catch (error) {
+			this.logger.error({
+				event: 'password_reset_delivery_failed',
+				userId: user.id,
+				errorType: error instanceof Error ? error.name : 'UnknownError',
+				message: 'Reset email delivery failed; revoking the issued token. Check email delivery health and provider configuration.'
+			});
+			// Only revoke our token; a newer request may already have replaced it.
+			try {
+				await this.usersRepository.update(
+					{ id: user.id, resetPasswordTokenHash: tokenHash },
+					{ resetPasswordTokenHash: null, resetPasswordExpiresAt: null }
+				);
+			} catch {
+				this.logger.error({ event: 'password_reset_revocation_failed', userId: user.id, message: 'Could not revoke an undelivered reset token. Database intervention may be required.' });
+			}
+		}
+		return response;
 	}
 
 	async resetPassword(resetToken: string, newPassword: string): Promise<{ message: string }> {
 		const tokenHash = this.hashToken(resetToken);
-		const user = await this.usersRepository.findOne({
-			where: {
-				isActive: true,
-				resetPasswordTokenHash: tokenHash,
-				resetPasswordExpiresAt: MoreThan(new Date())
-			}
-		});
-
-		if (!user) {
-			throw new UnauthorizedException('Invalid or expired password reset token.');
-		}
-
-		user.passwordHash = this.hashPassword(newPassword);
-		user.refreshTokenHash = null;
-		user.resetPasswordTokenHash = null;
-		user.resetPasswordExpiresAt = null;
-		await this.usersRepository.save(user);
-		await this.auditService?.record({ action: AuditAction.PASSWORD_RESET, userId: user.id, success: true });
+		// PostgreSQL rechecks this predicate after waiting on a concurrent row update.
+		const result = await this.usersRepository.createQueryBuilder()
+			.update(UserEntity)
+			.set({
+				passwordHash: this.hashPassword(newPassword),
+				refreshTokenHash: null,
+				resetPasswordTokenHash: null,
+				resetPasswordExpiresAt: null,
+				authVersion: () => '"authVersion" + 1'
+			})
+			.where('"isActive" = true AND "resetPasswordTokenHash" = :tokenHash AND "resetPasswordExpiresAt" > CURRENT_TIMESTAMP', { tokenHash })
+			.returning(['id'])
+			.execute();
+		if (result.affected !== 1) throw new UnauthorizedException('Invalid, expired or already used password reset token.');
+		await this.auditService?.record({ action: AuditAction.PASSWORD_RESET, userId: result.raw[0].id, success: true });
 
 		return { message: 'Password updated successfully.' };
 	}
@@ -261,9 +273,15 @@ export class AuthService {
 			throw new UnauthorizedException('Current password is incorrect.');
 		}
 
-		user.passwordHash = this.hashPassword(newPassword);
-		user.refreshTokenHash = null;
-		await this.usersRepository.save(user);
+		const result = await this.usersRepository.createQueryBuilder().update(UserEntity).set({
+			passwordHash: this.hashPassword(newPassword),
+			refreshTokenHash: null,
+			resetPasswordTokenHash: null,
+			resetPasswordExpiresAt: null
+		}).where('"id" = :id AND "isActive" = true AND "authVersion" = :version AND "passwordHash" = :passwordHash', {
+			id: user.id, version: user.authVersion ?? 0, passwordHash: user.passwordHash
+		}).execute();
+		if (result.affected !== 1) throw new UnauthorizedException('Credentials changed. Please log in again.');
 		await this.auditService?.record({ action: AuditAction.PASSWORD_CHANGE, userId, success: true, ipAddress });
 
 		return { message: 'Password updated successfully.' };
@@ -287,7 +305,7 @@ export class AuthService {
 		user.emailVerified = true;
 		user.emailVerificationTokenHash = null;
 		user.emailVerificationExpiresAt = null;
-		await this.usersRepository.save(user);
+		await this.usersRepository.save({ id: user.id, emailVerified: true, emailVerificationTokenHash: null, emailVerificationExpiresAt: null });
 
 		return { message: 'Email verified successfully.' };
 	}
@@ -399,7 +417,8 @@ export class AuthService {
 			sub: user.id,
 			email: user.email,
 			username: user.username,
-			role: user.role
+			role: user.role,
+			authVersion: user.authVersion ?? 0
 		});
 	}
 
@@ -409,7 +428,9 @@ export class AuthService {
 				sub: user.id,
 				email: user.email,
 				username: user.username,
-				role: user.role
+				role: user.role,
+				authVersion: user.authVersion ?? 0,
+				jti: randomBytes(16).toString('hex')
 			},
 			{
 				secret: this.getRefreshSecret(),
@@ -426,8 +447,11 @@ export class AuthService {
 		const accessToken = this.createAccessToken(user);
 		const refreshToken = this.createRefreshToken(user);
 
-		user.refreshTokenHash = this.hashPassword(refreshToken);
-		await this.usersRepository.save(user);
+		const result = await this.usersRepository.update(
+			{ id: user.id, isActive: true, authVersion: user.authVersion ?? 0, passwordHash: user.passwordHash },
+			{ refreshTokenHash: this.hashPassword(refreshToken) }
+		);
+		if (result.affected !== 1) throw new UnauthorizedException('Credentials changed. Please log in again.');
 
 		return { accessToken, refreshToken };
 	}
@@ -438,7 +462,7 @@ export class AuthService {
 
 		user.emailVerificationTokenHash = this.hashToken(verificationToken);
 		user.emailVerificationExpiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
-		await this.usersRepository.save(user);
+		await this.usersRepository.save({ id: user.id, emailVerificationTokenHash: user.emailVerificationTokenHash, emailVerificationExpiresAt: user.emailVerificationExpiresAt });
 
 		return verificationToken;
 	}
@@ -449,6 +473,7 @@ export class AuthService {
 			refreshTokenHash: _refreshTokenHash,
 			resetPasswordTokenHash: _resetPasswordTokenHash,
 			resetPasswordExpiresAt: _resetPasswordExpiresAt,
+			authVersion: _authVersion,
 			emailVerificationTokenHash: _emailVerificationTokenHash,
 			emailVerificationExpiresAt: _emailVerificationExpiresAt,
 			...safeUser

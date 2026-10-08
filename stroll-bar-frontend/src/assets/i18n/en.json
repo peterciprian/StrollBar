@@ -175,6 +175,7 @@
 			"SUBMIT": "Login",
 			"NO_ACCOUNT": "New to StrollBar?",
 			"CREATE_ACCOUNT": "Create an account",
+			"FORGOT_PASSWORD": "I forgot my password",
 			"SOCIAL": {
 				"TITLE": "Or continue with a social account",
 				"APPLE": "Continue with Apple",
@@ -222,6 +223,52 @@
 			"CAPTCHA_NOTICE": "This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.",
 			"HAS_ACCOUNT": "Already have an account?",
 			"LOGIN_ACCOUNT": "Log in"
+		},
+		"FORGOT_PASSWORD": {
+			"TITLE": "Forgot password",
+			"SUBTITLE": "Enter the email address of your account and we will send you a link to set a new password.",
+			"INTRO_TITLE": "No worries, it happens",
+			"INTRO_TEXT": "A few steps and you are back on the trail: set a new password and keep exploring.",
+			"EMAIL_LABEL": "Email",
+			"EMAIL_ERROR": "Enter a valid email address.",
+			"SUBMIT": "Send reset link",
+			"SUBMIT_LOADING": "Sending…",
+			"SENT_TITLE": "Check your inbox",
+			"SENT_SUBTITLE": "Your password reset request has been received.",
+			"SENT_MESSAGE": "If a StrollBar account exists for {{email}}, we have sent a password reset link to it.",
+			"SENT_HINT": "The link is valid for a limited time and can be used only once. If you cannot find the email, check your spam folder.",
+			"RESEND": "Resend link",
+			"RESEND_COOLDOWN": "Resend in {{seconds}} s",
+			"CHANGE_EMAIL": "Use a different email address",
+			"BACK_TO_LOGIN": "Back to login"
+		},
+		"RESET_PASSWORD": {
+			"TITLE": "Set a new password",
+			"SUBTITLE": "Choose a new, secure password for your account.",
+			"INTRO_TITLE": "A fresh start",
+			"INTRO_TEXT": "Pick a strong password you do not use anywhere else to keep your strolls and achievements safe.",
+			"NEW_PASSWORD_LABEL": "New password",
+			"CONFIRM_PASSWORD_LABEL": "Confirm new password",
+			"CONFIRM_REQUIRED_ERROR": "Confirm your new password.",
+			"MISMATCH_ERROR": "The passwords do not match.",
+			"SUBMIT": "Save new password",
+			"SUBMIT_LOADING": "Saving…",
+			"REJECTED_ERROR": "The server did not accept the new password. Check the requirements and try again.",
+			"MISSING_TITLE": "Reset link missing",
+			"MISSING_MESSAGE": "This page only works with the link from your email. Open the link in the email again or request a new one.",
+			"INVALID_TITLE": "This link is not valid",
+			"INVALID_MESSAGE": "This password reset link is invalid, has expired, or has already been used. Request a new one.",
+			"REQUEST_NEW_LINK": "Request a new link",
+			"SUCCESS_TITLE": "Password updated",
+			"SUCCESS_MESSAGE": "Your new password has been saved. For your security, you have been signed out on all devices.",
+			"GO_TO_LOGIN": "Log in with your new password",
+			"BACK_TO_LOGIN": "Back to login"
+		},
+		"PASSWORD_RESET_ERRORS": {
+			"NETWORK": "Could not reach the server. Check your internet connection and try again.",
+			"RATE_LIMITED": "Too many attempts. Wait a minute and try again.",
+			"INVALID_EMAIL": "Enter a valid email address.",
+			"GENERIC": "Something went wrong. Please try again later."
 		}
 	},
 	"ERRORS": {

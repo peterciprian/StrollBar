@@ -22,7 +22,8 @@ describe('buildDatabaseOptions', () => {
 			'BadgeDefinitions1753700000000',
 			'StrollReports1753800000000',
 			'RiddleBadges1753900000000',
-			'UserPreferredLanguage1754000000000'
+			'UserPreferredLanguage1754000000000',
+			'UserAuthVersion1754100000000'
 		]);
 	});
 });

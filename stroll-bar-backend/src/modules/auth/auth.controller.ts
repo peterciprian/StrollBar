@@ -137,7 +137,7 @@ export class AuthController {
 	@Throttle({ default: { limit: 3, ttl: 60_000 } })
 	@Post('password-reset/request')
 	requestPasswordReset(@Body() dto: RequestPasswordResetDto) {
-		return this.authService.requestPasswordReset(dto.email);
+		return this.authService.requestPasswordReset(dto.email, dto.preferredLanguage);
 	}
 
 	@ApiOperation({ summary: 'Reset a password using a reset token' })

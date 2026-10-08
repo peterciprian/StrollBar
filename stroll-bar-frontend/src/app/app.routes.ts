@@ -4,6 +4,8 @@ import { LoginPageComponent } from './pages/auth/login-page.component';
 import { RegisterPageComponent } from './pages/auth/register-page.component';
 import { SocialCallbackPageComponent } from './pages/auth/social-callback-page.component';
 import { VerifyEmailPageComponent } from './pages/auth/verify-email-page.component';
+import { ForgotPasswordPageComponent } from './pages/auth/forgot-password-page.component';
+import { ResetPasswordPageComponent } from './pages/auth/reset-password-page.component';
 import { CreatorProfilePageComponent } from './pages/profile/creator-profile-page.component';
 import { StrollBrowserScreenComponent } from './pages/explore/stroll-browser.component';
 import { AdventureScreenComponent } from './pages/progress/adventure.component';
@@ -33,6 +35,8 @@ export const routes: Routes = [
 	{ path: 'auth/register', component: RegisterPageComponent },
 	{ path: 'auth/social/callback', component: SocialCallbackPageComponent },
 	{ path: 'auth/verify-email', component: VerifyEmailPageComponent },
+	{ path: 'auth/forgot-password', component: ForgotPasswordPageComponent },
+	{ path: 'auth/reset-password', component: ResetPasswordPageComponent },
 	{ path: 'explore', component: StrollBrowserScreenComponent },
 	{ path: 'impressum', component: LegalPageComponent, data: { document: 'imprint' } },
 	{ path: 'privacy-policy', component: LegalPageComponent, data: { document: 'privacy' } },

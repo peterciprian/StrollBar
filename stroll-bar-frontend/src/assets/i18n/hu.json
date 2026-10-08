@@ -175,6 +175,7 @@
 			"SUBMIT": "Bejelentkezés",
 			"NO_ACCOUNT": "Új vagy a StrollBarnál?",
 			"CREATE_ACCOUNT": "Fiók létrehozása",
+			"FORGOT_PASSWORD": "Elfelejtettem a jelszavamat",
 			"SOCIAL": {
 				"TITLE": "Vagy folytasd közösségi fiókkal",
 				"APPLE": "Folytatás Apple-lel",
@@ -222,6 +223,52 @@
 			"CAPTCHA_NOTICE": "Az oldalt reCAPTCHA védi, a Google Adatvédelmi irányelvei és Felhasználási feltételei érvényesek.",
 			"HAS_ACCOUNT": "Már van fiókod?",
 			"LOGIN_ACCOUNT": "Bejelentkezés"
+		},
+		"FORGOT_PASSWORD": {
+			"TITLE": "Elfelejtett jelszó",
+			"SUBTITLE": "Add meg a fiókodhoz tartozó e-mail címet, és küldünk egy linket az új jelszó beállításához.",
+			"INTRO_TITLE": "Semmi gond, előfordul",
+			"INTRO_TEXT": "Pár lépés, és újra a nyomodban leszel: állíts be új jelszót, majd folytasd a felfedezést.",
+			"EMAIL_LABEL": "E-mail",
+			"EMAIL_ERROR": "Adj meg egy érvényes e-mail címet.",
+			"SUBMIT": "Visszaállító link küldése",
+			"SUBMIT_LOADING": "Küldés…",
+			"SENT_TITLE": "Nézd meg a postafiókodat",
+			"SENT_SUBTITLE": "A jelszó-visszaállítás kérését rögzítettük.",
+			"SENT_MESSAGE": "Ha a(z) {{email}} címhez tartozik StrollBar fiók, elküldtük rá a jelszó-visszaállító linket.",
+			"SENT_HINT": "A link korlátozott ideig érvényes és csak egyszer használható. Ha nem találod a levelet, nézd meg a spam mappát is.",
+			"RESEND": "Link újraküldése",
+			"RESEND_COOLDOWN": "Újraküldés {{seconds}} mp múlva",
+			"CHANGE_EMAIL": "Másik e-mail cím megadása",
+			"BACK_TO_LOGIN": "Vissza a bejelentkezéshez"
+		},
+		"RESET_PASSWORD": {
+			"TITLE": "Új jelszó beállítása",
+			"SUBTITLE": "Adj meg egy új, biztonságos jelszót a fiókodhoz.",
+			"INTRO_TITLE": "Friss kezdet",
+			"INTRO_TEXT": "Válassz egy erős, máshol nem használt jelszót, hogy a túráid és eredményeid biztonságban legyenek.",
+			"NEW_PASSWORD_LABEL": "Új jelszó",
+			"CONFIRM_PASSWORD_LABEL": "Új jelszó megerősítése",
+			"CONFIRM_REQUIRED_ERROR": "Erősítsd meg az új jelszót.",
+			"MISMATCH_ERROR": "A két jelszó nem egyezik.",
+			"SUBMIT": "Új jelszó mentése",
+			"SUBMIT_LOADING": "Mentés…",
+			"REJECTED_ERROR": "A szerver nem fogadta el az új jelszót. Ellenőrizd a követelményeket, és próbáld újra.",
+			"MISSING_TITLE": "Hiányzó visszaállító link",
+			"MISSING_MESSAGE": "Ez az oldal csak az e-mailben kapott linkkel működik. Nyisd meg újra a levélben lévő linket, vagy kérj újat.",
+			"INVALID_TITLE": "A link nem érvényes",
+			"INVALID_MESSAGE": "Ez a jelszó-visszaállító link érvénytelen, lejárt vagy már felhasználták. Kérj egy újat.",
+			"REQUEST_NEW_LINK": "Új link kérése",
+			"SUCCESS_TITLE": "Jelszó frissítve",
+			"SUCCESS_MESSAGE": "Az új jelszavadat elmentettük. Biztonsági okokból minden eszközön kijelentkeztettünk.",
+			"GO_TO_LOGIN": "Bejelentkezés az új jelszóval",
+			"BACK_TO_LOGIN": "Vissza a bejelentkezéshez"
+		},
+		"PASSWORD_RESET_ERRORS": {
+			"NETWORK": "Nem sikerült elérni a szervert. Ellenőrizd az internetkapcsolatot, és próbáld újra.",
+			"RATE_LIMITED": "Túl sok próbálkozás. Várj egy percet, majd próbáld újra.",
+			"INVALID_EMAIL": "Adj meg egy érvényes e-mail címet.",
+			"GENERIC": "Valami hiba történt. Próbáld újra később."
 		}
 	},
 	"ERRORS": {

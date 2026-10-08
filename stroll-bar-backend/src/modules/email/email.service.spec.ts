@@ -28,6 +28,34 @@ describe('EmailService', () => {
 		getAccount.mockResolvedValue({ email: 'account@example.com' });
 	});
 
+	it.each([
+		[PreferredLanguage.HU, 'https://example.com/#/auth/reset-password', 'StrollBar jelszó visszaállítása'],
+		[PreferredLanguage.EN, 'https://example.com/auth/reset-password', 'Reset your StrollBar password']
+	])('sends a localized %s reset email with trusted link, expiry and escaped HTML', async (language, url, subject) => {
+		const service = createService({
+			EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'test-key', EMAIL_FROM: 'StrollBar <no-reply@example.com>', PASSWORD_RESET_URL: url
+		});
+		await service.sendPasswordResetEmail('walker@example.com', 'Walker <Admin>', validToken, 15, language as PreferredLanguage);
+		expect(sendTransacEmail).toHaveBeenCalledWith(expect.objectContaining({
+			subject,
+			textContent: expect.stringContaining(`${url}?token=${validToken}`),
+			htmlContent: expect.stringContaining('Walker &lt;Admin&gt;')
+		}));
+		expect(sendTransacEmail.mock.calls[0][0].textContent).toContain('15');
+	});
+
+	it('fails explicitly when recovery email is disabled', async () => {
+		await expect(createService({ EMAIL_DELIVERY_ENABLED: 'false' }).sendPasswordResetEmail('walker@example.com', 'Walker', validToken, 15)).rejects.toThrow(ServiceUnavailableException);
+	});
+
+	it('reports reset delivery failure', async () => {
+		const service = createService({
+			EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'test-key', EMAIL_FROM: 'no-reply@example.com', PASSWORD_RESET_URL: 'https://example.com/#/auth/reset-password'
+		});
+		sendTransacEmail.mockRejectedValue(new Error('provider unavailable'));
+		await expect(service.sendPasswordResetEmail('walker@example.com', 'Walker', validToken, 15)).rejects.toThrow(ServiceUnavailableException);
+	});
+
 	it('does not create a Brevo client when delivery is disabled', async () => {
 		const service = createService({ EMAIL_DELIVERY_ENABLED: 'false' });
 		await service.sendVerificationEmail('walker@example.com', 'Walker', validToken);

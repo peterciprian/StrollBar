@@ -54,7 +54,7 @@ export class SocialUserService {
 		} else if (!user.profileImageUrl && profile.profileImageUrl) {
 			// Update profile image if the provider provided one and the user doesn't have one
 			user.profileImageUrl = profile.profileImageUrl;
-			user = await this.usersRepository.save(user);
+			await this.usersRepository.save({ id: user.id, profileImageUrl: profile.profileImageUrl });
 		}
 
 		// Link the social identity to the user if not already linked

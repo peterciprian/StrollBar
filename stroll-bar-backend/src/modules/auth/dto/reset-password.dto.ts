@@ -8,10 +8,9 @@ import {
 } from '../../../common/utils/password-policy.util';
 
 export class ResetPasswordDto {
-	@ApiProperty({ example: 'f3b91791b6e7d8f565...' })
+	@ApiProperty({ description: '64-character hexadecimal token from the reset email.', minLength: 64, maxLength: 64 })
 	@IsString()
-	@MinLength(1)
-	@MaxLength(1024)
+	@Matches(/^[a-f0-9]{64}$/)
 	resetToken!: string;
 
 	@ApiProperty({ example: 'EvenBetterPass123!', minLength: 8, maxLength: 128 })

@@ -41,4 +41,21 @@ describe('errorNotificationInterceptor', () => {
 		await expect(lastValueFrom(result)).rejects.toBe(error);
 		expect(notification.showError).not.toHaveBeenCalled();
 	});
+
+	it.each([
+		['/v1/auth/password-reset/request', 429],
+		['/v1/auth/password-reset/request', 0],
+		['/v1/auth/password-reset/confirm', 401],
+		['/v1/auth/password-reset/confirm', 400]
+	])('leaves %s failures (status %s) to the page instead of toasting them', async (url, status) => {
+		const error = new HttpErrorResponse({ status, error: { message: 'Handled inline' } });
+		const request = new HttpRequest('POST', url, {});
+
+		const result = TestBed.runInInjectionContext(() =>
+			errorNotificationInterceptor(request, () => throwError(() => error) as Observable<HttpEvent<unknown>>)
+		);
+
+		await expect(lastValueFrom(result)).rejects.toBe(error);
+		expect(notification.showError).not.toHaveBeenCalled();
+	});
 });

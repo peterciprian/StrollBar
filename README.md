@@ -12,15 +12,23 @@ monorepo with two apps:
 
 ## Deployments
 
-- **Frontend**: auto-deployed to GitHub Pages on every push to `master` via
-  [.github/workflows/gh-pages.yml](.github/workflows/gh-pages.yml).
-  Live at `https://peterciprian.github.io/StrollBar/`. Uses hash-based routing
-  (`withHashLocation()`) since GitHub Pages is static hosting only.
+- **Frontend**: served by Vercel at `https://strollbar.app/`. The tracked
+  [stroll-bar-frontend/vercel.json](stroll-bar-frontend/vercel.json) publishes
+  `dist/strollbar-frontend/browser` and rewrites non-API routes to the `/api` serverless
+  function. [stroll-bar-frontend/api/index.mjs](stroll-bar-frontend/api/index.mjs) delegates
+  requests to the Angular Node handler generated at
+  `dist/strollbar-frontend/server/server.mjs`, which serves the browser assets and application
+  shell for Angular's path router. This supports direct client-route requests such as password
+  recovery at
+  `https://strollbar.app/auth/reset-password`.
+  Configure the Vercel runtime variable
+  `NG_ALLOWED_HOSTS` with the production and assigned Vercel hostnames; Angular SSR rejects
+  unlisted request hosts with `400` as an SSRF safeguard.
 - **Backend**: deployed to [Render](https://render.com) using the
   [render.yaml](render.yaml) Blueprint (Node web service, free plan). Connect the repo
   in the Render dashboard as a Blueprint instance and fill in the secret env vars
   (DB credentials, S3 keys) there — they are intentionally left out of `render.yaml`.
-  Once deployed, Swagger UI is at `https://https://stroll-bar-n5zc.onrender.com/v1/docs`.
+  Once deployed, Swagger UI is at `https://stroll-bar-n5zc.onrender.com/v1/docs`.
 - **CI**: [.github/workflows/backend-ci.yml](.github/workflows/backend-ci.yml) builds the
   backend and runs its unit + e2e tests (against a throwaway Postgres service container)
   on every push to `master`.
@@ -175,10 +183,11 @@ Relevant backend env vars:
 The backend sends verification links through the Brevo transactional email API after password registration and when an unverified user requests a resend. Configure:
 
 - `EMAIL_DELIVERY_ENABLED=true`
-- `EMAIL_VERIFICATION_URL`, for example `https://example.com/#/auth/verify-email`
+- `EMAIL_VERIFICATION_URL`, for example `https://example.com/auth/verify-email`
 - `BREVO_API_KEY` with a Brevo API key that has transactional email access
 - `EMAIL_FROM`, for example `StrollBar <no-reply@example.com>`, using a sender verified in Brevo
 
+The deployed Vercel client uses the path route `https://strollbar.app/auth/verify-email`.
 The health endpoint reports Brevo API reachability when delivery is enabled. Failed API sends are
 retried with 1-second and 4-second backoff before returning a temporary-unavailable response;
 users can request another verification email from Account settings.
@@ -205,6 +214,28 @@ index-friendly database queries.
 
 For local development without SMTP, keep delivery disabled and set `AUTH_EXPOSE_VERIFICATION_TOKEN=true`. Never expose verification tokens in production.
 
+## Password recovery
+
+Users click `Elfelejtettem a jelszavamat` on the login page and submit their email at
+`/auth/forgot-password`, then follow the emailed `/auth/reset-password?token=...` link to set a new
+password. Links are delivered through Brevo transactional email. Configure `EMAIL_DELIVERY_ENABLED=true`,
+`BREVO_API_KEY`, `EMAIL_FROM`, `PASSWORD_RESET_TOKEN_TTL_MINUTES` (15 minutes by default), and
+`PASSWORD_RESET_URL` (for production, `https://strollbar.app/auth/reset-password`; the Render
+Blueprint already sets this Vercel path URL). Keep provider credentials and database secrets
+managed in Render, not in source control. The API never returns reset tokens, and
+`AUTH_EXPOSE_RESET_TOKEN=true` is rejected at startup.
+
+Apply the required `1754100000000-user-auth-version` migration before relying on resets. It adds
+`users.authVersion`, which invalidates prior access and refresh credentials after a successful
+password change. Run `npm run db:migrate` from the workspace root to apply pending migrations.
+
+To run the backend password-reset E2E test, first create a dedicated local PostgreSQL database
+named `strollbar_test_<unique suffix>` and export `TEST_DB_HOST` (loopback only), `TEST_DB_PORT`,
+`TEST_DB_USERNAME`, `TEST_DB_PASSWORD`, and `TEST_DB_NAME` for it. The test refuses non-local hosts
+and database names outside the `strollbar_test_*` pattern:
+
+`npm --workspace stroll-bar-backend run test:e2e -- --runTestsByPath test/password-reset.e2e-spec.ts`
+
 ## Run frontend
 
 npm run start:frontend
@@ -227,9 +258,21 @@ Generate a coverage report:
 
 `npm --workspace stroll-bar-frontend run test:coverage`
 
-Run browser E2E tests:
+Run the password recovery browser journey:
 
-`npm --workspace stroll-bar-frontend run test:e2e`
+`npm --workspace stroll-bar-frontend run test:e2e -- e2e/playwright/password-reset.spec.ts`
+
+Run all browser journeys with `npm --workspace stroll-bar-frontend run test:e2e`.
+The reset journey's Playwright config builds the frontend and starts its local stack: a disposable
+PostgreSQL 17 container named `strollbar_test_password_reset_<process id>`, the real Nest API,
+and the Angular SSR handler used by Vercel, served at the root path. It requires Docker Desktop
+and the installed Chromium browser. The stack passes explicit loopback-only `TEST_DB_*` settings
+to the backend and does not read application DB credentials or fall back to Render. The browser
+and SSR process block external network access and rewrite the configured Render API origin to
+the local test API. SSR uses a deterministic public-stroll fixture for existing browser smoke
+tests. Brevo is mocked at the backend client boundary and rendered email is captured only by a
+loopback-only test mailbox; no real email is sent. All harness processes and the uniquely named
+temporary database container are stopped after the Playwright run.
 
 In production, the frontend registers a service worker. It caches the application shell and
 static same-origin assets, and uses network-first caching for unauthenticated public `GET`

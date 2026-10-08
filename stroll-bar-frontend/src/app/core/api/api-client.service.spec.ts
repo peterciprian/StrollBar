@@ -30,6 +30,27 @@ describe('ApiClientService', () => {
 		request.flush({ accessToken: 'access-token', refreshToken: 'refresh-token', user: {} });
 	});
 
+	it('posts password reset requests to the request endpoint', () => {
+		let response: unknown;
+		api.requestPasswordReset({ email: 'walker@example.com', preferredLanguage: 'hu' }).subscribe((body) => (response = body));
+
+		const request = http.expectOne('/v1/auth/password-reset/request');
+		expect(request.request.method).toBe('POST');
+		expect(request.request.body).toEqual({ email: 'walker@example.com', preferredLanguage: 'hu' });
+		request.flush({ message: 'If the account exists, a password reset token has been issued.' }, { status: 201, statusText: 'Created' });
+		expect(response).toEqual({ message: 'If the account exists, a password reset token has been issued.' });
+	});
+
+	it('posts the reset token and new password to the confirm endpoint', () => {
+		const resetToken = 'b'.repeat(64);
+		api.resetPassword({ resetToken, newPassword: 'StrollWalk!2026' }).subscribe();
+
+		const request = http.expectOne('/v1/auth/password-reset/confirm');
+		expect(request.request.method).toBe('POST');
+		expect(request.request.body).toEqual({ resetToken, newPassword: 'StrollWalk!2026' });
+		request.flush({ message: 'Password updated successfully.' }, { status: 201, statusText: 'Created' });
+	});
+
 	it('serializes defined stroll list query values and skips empty filters', () => {
 		api.listStrolls({ search: 'Budapest', page: 2, limit: 12, city: undefined }).subscribe();
 

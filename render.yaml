@@ -74,7 +74,9 @@ services:
           - key: EMAIL_DELIVERY_ENABLED
             value: 'true'
           - key: EMAIL_VERIFICATION_URL
-            value: 'https://peterciprian.github.io/StrollBar/#/auth/verify-email'
+            value: 'https://strollbar.app/auth/verify-email'
+          - key: PASSWORD_RESET_URL
+            value: 'https://strollbar.app/auth/reset-password'
           - key: BREVO_API_KEY
             sync: false
           - key: EMAIL_FROM

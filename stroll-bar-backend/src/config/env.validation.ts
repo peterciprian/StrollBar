@@ -30,6 +30,34 @@ class EnvironmentVariables {
 }
 
 export function validateEnvironment(config: Record<string, unknown>): Record<string, unknown> {
+	const ttl = Number(config.PASSWORD_RESET_TOKEN_TTL_MINUTES ?? 15);
+	if (!Number.isInteger(ttl) || ttl < 1 || ttl > 1440) {
+		throw new Error('Environment validation failed: PASSWORD_RESET_TOKEN_TTL_MINUTES must be an integer between 1 and 1440.');
+	}
+	const production = config.NODE_ENV === 'production' || config.NODE_ENV === 'staging';
+	if (String(config.AUTH_EXPOSE_RESET_TOKEN ?? 'false').toLowerCase() === 'true') {
+		throw new Error('Environment validation failed: AUTH_EXPOSE_RESET_TOKEN is no longer supported. Capture reset emails in tests instead.');
+	}
+	if (config.PASSWORD_RESET_URL) {
+		let url: URL;
+		try {
+			url = new URL(String(config.PASSWORD_RESET_URL));
+		} catch {
+			throw new Error('Environment validation failed: PASSWORD_RESET_URL must be an absolute trusted frontend URL.');
+		}
+		if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || (production && url.protocol !== 'https:')) {
+			throw new Error('Environment validation failed: PASSWORD_RESET_URL requires HTTP(S), no credentials, and HTTPS in production.');
+		}
+		const route = url.hash ? url.hash.slice(1).split('?')[0] : url.pathname;
+		if (!route.endsWith('/auth/reset-password')) {
+			throw new Error('Environment validation failed: PASSWORD_RESET_URL must point to /auth/reset-password (hash routing is supported).');
+		}
+	} else if (production || config.EMAIL_DELIVERY_ENABLED === 'true') {
+		throw new Error('Environment validation failed: PASSWORD_RESET_URL is required for password recovery.');
+	}
+	if (production && config.EMAIL_DELIVERY_ENABLED !== 'true') {
+		throw new Error('Environment validation failed: EMAIL_DELIVERY_ENABLED=true is required for production password recovery.');
+	}
 	const environment = plainToInstance(EnvironmentVariables, {
 		...config,
 		NODE_ENV: config.NODE_ENV ?? 'development',

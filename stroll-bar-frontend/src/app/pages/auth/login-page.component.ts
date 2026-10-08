@@ -47,6 +47,12 @@ export class LoginPageComponent {
 		this.store.dispatch(logIn({ user: this.form.getRawValue() }));
 	}
 
+	/** Carries an already-typed email to the forgot-password form via history state, never the URL. */
+	protected forgotPasswordState(): { email: string } | undefined {
+		const email = this.form.controls.email;
+		return email.valid ? { email: email.value.trim() } : undefined;
+	}
+
 	onSocialLogin(provider: SocialAuthProvider): void {
 		this.socialProviderLoading = provider;
 		this.authFeatureService

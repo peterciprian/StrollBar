@@ -14,6 +14,8 @@
 
 - /auth/login
 - /auth/register
+- /auth/forgot-password (request a password reset email)
+- /auth/reset-password?token=... (set a new password from the emailed link; the token is removed from the URL after load)
 
 ## Authenticated Routes
 
@@ -35,3 +37,5 @@
 - The stroll browser is available at `/explore`.
 - Adventure sessions use `/adventure/:adventureId`.
 - Creator stroll editing is available at `/creator/strolls` and its `new`/`edit` variants.
+- The client is served on Vercel and the Angular router uses path URLs. Emailed reset links open `/auth/reset-password?token=...` directly; no GitHub Pages hash-route bridge is needed.
+- The reset page captures the token in component-local state, then removes only the `token` query parameter using `replaceUrl: true`, replacing the current browser history entry. The token is not stored in browser storage or the application store; refreshing the cleaned URL shows the missing-link state.

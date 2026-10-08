@@ -1,4 +1,9 @@
 {
+	"resetSubject": "StrollBar jelszó visszaállítása",
+	"resetPreheader": "Válassz új jelszót a StrollBar-fiókodhoz.",
+	"resetMessage": "Az alábbi linken adhatsz meg új jelszót. A link {{minutes}} percig érvényes, és csak egyszer használható.",
+	"resetButton": "Jelszó visszaállítása",
+	"resetFooter": "Ha nem te kérted a jelszó visszaállítását, hagyd figyelmen kívül ezt az emailt. A jelszavad csak a visszaállítás befejezésekor változik meg.",
 	"verificationSubject": "Erősítsd meg a StrollBar e-mail-címedet",
 	"verificationPreheader": "E-mail-cím megerősítése",
 	"verificationGreeting": "Szia",

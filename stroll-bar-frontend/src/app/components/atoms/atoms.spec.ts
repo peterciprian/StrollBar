@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { SbAlertComponent } from './sb-alert/sb-alert.component';
 import { SbAvatarComponent } from './sb-avatar/sb-avatar.component';
@@ -40,6 +40,22 @@ class SbInputValidationHostComponent {
 	};
 	readonly form = new FormGroup({
 		password: new FormControl('password123', [() => ({ passwordComplexity: true, commonPassword: true })])
+	});
+}
+
+@Component({
+	standalone: true,
+	imports: [ReactiveFormsModule, SbInputComponent],
+	template: `
+		<form [formGroup]="form">
+			<sb-input formControlName="password" [errorMessages]="errorMessages" />
+		</form>
+	`
+})
+class SbInputChangingErrorHostComponent {
+	readonly errorMessages = { required: 'Required', minlength: 'Too short' };
+	readonly form = new FormGroup({
+		password: new FormControl('', [Validators.required, Validators.minLength(8)])
 	});
 }
 
@@ -294,6 +310,21 @@ describe('atom library', () => {
 			expect(atom.showError()).toBe(true);
 			expect(atom.errorText()).toBe('Túl gyakori');
 			expect(fixture.nativeElement.querySelector('.sb-form-control__error[role="alert"]')?.textContent).toContain('Túl gyakori');
+		});
+
+		it('updates the error message when a different validator starts failing', () => {
+			const fixture = TestBed.createComponent(SbInputChangingErrorHostComponent);
+			fixture.detectChanges();
+			const input = fixture.nativeElement.querySelector('input') as HTMLInputElement;
+			input.dispatchEvent(new Event('blur'));
+			fixture.detectChanges();
+			expect(fixture.nativeElement.querySelector('.sb-form-control__error')?.textContent).toContain('Required');
+
+			input.value = 'short';
+			input.dispatchEvent(new Event('input'));
+			fixture.detectChanges();
+
+			expect(fixture.nativeElement.querySelector('.sb-form-control__error')?.textContent).toContain('Too short');
 		});
 
 		it('propagates textarea changes', () => {

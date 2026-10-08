@@ -108,11 +108,11 @@ export interface LogoutRequest {
 
 export interface RequestPasswordResetRequest {
 	email: string;
+	preferredLanguage?: 'hu' | 'en';
 }
 
 export interface PasswordResetRequestResponse {
 	message: string;
-	resetToken?: string;
 }
 
 export interface ResetPasswordRequest {

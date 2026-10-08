@@ -29,6 +29,11 @@ interface EmailCopy {
 }
 
 interface EmailLocale {
+	resetSubject: string;
+	resetPreheader: string;
+	resetMessage: string;
+	resetButton: string;
+	resetFooter: string;
 	verificationSubject: string;
 	verificationPreheader: string;
 	verificationGreeting: string;
@@ -64,6 +69,58 @@ export class EmailService {
 	private deliveryFailures = 0;
 
 	constructor(private readonly configService: ConfigService) {}
+
+	async sendPasswordResetEmail(
+		recipient: string,
+		username: string,
+		token: string,
+		ttlMinutes: number,
+		language: PreferredLanguage = PreferredLanguage.HU
+	): Promise<void> {
+		// Unlike optional notifications, silently disabling recovery would strand users.
+		if (!this.isDeliveryEnabled()) throw new ServiceUnavailableException('Password reset email delivery is disabled.');
+		this.validateEmailParameters(recipient, username, token);
+		const url = this.buildPasswordResetUrl(token);
+		const copy = EMAIL_LOCALES[language] ?? EMAIL_LOCALES[PreferredLanguage.HU];
+		const message = copy.resetMessage.replace('{{minutes}}', String(ttlMinutes));
+		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+		await this.deliver(
+			() => this.getBrevoClient().transactionalEmails.sendTransacEmail({
+				sender,
+				to: [{ email: recipient }],
+				subject: copy.resetSubject,
+				textContent: [`${copy.verificationGreeting} ${username},`, '', message, url, '', copy.resetFooter].join('\n'),
+				htmlContent: this.wrapHtml(copy.resetPreheader, [
+					`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${this.escapeHtml(username)}!</p>`,
+					`<p style="margin:0 0 20px;">${this.escapeHtml(message)}</p>`,
+					this.button(this.escapeHtml(url), copy.resetButton),
+					`<p style="margin:24px 0 0;color:#64748b;font-size:13px;">${copy.resetFooter}</p>`
+				].join(''), copy.accountFooter)
+			}),
+			'The password reset email could not be delivered.'
+		);
+	}
+
+	private buildPasswordResetUrl(token: string): string {
+		let url: URL;
+		try {
+			url = new URL(this.getRequiredConfig('PASSWORD_RESET_URL'));
+		} catch {
+			throw new ServiceUnavailableException('PASSWORD_RESET_URL must be configured as an absolute trusted frontend URL.');
+		}
+		if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
+			throw new ServiceUnavailableException('PASSWORD_RESET_URL must be a trusted HTTP(S) frontend URL without credentials.');
+		}
+		if (url.hash) {
+			const [route, query = ''] = url.hash.slice(1).split('?');
+			const params = new URLSearchParams(query);
+			params.set('token', token);
+			url.hash = `${route}?${params.toString()}`;
+		} else {
+			url.searchParams.set('token', token);
+		}
+		return url.toString();
+	}
 
 	isDeliveryEnabled(): boolean {
 		return (this.configService.get<string>('EMAIL_DELIVERY_ENABLED') ?? 'false').toLowerCase() === 'true';

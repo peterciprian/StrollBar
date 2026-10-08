@@ -17,6 +17,7 @@ describe('AuthService token validation', () => {
 	let socialUserService: any;
 	let auditService: any;
 	let service: AuthService;
+	let query: any;
 
 	beforeEach(() => {
 		usersRepository = {
@@ -26,6 +27,15 @@ describe('AuthService token validation', () => {
 			create: jest.fn(),
 			count: jest.fn()
 		};
+		query = {
+			update: jest.fn().mockReturnThis(),
+			set: jest.fn().mockReturnThis(),
+			where: jest.fn().mockReturnThis(),
+			returning: jest.fn().mockReturnThis(),
+			execute: jest.fn().mockResolvedValue({ affected: 1, raw: [{ id: 'user-1' }] })
+		};
+		usersRepository.createQueryBuilder = jest.fn(() => query);
+		usersRepository.update = jest.fn().mockResolvedValue({ affected: 1 });
 
 		socialIdentitiesRepository = {
 			findOne: jest.fn(),
@@ -54,7 +64,8 @@ describe('AuthService token validation', () => {
 		} as unknown as ConfigService;
 
 		emailService = {
-			sendVerificationEmail: jest.fn()
+			sendVerificationEmail: jest.fn(),
+			sendPasswordResetEmail: jest.fn()
 		};
 
 		oauthProviderService = {
@@ -144,13 +155,9 @@ describe('AuthService token validation', () => {
 		await expect(service.resetPassword(rawToken, 'new-password')).resolves.toEqual({ message: 'Password updated successfully.' });
 
 		expect(usersRepository.find).not.toHaveBeenCalled();
-		expect(usersRepository.findOne).toHaveBeenCalledWith({
-			where: {
-				isActive: true,
-				resetPasswordTokenHash: hash,
-				resetPasswordExpiresAt: expect.any(Object)
-			}
-		});
+		expect(usersRepository.findOne).not.toHaveBeenCalled();
+		expect(query.where).toHaveBeenCalledWith(expect.stringContaining('"resetPasswordTokenHash" = :tokenHash'), { tokenHash: hash });
+		expect(query.set).toHaveBeenCalledWith(expect.objectContaining({ refreshTokenHash: null, resetPasswordTokenHash: null, authVersion: expect.any(Function) }));
 	});
 
 	it('verifyEmail validates the token with a direct lookup instead of scanning all users', async () => {
@@ -207,9 +214,70 @@ describe('AuthService token validation', () => {
 		await expect(service.changePassword(user.id, 'old-password', 'new-password', '127.0.0.1')).resolves.toEqual({
 			message: 'Password updated successfully.'
 		});
-		expect(user.refreshTokenHash).toBeNull();
-		expect(usersRepository.save).toHaveBeenCalledWith(user);
+		expect(query.set).toHaveBeenCalledWith(expect.objectContaining({ refreshTokenHash: null }));
+		expect(usersRepository.save).not.toHaveBeenCalled();
 		expect(auditService.record).toHaveBeenCalledWith(expect.objectContaining({ userId: user.id, success: true, ipAddress: '127.0.0.1' }));
+	});
+
+	it('changePassword revokes a pending reset token in the same guarded update without bumping authVersion', async () => {
+		const oldHash = hashPasswordForTest('old-password');
+		const user = buildUser({
+			passwordHash: oldHash,
+			authVersion: 3,
+			resetPasswordTokenHash: 'pending-reset-hash',
+			resetPasswordExpiresAt: new Date(Date.now() + 60_000)
+		});
+		usersRepository.findOne.mockResolvedValue(user);
+
+		await service.changePassword(user.id, 'old-password', 'new-password');
+
+		expect(usersRepository.createQueryBuilder).toHaveBeenCalledTimes(1);
+		expect(usersRepository.update).not.toHaveBeenCalled();
+		const changes = query.set.mock.calls[0][0];
+		expect(changes).toEqual({
+			passwordHash: expect.any(String),
+			refreshTokenHash: null,
+			resetPasswordTokenHash: null,
+			resetPasswordExpiresAt: null
+		});
+		expect(changes.passwordHash).not.toBe(oldHash);
+		expect(changes).not.toHaveProperty('authVersion');
+		const [predicate, params] = query.where.mock.calls[0];
+		expect(predicate).toContain('"isActive" = true');
+		expect(predicate).toContain('"authVersion" = :version');
+		expect(predicate).toContain('"passwordHash" = :passwordHash');
+		expect(params).toEqual({ id: user.id, version: 3, passwordHash: oldHash });
+	});
+
+	it('changePassword fails without auditing when a concurrent reset or change wins the race', async () => {
+		usersRepository.findOne.mockResolvedValue(buildUser({ passwordHash: hashPasswordForTest('old-password'), resetPasswordTokenHash: 'pending-reset-hash' }));
+		query.execute.mockResolvedValue({ affected: 0, raw: [] });
+
+		await expect(service.changePassword('user-1', 'old-password', 'new-password')).rejects.toThrow(UnauthorizedException);
+		expect(auditService.record).not.toHaveBeenCalled();
+	});
+
+	it('auth responses keep preferredLanguage for localization and never leak internal auth fields', async () => {
+		usersRepository.findOne.mockResolvedValue(
+			buildUser({
+				passwordHash: hashPasswordForTest('password'),
+				preferredLanguage: PreferredLanguage.EN,
+				authVersion: 2,
+				refreshTokenHash: 'stored-refresh-hash',
+				resetPasswordTokenHash: 'pending-reset-hash',
+				resetPasswordExpiresAt: new Date(),
+				emailVerificationTokenHash: 'verification-hash',
+				emailVerificationExpiresAt: new Date()
+			})
+		);
+
+		const { user } = await service.login({ email: 'walker@example.com', password: 'password' });
+
+		expect(user.preferredLanguage).toBe(PreferredLanguage.EN);
+		expect(Object.keys(user).sort()).toEqual(
+			['createdAt', 'email', 'emailVerified', 'id', 'isActive', 'preferredLanguage', 'profileImageUrl', 'role', 'updatedAt', 'username'].sort()
+		);
+		await expect(service.me('user-1')).resolves.toEqual(user);
 	});
 
 	it('resendVerificationEmail rejects already verified users', async () => {
@@ -224,6 +292,78 @@ describe('AuthService token validation', () => {
 
 		await expect(service.me('missing-user')).rejects.toThrow(NotFoundException);
 	});
+
+	it('stores only a SHA256 reset hash with TTL and sends the request locale through email', async () => {
+		usersRepository.findOne.mockResolvedValue(buildUser());
+		const before = Date.now();
+		const result = await service.requestPasswordReset('walker@example.com', PreferredLanguage.EN);
+		expect(result).toEqual({ message: 'If the account exists, a password reset token has been issued.' });
+		const token = emailService.sendPasswordResetEmail.mock.calls[0][2];
+		expect(token).toMatch(/^[a-f0-9]{64}$/);
+		const changes = usersRepository.update.mock.calls[0][1];
+		expect(changes.resetPasswordTokenHash).toBe(createHash('sha256').update(token).digest('hex'));
+		expect(changes.resetPasswordExpiresAt.getTime()).toBeGreaterThanOrEqual(before + 15 * 60_000);
+		expect(emailService.sendPasswordResetEmail).toHaveBeenCalledWith('walker@example.com', 'walker', token, 15, PreferredLanguage.EN);
+		expect(usersRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('unknown or inactive accounts have the same generic result and send no email', async () => {
+		usersRepository.findOne.mockResolvedValue(null);
+		await expect(service.requestPasswordReset('unknown@example.com')).resolves.toEqual({
+			message: 'If the account exists, a password reset token has been issued.'
+		});
+		expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { email: 'unknown@example.com', isActive: true } });
+		expect(emailService.sendPasswordResetEmail).not.toHaveBeenCalled();
+	});
+
+	it('revokes only its own token on delivery failure without revealing the account in HTTP', async () => {
+		usersRepository.findOne.mockResolvedValue(buildUser());
+		emailService.sendPasswordResetEmail.mockRejectedValue(new Error('provider unavailable'));
+		await expect(service.requestPasswordReset('walker@example.com')).resolves.toHaveProperty('message');
+		const hash = usersRepository.update.mock.calls[0][1].resetPasswordTokenHash;
+		expect(usersRepository.update).toHaveBeenLastCalledWith(
+			{ id: 'user-1', resetPasswordTokenHash: hash },
+			{ resetPasswordTokenHash: null, resetPasswordExpiresAt: null }
+		);
+	});
+
+	it('logs cleanup failure without turning an email outage into an account-enumerating response', async () => {
+		usersRepository.findOne.mockResolvedValue(buildUser());
+		emailService.sendPasswordResetEmail.mockRejectedValue(new Error('provider unavailable'));
+		usersRepository.update.mockResolvedValueOnce({ affected: 1 }).mockRejectedValueOnce(new Error('database unavailable'));
+		await expect(service.requestPasswordReset('walker@example.com')).resolves.toEqual({
+			message: 'If the account exists, a password reset token has been issued.'
+		});
+	});
+
+	it('never exposes a raw token even when the legacy flag is set', async () => {
+		jest.spyOn(configService, 'get').mockImplementation((key: string) => key === 'AUTH_EXPOSE_RESET_TOKEN' ? 'true' : undefined);
+		usersRepository.findOne.mockResolvedValue(buildUser());
+		expect(await service.requestPasswordReset('walker@example.com')).not.toHaveProperty('resetToken');
+	});
+
+	it.each(['invalid', 'expired', 'reused'])('rejects an %s token when atomic consumption affects no row', async () => {
+		query.execute.mockResolvedValue({ affected: 0, raw: [] });
+		await expect(service.resetPassword('a'.repeat(64), 'NewPassword123!')).rejects.toThrow(UnauthorizedException);
+		expect(auditService.record).not.toHaveBeenCalled();
+	});
+
+	it('does not issue sessions from a stale user snapshot after reset', async () => {
+		usersRepository.findOne.mockResolvedValue(buildUser({ passwordHash: hashPasswordForTest('OldPassword123!') }));
+		usersRepository.update.mockResolvedValue({ affected: 0 });
+		await expect(service.login({ email: 'walker@example.com', password: 'OldPassword123!' })).rejects.toThrow(UnauthorizedException);
+		expect(usersRepository.update).toHaveBeenCalledWith(
+			expect.objectContaining({ authVersion: 0, passwordHash: expect.any(String) }),
+			{ refreshTokenHash: expect.any(String) }
+		);
+	});
+
+	it('rejects a refresh token from an older auth version', async () => {
+		jwtService.verifyAsync.mockResolvedValue({ sub: 'user-1', authVersion: 0 });
+		usersRepository.findOne.mockResolvedValue(buildUser({ authVersion: 1, refreshTokenHash: hashPasswordForTest('token') }));
+		await expect(service.refresh('token')).rejects.toThrow(UnauthorizedException);
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
 });
 
 function buildUser(overrides: Record<string, unknown> = {}) {
@@ -237,6 +377,7 @@ function buildUser(overrides: Record<string, unknown> = {}) {
 		preferredLanguage: PreferredLanguage.HU,
 		emailVerified: false,
 		passwordHash: hashPasswordForTest('password'),
+		authVersion: 0,
 		refreshTokenHash: null,
 		resetPasswordTokenHash: null,
 		resetPasswordExpiresAt: null,

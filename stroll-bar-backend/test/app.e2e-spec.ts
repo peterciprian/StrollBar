@@ -1,106 +1,11 @@
-import { readFileSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { Client } from 'pg';
+import { configureIsolatedTestDatabase } from './isolated-test-database';
+import { EmailService } from '../src/modules/email/email.service';
 import { jest, describe, expect, beforeAll, afterAll, it } from '@jest/globals';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request from 'supertest';
 
 jest.setTimeout(120000);
-
-type TestDatabaseConfig = {
-	host: string;
-	port: number;
-	username: string;
-	password: string;
-	database: string;
-	ssl: boolean | { rejectUnauthorized: boolean };
-};
-
-function parseEnvFile(filePath: string): Record<string, string> {
-	if (!existsSync(filePath)) {
-		return {};
-	}
-
-	return readFileSync(filePath, 'utf8')
-		.split(/\r?\n/)
-		.filter((line) => line.trim() && !line.startsWith('#'))
-		.reduce<Record<string, string>>((acc, line) => {
-			const separatorIndex = line.indexOf('=');
-			if (separatorIndex > -1) {
-				const key = line.slice(0, separatorIndex).trim();
-				const value = line.slice(separatorIndex + 1).trim();
-				acc[key] = value;
-			}
-			return acc;
-		}, {});
-}
-
-function resolveSslOption(value: string | undefined): boolean | { rejectUnauthorized: boolean } {
-	if (!value || value === 'false') {
-		return false;
-	}
-
-	if (value === 'true' || value === 'require') {
-		return { rejectUnauthorized: false };
-	}
-
-	return false;
-}
-
-async function canConnect(config: TestDatabaseConfig): Promise<boolean> {
-	const client = new Client({
-		host: config.host,
-		port: config.port,
-		user: config.username,
-		password: config.password,
-		database: config.database,
-		ssl: config.ssl,
-		connectionTimeoutMillis: 5000
-	});
-
-	try {
-		await client.connect();
-		return true;
-	} catch {
-		return false;
-	} finally {
-		await client.end().catch(() => undefined);
-	}
-}
-
-async function ensureTestDatabase(config: TestDatabaseConfig, testDatabaseName: string): Promise<TestDatabaseConfig> {
-	const adminDatabase = config.host === '127.0.0.1' ? 'postgres' : 'defaultdb';
-	const adminClient = new Client({
-		host: config.host,
-		port: config.port,
-		user: config.username,
-		password: config.password,
-		database: adminDatabase,
-		ssl: config.ssl,
-		connectionTimeoutMillis: 5000
-	});
-
-	try {
-		await adminClient.connect();
-		const existing = await adminClient.query<{ datname: string }>(`SELECT 1 FROM pg_database WHERE datname = $1`, [testDatabaseName]);
-
-		if (existing.rowCount && existing.rowCount > 0) {
-			return { ...config, database: testDatabaseName };
-		}
-
-		await adminClient.query(`CREATE DATABASE "${testDatabaseName}"`);
-		return { ...config, database: testDatabaseName };
-	} catch (error) {
-		if (error instanceof Error && /already exists/i.test(error.message)) {
-			return { ...config, database: testDatabaseName };
-		}
-
-		throw error;
-	} finally {
-		await adminClient.end().catch(() => undefined);
-	}
-}
 
 describe('StrollBar API (e2e)', () => {
 	let app: INestApplication;
@@ -113,20 +18,12 @@ describe('StrollBar API (e2e)', () => {
 	const testRunId = Date.now().toString(36);
 	const testUsername = `walker-${testRunId}`;
 	const testEmail = `walker-${testRunId}@example.com`;
+	let capturedResetToken = '';
 
 	beforeAll(async () => {
-		const envFilePath = join(process.cwd(), '.env.production');
-		const productionEnv = parseEnvFile(envFilePath);
-
+		await configureIsolatedTestDatabase();
 		process.env.JWT_SECRET = 'test-secret';
 		process.env.JWT_REFRESH_SECRET = 'test-refresh-secret';
-		process.env.DB_HOST = process.env.DB_HOST ?? productionEnv.DB_HOST ?? '127.0.0.1';
-		process.env.DB_PORT = process.env.DB_PORT ?? productionEnv.DB_PORT ?? '5432';
-		process.env.DB_USERNAME = process.env.DB_USERNAME ?? productionEnv.DB_USERNAME ?? 'postgres';
-		process.env.DB_PASSWORD = process.env.DB_PASSWORD ?? productionEnv.DB_PASSWORD ?? 'postgres';
-		process.env.DB_NAME = process.env.DB_NAME ?? 'strollbar_test';
-		process.env.DB_SSL = process.env.DB_SSL ?? productionEnv.DB_SSL ?? 'false';
-		process.env.DB_MIGRATIONS_RUN = 'true';
 		process.env.S3_REGION = 'auto';
 		process.env.S3_ENDPOINT = 'http://127.0.0.1:9000';
 		process.env.S3_BUCKET_NAME = 'strollbar-media-test';
@@ -136,56 +33,10 @@ describe('StrollBar API (e2e)', () => {
 		process.env.MEDIA_PUBLIC_BASE_URL = 'https://api.test.example.com/v1';
 		process.env.S3_FORCE_PATH_STYLE = 'true';
 		process.env.EMAIL_DELIVERY_ENABLED = 'false';
-		process.env.AUTH_EXPOSE_RESET_TOKEN = 'true';
+		process.env.AUTH_EXPOSE_RESET_TOKEN = 'false';
 		process.env.AUTH_EXPOSE_VERIFICATION_TOKEN = 'true';
-
-		const dbConfig: TestDatabaseConfig = {
-			host: process.env.DB_HOST,
-			port: Number(process.env.DB_PORT ?? '5432'),
-			username: process.env.DB_USERNAME ?? 'postgres',
-			password: process.env.DB_PASSWORD ?? 'postgres',
-			database: process.env.DB_NAME ?? 'strollbar_test',
-			ssl: resolveSslOption(process.env.DB_SSL)
-		};
-
-		const requestedDatabase = process.env.DB_NAME ?? 'strollbar_test';
-		let resolvedDbConfig: TestDatabaseConfig = {
-			...dbConfig,
-			database: requestedDatabase
-		};
-
-		if (!(await canConnect(resolvedDbConfig))) {
-			try {
-				resolvedDbConfig = await ensureTestDatabase(
-					{
-						...dbConfig,
-						host: process.env.DB_HOST ?? productionEnv.DB_HOST ?? '127.0.0.1',
-						port: Number(process.env.DB_PORT ?? productionEnv.DB_PORT ?? '5432'),
-						username: process.env.DB_USERNAME ?? productionEnv.DB_USERNAME ?? 'postgres',
-						password: process.env.DB_PASSWORD ?? productionEnv.DB_PASSWORD ?? 'postgres',
-						database: requestedDatabase,
-						ssl: resolveSslOption(process.env.DB_SSL ?? productionEnv.DB_SSL)
-					},
-					requestedDatabase
-				);
-			} catch {
-				resolvedDbConfig = {
-					...dbConfig,
-					host: process.env.DB_HOST ?? productionEnv.DB_HOST ?? '127.0.0.1',
-					port: Number(process.env.DB_PORT ?? productionEnv.DB_PORT ?? '5432'),
-					username: process.env.DB_USERNAME ?? productionEnv.DB_USERNAME ?? 'postgres',
-					password: process.env.DB_PASSWORD ?? productionEnv.DB_PASSWORD ?? 'postgres',
-					database: productionEnv.DB_NAME ?? 'defaultdb',
-					ssl: resolveSslOption(process.env.DB_SSL ?? productionEnv.DB_SSL)
-				};
-			}
-		}
-
-		process.env.DB_HOST = resolvedDbConfig.host;
-		process.env.DB_PORT = String(resolvedDbConfig.port);
-		process.env.DB_USERNAME = resolvedDbConfig.username;
-		process.env.DB_PASSWORD = resolvedDbConfig.password;
-		process.env.DB_NAME = resolvedDbConfig.database;
+		process.env.PASSWORD_RESET_URL = 'http://localhost:4200/auth/reset-password';
+		process.env.RECAPTCHA_ENABLED = 'false';
 
 		const { AppModule } = await import('../src/app.module');
 
@@ -194,6 +45,9 @@ describe('StrollBar API (e2e)', () => {
 		}).compile();
 
 		app = moduleRef.createNestApplication();
+		jest.spyOn(moduleRef.get<EmailService>(EmailService), 'sendPasswordResetEmail').mockImplementation(async (_email: string, _username: string, token: string) => {
+			capturedResetToken = token;
+		});
 		app.setGlobalPrefix('v1');
 		app.useGlobalPipes(
 			new ValidationPipe({
@@ -392,12 +246,13 @@ describe('StrollBar API (e2e)', () => {
 			.expect(201);
 
 		expect(requestResetResponse.body.message).toContain('password reset token');
-		expect(requestResetResponse.body.resetToken).toBeDefined();
+		expect(requestResetResponse.body.resetToken).toBeUndefined();
+		expect(capturedResetToken).toMatch(/^[a-f0-9]{64}$/);
 
 		await request(app.getHttpServer())
 			.post('/v1/auth/password-reset/confirm')
 			.send({
-				resetToken: requestResetResponse.body.resetToken,
+				resetToken: capturedResetToken,
 				newPassword: 'EvenBetterPass123!'
 			})
 			.expect(201);

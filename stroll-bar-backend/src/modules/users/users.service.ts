@@ -94,9 +94,15 @@ export class UsersService {
 			user.preferredLanguage = dto.preferredLanguage;
 		}
 
-		const savedUser = await this.usersRepository.save(user);
+		const changes = {
+			id: user.id,
+			username: user.username,
+			profileImageUrl: user.profileImageUrl,
+			preferredLanguage: user.preferredLanguage
+		};
+		const savedChanges = await this.usersRepository.save(changes);
 
-		return this.toUserResponse(savedUser);
+		return this.toUserResponse(Object.assign(user, savedChanges));
 	}
 
 	async updateRole(userId: string, role: UserRole, currentUser: AuthenticatedUser, ipAddress?: string) {
@@ -109,7 +115,8 @@ export class UsersService {
 		}
 
 		user.role = role;
-		const savedUser = await this.usersRepository.save(user);
+		const savedChanges = await this.usersRepository.save({ id: user.id, role });
+		const savedUser = Object.assign(user, savedChanges);
 		await this.auditService?.record({
 			action: AuditAction.ROLE_CHANGE,
 			userId: savedUser.id,

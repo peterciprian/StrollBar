@@ -37,6 +37,9 @@ export class UserEntity {
 	@Column({ type: 'varchar', length: 255 })
 	passwordHash!: string;
 
+	@Column({ type: 'integer', default: 0 })
+	authVersion!: number;
+
 	@Column({ type: 'varchar', length: 255, nullable: true })
 	refreshTokenHash?: string | null;
 

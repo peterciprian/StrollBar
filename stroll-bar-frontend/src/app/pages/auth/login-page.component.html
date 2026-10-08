@@ -31,6 +31,12 @@
 					[errorMessages]="{ required: 'AUTH.LOGIN.PASSWORD_ERROR' | translate }"
 				/>
 
+				<p class="auth-page__forgot">
+					<a data-testid="login-forgot-password-link" routerLink="/auth/forgot-password" [state]="forgotPasswordState()">
+						{{ 'AUTH.LOGIN.FORGOT_PASSWORD' | translate }}
+					</a>
+				</p>
+
 				@if (error(); as message) {
 					<sb-alert tone="danger" [message]="message" />
 				}

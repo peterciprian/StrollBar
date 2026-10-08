@@ -11,7 +11,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:16
+                image: postgres:17
                 env:
                     POSTGRES_DB: strollbar
                     POSTGRES_USER: postgres
@@ -45,6 +45,13 @@ jobs:
               working-directory: stroll-bar-backend
               run: npm run migration:run
 
+            - name: Create isolated test databases
+              env:
+                  PGPASSWORD: postgres
+              run: |
+                  createdb -h 127.0.0.1 -U postgres strollbar_test_backend_ci
+                  createdb -h 127.0.0.1 -U postgres strollbar_migration_test
+
             - name: Run unit tests
               working-directory: stroll-bar-backend
               run: npx jest --testPathIgnorePatterns=/test/
@@ -70,4 +77,9 @@ jobs:
               working-directory: stroll-bar-backend
               env:
                   NODE_ENV: test
+                  TEST_DB_HOST: 127.0.0.1
+                  TEST_DB_PORT: '5432'
+                  TEST_DB_USERNAME: postgres
+                  TEST_DB_PASSWORD: postgres
+                  TEST_DB_NAME: strollbar_test_backend_ci
               run: npm run test:e2e
