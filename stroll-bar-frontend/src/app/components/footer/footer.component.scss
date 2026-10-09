@@ -87,7 +87,8 @@ footer {
 }
 
 .footer-links a,
-.cookie-settings-link {
+.cookie-settings-link,
+.weather-link {
 	color: var(--sb-color-text-muted);
 	font-size: var(--sb-font-size-xs);
 	text-decoration: none;
@@ -102,23 +103,22 @@ footer {
 }
 
 .footer-links a:hover,
-.cookie-settings-link:hover {
+.cookie-settings-link:hover,
+.weather-link:hover {
 	color: var(--sb-color-primary);
 	text-decoration: underline;
 }
 
-.github-btn {
-	margin-left: auto;
-	--sb-button-height: 36px;
-	--sb-button-font-size: var(--sb-font-size-xs);
-	--sb-button-fg: var(--sb-color-text);
-	--sb-button-border: var(--sb-color-border-strong);
+.footer-links a,
+.cookie-settings-link,
+.weather-link {
+	@include sb.sb-focus-visible;
+}
 
-	mat-icon {
-		width: var(--sb-icon-size-sm);
-		height: var(--sb-icon-size-sm);
-		fill: currentColor;
-	}
+.weather-link {
+	max-width: 100%;
+	line-height: 1.4;
+	overflow-wrap: anywhere;
 }
 
 @include sb.sb-up(sm) {
@@ -142,7 +142,7 @@ footer {
 		display: block;
 	}
 
-	.github-btn {
+	.weather-link {
 		margin-left: var(--sb-space-1);
 	}
 }
