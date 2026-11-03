@@ -1,5 +1,8 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
+import { X509Certificate } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { checkServerIdentity, ConnectionOptions } from 'node:tls';
 import { DATABASE_ENTITIES } from './entities';
 import { InitialSchema1752864000000 } from './migrations/1752864000000-initial-schema';
 import { AuthTokensAndPasswordReset1752885000000 } from './migrations/1752885000000-auth-tokens-and-password-reset';
@@ -28,35 +31,69 @@ function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	return value.toLowerCase() === 'true';
 }
 
-function resolveSslOption(): boolean | { rejectUnauthorized: boolean } {
+function resolveSslOption(host: string): false | Pick<ConnectionOptions, 'rejectUnauthorized' | 'ca' | 'checkServerIdentity'> {
 	const value = process.env.DB_SSL;
+	const caFile = process.env.DB_SSL_CA_FILE;
+	const mode = value?.toLowerCase();
 
-	if (value === undefined || value === '') {
+	if (mode === undefined || mode === 'false') {
+		if (process.env.NODE_ENV === 'production') {
+			throw new Error('Production requires DB_SSL=verify-full; PostgreSQL TLS cannot be disabled.');
+		}
+		if (caFile !== undefined) {
+			throw new Error('DB_SSL_CA_FILE requires TLS to be enabled.');
+		}
 		return false;
 	}
 
-	const normalized = value.toLowerCase();
-
-	if (normalized === 'true' || normalized === 'require') {
-		return { rejectUnauthorized: false };
+	if (!['verify-full', 'true', 'require'].includes(mode)) {
+		throw new Error('Invalid DB_SSL: use verify-full (true/require are verifying aliases), or false outside production.');
 	}
 
-	if (normalized === 'false') {
-		return false;
+	if (!host || host.trim() !== host || /[\s/]/.test(host)) {
+		throw new Error('DB_HOST must be a hostname or IP address, not a URL, when TLS is enabled.');
 	}
 
-	return { rejectUnauthorized: false };
+	let ca: string | undefined;
+	if (caFile !== undefined) {
+		if (!caFile || caFile.trim() !== caFile) {
+			throw new Error('DB_SSL_CA_FILE must be a non-empty certificate file path.');
+		}
+		try {
+			ca = readFileSync(caFile, 'utf8');
+			const certificates = ca.match(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g);
+			if (!certificates?.length || ca.replace(/-----BEGIN CERTIFICATE-----[\s\S]*?-----END CERTIFICATE-----/g, '').trim()) {
+				throw new Error('Expected only PEM certificates.');
+			}
+			for (const pem of certificates) {
+				const certificate = new X509Certificate(pem);
+				if (!certificate.ca || Date.parse(certificate.validFrom) > Date.now() || Date.parse(certificate.validTo) <= Date.now()) {
+					throw new Error('Expected a currently valid CA certificate.');
+				}
+			}
+		} catch {
+			throw new Error('DB_SSL_CA_FILE must reference a readable PEM bundle of valid CA certificates.');
+		}
+	}
+
+	return {
+		rejectUnauthorized: true,
+		...(ca === undefined ? {} : { ca }),
+		// Bind verification to DB_HOST even when pg connects using a socket or IP.
+		checkServerIdentity: (_servername, certificate) => checkServerIdentity(host, certificate)
+	};
 }
 
 export function buildDatabaseOptions(): TypeOrmModuleOptions {
+	const host = process.env.DB_HOST ?? '127.0.0.1';
 	return {
 		type: 'postgres',
-		host: process.env.DB_HOST ?? '127.0.0.1',
+		host,
 		port: Number(process.env.DB_PORT ?? '5432'),
 		username: process.env.DB_USERNAME ?? 'postgres',
 		password: process.env.DB_PASSWORD ?? 'postgres',
 		database: process.env.DB_NAME ?? 'strollbar',
-		ssl: resolveSslOption(),
+		ssl: resolveSslOption(host),
 		extra: {
 			max: Number(process.env.DB_POOL_MAX ?? '50'),
 			min: Number(process.env.DB_POOL_MIN ?? '2'),

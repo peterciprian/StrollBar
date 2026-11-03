@@ -28,6 +28,8 @@ monorepo with two apps:
   [render.yaml](render.yaml) Blueprint (Node web service, free plan). Connect the repo
   in the Render dashboard as a Blueprint instance and fill in the secret env vars
   (DB credentials, S3 keys) there — they are intentionally left out of `render.yaml`.
+  PostgreSQL requires verified TLS and the genuine Aiven service CA mounted as a
+  Render secret file before deployment. See [SEC-06 database TLS setup](docs/SEC-06_DATABASE_TLS.md).
   Once deployed, Swagger UI is at `https://stroll-bar-n5zc.onrender.com/v1/docs`.
 - **CI**: [.github/workflows/backend-ci.yml](.github/workflows/backend-ci.yml) builds the
   backend and runs its unit + e2e tests (against a throwaway Postgres service container)

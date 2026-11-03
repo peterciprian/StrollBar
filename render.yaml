@@ -24,7 +24,10 @@ services:
           - key: DB_NAME
             sync: false
           - key: DB_SSL
-            value: require
+            value: verify-full
+          # Upload the actual Aiven service CA as this Render secret file before deployment.
+          - key: DB_SSL_CA_FILE
+            value: /etc/secrets/aiven-ca.pem
           - key: CORS_ORIGINS
             value: 'https://peterciprian.github.io,https://strollbar.app,https://www.strollbar.app,https://stroll-bar.vercel.app,http://localhost:4200,http://127.0.0.1:4200,http://localhost:4000'
           - key: API_PUBLIC_BASE_URL
