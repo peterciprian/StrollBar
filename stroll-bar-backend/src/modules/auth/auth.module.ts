@@ -11,6 +11,7 @@ import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { EmailVerifiedGuard } from './guards/email-verified.guard';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { SocialIdentityEntity } from './entities/social-identity.entity';
+import { SocialTransactionEntity } from './entities/social-transaction.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { EmailModule } from '../email/email.module';
 import { OAuthProviderService } from './services/oauth-provider.service';
@@ -20,7 +21,7 @@ import { RecaptchaGuard } from '../../common/guards/recaptcha.guard';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([UserEntity, SocialIdentityEntity]),
+		TypeOrmModule.forFeature([UserEntity, SocialIdentityEntity, SocialTransactionEntity]),
 		EmailModule,
 		PassportModule.register({ defaultStrategy: 'jwt' }),
 		JwtModule.registerAsync({

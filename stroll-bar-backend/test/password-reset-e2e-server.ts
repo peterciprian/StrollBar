@@ -10,6 +10,9 @@ import { AuthService } from '../src/modules/auth/auth.service';
 import { EmailService } from '../src/modules/email/email.service';
 import { PreferredLanguage, UserEntity } from '../src/modules/users/entities/user.entity';
 import { configureIsolatedTestDatabase } from './isolated-test-database';
+import { randomBytes } from 'node:crypto';
+import { OAuthProviderService, SocialProfile } from '../src/modules/auth/services/oauth-provider.service';
+import { SocialTransactionEntity } from '../src/modules/auth/entities/social-transaction.entity';
 
 type CapturedEmail = {
 	to?: { email: string }[];
@@ -54,6 +57,17 @@ async function main(): Promise<void> {
 	app.useGlobalInterceptors(new VersionedResponseInterceptor());
 
 	const emailService = app.get(EmailService);
+	// Test process only: provider proof is local; production OAuth endpoints and account authorization are unchanged.
+	const providerProofs = new Map<string, SocialProfile>();
+	const oauth = app.get(OAuthProviderService);
+	oauth.createAuthorizationUrl = (provider, _redirect, _verifier, state) =>
+		`http://127.0.0.1:3101/__e2e/social/authorize?provider=${provider}&state=${encodeURIComponent(state)}`;
+	oauth.fetchUserProfile = async (provider, code) => {
+		const profile = providerProofs.get(code);
+		providerProofs.delete(code);
+		if (!profile || profile.provider !== provider) throw new Error('Invalid local provider proof.');
+		return profile;
+	};
 	Object.defineProperty(emailService, 'getBrevoClient', {
 		configurable: true,
 		value: () => ({
@@ -75,6 +89,32 @@ async function main(): Promise<void> {
 			const url = new URL(request.url ?? '/', 'http://127.0.0.1:3101');
 			if (request.method === 'GET' && url.pathname === '/__e2e/health') {
 				sendJson(response, 200, { status: 'ok' });
+				return;
+			}
+			if (request.method === 'GET' && url.pathname === '/__e2e/social/authorize') {
+				const state = url.searchParams.get('state');
+				if (!state || url.searchParams.get('provider') !== 'google') {
+					sendJson(response, 400, { error: 'Local Google provider state is required.' });
+					return;
+				}
+				const code = randomBytes(32).toString('hex');
+				providerProofs.set(code, {
+					provider: 'google', providerUserId: code, email: `social-${code}@example.test`, emailVerified: true
+				});
+				response.writeHead(302, { location: `http://127.0.0.1:3001/v1/auth/social/google/callback?code=${code}&state=${encodeURIComponent(state)}` });
+				response.end();
+				return;
+			}
+			if (request.method === 'POST' && url.pathname === '/__e2e/social/expire') {
+				const input = await readJson(request);
+				if (typeof input.transactionId !== 'string' || !/^[a-f0-9]{64}$/.test(input.transactionId)) {
+					sendJson(response, 400, { error: 'A transaction identifier is required.' });
+					return;
+				}
+				await app.get(DataSource).getRepository(SocialTransactionEntity).update(
+					{ id: input.transactionId }, { handoffExpiresAt: new Date(Date.now() - 1000) }
+				);
+				sendJson(response, 200, { status: 'expired' });
 				return;
 			}
 			if (request.method === 'POST' && url.pathname === '/__e2e/account') {

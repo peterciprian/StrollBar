@@ -1,7 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 
 class SocialRedirectDto {
+	@ApiProperty({ description: 'S256 challenge for the initiating browser verifier.' })
+	@IsString()
+	@Matches(/^[A-Za-z0-9_-]{43}$/)
+	browserChallenge!: string;
+
 	@ApiPropertyOptional({ description: 'Allowed frontend redirect URI.' })
 	@IsOptional()
 	@IsString()

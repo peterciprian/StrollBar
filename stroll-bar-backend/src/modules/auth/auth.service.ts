@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import type { StringValue } from 'ms';
-import { IsNull, MoreThan, Repository } from 'typeorm';
+import { IsNull, LessThan, MoreThan, Repository } from 'typeorm';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
@@ -14,11 +14,14 @@ import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialAccountAction, SocialUserService } from './services/social-user.service';
 import { AuditAction } from '../../common/audit.entity';
 import { AuditService } from '../../common/audit.service';
+import { SocialTransactionEntity } from './entities/social-transaction.entity';
+import { SocialHandoffDto } from './dto/social-handoff.dto';
 
 type SafeUser = Pick<UserEntity, 'id' | 'username' | 'email' | 'profileImageUrl' | 'isActive' | 'role' | 'preferredLanguage' | 'emailVerified' | 'createdAt' | 'updatedAt'>;
 type AuthResponse = { accessToken: string; refreshToken: string; user: SafeUser };
 type RegisterResponse = AuthResponse & { verificationToken?: string };
 type SocialState = {
+	transactionId: string;
 	provider: SocialAuthProvider;
 	frontendRedirectUri: string;
 	codeVerifier: string;
@@ -41,6 +44,8 @@ export class AuthService {
 		private readonly emailService: EmailService,
 		private readonly oauthProviderService: OAuthProviderService,
 		private readonly socialUserService: SocialUserService,
+		@InjectRepository(SocialTransactionEntity)
+		private readonly socialTransactionsRepository: Repository<SocialTransactionEntity>,
 		@Optional() private readonly auditService?: AuditService
 	) {}
 
@@ -102,7 +107,7 @@ export class AuthService {
 		};
 	}
 
-	async createSocialLinkAuthorizationUrl(userId: string, providerValue: string, currentPassword: string, redirectUri?: string): Promise<{ url: string }> {
+	async createSocialLinkAuthorizationUrl(userId: string, providerValue: string, currentPassword: string, redirectUri?: string, browserChallenge?: string) {
 		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
 		if (!user?.emailVerified || !this.verifyPassword(currentPassword, user.passwordHash)) {
 			throw new UnauthorizedException('Sign in to a verified account and reauthenticate with your current password. Use password recovery if needed.');
@@ -110,24 +115,34 @@ export class AuthService {
 		return this.createSocialAuthorizationUrl(providerValue, redirectUri, {
 			intent: 'link', userId: user.id, authVersion: user.authVersion,
 			credentialFingerprint: this.hashToken(user.passwordHash)
-		});
+		}, browserChallenge);
 	}
 
-	async createSocialReclaimAuthorizationUrl(providerValue: string, email: string, redirectUri?: string): Promise<{ url: string }> {
-		return this.createSocialAuthorizationUrl(providerValue, redirectUri, { intent: 'reclaim', email });
+	async createSocialReclaimAuthorizationUrl(providerValue: string, email: string, redirectUri?: string, browserChallenge?: string) {
+		return this.createSocialAuthorizationUrl(providerValue, redirectUri, { intent: 'reclaim', email }, browserChallenge);
 	}
 
-	async createSocialAuthorizationUrl(providerValue: string, redirectUri?: string, accountAction: SocialAccountAction = { intent: 'login' }): Promise<{ url: string }> {
+	async createSocialAuthorizationUrl(providerValue: string, redirectUri?: string, accountAction: SocialAccountAction = { intent: 'login' }, browserChallenge?: string): Promise<{ url: string; transactionId: string }> {
 		const provider = this.parseSocialProvider(providerValue);
 		const frontendRedirectUri = this.resolveFrontendRedirectUri(redirectUri);
+		if (!browserChallenge || !/^[A-Za-z0-9_-]{43}$/.test(browserChallenge)) {
+			throw new BadRequestException('A browser S256 challenge is required.');
+		}
+		const transactionId = randomBytes(32).toString('hex');
 		const codeVerifier = this.createCodeVerifier();
 		const state = await this.jwtService.signAsync(
-			{ provider, frontendRedirectUri, codeVerifier, accountAction },
+			{ provider, frontendRedirectUri, codeVerifier, accountAction, transactionId },
 			{ secret: this.getSocialStateSecret(), expiresIn: '10m' }
 		);
 
 		const url = this.oauthProviderService.createAuthorizationUrl(provider, frontendRedirectUri, codeVerifier, state);
-		return { url };
+		await this.socialTransactionsRepository.delete({ expiresAt: LessThan(new Date()) });
+		await this.socialTransactionsRepository.insert({
+			id: transactionId, browserChallenge, accountAction, expiresAt: new Date(Date.now() + 10 * 60_000),
+			callbackConsumed: false
+		});
+		this.logger.log({ event: 'social_transaction_started', provider });
+		return { url, transactionId };
 	}
 
 	async completeSocialLogin(providerValue: string, callback: SocialCallback): Promise<string> {
@@ -136,11 +151,7 @@ export class AuthService {
 		try {
 			const provider = this.parseSocialProvider(providerValue);
 
-			if (callback.error) {
-				throw new UnauthorizedException(`Social login was cancelled or rejected: ${callback.error}`);
-			}
-
-			if (!callback.code || !callback.state) {
+			if (!callback.state || (!callback.code && !callback.error)) {
 				throw new UnauthorizedException('Missing social login callback parameters.');
 			}
 
@@ -149,32 +160,60 @@ export class AuthService {
 			});
 			frontendRedirectUri = this.resolveFrontendRedirectUri(state.frontendRedirectUri);
 
-			if (state.provider !== provider) {
+			if (state.provider !== provider || !/^[a-f0-9]{64}$/.test(state.transactionId ?? '')) {
 				throw new UnauthorizedException('Invalid social login state.');
 			}
 
-			const profile = await this.oauthProviderService.fetchUserProfile(provider, callback.code, state.codeVerifier);
+			// Claim before contacting the provider: concurrent/replayed callbacks cannot create another handoff.
+			const claimed = await this.socialTransactionsRepository.update(
+				{ id: state.transactionId, callbackConsumed: false, expiresAt: MoreThan(new Date()) },
+				{ callbackConsumed: true }
+			);
+			if (claimed.affected !== 1) throw new UnauthorizedException('Social login transaction expired or already used.');
+			if (callback.error) throw new UnauthorizedException('Social login was cancelled or rejected.');
+
+			const profile = await this.oauthProviderService.fetchUserProfile(provider, callback.code!, state.codeVerifier);
 			if (profile.provider !== provider) {
 				throw new UnauthorizedException('Provider identity does not match the authorization request.');
 			}
-			const authResponse = await this.socialUserService.findOrCreateUserFromProfile(profile, async (user) => {
-				const tokens = await this.issueTokens(user);
-				return {
-					accessToken: tokens.accessToken,
-					refreshToken: tokens.refreshToken,
-					user: this.sanitizeUser(user)
-				};
-			}, state.accountAction ?? { intent: 'login' });
-
+			const code = randomBytes(32).toString('hex');
+			const handoff = await this.socialTransactionsRepository.update({ id: state.transactionId, expiresAt: MoreThan(new Date()) }, {
+				profile, handoffCodeHash: this.hashToken(code), handoffExpiresAt: new Date(Date.now() + 60_000)
+			});
+			if (handoff.affected !== 1) throw new UnauthorizedException('Social login transaction expired. Please start again.');
+			this.logger.log({ event: 'social_handoff_created', provider });
 			return this.buildFrontendRedirect(frontendRedirectUri, {
-				accessToken: authResponse.accessToken,
-				refreshToken: authResponse.refreshToken
+				code, transactionId: state.transactionId
 			});
 		} catch (error) {
+			this.logger.warn({ event: 'social_callback_rejected', provider: providerValue });
 			return this.buildFrontendRedirect(frontendRedirectUri, {
 				error: error instanceof Error ? error.message : 'Social login failed.'
 			});
 		}
+	}
+
+	async exchangeSocialHandoff(dto: SocialHandoffDto) {
+		const browserChallenge = createHash('sha256').update(dto.verifier).digest('base64url');
+		// DELETE ... RETURNING is the single-use boundary across workers, including simultaneous exchanges.
+		const result = await this.socialTransactionsRepository.createQueryBuilder()
+			.delete()
+			.where('"id" = :id AND "browserChallenge" = :browserChallenge AND "handoffCodeHash" = :codeHash AND "callbackConsumed" = true AND "expiresAt" > CURRENT_TIMESTAMP AND "handoffExpiresAt" > CURRENT_TIMESTAMP', {
+				id: dto.transactionId, browserChallenge, codeHash: this.hashToken(dto.code)
+			})
+			.returning('*')
+			.execute();
+		const transaction = result.raw[0] as SocialTransactionEntity | undefined;
+		if (!transaction?.profile) {
+			this.logger.warn({ event: 'social_handoff_rejected' });
+			throw new UnauthorizedException('Social login transaction is missing, mismatched, expired or already used. Please start again.');
+		}
+		const profile = transaction.profile;
+		return this.socialUserService.findOrCreateUserFromProfile(profile, async (user) => {
+			const tokens = await this.issueTokens(user);
+			this.logger.log({ event: 'social_handoff_consumed', provider: profile.provider });
+			return { ...tokens, user: this.sanitizeUser(user) };
+		}, transaction.accountAction);
 	}
 
 	async refresh(refreshToken: string): Promise<AuthResponse> {
@@ -375,7 +414,7 @@ export class AuthService {
 	}
 
 	private resolveFrontendRedirectUri(redirectUri?: string): string {
-		const fallback = this.configService.get<string>('AUTH_FRONTEND_REDIRECT_URL') ?? 'http://localhost:4200/#/auth/social/callback';
+		const fallback = this.configService.get<string>('AUTH_FRONTEND_REDIRECT_URL') ?? 'http://localhost:4200/auth/social/callback';
 		const resolved = redirectUri || fallback;
 		const allowedOrigins = (
 			this.configService.get<string>('AUTH_ALLOWED_REDIRECT_ORIGINS') ??

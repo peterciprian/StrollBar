@@ -88,7 +88,14 @@ export interface LoginRequest {
 export type SocialAuthProvider = 'apple' | 'google' | 'facebook' | 'twitter';
 
 export interface SocialAuthStartResponse {
+	transactionId: string;
 	url: string;
+}
+
+export interface SocialHandoffRequest {
+	code: string;
+	transactionId: string;
+	verifier: string;
 }
 
 export interface AuthResponse {

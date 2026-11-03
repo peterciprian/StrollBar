@@ -18,6 +18,7 @@ describe('Social account action HTTP boundary', () => {
 		createSocialReclaimAuthorizationUrl: jest.Mock;
 		createSocialAuthorizationUrl: jest.Mock;
 		completeSocialLogin: jest.Mock;
+		exchangeSocialHandoff: jest.Mock;
 	};
 	const secret = 'sec-01-http-test-secret';
 	const user = { id: 'user-1', email: 'owner@example.com', username: 'owner', role: UserRole.SIMPLE, authVersion: 4 };
@@ -29,7 +30,8 @@ describe('Social account action HTTP boundary', () => {
 			createSocialLinkAuthorizationUrl: jest.fn().mockResolvedValue({ url: 'https://provider.example/link' }),
 			createSocialReclaimAuthorizationUrl: jest.fn().mockResolvedValue({ url: 'https://provider.example/reclaim' }),
 			createSocialAuthorizationUrl: jest.fn().mockResolvedValue({ url: 'https://provider.example/login' }),
-			completeSocialLogin: jest.fn().mockResolvedValue('http://localhost:4200/callback?error=Use%20recovery')
+			completeSocialLogin: jest.fn().mockResolvedValue('http://localhost:4200/callback?error=Use%20recovery'),
+			exchangeSocialHandoff: jest.fn().mockResolvedValue({ accessToken: 'access', refreshToken: 'refresh', user: {} })
 		};
 		const module = await Test.createTestingModule({
 			imports: [PassportModule],
@@ -78,23 +80,42 @@ describe('Social account action HTTP boundary', () => {
 	it('explicit POST linking forwards authenticated identity and the reauthentication proof', async () => {
 		await request(app.getHttpServer()).post('/auth/social/google/link/start-url')
 			.auth(accessToken, { type: 'bearer' })
-			.send({ currentPassword: 'Password123!', redirectUri: 'http://localhost:4200/callback' }).expect(201);
+			.send({ currentPassword: 'Password123!', redirectUri: 'http://localhost:4200/callback', browserChallenge: 'b'.repeat(43) }).expect(201);
 		expect(auth.createSocialLinkAuthorizationUrl).toHaveBeenCalledWith(
-			user.id, 'google', 'Password123!', 'http://localhost:4200/callback'
+			user.id, 'google', 'Password123!', 'http://localhost:4200/callback', 'b'.repeat(43)
 		);
 	});
 
 	it('explicit reclamation validates the requested email before starting provider proof', async () => {
 		await request(app.getHttpServer()).post('/auth/social/google/reclaim/start-url').send({ email: 'invalid' }).expect(400);
 		expect(auth.createSocialReclaimAuthorizationUrl).not.toHaveBeenCalled();
-		await request(app.getHttpServer()).post('/auth/social/google/reclaim/start-url').send({ email: user.email }).expect(201);
-		expect(auth.createSocialReclaimAuthorizationUrl).toHaveBeenCalledWith('google', user.email, undefined);
+		await request(app.getHttpServer()).post('/auth/social/google/reclaim/start-url').send({ email: user.email, browserChallenge: 'b'.repeat(43) }).expect(201);
+		expect(auth.createSocialReclaimAuthorizationUrl).toHaveBeenCalledWith('google', user.email, undefined, 'b'.repeat(43));
 	});
 
 	it('ordinary GET start cannot opt into account linking via query parameters', async () => {
 		await request(app.getHttpServer()).get('/auth/social/google/start-url?intent=link&userId=other').expect(200);
-		expect(auth.createSocialAuthorizationUrl).toHaveBeenCalledWith('google', undefined);
+		expect(auth.createSocialAuthorizationUrl).toHaveBeenCalledWith('google', undefined, { intent: 'login' }, undefined);
 		expect(auth.createSocialLinkAuthorizationUrl).not.toHaveBeenCalled();
+	});
+
+	it('requires the browser challenge for explicit account actions without weakening reauthentication', async () => {
+		await request(app.getHttpServer()).post('/auth/social/google/link/start-url')
+			.auth(accessToken, { type: 'bearer' }).send({ currentPassword: 'Password123!' }).expect(400);
+		await request(app.getHttpServer()).post('/auth/social/google/reclaim/start-url').send({ email: user.email }).expect(400);
+		expect(auth.createSocialLinkAuthorizationUrl).not.toHaveBeenCalled();
+		expect(auth.createSocialReclaimAuthorizationUrl).not.toHaveBeenCalled();
+	});
+
+	it('accepts only well-formed handoff code, transaction and verifier at the anonymous exchange boundary', async () => {
+		const proof = { code: 'a'.repeat(64), transactionId: 'b'.repeat(64), verifier: 'c'.repeat(64) };
+		for (const field of Object.keys(proof)) {
+			await request(app.getHttpServer()).post('/auth/social/exchange').send({ ...proof, [field]: 'invalid' }).expect(400);
+			await request(app.getHttpServer()).post('/auth/social/exchange').send({ ...proof, [field]: undefined }).expect(400);
+		}
+		expect(auth.exchangeSocialHandoff).not.toHaveBeenCalled();
+		await request(app.getHttpServer()).post('/auth/social/exchange').send(proof).expect(201);
+		expect(auth.exchangeSocialHandoff).toHaveBeenCalledWith(proof);
 	});
 
 	it.each(['get', 'post'] as const)('the %s provider callback redirects with the service conflict/recovery outcome', async (method) => {

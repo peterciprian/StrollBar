@@ -18,6 +18,7 @@ import { StrollReports1753800000000 } from './migrations/1753800000000-stroll-re
 import { RiddleBadges1753900000000 } from './migrations/1753900000000-riddle-badges';
 import { UserPreferredLanguage1754000000000 } from './migrations/1754000000000-user-preferred-language';
 import { UserAuthVersion1754100000000 } from './migrations/1754100000000-user-auth-version';
+import { SocialTransactions1754200000000 } from './migrations/1754200000000-social-transactions';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -82,7 +83,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			StrollReports1753800000000,
 			RiddleBadges1753900000000,
 			UserPreferredLanguage1754000000000,
-			UserAuthVersion1754100000000
+			UserAuthVersion1754100000000,
+			SocialTransactions1754200000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

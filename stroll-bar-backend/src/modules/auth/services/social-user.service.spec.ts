@@ -287,7 +287,7 @@ describe('SocialUserService account ownership', () => {
 		await service.findOrCreateUserFromProfile(profile, issueTokens, reclaim);
 		const config = { get: () => 'secret', getOrThrow: () => 'secret' } as unknown as ConfigService;
 		const jwt = { verifyAsync: jest.fn().mockResolvedValue({ sub: original.id, authVersion: original.authVersion }), sign: jest.fn(() => 'token') };
-		const auth = new AuthService(usersRepository, identitiesRepository, jwt as unknown as JwtService, config, {} as any, {} as any, service);
+		const auth = new AuthService(usersRepository, identitiesRepository, jwt as unknown as JwtService, config, {} as any, {} as any, service, {} as any);
 		await expect(auth.login({ email: original.email, password })).rejects.toThrow(UnauthorizedException);
 		await expect(auth.refresh('prepared-refresh')).rejects.toThrow(UnauthorizedException);
 		await expect(new JwtStrategy(config, usersRepository).validate({

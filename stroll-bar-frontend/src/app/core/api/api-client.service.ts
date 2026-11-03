@@ -48,6 +48,7 @@ import {
 	ResetPasswordRequest,
 	SocialAuthProvider,
 	SocialAuthStartResponse,
+	SocialHandoffRequest,
 	Stage,
 	Stroll,
 	StrollDetailResponse,
@@ -83,9 +84,13 @@ export class ApiClientService {
 		return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, body);
 	}
 
-	getSocialAuthStartUrl(provider: SocialAuthProvider, redirectUri: string) {
-		const params = new HttpParams().set('redirectUri', redirectUri);
+	getSocialAuthStartUrl(provider: SocialAuthProvider, redirectUri: string, browserChallenge: string) {
+		const params = new HttpParams().set('redirectUri', redirectUri).set('browserChallenge', browserChallenge);
 		return this.http.get<SocialAuthStartResponse>(`${this.baseUrl}/auth/social/${provider}/start-url`, { params });
+	}
+
+	exchangeSocialHandoff(input: SocialHandoffRequest) {
+		return this.http.post<AuthResponse>(`${this.baseUrl}/auth/social/exchange`, input);
 	}
 
 	refresh(body: RefreshRequest) {

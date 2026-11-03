@@ -84,6 +84,8 @@ export async function startLocalStack() {
 		PASSWORD_RESET_TOKEN_TTL_MINUTES: '15',
 		RECAPTCHA_ENABLED: 'false',
 		CORS_ORIGINS: 'http://127.0.0.1:4201',
+		AUTH_ALLOWED_REDIRECT_ORIGINS: 'http://127.0.0.1:4201',
+		AUTH_FRONTEND_REDIRECT_URL: 'http://127.0.0.1:4201/auth/social/callback',
 		DB_POOL_MAX: '5',
 		DB_POOL_MIN: '0'
 	});

@@ -7,8 +7,8 @@ import { AuthRefreshService } from './auth-refresh.service';
 import { TokenStorageService } from './token-storage.service';
 import { sessionExpired } from '../../features/auth/auth.state';
 
-// Password reset is anonymous: a 401 there means an invalid/expired/used reset token, never an expired session.
-const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout', '/auth/password-reset/'];
+// Proof failures in anonymous auth flows must never refresh or clear an existing session.
+const AUTH_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh', '/auth/logout', '/auth/password-reset/', '/auth/social/exchange'];
 
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
 	const tokenStorage = inject(TokenStorageService);

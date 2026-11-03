@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import {
 	ApiCreatedResponse,
@@ -34,6 +34,7 @@ import { RecaptchaAction, RecaptchaGuard } from '../../common/guards/recaptcha.g
 import { PasswordResetRequestResponseDto } from './dto/password-reset-request-response.dto';
 import { SocialAuthStartResponseDto } from './dto/social-auth-start-response.dto';
 import { SocialLinkDto, SocialReclaimDto } from './dto/social-account-action.dto';
+import { SocialHandoffDto } from './dto/social-handoff.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @ApiTags('Auth')
@@ -69,8 +70,9 @@ export class AuthController {
 	@ApiOkResponse({ type: SocialAuthStartResponseDto, description: 'Provider authorization URL.' })
 	@ApiBadRequestResponse({ description: 'Unsupported provider or invalid redirect URI.', type: ErrorResponseDto })
 	@Get('social/:provider/start-url')
-	getSocialStartUrl(@Param('provider') provider: string, @Query('redirectUri') redirectUri?: string) {
-		return this.authService.createSocialAuthorizationUrl(provider, redirectUri);
+	@Header('Cache-Control', 'no-store')
+	getSocialStartUrl(@Param('provider') provider: string, @Query('redirectUri') redirectUri?: string, @Query('browserChallenge') browserChallenge?: string) {
+		return this.authService.createSocialAuthorizationUrl(provider, redirectUri, { intent: 'login' }, browserChallenge);
 	}
 
 	@ApiOperation({ summary: 'Explicitly link a provider after current-password reauthentication (verified accounts only)' })
@@ -81,7 +83,7 @@ export class AuthController {
 	@UseGuards(JwtAuthGuard)
 	@Post('social/:provider/link/start-url')
 	startSocialLink(@CurrentUser() user: AuthenticatedUser, @Param('provider') provider: string, @Body() dto: SocialLinkDto) {
-		return this.authService.createSocialLinkAuthorizationUrl(user.userId, provider, dto.currentPassword, dto.redirectUri);
+		return this.authService.createSocialLinkAuthorizationUrl(user.userId, provider, dto.currentPassword, dto.redirectUri, dto.browserChallenge);
 	}
 
 	@ApiOperation({ summary: 'Explicitly reclaim an unverified registration using matching verified provider email' })
@@ -89,7 +91,7 @@ export class AuthController {
 	@Throttle({ default: { limit: 5, ttl: 60_000 } })
 	@Post('social/:provider/reclaim/start-url')
 	startSocialReclaim(@Param('provider') provider: string, @Body() dto: SocialReclaimDto) {
-		return this.authService.createSocialReclaimAuthorizationUrl(provider, dto.email, dto.redirectUri);
+		return this.authService.createSocialReclaimAuthorizationUrl(provider, dto.email, dto.redirectUri, dto.browserChallenge);
 	}
 
 	@ApiOperation({ summary: 'Redirect to a social login provider' })
@@ -98,10 +100,21 @@ export class AuthController {
 	async startSocialLogin(
 		@Param('provider') provider: string,
 		@Query('redirectUri') redirectUri: string | undefined,
+		@Query('browserChallenge') browserChallenge: string | undefined,
 		@Res() response: { redirect(url: string): void }
 	) {
-		const { url } = await this.authService.createSocialAuthorizationUrl(provider, redirectUri);
+		const { url } = await this.authService.createSocialAuthorizationUrl(provider, redirectUri, { intent: 'login' }, browserChallenge);
 		response.redirect(url);
+	}
+
+	@ApiOperation({ summary: 'Consume a browser-bound single-use social login handoff' })
+	@ApiCreatedResponse({ type: AuthResponseDto })
+	@ApiUnauthorizedResponse({ description: 'Missing, mismatched, expired or consumed transaction.' })
+	@Throttle({ default: { limit: 10, ttl: 60_000 } })
+	@Post('social/exchange')
+	@Header('Cache-Control', 'no-store')
+	exchangeSocialHandoff(@Body() dto: SocialHandoffDto) {
+		return this.authService.exchangeSocialHandoff(dto);
 	}
 
 	@ApiOperation({ summary: 'Handle a social login provider callback' })

@@ -18,6 +18,10 @@ describe('AuthService token validation', () => {
 	let auditService: any;
 	let service: AuthService;
 	let query: any;
+	let transactions: any;
+	let handoffQuery: any;
+	const transactionId = 'a'.repeat(64);
+	const browserChallenge = 'b'.repeat(43);
 
 	beforeEach(() => {
 		usersRepository = {
@@ -86,6 +90,14 @@ describe('AuthService token validation', () => {
 		auditService = {
 			record: jest.fn().mockResolvedValue(undefined)
 		};
+		handoffQuery = {
+			delete: jest.fn().mockReturnThis(), where: jest.fn().mockReturnThis(),
+			returning: jest.fn().mockReturnThis(), execute: jest.fn().mockResolvedValue({ raw: [] })
+		};
+		transactions = {
+			insert: jest.fn(), delete: jest.fn(), update: jest.fn().mockResolvedValue({ affected: 1 }),
+			createQueryBuilder: jest.fn(() => handoffQuery)
+		};
 
 		service = new AuthService(
 			usersRepository,
@@ -95,6 +107,7 @@ describe('AuthService token validation', () => {
 			emailService,
 			oauthProviderService,
 			socialUserService,
+			transactions,
 			auditService
 		);
 	});
@@ -426,8 +439,8 @@ describe('AuthService token validation', () => {
 		usersRepository.findOne.mockResolvedValue(user);
 		jwtService.signAsync.mockResolvedValue('signed-link-state');
 		oauthProviderService.createAuthorizationUrl.mockReturnValue('https://provider.example/authorize');
-		await expect(service.createSocialLinkAuthorizationUrl('user-1', 'google', 'password')).resolves.toEqual({
-			url: 'https://provider.example/authorize'
+		await expect(service.createSocialLinkAuthorizationUrl('user-1', 'google', 'password', undefined, browserChallenge)).resolves.toEqual({
+			url: 'https://provider.example/authorize', transactionId: expect.stringMatching(/^[a-f0-9]{64}$/)
 		});
 		const payload = jwtService.signAsync.mock.calls[0][0];
 		expect(payload.accountAction).toEqual({
@@ -440,36 +453,48 @@ describe('AuthService token validation', () => {
 	});
 
 	it('ordinary social start cannot request linking or reclamation via a redirect URI', async () => {
-		await service.createSocialAuthorizationUrl('google', 'http://localhost:4200/?intent=link&userId=other');
+		await service.createSocialAuthorizationUrl('google', 'http://localhost:4200/?intent=link&userId=other', { intent: 'login' }, browserChallenge);
 		expect(jwtService.signAsync.mock.calls[0][0].accountAction).toEqual({ intent: 'login' });
 		expect(usersRepository.findOne).not.toHaveBeenCalled();
 	});
 
 	it('explicit reclaim start binds the requested email without changing or disclosing account state', async () => {
-		await service.createSocialReclaimAuthorizationUrl('google', 'owner@example.com');
+		await service.createSocialReclaimAuthorizationUrl('google', 'owner@example.com', undefined, browserChallenge);
 		expect(jwtService.signAsync.mock.calls[0][0].accountAction).toEqual({ intent: 'reclaim', email: 'owner@example.com' });
 		expect(usersRepository.findOne).not.toHaveBeenCalled();
 		expect(usersRepository.update).not.toHaveBeenCalled();
 	});
 
-	it.each(['login', 'link', 'reclaim'])('callback passes only signed %s intent to the account service', async (intent) => {
+	it.each(['login', 'link', 'reclaim'])('only browser-proven exchange passes the stored %s intent to the account service', async (intent) => {
 		const accountAction = intent === 'link' ?
 			{ intent, userId: 'user-1', authVersion: 0, credentialFingerprint: 'fingerprint' } :
 			intent === 'reclaim' ? { intent, email: 'walker@example.com' } : { intent };
 		jwtService.verifyAsync.mockResolvedValue({
-			provider: 'google', frontendRedirectUri: 'http://localhost:4200/callback', codeVerifier: 'verifier', accountAction
+			provider: 'google', frontendRedirectUri: 'http://localhost:4200/callback', codeVerifier: 'verifier', accountAction, transactionId
 		});
 		const profile = { provider: 'google', providerUserId: 'provider-id', email: 'walker@example.com', emailVerified: true };
 		oauthProviderService.fetchUserProfile.mockResolvedValue(profile);
 		socialUserService.findOrCreateUserFromProfile.mockImplementation(async (_profile: unknown, issue: (user: any) => Promise<any>) => issue(buildUser()));
 		const redirect = await service.completeSocialLogin('google', { code: 'code', state: 'signed-state' });
+		expect(socialUserService.findOrCreateUserFromProfile).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+		const callback = new URL(redirect);
+		const code = callback.searchParams.get('code')!;
+		expect(code).toMatch(/^[a-f0-9]{64}$/);
+		expect(callback.searchParams.get('transactionId')).toBe(transactionId);
+		expect(transactions.update).toHaveBeenLastCalledWith({ id: transactionId, expiresAt: expect.any(Object) }, expect.objectContaining({
+			profile, handoffCodeHash: createHash('sha256').update(code).digest('hex'), handoffExpiresAt: expect.any(Date)
+		}));
+		handoffQuery.execute.mockResolvedValue({ raw: [{ profile, accountAction }] });
+		await service.exchangeSocialHandoff({ code, transactionId, verifier: 'c'.repeat(64) });
 		expect(socialUserService.findOrCreateUserFromProfile).toHaveBeenCalledWith(profile, expect.any(Function), accountAction);
-		expect(redirect).toContain('accessToken=');
+		expect(redirect).not.toContain('accessToken=');
+		expect(redirect).not.toContain('refreshToken=');
 		expect(redirect).not.toContain('error=');
 	});
 
 	it.each(['bad-state', 'provider-error', 'wrong-provider', 'failed-provider-proof'])('failed callback proof (%s) cannot change account state', async (failure) => {
-		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', codeVerifier: 'verifier' });
+		jwtService.verifyAsync.mockResolvedValue({ provider: failure === 'wrong-provider' ? 'apple' : 'google', codeVerifier: 'verifier', transactionId });
 		oauthProviderService.fetchUserProfile.mockResolvedValue({ provider: 'facebook' });
 		if (failure === 'bad-state') jwtService.verifyAsync.mockRejectedValue(new Error('Invalid state'));
 		if (failure === 'failed-provider-proof') oauthProviderService.fetchUserProfile.mockRejectedValue(new UnauthorizedException('Invalid provider proof'));
@@ -482,13 +507,90 @@ describe('AuthService token validation', () => {
 		expect(usersRepository.update).not.toHaveBeenCalled();
 	});
 
-	it('callback returns actionable conflict/recovery guidance without tokens or mutations', async () => {
-		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', codeVerifier: 'verifier' });
-		oauthProviderService.fetchUserProfile.mockResolvedValue({ provider: 'google' });
+	it('exchange preserves actionable SEC-01 conflict/recovery guidance without tokens or mutations', async () => {
+		handoffQuery.execute.mockResolvedValue({ raw: [{ profile: { provider: 'google' }, accountAction: { intent: 'login' } }] });
 		socialUserService.findOrCreateUserFromProfile.mockRejectedValue(new ConflictException('Sign in and explicitly link, or use recovery.'));
-		const redirect = await service.completeSocialLogin('google', { code: 'code', state: 'state' });
-		expect(decodeURIComponent(redirect.replace(/\+/g, ' '))).toContain('Sign in and explicitly link, or use recovery.');
-		expect(redirect).not.toContain('accessToken=');
+		await expect(service.exchangeSocialHandoff({ code: 'c'.repeat(64), transactionId, verifier: 'd'.repeat(64) }))
+			.rejects.toThrow('Sign in and explicitly link, or use recovery.');
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it.each([undefined, '', 'short', 'x'.repeat(44)])('requires a valid browser challenge at initiation: %s', async (challenge) => {
+		await expect(service.createSocialAuthorizationUrl('google', undefined, { intent: 'login' }, challenge)).rejects.toThrow(BadRequestException);
+		expect(transactions.insert).not.toHaveBeenCalled();
+	});
+
+	it('persists expiring initiation proof and signs its unpredictable transaction identifier', async () => {
+		const before = Date.now();
+		const response = await service.createSocialAuthorizationUrl('google', undefined, { intent: 'login' }, browserChallenge);
+		expect(transactions.insert).toHaveBeenCalledWith(expect.objectContaining({
+			id: response.transactionId, browserChallenge, callbackConsumed: false, accountAction: { intent: 'login' }
+		}));
+		expect(transactions.insert.mock.calls[0][0].expiresAt.getTime()).toBeGreaterThanOrEqual(before + 10 * 60_000);
+		expect(jwtService.signAsync.mock.calls[0][0].transactionId).toBe(response.transactionId);
+		expect(JSON.stringify(jwtService.signAsync.mock.calls[0][0])).not.toContain(browserChallenge);
+	});
+
+	it.each(['missing-state', 'missing-code', 'old-stateless-state', 'expired-or-replayed'])('rejects callback transaction failure: %s', async (reason) => {
+		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', transactionId: reason === 'old-stateless-state' ? undefined : transactionId });
+		if (reason === 'expired-or-replayed') transactions.update.mockResolvedValue({ affected: 0 });
+		const redirect = await service.completeSocialLogin('google', {
+			code: reason === 'missing-code' ? undefined : 'provider-code',
+			state: reason === 'missing-state' ? undefined : 'signed-state'
+		});
+		expect(redirect).toContain('error=');
+		expect(oauthProviderService.fetchUserProfile).not.toHaveBeenCalled();
+		expect(socialUserService.findOrCreateUserFromProfile).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('claims the callback exactly once before provider I/O and gives the handoff a 60-second lifetime', async () => {
+		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', transactionId, codeVerifier: 'pkce' });
+		oauthProviderService.fetchUserProfile.mockResolvedValue({ provider: 'google', providerUserId: 'subject' });
+		const before = Date.now();
+		await service.completeSocialLogin('google', { code: 'provider-code', state: 'signed-state' });
+		expect(transactions.update).toHaveBeenNthCalledWith(1,
+			{ id: transactionId, callbackConsumed: false, expiresAt: expect.any(Object) }, { callbackConsumed: true });
+		const expiry = transactions.update.mock.calls[1][1].handoffExpiresAt.getTime();
+		expect(expiry).toBeGreaterThanOrEqual(before + 60_000);
+		expect(expiry).toBeLessThanOrEqual(Date.now() + 60_000);
+		transactions.update.mockResolvedValue({ affected: 0 });
+		expect(await service.completeSocialLogin('google', { code: 'provider-code', state: 'signed-state' })).toContain('error=');
+		expect(oauthProviderService.fetchUserProfile).toHaveBeenCalledTimes(1);
+	});
+
+	it('atomically binds consumption to code hash, browser S256 proof and both expirations', async () => {
+		const verifier = 'e'.repeat(64);
+		const code = 'f'.repeat(64);
+		await expect(service.exchangeSocialHandoff({ code, transactionId, verifier })).rejects.toThrow(UnauthorizedException);
+		expect(handoffQuery.where).toHaveBeenCalledWith(expect.stringContaining('"handoffExpiresAt" > CURRENT_TIMESTAMP'), {
+			id: transactionId, browserChallenge: createHash('sha256').update(verifier).digest('base64url'),
+			codeHash: createHash('sha256').update(code).digest('hex')
+		});
+		expect(handoffQuery.where.mock.calls[0][0]).toContain('"expiresAt" > CURRENT_TIMESTAMP');
+		expect(socialUserService.findOrCreateUserFromProfile).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('consumes a signed provider cancellation without fetching identity or changing credentials', async () => {
+		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', transactionId, codeVerifier: 'pkce' });
+		const redirect = await service.completeSocialLogin('google', { state: 'signed-state', error: 'access_denied' });
+		expect(redirect).toContain('error=');
+		expect(transactions.update).toHaveBeenCalledWith(
+			{ id: transactionId, callbackConsumed: false, expiresAt: expect.any(Object) }, { callbackConsumed: true }
+		);
+		expect(oauthProviderService.fetchUserProfile).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('does not return a handoff when the transaction expires during provider I/O', async () => {
+		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', transactionId, codeVerifier: 'pkce' });
+		oauthProviderService.fetchUserProfile.mockResolvedValue({ provider: 'google' });
+		transactions.update.mockResolvedValueOnce({ affected: 1 }).mockResolvedValueOnce({ affected: 0 });
+		const redirect = await service.completeSocialLogin('google', { state: 'signed-state', code: 'provider-code' });
+		expect(redirect).toContain('error=');
+		expect(new URL(redirect).searchParams.has('code')).toBe(false);
+		expect(socialUserService.findOrCreateUserFromProfile).not.toHaveBeenCalled();
 		expect(usersRepository.update).not.toHaveBeenCalled();
 	});
 });

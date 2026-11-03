@@ -63,7 +63,7 @@ describe('authInterceptor', () => {
 		expect(refreshService.refreshAccessToken).not.toHaveBeenCalled();
 	});
 
-	it.each(['/v1/auth/password-reset/request', '/v1/auth/password-reset/confirm'])(
+	it.each(['/v1/auth/password-reset/request', '/v1/auth/password-reset/confirm', '/v1/auth/social/exchange'])(
 		'treats %s as an anonymous auth endpoint without a bearer token',
 		async (url) => {
 			tokenStorage.getAccessToken.mockReturnValue('access-token');
@@ -77,11 +77,11 @@ describe('authInterceptor', () => {
 		}
 	);
 
-	it('passes a 401 from an invalid reset token through without refreshing or expiring the session', async () => {
+	it.each(['/v1/auth/password-reset/confirm', '/v1/auth/social/exchange'])('passes a 401 from %s through without refreshing or expiring the session', async (url) => {
 		tokenStorage.getAccessToken.mockReturnValue('access-token');
 		const error = new HttpErrorResponse({ status: 401, error: { message: 'Invalid, expired or already used password reset token.' } });
 		const next = jest.fn(() => throwError(() => error) as Observable<HttpEvent<unknown>>);
-		const request = new HttpRequest('POST', '/v1/auth/password-reset/confirm', { resetToken: 'c'.repeat(64), newPassword: 'StrollWalk!2026' });
+		const request = new HttpRequest('POST', url, {});
 
 		const result = TestBed.runInInjectionContext(() => authInterceptor(request, next));
 

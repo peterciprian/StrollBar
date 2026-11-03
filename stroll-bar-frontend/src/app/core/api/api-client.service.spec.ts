@@ -30,6 +30,24 @@ describe('ApiClientService', () => {
 		request.flush({ accessToken: 'access-token', refreshToken: 'refresh-token', user: {} });
 	});
 
+	it('sends the browser challenge at social initiation, not the secret verifier', () => {
+		api.getSocialAuthStartUrl('google', 'http://localhost/#/auth/social/callback', 'challenge').subscribe();
+		const request = http.expectOne((candidate) => candidate.url === '/v1/auth/social/google/start-url');
+		expect(request.request.method).toBe('GET');
+		expect(request.request.params.get('browserChallenge')).toBe('challenge');
+		expect(request.request.params.has('verifier')).toBe(false);
+		request.flush({ url: 'https://provider.example', transactionId: 'a'.repeat(64) });
+	});
+
+	it('posts code and browser proof only in the exchange body', () => {
+		const proof = { code: 'a'.repeat(64), transactionId: 'b'.repeat(64), verifier: 'c'.repeat(64) };
+		api.exchangeSocialHandoff(proof).subscribe();
+		const request = http.expectOne('/v1/auth/social/exchange');
+		expect(request.request.method).toBe('POST');
+		expect(request.request.body).toEqual(proof);
+		request.flush({ accessToken: 'access', refreshToken: 'refresh', user: {} });
+	});
+
 	it('posts password reset requests to the request endpoint', () => {
 		let response: unknown;
 		api.requestPasswordReset({ email: 'walker@example.com', preferredLanguage: 'hu' }).subscribe((body) => (response = body));
