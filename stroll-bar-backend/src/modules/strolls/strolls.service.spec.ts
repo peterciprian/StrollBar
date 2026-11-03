@@ -246,6 +246,7 @@ describe('StrollsService authorization', () => {
 		const stroll = buildStroll({ authorId: 'another-user', activeStatus: StrollActiveStatus.SUSPENDED });
 		const adminUser = { ...simpleUser, role: UserRole.ADMIN };
 		strollsRepository.findOne.mockResolvedValue(stroll);
+		stagesRepository.find.mockResolvedValue([buildReadyStage()]);
 		strollsRepository.save.mockImplementationOnce(async (value) => value);
 		usersRepository.findOne.mockResolvedValue({ email: 'author@example.com', username: 'author', preferredLanguage: 'en' });
 
@@ -260,6 +261,97 @@ describe('StrollsService authorization', () => {
 			StrollActiveStatus.PUBLISHED,
 			'en'
 		);
+	});
+
+	it('rejects explicit publication of an invalid draft with field-specific readiness feedback', async () => {
+		const draft = buildStroll({ authorId: simpleUser.userId, activeStatus: StrollActiveStatus.DRAFT });
+		strollsRepository.findOne.mockResolvedValue(draft);
+		stagesRepository.find.mockResolvedValue([]);
+
+		await expect(service.update(draft.id, { name: 'Attempted publish', activeStatus: StrollActiveStatus.PUBLISHED }, simpleUser)).rejects.toMatchObject({
+			response: {
+				code: 'STROLL_NOT_READY',
+				errors: [{ field: 'stages', code: 'STROLL_STAGE_REQUIRED' }]
+			}
+		});
+		expect(strollsRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('publishes a valid draft', async () => {
+		const draft = buildStroll({ authorId: simpleUser.userId, activeStatus: StrollActiveStatus.DRAFT });
+		strollsRepository.findOne.mockResolvedValue(draft);
+		stagesRepository.find.mockResolvedValue([buildReadyStage()]);
+		strollsRepository.save.mockImplementationOnce(async (value) => value);
+
+		await expect(service.update(draft.id, { activeStatus: StrollActiveStatus.PUBLISHED }, simpleUser)).resolves.toMatchObject({
+			activeStatus: StrollActiveStatus.PUBLISHED
+		});
+	});
+
+	it('keeps invalid draft edits editable without attempting publication', async () => {
+		const draft = buildStroll({ authorId: simpleUser.userId, activeStatus: StrollActiveStatus.DRAFT });
+		strollsRepository.findOne.mockResolvedValue(draft);
+		stagesRepository.find.mockResolvedValue([]);
+		strollsRepository.save.mockImplementationOnce(async (value) => value);
+
+		await expect(service.update(draft.id, { name: '   ' }, simpleUser)).resolves.toMatchObject({
+			name: '   ',
+			activeStatus: StrollActiveStatus.DRAFT
+		});
+		expect(strollsRepository.save).toHaveBeenCalledWith(expect.objectContaining({ name: '   ', activeStatus: StrollActiveStatus.DRAFT }));
+	});
+
+	it('saves an invalidating edit and automatically returns a published stroll to draft', async () => {
+		const published = buildStroll({ authorId: simpleUser.userId, activeStatus: StrollActiveStatus.PUBLISHED });
+		strollsRepository.findOne.mockResolvedValue(published);
+		stagesRepository.find.mockResolvedValue([buildReadyStage()]);
+		strollsRepository.save.mockImplementationOnce(async (value) => value);
+
+		const result = await service.update(published.id, { name: '   ' }, simpleUser);
+
+		expect(result).toMatchObject({ name: '   ', activeStatus: StrollActiveStatus.DRAFT, automaticallyUnpublished: true });
+		expect(strollsRepository.save).toHaveBeenCalledWith(expect.objectContaining({ name: '   ', activeStatus: StrollActiveStatus.DRAFT }));
+	});
+
+	it('rejects creating a stroll directly as published before saving', async () => {
+		await expect(service.create({ ...createDto, activeStatus: StrollActiveStatus.PUBLISHED }, simpleUser)).rejects.toMatchObject({
+			response: { code: 'STROLL_NOT_READY', errors: [{ field: 'stages', code: 'STROLL_STAGE_REQUIRED' }] }
+		});
+		expect(strollsRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('rejects invalid published bulk imports before starting the transaction', async () => {
+		const adminUser = { ...simpleUser, role: UserRole.ADMIN };
+		await expect(
+			service.bulkImport(
+				{
+					stroll: { name: 'Imported', description: 'Imported description', activeStatus: StrollActiveStatus.PUBLISHED },
+					stages: []
+				} as any,
+				adminUser
+			)
+		).rejects.toMatchObject({ response: { code: 'STROLL_NOT_READY', errors: expect.any(Array) } });
+		expect(dataSource.transaction).not.toHaveBeenCalled();
+	});
+
+	it('accepts a valid published bulk import with an address location alternative', async () => {
+		const adminUser = { ...simpleUser, role: UserRole.ADMIN };
+		const manager = {
+			create: jest.fn((_entity, value) => value),
+			save: jest.fn(async (_entity, value) => (Array.isArray(value) ? value : { ...value, id: 'imported-stroll-id' }))
+		};
+		dataSource.transaction.mockImplementationOnce(async (callback) => callback(manager));
+
+		await expect(
+			service.bulkImport(
+				{
+					stroll: { name: 'Imported', description: 'Imported description', activeStatus: StrollActiveStatus.PUBLISHED },
+					stages: [{ orderIndex: 1, name: 'Stage', description: 'Stage description', address: 'Main Street' }]
+				} as any,
+				adminUser
+			)
+		).resolves.toMatchObject({ stroll: { activeStatus: StrollActiveStatus.PUBLISHED }, stages: [{ address: 'Main Street' }] });
+		expect(dataSource.transaction).toHaveBeenCalledTimes(1);
 	});
 
 	it('clears private pricing when a stroll becomes public', async () => {
@@ -345,4 +437,17 @@ function buildStroll(overrides: Partial<StrollEntity> = {}): StrollEntity {
 		setIdIfMissing: jest.fn(),
 		...overrides
 	};
+}
+
+function buildReadyStage(): StageEntity {
+	return Object.assign(new StageEntity(), {
+		id: 'ready-stage',
+		strollId: 'stroll-id',
+		orderIndex: 1,
+		name: 'Stage',
+		description: 'A complete stage description',
+		address: null,
+		latitude: 47.5,
+		longitude: 19.05
+	});
 }

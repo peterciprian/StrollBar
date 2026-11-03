@@ -16,6 +16,7 @@ export class StructuredExceptionFilter implements ExceptionFilter {
 				? exceptionResponse
 				: ((exceptionResponse as { message?: string | string[] } | undefined)?.message ?? 'Internal server error');
 		const code = (exceptionResponse as { code?: string } | undefined)?.code ?? `HTTP_${statusCode}`;
+		const errors = (exceptionResponse as { errors?: unknown } | undefined)?.errors;
 		const requestId = response.getHeader('x-request-id') ?? request.header('x-request-id') ?? 'unknown';
 		const isV2 = request.header('accept')?.includes('application/vnd.strollbar.v2+json');
 
@@ -36,10 +37,10 @@ export class StructuredExceptionFilter implements ExceptionFilter {
 				isV2
 					? {
 							status: 'error',
-							error: { code, message },
+							error: { code, message, ...(errors ? { errors } : {}) },
 							meta: { requestId, timestamp: new Date().toISOString(), version: 'v2' }
 						}
-					: { statusCode, error: statusCode >= 500 ? 'Internal Server Error' : 'Request Error', message }
+					: { statusCode, error: statusCode >= 500 ? 'Internal Server Error' : 'Request Error', message, ...(errors ? { errors } : {}) }
 			);
 		}
 	}

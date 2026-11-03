@@ -147,7 +147,8 @@ Rules:
 Publish validation minimum:
 - Stroll has name + description
 - At least 1 stage exists
-- Every stage has name, description + either address or coordinates
+- Every stage has a nonblank name and description, plus either a nonblank address or a complete, in-range latitude/longitude pair
+- Invalid drafts remain editable. An edit that makes a published stroll invalid is saved and automatically returns it to draft; an explicit attempt to publish an invalid draft fails with field-specific feedback.
 
 #### 5.4 Read/View Stroll
 - Users can view stroll overview and ordered stage list

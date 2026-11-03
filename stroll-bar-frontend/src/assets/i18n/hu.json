@@ -602,7 +602,17 @@
 			"CREATE_STROLL": "Séta létrehozása",
 			"SAVED": "Változtatások elmentve.",
 			"SAVE_ERROR": "Nem sikerült menteni a változtatásokat. Próbáld újra.",
-			"VALIDATION_ERROR": "Mentés előtt töltsd ki a séta nevét és leírását.",
+			"AUTO_UNPUBLISHED": "A módosítások piszkozatként lettek elmentve, mert a publikált séta már nem felel meg a közzétételi feltételeknek.",
+			"READINESS_TITLE": "A séta még nem publikálható:",
+			"READINESS_GENERIC": "Ellenőrizd a séta és a szakaszok adatait, majd próbáld újra a publikálást.",
+			"READINESS": {
+				"STROLL_NAME_REQUIRED": "Adj nevet a sétának.",
+				"STROLL_DESCRIPTION_REQUIRED": "Adj leírást a sétához.",
+				"STROLL_STAGE_REQUIRED": "Adj hozzá legalább egy szakaszt.",
+				"STAGE_NAME_REQUIRED": "Minden szakasznak adj nevet.",
+				"STAGE_DESCRIPTION_REQUIRED": "Minden szakaszhoz adj leírást.",
+				"STAGE_LOCATION_REQUIRED": "Minden szakasznál adj meg nem üres címet, vagy teljes és érvényes szélességi/hosszúsági koordinátapárt."
+			},
 			"TITLE_LABEL": "Állomás neve",
 			"ADDRESS_LABEL": "Utca, házszám",
 			"LATITUDE_LABEL": "Szélességi fok",

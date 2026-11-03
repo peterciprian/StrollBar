@@ -602,7 +602,17 @@
 			"CREATE_STROLL": "Create stroll",
 			"SAVED": "Changes saved.",
 			"SAVE_ERROR": "Could not save changes. Please try again.",
-			"VALIDATION_ERROR": "Please fill in the stroll name and description before saving.",
+			"AUTO_UNPUBLISHED": "Your changes were saved as a draft because the published stroll no longer meets the publishing requirements.",
+			"READINESS_TITLE": "This stroll cannot be published yet:",
+			"READINESS_GENERIC": "Review the stroll and stage details, then try publishing again.",
+			"READINESS": {
+				"STROLL_NAME_REQUIRED": "Add a stroll name.",
+				"STROLL_DESCRIPTION_REQUIRED": "Add a stroll description.",
+				"STROLL_STAGE_REQUIRED": "Add at least one stage.",
+				"STAGE_NAME_REQUIRED": "Give every stage a name.",
+				"STAGE_DESCRIPTION_REQUIRED": "Add a description to every stage.",
+				"STAGE_LOCATION_REQUIRED": "Give every stage a nonblank address or a complete, valid latitude/longitude pair."
+			},
 			"TITLE_LABEL": "Stage Title",
 			"ADDRESS_LABEL": "Street Address",
 			"LATITUDE_LABEL": "Latitude",

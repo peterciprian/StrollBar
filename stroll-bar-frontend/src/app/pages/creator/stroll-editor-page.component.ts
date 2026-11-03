@@ -60,9 +60,11 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 	protected saved = false;
 	protected saveError = false;
 	protected saveErrorKey = 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR';
-	protected validationError = false;
+	protected validationErrors: string[] = [];
+	protected autoUnpublished = false;
 	private pristineSnapshot = '';
 	private allowNavigation = false;
+	private persistedStatus: StrollActiveStatus = 'draft';
 
 	ngOnInit(): void {
 		const strollId = this.route.snapshot.paramMap.get('strollId');
@@ -151,7 +153,13 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 		}
 		this.strollsFeature
 			.removeStage(this.strollId, stage.id)
-			.subscribe({ next: () => this.removeStageLocally(stage.id), error: () => (this.saveError = true) });
+			.subscribe({
+				next: () => {
+					this.removeStageLocally(stage.id);
+					void this.refreshPersistedStatus();
+				},
+				error: () => (this.saveError = true)
+			});
 	}
 
 	protected onStagesChange(stages: EditableStage[]): void {
@@ -175,22 +183,39 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 
 	protected async saveChanges(): Promise<boolean> {
 		if (this.saving) return false;
-		this.validationError = !this.stroll.name.trim() || !this.stroll.description.trim();
-		if (this.validationError) {
-			this.saved = false;
-			this.saveError = false;
-			return false;
-		}
+		const requestedStatus = this.stroll.status;
+		const wasPublished = this.persistedStatus === 'published';
+		const saveStatus =
+			requestedStatus === 'published' && (this.isNewStroll || !wasPublished) ? 'draft' : requestedStatus;
 		this.saving = true;
 		this.saved = false;
 		this.saveError = false;
+		this.validationErrors = [];
+		this.autoUnpublished = false;
 		try {
-			await this.saveStroll();
+			await this.saveStroll(saveStatus);
 			await this.saveStages();
+			if (requestedStatus === 'published') {
+				await firstValueFrom(this.strollsFeature.update(this.strollId!, { activeStatus: 'published' }));
+			}
+			const detail = this.strollId ? await firstValueFrom(this.strollsFeature.getOwnedDetail(this.strollId)) : null;
+			const actualStatus = detail?.stroll.activeStatus ?? saveStatus;
+			this.persistedStatus = actualStatus;
+			this.stroll.status = actualStatus;
+			this.autoUnpublished = wasPublished && requestedStatus === 'published' && actualStatus !== 'published';
 			this.saved = true;
 			this.markPristine();
 			return true;
 		} catch (error) {
+			if (extractErrorCode(error) === AppErrorCode.STROLL_NOT_READY) {
+				this.validationErrors = this.readinessErrorKeys(error);
+				this.stroll.status = 'draft';
+				this.persistedStatus = 'draft';
+				this.autoUnpublished = wasPublished && requestedStatus === 'published';
+				this.saved = wasPublished;
+				this.markPristine();
+				return wasPublished;
+			}
 			this.saveErrorKey = this.resolveSaveErrorKey(error);
 			this.saveError = true;
 			return false;
@@ -207,12 +232,40 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 				return 'ERRORS.STROLL_PUBLICITY_NOT_ALLOWED';
 			case AppErrorCode.STROLL_QUOTA_REACHED:
 				return 'ERRORS.STROLL_QUOTA_REACHED';
+			case AppErrorCode.STROLL_NOT_READY:
+				return 'SCREENS.ADMIN_STATION_EDITOR.READINESS_TITLE';
 			default:
 				return 'SCREENS.ADMIN_STATION_EDITOR.SAVE_ERROR';
 		}
 	}
 
-	private async saveStroll(): Promise<void> {
+	private readinessErrorKeys(error: unknown): string[] {
+		const body = (error as { error?: { error?: { errors?: Array<{ code?: string }> }; errors?: Array<{ code?: string }> } })?.error;
+		const errors = body?.error?.errors ?? body?.errors ?? [];
+		const keys = errors
+			.map((issue) => {
+				switch (issue.code) {
+					case 'STROLL_NAME_REQUIRED':
+						return 'SCREENS.ADMIN_STATION_EDITOR.READINESS.STROLL_NAME_REQUIRED';
+					case 'STROLL_DESCRIPTION_REQUIRED':
+						return 'SCREENS.ADMIN_STATION_EDITOR.READINESS.STROLL_DESCRIPTION_REQUIRED';
+					case 'STROLL_STAGE_REQUIRED':
+						return 'SCREENS.ADMIN_STATION_EDITOR.READINESS.STROLL_STAGE_REQUIRED';
+					case 'STAGE_NAME_REQUIRED':
+						return 'SCREENS.ADMIN_STATION_EDITOR.READINESS.STAGE_NAME_REQUIRED';
+					case 'STAGE_DESCRIPTION_REQUIRED':
+						return 'SCREENS.ADMIN_STATION_EDITOR.READINESS.STAGE_DESCRIPTION_REQUIRED';
+					case 'STAGE_LOCATION_REQUIRED':
+						return 'SCREENS.ADMIN_STATION_EDITOR.READINESS.STAGE_LOCATION_REQUIRED';
+					default:
+						return '';
+				}
+			})
+			.filter(Boolean);
+		return keys.length ? [...new Set(keys)] : ['SCREENS.ADMIN_STATION_EDITOR.READINESS_GENERIC'];
+	}
+
+	private async saveStroll(activeStatus: StrollActiveStatus): Promise<void> {
 		const payload: CreateStrollRequest = {
 			name: this.stroll.name,
 			description: this.stroll.description,
@@ -221,7 +274,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 				.map((label) => label.trim())
 				.filter(Boolean),
 			category: this.stroll.category,
-			activeStatus: this.stroll.status,
+			activeStatus,
 			publicityFlag: this.stroll.publicity,
 			price:
 				this.stroll.publicity === 'private' && this.stroll.priceAmount !== null
@@ -243,6 +296,20 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 			return;
 		}
 		await firstValueFrom(this.strollsFeature.update(this.strollId!, payload));
+	}
+
+	private async refreshPersistedStatus(): Promise<void> {
+		if (!this.strollId) return;
+		try {
+			const detail = await firstValueFrom(this.strollsFeature.getOwnedDetail(this.strollId));
+			const wasPublished = this.persistedStatus === 'published';
+			this.persistedStatus = detail.stroll.activeStatus;
+			this.stroll.status = detail.stroll.activeStatus;
+			this.autoUnpublished = wasPublished && detail.stroll.activeStatus === 'draft';
+			if (this.autoUnpublished) this.markPristine();
+		} catch {
+			this.saveError = true;
+		}
 	}
 
 	private async saveStages(): Promise<void> {
@@ -279,6 +346,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 	private applyDetail(detail: StrollDetailResponse): void {
 		this.strollId = detail.stroll.id;
 		this.isNewStroll = false;
+		this.persistedStatus = detail.stroll.activeStatus;
 		this.stroll = {
 			name: detail.stroll.name,
 			description: detail.stroll.description,

@@ -2,13 +2,16 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 interface ErrorBody {
 	message?: string | string[];
-	error?: { code?: string; message?: string };
+	code?: string;
+	errors?: Array<{ field?: string; code?: string }>;
+	error?: { code?: string; message?: string; errors?: Array<{ field?: string; code?: string }> };
 }
 
 /** Returns the backend's machine-readable `error.code` from a v2 error envelope. */
 export function extractErrorCode(error: unknown): string | null {
 	if (error instanceof HttpErrorResponse) {
-		return (error.error as ErrorBody | undefined)?.error?.code ?? null;
+		const body = error.error as ErrorBody | undefined;
+		return body?.error?.code ?? body?.code ?? null;
 	}
 
 	return null;

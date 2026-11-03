@@ -7,11 +7,12 @@ import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { UserEntity } from '../users/entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Module({
 	imports: [TypeOrmModule.forFeature([StageEntity, StrollEntity, AdventureEntity, UserEntity]), AuthModule],
 	controllers: [StagesController],
-	providers: [StagesService],
+	providers: [StagesService, RedisCacheService],
 	exports: [StagesService]
 })
 export class StagesModule {}

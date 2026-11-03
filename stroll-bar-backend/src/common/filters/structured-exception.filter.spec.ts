@@ -1,4 +1,4 @@
-import { ForbiddenException, InternalServerErrorException, Logger } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { ArgumentsHost } from '@nestjs/common/interfaces';
 import { AppErrorCode } from '../utils/app-error-code';
 import { StructuredExceptionFilter } from './structured-exception.filter';
@@ -50,6 +50,22 @@ describe('StructuredExceptionFilter', () => {
 			statusCode: 403,
 			error: 'Request Error',
 			message: 'Email is not verified.'
+		});
+	});
+
+	it('preserves field-specific readiness issues in the v2 error envelope', () => {
+		const filter = new StructuredExceptionFilter();
+		const response = buildResponse({ requestId: 'readiness-request' });
+		const host = buildHost({ accept: 'application/vnd.strollbar.v2+json', response });
+		const errors = [{ field: 'stages.0.location', code: 'STAGE_LOCATION_REQUIRED' }];
+
+		filter.catch(new BadRequestException({ code: 'STROLL_NOT_READY', message: 'Not ready.', errors }), host);
+
+		expect(response.status).toHaveBeenCalledWith(400);
+		expect(response.json).toHaveBeenCalledWith({
+			status: 'error',
+			error: { code: 'STROLL_NOT_READY', message: 'Not ready.', errors },
+			meta: { requestId: 'readiness-request', timestamp: expect.any(String), version: 'v2' }
 		});
 	});
 

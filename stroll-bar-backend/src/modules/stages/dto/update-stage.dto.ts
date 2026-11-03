@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsArray, IsInt, IsNumber, IsOptional, IsString, IsUrl, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsInt, IsNumber, IsOptional, IsString, IsUrl, Max, MaxLength, Min } from 'class-validator';
 
 export class UpdateStageDto {
 	@IsOptional()
@@ -8,13 +8,11 @@ export class UpdateStageDto {
 
 	@IsOptional()
 	@IsString()
-	@MinLength(2)
 	@MaxLength(150)
 	name?: string;
 
 	@IsOptional()
 	@IsString()
-	@MinLength(10)
 	description?: string;
 
 	@IsOptional()

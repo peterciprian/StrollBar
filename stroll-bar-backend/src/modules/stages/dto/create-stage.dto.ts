@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMaxSize, IsArray, IsInt, IsNumber, IsOptional, IsString, IsUrl, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsInt, IsNumber, IsOptional, IsString, IsUrl, Max, MaxLength, Min } from 'class-validator';
 
 export class CreateStageDto {
 	@ApiProperty({ example: 1, minimum: 1 })
@@ -7,15 +7,13 @@ export class CreateStageDto {
 	@Min(1)
 	orderIndex!: number;
 
-	@ApiProperty({ example: 'Parliament', minLength: 2, maxLength: 150 })
+	@ApiProperty({ example: 'Parliament', maxLength: 150 })
 	@IsString()
-	@MinLength(2)
 	@MaxLength(150)
 	name!: string;
 
-	@ApiProperty({ example: 'Solve the riddle to continue.', minLength: 10 })
+	@ApiProperty({ example: 'Solve the riddle to continue.' })
 	@IsString()
-	@MinLength(10)
 	description!: string;
 
 	@ApiPropertyOptional({ example: 'Best visited at sunset.' })

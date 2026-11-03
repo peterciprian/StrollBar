@@ -9,4 +9,7 @@ export class ErrorResponseDto {
 
   @ApiProperty({ example: 'Validation failed' })
   message!: string | string[];
+
+  @ApiProperty({ required: false, type: 'array', items: { type: 'object' } })
+  errors?: Array<{ field: string; code: string }>;
 }

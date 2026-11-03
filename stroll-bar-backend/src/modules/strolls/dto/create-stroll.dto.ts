@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength, MinLength } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsEnum, IsOptional, IsString, IsUrl, MaxLength } from 'class-validator';
 import { StrollActiveStatus, StrollPublicityFlag } from '../entities/stroll.entity';
 import { StrollCategory } from './stroll-category.enum';
 import { StrollPriceDto } from './stroll-price.dto';
@@ -7,15 +7,13 @@ import { ValidateIf, ValidateNested } from 'class-validator';
 
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 export class CreateStrollDto {
-	@ApiProperty({ example: 'Budapest Highlights', minLength: 3, maxLength: 150 })
+	@ApiProperty({ example: 'Budapest Highlights', maxLength: 150 })
 	@IsString()
-	@MinLength(3)
 	@MaxLength(150)
 	name!: string;
 
-	@ApiProperty({ example: 'A short guided route through the city center.', minLength: 10 })
+	@ApiProperty({ example: 'A short guided route through the city center.' })
 	@IsString()
-	@MinLength(10)
 	description!: string;
 
 	@ApiPropertyOptional({ example: 'Curated by locals.' })

@@ -171,6 +171,7 @@ export interface Stroll {
 	reported: boolean;
 	createdAt: string;
 	updatedAt: string;
+	automaticallyUnpublished?: boolean;
 }
 
 export interface StrollSummary {

@@ -13,6 +13,8 @@ import { StrollActiveStatus, StrollPublicityFlag } from '../strolls/entities/str
 import { UserRole } from '../users/entities/user.entity';
 import { calculateRouteLengthKm } from '../strolls/route-length.util';
 import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
+import { getStrollReadinessIssues } from '../strolls/stroll-readiness.util';
+import { RedisCacheService } from '../../common/services/redis-cache.service';
 
 @Injectable()
 export class StagesService {
@@ -22,7 +24,8 @@ export class StagesService {
 		@InjectRepository(StrollEntity)
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(AdventureEntity)
-		private readonly adventuresRepository: Repository<AdventureEntity>
+		private readonly adventuresRepository: Repository<AdventureEntity>,
+		private readonly cache: RedisCacheService
 	) {}
 
 	async list(strollId: string, currentUser?: AuthenticatedUser) {
@@ -64,7 +67,7 @@ export class StagesService {
 		const savedStage = await this.saveStageOrThrow(stage);
 		stroll.stageCount = await this.stagesRepository.count({ where: { strollId } });
 		stroll.length = await this.calculateLength(strollId);
-		await this.strollsRepository.save(stroll);
+		await this.saveStrollAfterStageMutation(stroll);
 
 		return savedStage;
 	}
@@ -100,7 +103,7 @@ export class StagesService {
 		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
 		if (stroll) {
 			stroll.length = calculateRouteLengthKm([...stagesById.values()].sort((left, right) => left.orderIndex - right.orderIndex));
-			await this.strollsRepository.save(stroll);
+			await this.saveStrollAfterStageMutation(stroll, [...stagesById.values()]);
 		}
 
 		return {
@@ -132,7 +135,7 @@ export class StagesService {
 		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
 		if (stroll) {
 			stroll.length = await this.calculateLength(strollId);
-			await this.strollsRepository.save(stroll);
+			await this.saveStrollAfterStageMutation(stroll);
 		}
 
 		return savedStage;
@@ -149,7 +152,7 @@ export class StagesService {
 		await this.stagesRepository.remove(stage);
 		stroll.stageCount = await this.stagesRepository.count({ where: { strollId } });
 		stroll.length = await this.calculateLength(strollId);
-		await this.strollsRepository.save(stroll);
+		await this.saveStrollAfterStageMutation(stroll);
 
 		return { id: stageId, deleted: true };
 	}
@@ -157,6 +160,19 @@ export class StagesService {
 	private async calculateLength(strollId: string): Promise<number> {
 		const stages = await this.stagesRepository.find({ where: { strollId }, order: { orderIndex: 'ASC' } });
 		return calculateRouteLengthKm(stages);
+	}
+
+	private async saveStrollAfterStageMutation(stroll: StrollEntity, stages?: StageEntity[]): Promise<void> {
+		const persistedStages = stages ?? (await this.stagesRepository.find({ where: { strollId: stroll.id }, order: { orderIndex: 'ASC' } }));
+		if (
+			stroll.activeStatus === StrollActiveStatus.PUBLISHED &&
+			getStrollReadinessIssues(stroll.name, stroll.description, persistedStages ?? []).length
+		) {
+			stroll.activeStatus = StrollActiveStatus.DRAFT;
+		}
+
+		await this.strollsRepository.save(stroll);
+		await this.cache.deleteByPrefix('strolls:list:');
 	}
 
 	private async getOwnedStrollOrThrow(strollId: string, currentUser: AuthenticatedUser): Promise<StrollEntity> {

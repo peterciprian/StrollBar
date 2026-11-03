@@ -35,10 +35,18 @@
 			@if (saveError) {
 				<sb-alert tone="danger" [message]="saveErrorKey | translate" />
 			}
-			@if (validationError) {
-				<p class="stroll-editor-page__error">
-					{{ 'SCREENS.ADMIN_STATION_EDITOR.VALIDATION_ERROR' | translate }}
-				</p>
+			@if (autoUnpublished) {
+				<sb-alert tone="warning" [message]="'SCREENS.ADMIN_STATION_EDITOR.AUTO_UNPUBLISHED' | translate" />
+			}
+			@if (validationErrors.length) {
+				<div class="stroll-editor-page__error" role="alert">
+					<p>{{ 'SCREENS.ADMIN_STATION_EDITOR.READINESS_TITLE' | translate }}</p>
+					<ul>
+						@for (errorKey of validationErrors; track errorKey) {
+							<li>{{ errorKey | translate }}</li>
+						}
+					</ul>
+				</div>
 			}
 			<sb-button
 				icon="save"

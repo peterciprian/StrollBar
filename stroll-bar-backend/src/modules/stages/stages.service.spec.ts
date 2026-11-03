@@ -14,6 +14,7 @@ describe('StagesService', () => {
 	let stagesRepository: any;
 	let strollsRepository: any;
 	let adventuresRepository: any;
+	let cache: any;
 	let service: StagesService;
 
 	const owner: AuthenticatedUser = {
@@ -45,7 +46,8 @@ describe('StagesService', () => {
 		adventuresRepository = {
 			findOne: jest.fn()
 		};
-		service = new StagesService(stagesRepository, strollsRepository, adventuresRepository);
+		cache = { deleteByPrefix: jest.fn() };
+		service = new StagesService(stagesRepository, strollsRepository, adventuresRepository, cache);
 	});
 
 	it('strips riddle answers when anonymous users list public stages', async () => {
@@ -140,6 +142,21 @@ describe('StagesService', () => {
 		expect(strollsRepository.save).toHaveBeenCalledWith(stroll);
 	});
 
+	it('saves an invalid stage on a published stroll and automatically returns the stroll to draft', async () => {
+		const stroll = buildStroll({ authorId: owner.userId });
+		const invalidStage = buildStage({ id: 'stage-invalid', name: ' ', description: ' ', address: ' ', latitude: null, longitude: null });
+		strollsRepository.findOne.mockResolvedValue(stroll);
+		stagesRepository.save.mockResolvedValue(invalidStage);
+		stagesRepository.count.mockResolvedValue(1);
+		stagesRepository.find.mockResolvedValue([invalidStage]);
+
+		await service.create('stroll-1', { orderIndex: 1, name: ' ', description: ' ', address: ' ' }, owner);
+
+		expect(stroll.activeStatus).toBe(StrollActiveStatus.DRAFT);
+		expect(stagesRepository.save).toHaveBeenCalledWith(expect.objectContaining({ name: ' ', description: ' ' }));
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
+	});
+
 	it('surfaces duplicate order indexes as conflict errors', async () => {
 		strollsRepository.findOne.mockResolvedValue(buildStroll({ authorId: owner.userId }));
 		stagesRepository.save.mockRejectedValue(new QueryFailedError('', [], Object.assign(new Error('duplicate key'), { code: '23505' })));
@@ -175,6 +192,18 @@ describe('StagesService', () => {
 		expect(strollsRepository.save).toHaveBeenCalledWith(stroll);
 	});
 
+	it('automatically unpublishes after reordering an invalid persisted stage', async () => {
+		const stroll = buildStroll({ authorId: owner.userId });
+		const invalidStage = buildStage({ id: 'stage-1', name: ' ', address: null, latitude: null, longitude: null });
+		strollsRepository.findOne.mockResolvedValueOnce(stroll).mockResolvedValueOnce(stroll);
+		stagesRepository.find.mockResolvedValue([invalidStage]);
+
+		await service.reorder('stroll-1', { items: [{ stageId: 'stage-1', orderIndex: 1 }] }, owner);
+
+		expect(stroll.activeStatus).toBe(StrollActiveStatus.DRAFT);
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
+	});
+
 	it('rejects reorder payloads that reference stages outside the stroll', async () => {
 		strollsRepository.findOne.mockResolvedValue(buildStroll({ authorId: owner.userId }));
 		stagesRepository.find.mockResolvedValue([buildStage({ id: 'stage-1' })]);
@@ -208,6 +237,45 @@ describe('StagesService', () => {
 		expect(stagesRepository.remove).toHaveBeenCalledWith(stage);
 		expect(stroll.stageCount).toBe(1);
 		expect(strollsRepository.save).toHaveBeenCalledWith(stroll);
+	});
+
+	it('automatically unpublishes a published stroll after an invalid stage edit', async () => {
+		const stroll = buildStroll({ authorId: owner.userId });
+		const stage = buildStage({ id: 'stage-1', address: 'Street 1', latitude: null, longitude: null });
+		strollsRepository.findOne.mockResolvedValueOnce(stroll).mockResolvedValueOnce(stroll);
+		stagesRepository.findOne.mockResolvedValue(stage);
+		stagesRepository.find.mockResolvedValue([stage]);
+
+		await service.update('stroll-1', 'stage-1', { address: ' ' }, owner);
+
+		expect(stroll.activeStatus).toBe(StrollActiveStatus.DRAFT);
+		expect(strollsRepository.save).toHaveBeenCalledWith(stroll);
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
+	});
+
+	it('allows invalid stage edits while a stroll remains a draft', async () => {
+		const stroll = buildStroll({ authorId: owner.userId, activeStatus: StrollActiveStatus.DRAFT });
+		const stage = buildStage({ id: 'stage-1' });
+		strollsRepository.findOne.mockResolvedValueOnce(stroll).mockResolvedValueOnce(stroll);
+		stagesRepository.findOne.mockResolvedValue(stage);
+		stagesRepository.find.mockResolvedValue([buildStage({ name: ' ', address: ' ', latitude: null, longitude: null })]);
+
+		await expect(service.update('stroll-1', 'stage-1', { name: ' ' }, owner)).resolves.toMatchObject({ name: ' ' });
+		expect(stroll.activeStatus).toBe(StrollActiveStatus.DRAFT);
+	});
+
+	it('automatically unpublishes when a stage deletion leaves no stages', async () => {
+		const stroll = buildStroll({ authorId: owner.userId });
+		const stage = buildStage({ id: 'stage-1', address: 'Street 1' });
+		strollsRepository.findOne.mockResolvedValue(stroll);
+		stagesRepository.findOne.mockResolvedValue(stage);
+		stagesRepository.count.mockResolvedValue(0);
+		stagesRepository.find.mockResolvedValue([]);
+
+		await service.remove('stroll-1', 'stage-1', owner);
+
+		expect(stroll.activeStatus).toBe(StrollActiveStatus.DRAFT);
+		expect(cache.deleteByPrefix).toHaveBeenCalledWith('strolls:list:');
 	});
 });
 

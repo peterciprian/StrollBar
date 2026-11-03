@@ -19,6 +19,7 @@ import { BadgesService } from '../badges/badges.service';
 import { STROLL_CREATION_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
 import { AppErrorCode } from '../../common/utils/app-error-code';
 import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
+import { getStrollReadinessIssues, throwIfStrollNotReady } from './stroll-readiness.util';
 
 // Sorts strolls without a first-stage coordinate to the end of the nearest-first list.
 const MISSING_COORDINATE_FALLBACK = 10000;
@@ -154,6 +155,9 @@ export class StrollsService {
 	async create(dto: CreateStrollDto, currentUser: AuthenticatedUser) {
 		const publicityFlag = dto.publicityFlag ?? StrollPublicityFlag.PUBLIC;
 		this.assertPriceAllowed(publicityFlag, dto.price);
+		if (dto.activeStatus === StrollActiveStatus.PUBLISHED) {
+			throwIfStrollNotReady(dto.name, dto.description, []);
+		}
 		await this.assertCanCreateWithPublicity(currentUser, publicityFlag);
 		const stroll = this.strollsRepository.create({
 			name: dto.name,
@@ -187,6 +191,9 @@ export class StrollsService {
 
 		const publicityFlag = dto.stroll.publicityFlag ?? StrollPublicityFlag.PUBLIC;
 		this.assertPriceAllowed(publicityFlag, dto.stroll.price);
+		if ((dto.stroll.activeStatus ?? StrollActiveStatus.DRAFT) === StrollActiveStatus.PUBLISHED) {
+			throwIfStrollNotReady(dto.stroll.name, dto.stroll.description, dto.stages);
+		}
 		const result = await this.dataSource.transaction(async (manager) => {
 			const stroll = manager.create(StrollEntity, {
 				name: dto.stroll.name,
@@ -266,6 +273,7 @@ export class StrollsService {
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
 		const previousActiveStatus = stroll.activeStatus;
+		const isExplicitPublish = dto.activeStatus === StrollActiveStatus.PUBLISHED && previousActiveStatus !== StrollActiveStatus.PUBLISHED;
 		const isSuspensionChange = dto.activeStatus === StrollActiveStatus.SUSPENDED || previousActiveStatus === StrollActiveStatus.SUSPENDED;
 		if (isSuspensionChange && currentUser.role !== UserRole.ADMIN) {
 			throw new ForbiddenException('Only administrators can suspend or reinstate a stroll.');
@@ -316,6 +324,19 @@ export class StrollsService {
 			};
 		}
 
+		let automaticallyUnpublished = false;
+		if (stroll.activeStatus === StrollActiveStatus.PUBLISHED) {
+			const stages = await this.stagesRepository.find({ where: { strollId }, order: { orderIndex: 'ASC' } });
+			const readinessIssues = getStrollReadinessIssues(stroll.name, stroll.description, stages ?? []);
+			if (readinessIssues.length) {
+				if (isExplicitPublish) {
+					throwIfStrollNotReady(stroll.name, stroll.description, stages ?? []);
+				}
+				stroll.activeStatus = StrollActiveStatus.DRAFT;
+				automaticallyUnpublished = true;
+			}
+		}
+
 		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
 
@@ -323,7 +344,7 @@ export class StrollsService {
 			await this.notifyAuthorOfStatusChange(saved);
 		}
 
-		return saved;
+		return automaticallyUnpublished ? { ...saved, automaticallyUnpublished: true } : saved;
 	}
 
 	private async notifyAuthorOfStatusChange(stroll: StrollEntity): Promise<void> {

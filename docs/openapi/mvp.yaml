@@ -145,6 +145,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stroll'
+        '400':
+          description: The request is invalid or an explicit publish attempt fails readiness checks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrollReadinessError'
+
+  /strolls/bulk-import:
+    post:
+      tags: [Strolls]
+      summary: Import a stroll and its stages (admin only)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkImportStrollRequest'
+      responses:
+        '201':
+          description: Stroll and stages imported.
+        '400':
+          description: An explicitly published import failed readiness checks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrollReadinessError'
 
   /strolls/{strollId}:
     get:
@@ -180,6 +208,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stroll'
+        '400':
+          description: An explicit publish attempt failed readiness checks.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrollReadinessError'
 
     delete:
       tags: [Strolls]
@@ -228,6 +262,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Stage'
+        '400':
+          description: Invalid request. A stage edit that makes a published stroll invalid is saved and returns the stroll to draft.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrollReadinessError'
+
+  /strolls/{strollId}/stages/{stageId}:
+    patch:
+      tags: [Stages]
+      summary: Update stage. Invalidating edits to published strolls save and return them to draft.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+        - $ref: '#/components/parameters/StageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateStageRequest'
+      responses:
+        '200':
+          description: Stage updated.
+    delete:
+      tags: [Stages]
+      summary: Delete stage. Invalidating edits to published strolls save and return them to draft.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/StrollId'
+        - $ref: '#/components/parameters/StageId'
+      responses:
+        '200':
+          description: Stage deleted.
 
   /strolls/{strollId}/stages/reorder:
     patch:
@@ -614,6 +684,105 @@ components:
     UpdateStrollRequest:
       allOf:
         - $ref: '#/components/schemas/CreateStrollRequest'
+
+    BulkImportStrollRequest:
+      type: object
+      required: [stroll, stages]
+      properties:
+        stroll:
+          $ref: '#/components/schemas/CreateStrollRequest'
+        stages:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateStageRequest'
+
+    UpdateStageRequest:
+      type: object
+      properties:
+        orderIndex:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+        description:
+          type: string
+        address:
+          type: string
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+
+    StrollReadinessError:
+      oneOf:
+        - $ref: '#/components/schemas/StrollReadinessErrorV1'
+        - $ref: '#/components/schemas/StrollReadinessErrorV2'
+
+    StrollReadinessErrorV1:
+      type: object
+      required: [statusCode, error, message, errors]
+      properties:
+        statusCode:
+          type: integer
+          example: 400
+        error:
+          type: string
+          example: Request Error
+        message:
+          type: string
+          example: The stroll is not ready to publish.
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/StrollReadinessIssue'
+
+    StrollReadinessErrorV2:
+      type: object
+      required: [status, error, meta]
+      properties:
+        status:
+          type: string
+          enum: [error]
+        error:
+          type: object
+          required: [code, message, errors]
+          properties:
+            code:
+              type: string
+              example: STROLL_NOT_READY
+            message:
+              type: string
+              example: The stroll is not ready to publish.
+            errors:
+              type: array
+              items:
+                $ref: '#/components/schemas/StrollReadinessIssue'
+        meta:
+          type: object
+          properties:
+            requestId:
+              type: string
+            timestamp:
+              type: string
+              format: date-time
+            version:
+              type: string
+              enum: [v2]
+
+    StrollReadinessIssue:
+      type: object
+      required: [field, code]
+      properties:
+        field:
+          type: string
+          example: stages.0.location
+        code:
+          type: string
+          example: STAGE_LOCATION_REQUIRED
 
     StrollListResponse:
       type: object
