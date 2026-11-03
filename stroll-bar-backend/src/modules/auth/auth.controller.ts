@@ -33,6 +33,7 @@ import { MessageResponseDto } from '../../common/dto/message-response.dto';
 import { RecaptchaAction, RecaptchaGuard } from '../../common/guards/recaptcha.guard';
 import { PasswordResetRequestResponseDto } from './dto/password-reset-request-response.dto';
 import { SocialAuthStartResponseDto } from './dto/social-auth-start-response.dto';
+import { SocialLinkDto, SocialReclaimDto } from './dto/social-account-action.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 
 @ApiTags('Auth')
@@ -70,6 +71,25 @@ export class AuthController {
 	@Get('social/:provider/start-url')
 	getSocialStartUrl(@Param('provider') provider: string, @Query('redirectUri') redirectUri?: string) {
 		return this.authService.createSocialAuthorizationUrl(provider, redirectUri);
+	}
+
+	@ApiOperation({ summary: 'Explicitly link a provider after current-password reauthentication (verified accounts only)' })
+	@ApiBearerAuth()
+	@ApiCreatedResponse({ type: SocialAuthStartResponseDto })
+	@ApiUnauthorizedResponse({ description: 'Authentication, verification or reauthentication required.' })
+	@Throttle({ default: { limit: 5, ttl: 60_000 } })
+	@UseGuards(JwtAuthGuard)
+	@Post('social/:provider/link/start-url')
+	startSocialLink(@CurrentUser() user: AuthenticatedUser, @Param('provider') provider: string, @Body() dto: SocialLinkDto) {
+		return this.authService.createSocialLinkAuthorizationUrl(user.userId, provider, dto.currentPassword, dto.redirectUri);
+	}
+
+	@ApiOperation({ summary: 'Explicitly reclaim an unverified registration using matching verified provider email' })
+	@ApiCreatedResponse({ type: SocialAuthStartResponseDto })
+	@Throttle({ default: { limit: 5, ttl: 60_000 } })
+	@Post('social/:provider/reclaim/start-url')
+	startSocialReclaim(@Param('provider') provider: string, @Body() dto: SocialReclaimDto) {
+		return this.authService.createSocialReclaimAuthorizationUrl(provider, dto.email, dto.redirectUri);
 	}
 
 	@ApiOperation({ summary: 'Redirect to a social login provider' })

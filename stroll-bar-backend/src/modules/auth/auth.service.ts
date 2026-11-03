@@ -11,7 +11,7 @@ import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-iden
 import { PreferredLanguage, UserEntity, UserRole } from '../users/entities/user.entity';
 import { EmailService } from '../email/email.service';
 import { OAuthProviderService } from './services/oauth-provider.service';
-import { SocialUserService } from './services/social-user.service';
+import { SocialAccountAction, SocialUserService } from './services/social-user.service';
 import { AuditAction } from '../../common/audit.entity';
 import { AuditService } from '../../common/audit.service';
 
@@ -22,6 +22,7 @@ type SocialState = {
 	provider: SocialAuthProvider;
 	frontendRedirectUri: string;
 	codeVerifier: string;
+	accountAction?: SocialAccountAction;
 };
 type SocialCallback = { code?: string; state?: string; error?: string };
 
@@ -101,12 +102,27 @@ export class AuthService {
 		};
 	}
 
-	async createSocialAuthorizationUrl(providerValue: string, redirectUri?: string): Promise<{ url: string }> {
+	async createSocialLinkAuthorizationUrl(userId: string, providerValue: string, currentPassword: string, redirectUri?: string): Promise<{ url: string }> {
+		const user = await this.usersRepository.findOne({ where: { id: userId, isActive: true } });
+		if (!user?.emailVerified || !this.verifyPassword(currentPassword, user.passwordHash)) {
+			throw new UnauthorizedException('Sign in to a verified account and reauthenticate with your current password. Use password recovery if needed.');
+		}
+		return this.createSocialAuthorizationUrl(providerValue, redirectUri, {
+			intent: 'link', userId: user.id, authVersion: user.authVersion,
+			credentialFingerprint: this.hashToken(user.passwordHash)
+		});
+	}
+
+	async createSocialReclaimAuthorizationUrl(providerValue: string, email: string, redirectUri?: string): Promise<{ url: string }> {
+		return this.createSocialAuthorizationUrl(providerValue, redirectUri, { intent: 'reclaim', email });
+	}
+
+	async createSocialAuthorizationUrl(providerValue: string, redirectUri?: string, accountAction: SocialAccountAction = { intent: 'login' }): Promise<{ url: string }> {
 		const provider = this.parseSocialProvider(providerValue);
 		const frontendRedirectUri = this.resolveFrontendRedirectUri(redirectUri);
 		const codeVerifier = this.createCodeVerifier();
 		const state = await this.jwtService.signAsync(
-			{ provider, frontendRedirectUri, codeVerifier },
+			{ provider, frontendRedirectUri, codeVerifier, accountAction },
 			{ secret: this.getSocialStateSecret(), expiresIn: '10m' }
 		);
 
@@ -138,6 +154,9 @@ export class AuthService {
 			}
 
 			const profile = await this.oauthProviderService.fetchUserProfile(provider, callback.code, state.codeVerifier);
+			if (profile.provider !== provider) {
+				throw new UnauthorizedException('Provider identity does not match the authorization request.');
+			}
 			const authResponse = await this.socialUserService.findOrCreateUserFromProfile(profile, async (user) => {
 				const tokens = await this.issueTokens(user);
 				return {
@@ -145,7 +164,7 @@ export class AuthService {
 					refreshToken: tokens.refreshToken,
 					user: this.sanitizeUser(user)
 				};
-			});
+			}, state.accountAction ?? { intent: 'login' });
 
 			return this.buildFrontendRedirect(frontendRedirectUri, {
 				accessToken: authResponse.accessToken,
@@ -233,21 +252,33 @@ export class AuthService {
 
 	async resetPassword(resetToken: string, newPassword: string): Promise<{ message: string }> {
 		const tokenHash = this.hashToken(resetToken);
-		// PostgreSQL rechecks this predicate after waiting on a concurrent row update.
-		const result = await this.usersRepository.createQueryBuilder()
-			.update(UserEntity)
-			.set({
-				passwordHash: this.hashPassword(newPassword),
-				refreshTokenHash: null,
-				resetPasswordTokenHash: null,
-				resetPasswordExpiresAt: null,
-				authVersion: () => '"authVersion" + 1'
-			})
-			.where('"isActive" = true AND "resetPasswordTokenHash" = :tokenHash AND "resetPasswordExpiresAt" > CURRENT_TIMESTAMP', { tokenHash })
-			.returning(['id'])
-			.execute();
-		if (result.affected !== 1) throw new UnauthorizedException('Invalid, expired or already used password reset token.');
-		await this.auditService?.record({ action: AuditAction.PASSWORD_RESET, userId: result.raw[0].id, success: true });
+		const userId = await this.usersRepository.manager.transaction(async (manager) => {
+			const users = manager.getRepository(UserEntity);
+			// PostgreSQL rechecks this predicate after waiting on a concurrent row update.
+			const result = await users.createQueryBuilder()
+				.update(UserEntity)
+				.set({
+					passwordHash: this.hashPassword(newPassword),
+					refreshTokenHash: null,
+					resetPasswordTokenHash: null,
+					resetPasswordExpiresAt: null,
+					authVersion: () => '"authVersion" + 1'
+				})
+				.where('"isActive" = true AND "resetPasswordTokenHash" = :tokenHash AND "resetPasswordExpiresAt" > CURRENT_TIMESTAMP', { tokenHash })
+				.returning(['id', 'emailVerified'])
+				.execute();
+			if (result.affected !== 1) throw new UnauthorizedException('Invalid, expired or already used password reset token.');
+			const recovered = result.raw[0];
+			if (recovered.emailVerified === false) {
+				// Mailbox recovery is also ownership proof; do not retain a preparer's provider access.
+				await manager.getRepository(SocialIdentityEntity).delete({ userId: recovered.id });
+				await users.update({ id: recovered.id }, {
+					emailVerified: true, emailVerificationTokenHash: null, emailVerificationExpiresAt: null
+				});
+			}
+			return recovered.id as string;
+		});
+		await this.auditService?.record({ action: AuditAction.PASSWORD_RESET, userId, success: true });
 
 		return { message: 'Password updated successfully.' };
 	}
@@ -462,7 +493,11 @@ export class AuthService {
 
 		user.emailVerificationTokenHash = this.hashToken(verificationToken);
 		user.emailVerificationExpiresAt = new Date(Date.now() + ttlMinutes * 60 * 1000);
-		await this.usersRepository.save({ id: user.id, emailVerificationTokenHash: user.emailVerificationTokenHash, emailVerificationExpiresAt: user.emailVerificationExpiresAt });
+		const result = await this.usersRepository.update(
+			{ id: user.id, isActive: true, emailVerified: false, authVersion: user.authVersion ?? 0 },
+			{ emailVerificationTokenHash: user.emailVerificationTokenHash, emailVerificationExpiresAt: user.emailVerificationExpiresAt }
+		);
+		if (result.affected !== 1) throw new UnauthorizedException('Account changed. Please sign in again.');
 
 		return verificationToken;
 	}

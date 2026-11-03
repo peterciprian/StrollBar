@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { AuthService } from './auth.service';
 import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialUserService } from './services/social-user.service';
-import { PreferredLanguage, UserRole } from '../users/entities/user.entity';
+import { PreferredLanguage, UserEntity, UserRole } from '../users/entities/user.entity';
 
 describe('AuthService token validation', () => {
 	let usersRepository: any;
@@ -40,7 +40,13 @@ describe('AuthService token validation', () => {
 		socialIdentitiesRepository = {
 			findOne: jest.fn(),
 			save: jest.fn(),
-			create: jest.fn()
+			create: jest.fn(),
+			delete: jest.fn()
+		};
+		usersRepository.manager = {
+			transaction: jest.fn(async (run) => run({
+				getRepository: (entity: unknown) => entity === UserEntity ? usersRepository : socialIdentitiesRepository
+			}))
 		};
 
 		jwtService = {
@@ -362,6 +368,127 @@ describe('AuthService token validation', () => {
 		jwtService.verifyAsync.mockResolvedValue({ sub: 'user-1', authVersion: 0 });
 		usersRepository.findOne.mockResolvedValue(buildUser({ authVersion: 1, refreshTokenHash: hashPasswordForTest('token') }));
 		await expect(service.refresh('token')).rejects.toThrow(UnauthorizedException);
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('mailbox recovery of an unverified registration clears prepared provider and verification state', async () => {
+		query.execute.mockResolvedValue({ affected: 1, raw: [{ id: 'user-1', emailVerified: false }] });
+		await service.resetPassword('mailbox-proof', 'NewPassword123!');
+		expect(query.set).toHaveBeenCalledWith(expect.objectContaining({
+			passwordHash: expect.any(String), refreshTokenHash: null, resetPasswordTokenHash: null,
+			resetPasswordExpiresAt: null, authVersion: expect.any(Function)
+		}));
+		expect(socialIdentitiesRepository.delete).toHaveBeenCalledWith({ userId: 'user-1' });
+		expect(usersRepository.update).toHaveBeenCalledWith({ id: 'user-1' }, {
+			emailVerified: true, emailVerificationTokenHash: null, emailVerificationExpiresAt: null
+		});
+		expect(usersRepository.manager.transaction).toHaveBeenCalledTimes(1);
+	});
+
+	it('mailbox recovery preserves established verified account provider identities', async () => {
+		query.execute.mockResolvedValue({ affected: 1, raw: [{ id: 'user-1', emailVerified: true }] });
+		await service.resetPassword('mailbox-proof', 'NewPassword123!');
+		expect(socialIdentitiesRepository.delete).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('failed mailbox proof never removes provider links or verifies the account', async () => {
+		query.execute.mockResolvedValue({ affected: 0, raw: [] });
+		await expect(service.resetPassword('wrong-proof', 'NewPassword123!')).rejects.toThrow(UnauthorizedException);
+		expect(socialIdentitiesRepository.delete).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('a stale verification email request cannot restore verification state after reclamation', async () => {
+		usersRepository.findOne.mockResolvedValue(buildUser());
+		usersRepository.update.mockResolvedValue({ affected: 0 });
+		await expect(service.resendVerificationEmail('user-1')).rejects.toThrow(UnauthorizedException);
+		expect(usersRepository.update).toHaveBeenCalledWith(
+			{ id: 'user-1', isActive: true, emailVerified: false, authVersion: 0 }, expect.any(Object)
+		);
+		expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
+		expect(usersRepository.save).not.toHaveBeenCalled();
+	});
+
+	it.each(['missing', 'unverified', 'wrong-password', 'social-only'])('link start requires verified-account reauthentication: %s', async (reason) => {
+		const user = buildUser({ emailVerified: reason !== 'unverified' });
+		if (reason === 'social-only') user.passwordHash = 'random-social-secret';
+		usersRepository.findOne.mockResolvedValue(reason === 'missing' ? null : user);
+		await expect(service.createSocialLinkAuthorizationUrl('user-1', 'google', 'incorrect')).rejects.toThrow(UnauthorizedException);
+		expect(jwtService.signAsync).not.toHaveBeenCalled();
+		expect(usersRepository.save).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+		expect(socialIdentitiesRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('signs explicit link intent bound to the reauthenticated account version and credentials', async () => {
+		const user = buildUser({ emailVerified: true });
+		usersRepository.findOne.mockResolvedValue(user);
+		jwtService.signAsync.mockResolvedValue('signed-link-state');
+		oauthProviderService.createAuthorizationUrl.mockReturnValue('https://provider.example/authorize');
+		await expect(service.createSocialLinkAuthorizationUrl('user-1', 'google', 'password')).resolves.toEqual({
+			url: 'https://provider.example/authorize'
+		});
+		const payload = jwtService.signAsync.mock.calls[0][0];
+		expect(payload.accountAction).toEqual({
+			intent: 'link', userId: user.id, authVersion: 0,
+			credentialFingerprint: createHash('sha256').update(user.passwordHash).digest('hex')
+		});
+		expect(JSON.stringify(payload)).not.toContain(user.passwordHash);
+		expect(jwtService.signAsync.mock.calls[0][1]).toEqual({ secret: 'refresh-secret', expiresIn: '10m' });
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('ordinary social start cannot request linking or reclamation via a redirect URI', async () => {
+		await service.createSocialAuthorizationUrl('google', 'http://localhost:4200/?intent=link&userId=other');
+		expect(jwtService.signAsync.mock.calls[0][0].accountAction).toEqual({ intent: 'login' });
+		expect(usersRepository.findOne).not.toHaveBeenCalled();
+	});
+
+	it('explicit reclaim start binds the requested email without changing or disclosing account state', async () => {
+		await service.createSocialReclaimAuthorizationUrl('google', 'owner@example.com');
+		expect(jwtService.signAsync.mock.calls[0][0].accountAction).toEqual({ intent: 'reclaim', email: 'owner@example.com' });
+		expect(usersRepository.findOne).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it.each(['login', 'link', 'reclaim'])('callback passes only signed %s intent to the account service', async (intent) => {
+		const accountAction = intent === 'link' ?
+			{ intent, userId: 'user-1', authVersion: 0, credentialFingerprint: 'fingerprint' } :
+			intent === 'reclaim' ? { intent, email: 'walker@example.com' } : { intent };
+		jwtService.verifyAsync.mockResolvedValue({
+			provider: 'google', frontendRedirectUri: 'http://localhost:4200/callback', codeVerifier: 'verifier', accountAction
+		});
+		const profile = { provider: 'google', providerUserId: 'provider-id', email: 'walker@example.com', emailVerified: true };
+		oauthProviderService.fetchUserProfile.mockResolvedValue(profile);
+		socialUserService.findOrCreateUserFromProfile.mockImplementation(async (_profile: unknown, issue: (user: any) => Promise<any>) => issue(buildUser()));
+		const redirect = await service.completeSocialLogin('google', { code: 'code', state: 'signed-state' });
+		expect(socialUserService.findOrCreateUserFromProfile).toHaveBeenCalledWith(profile, expect.any(Function), accountAction);
+		expect(redirect).toContain('accessToken=');
+		expect(redirect).not.toContain('error=');
+	});
+
+	it.each(['bad-state', 'provider-error', 'wrong-provider', 'failed-provider-proof'])('failed callback proof (%s) cannot change account state', async (failure) => {
+		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', codeVerifier: 'verifier' });
+		oauthProviderService.fetchUserProfile.mockResolvedValue({ provider: 'facebook' });
+		if (failure === 'bad-state') jwtService.verifyAsync.mockRejectedValue(new Error('Invalid state'));
+		if (failure === 'failed-provider-proof') oauthProviderService.fetchUserProfile.mockRejectedValue(new UnauthorizedException('Invalid provider proof'));
+		const redirect = await service.completeSocialLogin('google', {
+			code: 'code', state: 'state', ...(failure === 'provider-error' ? { error: 'access_denied' } : {})
+		});
+		expect(redirect).toContain('error=');
+		expect(redirect).not.toContain('accessToken=');
+		expect(socialUserService.findOrCreateUserFromProfile).not.toHaveBeenCalled();
+		expect(usersRepository.update).not.toHaveBeenCalled();
+	});
+
+	it('callback returns actionable conflict/recovery guidance without tokens or mutations', async () => {
+		jwtService.verifyAsync.mockResolvedValue({ provider: 'google', codeVerifier: 'verifier' });
+		oauthProviderService.fetchUserProfile.mockResolvedValue({ provider: 'google' });
+		socialUserService.findOrCreateUserFromProfile.mockRejectedValue(new ConflictException('Sign in and explicitly link, or use recovery.'));
+		const redirect = await service.completeSocialLogin('google', { code: 'code', state: 'state' });
+		expect(decodeURIComponent(redirect.replace(/\+/g, ' '))).toContain('Sign in and explicitly link, or use recovery.');
+		expect(redirect).not.toContain('accessToken=');
 		expect(usersRepository.update).not.toHaveBeenCalled();
 	});
 });

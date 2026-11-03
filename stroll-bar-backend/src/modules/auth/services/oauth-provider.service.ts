@@ -196,7 +196,8 @@ export class OAuthProviderService {
 			provider: 'apple',
 			providerUserId: this.getJwtString(payload, 'sub'),
 			email: this.getOptionalJwtString(payload, 'email'),
-			emailVerified: true // Apple always verifies before redirecting
+			// Apple permits boolean/string claims, including false for managed accounts.
+			emailVerified: payload.email_verified === true || payload.email_verified === 'true'
 		};
 	}
 
@@ -220,7 +221,8 @@ export class OAuthProviderService {
 			provider: 'facebook',
 			providerUserId: this.getJwtString(userResponse, 'id'),
 			email: this.getOptionalJwtString(userResponse, 'email'),
-			emailVerified: true, // Facebook provides verified emails
+			// The Graph email field does not provide an email-ownership verification claim.
+			emailVerified: false,
 			displayName: this.getOptionalJwtString(userResponse, 'name'),
 			profileImageUrl: this.getOptionalJwtString(userResponse, 'picture.data.url')
 		};
