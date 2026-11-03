@@ -18,6 +18,7 @@ import { calculateRouteLengthKm } from './route-length.util';
 import { BadgesService } from '../badges/badges.service';
 import { STROLL_CREATION_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
 import { AppErrorCode } from '../../common/utils/app-error-code';
+import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
 
 // Sorts strolls without a first-stage coordinate to the end of the nearest-first list.
 const MISSING_COORDINATE_FALLBACK = 10000;
@@ -238,16 +239,17 @@ export class StrollsService {
 
 		await this.assertCanRead(stroll, currentUser);
 
-		return this.getDetail(stroll);
+		const isOwnerOrAdmin = !!currentUser && (stroll.authorId === currentUser.userId || currentUser.role === UserRole.ADMIN);
+		return this.getDetail(stroll, isOwnerOrAdmin);
 	}
 
 	async findOwnedOne(strollId: string, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
 
-		return this.getDetail(stroll);
+		return this.getDetail(stroll, true);
 	}
 
-	private async getDetail(stroll: StrollEntity) {
+	private async getDetail(stroll: StrollEntity, includeRiddleAnswers: boolean) {
 		const strollId = stroll.id;
 
 		const stages = await this.stagesRepository.find({
@@ -257,7 +259,7 @@ export class StrollsService {
 
 		return {
 			stroll,
-			stages
+			stages: includeRiddleAnswers ? stages : stages.map((stage) => stripRiddleAnswer(stage))
 		};
 	}
 

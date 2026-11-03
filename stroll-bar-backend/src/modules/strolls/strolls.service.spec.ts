@@ -185,6 +185,26 @@ describe('StrollsService authorization', () => {
 		expect(adventuresRepository.findOne).not.toHaveBeenCalled();
 	});
 
+	it.each([StrollPublicityFlag.PUBLIC, StrollPublicityFlag.PRIVATE, StrollPublicityFlag.UNLISTED])(
+		'projects non-editor stages without mutating editor answers for %s detail', async (publicityFlag) => {
+			const stroll = buildStroll({ publicityFlag });
+			const stage = Object.assign(new StageEntity(), { id: 'stage-1', strollId: stroll.id, riddleAnswer: 'service-secret' });
+			strollsRepository.findOne.mockResolvedValue(stroll);
+			stagesRepository.find.mockResolvedValue([stage]);
+			adventuresRepository.findOne.mockResolvedValue({ id: 'purchase-1' });
+
+			const result = await service.findOne(stroll.id, simpleUser);
+
+			expect(result.stages[0]).not.toBe(stage);
+			expect(result.stages[0]).not.toHaveProperty('riddleAnswer');
+			expect(JSON.stringify(result)).not.toContain('service-secret');
+			expect(JSON.stringify(result)).not.toContain('riddleAnswer');
+			expect(stage.riddleAnswer).toBe('service-secret');
+			const editorResult = await service.findOwnedOne(stroll.id, { ...simpleUser, userId: stroll.authorId });
+			expect(editorResult.stages[0]).toHaveProperty('riddleAnswer', 'service-secret');
+		}
+	);
+
 	it('returns the full description for every browsable stroll', async () => {
 		const publicStroll = buildStroll({
 			description: 'A'.repeat(300),
