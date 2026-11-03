@@ -11,6 +11,7 @@ import {
 import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AbortMultipartUploadDto } from './dto/abort-multipart-upload.dto';
 import { CompleteMultipartUploadDto } from './dto/complete-multipart-upload.dto';
@@ -28,10 +29,12 @@ export class MediaController {
 
 	@ApiOperation({ summary: 'Redirect to a temporary signed media download URL' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Media asset was not found.' })
+	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'Media asset is not accessible.' })
+	@UseGuards(OptionalJwtAuthGuard)
 	@Get('files/:encodedKey')
 	@Redirect()
-	getMediaFile(@Param('encodedKey') encodedKey: string) {
-		return this.mediaService.createPresignedDownloadRedirect(encodedKey);
+	getMediaFile(@Param('encodedKey') encodedKey: string, @CurrentUser() user?: AuthenticatedUser) {
+		return this.mediaService.createPresignedDownloadRedirect(encodedKey, user);
 	}
 
 	@ApiOperation({ summary: 'Create a presigned upload URL for S3-compatible object storage' })

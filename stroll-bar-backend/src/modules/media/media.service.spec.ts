@@ -1,9 +1,13 @@
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { MediaUploadPurpose } from './dto/create-presigned-upload.dto';
 import { MediaAssetEntity, MediaUploadMode, MediaUploadStatus } from './entities/media-asset.entity';
 import { MediaService } from './media.service';
+import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
+import { AdventureProgressStatus } from '../adventures/entities/adventure.entity';
+import { StrollActiveStatus, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
+import { UserRole } from '../users/entities/user.entity';
 
 jest.mock('@aws-sdk/s3-request-presigner', () => ({
 	getSignedUrl: jest.fn()
@@ -40,6 +44,7 @@ describe('MediaService', () => {
 	let strollsRepository: { findOne: jest.Mock };
 	let stagesRepository: { findOne: jest.Mock };
 	let usersRepository: { findOne: jest.Mock };
+	let adventuresRepository: { findOne: jest.Mock };
 	let s3Send: jest.Mock;
 	let service: MediaService;
 	const signedUrl = getSignedUrl as jest.MockedFunction<typeof getSignedUrl>;
@@ -54,6 +59,7 @@ describe('MediaService', () => {
 		strollsRepository = { findOne: jest.fn() };
 		stagesRepository = { findOne: jest.fn() };
 		usersRepository = { findOne: jest.fn() };
+		adventuresRepository = { findOne: jest.fn() };
 		s3Send = jest.fn();
 		signedUrl.mockReset();
 		signedUrl.mockResolvedValue('https://storage.example.com/upload-url');
@@ -63,7 +69,8 @@ describe('MediaService', () => {
 			mediaAssetsRepository as never,
 			strollsRepository as never,
 			stagesRepository as never,
-			usersRepository as never
+			usersRepository as never,
+			adventuresRepository as never
 		);
 		(service as unknown as { s3Client: { destroy?: () => void } }).s3Client.destroy?.();
 		(service as unknown as { s3Client: { send: jest.Mock } }).s3Client = { send: s3Send };
@@ -180,6 +187,174 @@ describe('MediaService', () => {
 		expect(asset.uploadStatus).toBe(MediaUploadStatus.UPLOADED);
 		expect(asset.multipartUploadId).toBeNull();
 		expect(result).toEqual({ message: 'Multipart upload completed successfully.', asset });
+	});
+
+	describe('download authorization', () => {
+		const viewer = { userId: 'viewer', role: UserRole.SIMPLE, email: 'viewer@example.com', username: 'viewer' };
+		const key = 'stage/owner/private-object.jpg';
+		const encodedKey = Buffer.from(key).toString('base64url');
+		let asset: MediaAssetEntity;
+		let stroll: {
+			id: string;
+			authorId: string;
+			activeStatus: StrollActiveStatus;
+			publicityFlag: StrollPublicityFlag;
+			mediaUrls: { imageUrls: string[]; videoUrls: string[] };
+		};
+
+		beforeEach(() => {
+			asset = Object.assign(buildMultipartAsset(), {
+				storageKey: key, purpose: MediaUploadPurpose.STAGE,
+				stageId: 'stage-1', uploadStatus: MediaUploadStatus.UPLOADED
+			});
+			stroll = {
+				id: 'stroll-1', authorId: 'owner', activeStatus: StrollActiveStatus.PUBLISHED,
+				publicityFlag: StrollPublicityFlag.PRIVATE, mediaUrls: { imageUrls: [], videoUrls: [] }
+			};
+			mediaAssetsRepository.findOne.mockImplementation(async () => asset);
+			strollsRepository.findOne.mockImplementation(async () => stroll);
+			stagesRepository.findOne.mockResolvedValue({ id: 'stage-1' });
+		});
+
+		it.each([undefined, viewer])('denies protected media without current entitlement (%j)', async (user) => {
+			await expect(service.createPresignedDownloadRedirect(encodedKey, user)).rejects.toThrow(ForbiddenException);
+			expect(signedUrl).not.toHaveBeenCalled();
+		});
+
+		it.each(ACTIVE_ADVENTURE_STATUSES)('uses SEC-02 entitlement for %s and rechecks after revocation', async (status) => {
+			let progressStatus: AdventureProgressStatus = status;
+			adventuresRepository.findOne.mockImplementation(async ({ where }) => {
+				expect(where).toMatchObject({ strollId: stroll.id, ownerUserId: viewer.userId });
+				expect(where.progressStatus.value).toEqual(ACTIVE_ADVENTURE_STATUSES);
+				return where.progressStatus.value.includes(progressStatus) ? { id: 'purchase' } : null;
+			});
+			await expect(service.createPresignedDownloadRedirect(encodedKey, viewer)).resolves.toEqual({
+				url: 'https://storage.example.com/upload-url', statusCode: 302
+			});
+			expect(signedUrl).toHaveBeenCalledWith(
+				expect.anything(), expect.objectContaining({ input: { Bucket: 'strollbar-media-test', Key: key } }), { expiresIn: 900 }
+			);
+			progressStatus = AdventureProgressStatus.REVOKED;
+			await expect(service.createPresignedDownloadRedirect(encodedKey, viewer)).rejects.toThrow(ForbiddenException);
+			expect(signedUrl).toHaveBeenCalledTimes(1);
+		});
+
+		it.each([StrollActiveStatus.DRAFT, StrollActiveStatus.ARCHIVED, StrollActiveStatus.SUSPENDED])(
+			'rejects an entitled viewer after the parent becomes %s', async (status) => {
+				adventuresRepository.findOne.mockResolvedValue({ id: 'purchase' });
+				await service.createPresignedDownloadRedirect(encodedKey, viewer);
+				stroll.activeStatus = status;
+				await expect(service.createPresignedDownloadRedirect(encodedKey, viewer)).rejects.toThrow(ForbiddenException);
+				expect(signedUrl).toHaveBeenCalledTimes(1);
+			}
+		);
+
+		it.each([{ ...viewer, userId: 'owner' }, { ...viewer, role: UserRole.ADMIN }])(
+			'allows owner/admin support access to existing restricted media (%j)', async (user) => {
+				stroll.activeStatus = StrollActiveStatus.SUSPENDED;
+				await expect(service.createPresignedDownloadRedirect(encodedKey, user)).resolves.toHaveProperty('statusCode', 302);
+				expect(adventuresRepository.findOne).not.toHaveBeenCalled();
+			}
+		);
+
+		it.each([MediaUploadPurpose.STROLL, MediaUploadPurpose.STAGE])('allows published public %s media anonymously', async (purpose) => {
+			asset.purpose = purpose;
+			asset.stageId = purpose === MediaUploadPurpose.STAGE ? 'stage-1' : null;
+			stroll.publicityFlag = StrollPublicityFlag.PUBLIC;
+			await service.createPresignedDownloadRedirect(encodedKey);
+			stroll.publicityFlag = StrollPublicityFlag.PRIVATE;
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).rejects.toThrow(ForbiddenException);
+			expect(signedUrl).toHaveBeenCalledTimes(1);
+		});
+
+		it('keeps only the current first-image preview of a published private stroll public', async () => {
+			asset.purpose = MediaUploadPurpose.STROLL;
+			asset.stageId = null;
+			asset.contentType = 'image/jpeg';
+			stroll.mediaUrls.imageUrls = [asset.publicUrl];
+			await service.createPresignedDownloadRedirect(encodedKey);
+			stroll.mediaUrls.imageUrls.unshift('https://api.example.com/different-cover');
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).rejects.toThrow(ForbiddenException);
+			expect(signedUrl).toHaveBeenCalledTimes(1);
+		});
+
+		it.each(['video', 'stage', 'unlisted', 'draft'])('does not make %s media public via the preview policy', async (kind) => {
+			asset.purpose = MediaUploadPurpose.STROLL;
+			asset.stageId = null;
+			asset.contentType = 'image/jpeg';
+			stroll.mediaUrls.imageUrls = [asset.publicUrl];
+			if (kind === 'video') asset.contentType = 'video/mp4';
+			if (kind === 'stage') { asset.purpose = MediaUploadPurpose.STAGE; asset.stageId = 'stage-1'; }
+			if (kind === 'unlisted') stroll.publicityFlag = StrollPublicityFlag.UNLISTED;
+			if (kind === 'draft') stroll.activeStatus = StrollActiveStatus.DRAFT;
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).rejects.toThrow(ForbiddenException);
+			expect(signedUrl).not.toHaveBeenCalled();
+		});
+
+		it('allows entitled unlisted media without treating it as public', async () => {
+			stroll.publicityFlag = StrollPublicityFlag.UNLISTED;
+			adventuresRepository.findOne.mockResolvedValue({ id: 'purchase' });
+			await service.createPresignedDownloadRedirect(encodedKey, viewer);
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).rejects.toThrow(ForbiddenException);
+			expect(signedUrl).toHaveBeenCalledTimes(1);
+		});
+
+		it('makes profile-purpose media public only while the profile exists and is active', async () => {
+			asset.purpose = MediaUploadPurpose.PROFILE;
+			asset.strollId = null;
+			asset.stageId = null;
+			asset.profileUserId = 'profile-1';
+			usersRepository.findOne.mockResolvedValueOnce({ id: 'profile-1' }).mockResolvedValue(null);
+			await service.createPresignedDownloadRedirect(encodedKey);
+			expect(usersRepository.findOne).toHaveBeenCalledWith({ where: { id: 'profile-1', isActive: true }, select: { id: true } });
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).rejects.toThrow(NotFoundException);
+			expect(signedUrl).toHaveBeenCalledTimes(1);
+		});
+
+		it.each([MediaUploadStatus.ABORTED, MediaUploadStatus.FAILED, MediaUploadStatus.PENDING, 'unknown'])(
+			'rejects unavailable multipart media (%s) before signing', async (status) => {
+				asset.uploadStatus = status as MediaUploadStatus;
+				await expect(service.createPresignedDownloadRedirect(encodedKey, { ...viewer, role: UserRole.ADMIN }))
+					.rejects.toThrow('Media asset not found.');
+				expect(signedUrl).not.toHaveBeenCalled();
+			}
+		);
+
+		it('preserves pending single-part downloads after authorization', async () => {
+			asset.uploadMode = MediaUploadMode.SINGLE_PART;
+			asset.uploadStatus = MediaUploadStatus.PENDING;
+			stroll.publicityFlag = StrollPublicityFlag.PUBLIC;
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).resolves.toHaveProperty('statusCode', 302);
+		});
+
+		it.each(['unknown asset', 'deleted stroll', 'deleted stage', 'wrong stage parent', 'missing stroll link', 'unknown purpose', 'mixed links'])(
+			'rejects %s without disclosing keys even to administrators', async (kind) => {
+				if (kind === 'unknown asset') mediaAssetsRepository.findOne.mockResolvedValue(null);
+				if (kind === 'deleted stroll') strollsRepository.findOne.mockResolvedValue(null);
+				if (kind === 'deleted stage' || kind === 'wrong stage parent') {
+					stagesRepository.findOne.mockResolvedValue(null);
+				}
+				if (kind === 'missing stroll link') asset.strollId = null;
+				if (kind === 'unknown purpose') asset.purpose = 'unknown' as MediaUploadPurpose;
+				if (kind === 'mixed links') asset.profileUserId = 'profile-1';
+				await expect(service.createPresignedDownloadRedirect(encodedKey, { ...viewer, role: UserRole.ADMIN }))
+					.rejects.toThrow('Media asset not found.');
+				if (kind === 'wrong stage parent') {
+					expect(stagesRepository.findOne).toHaveBeenCalledWith({
+						where: { id: 'stage-1', strollId: 'stroll-1' }, select: { id: true }
+					});
+				}
+				expect(signedUrl).not.toHaveBeenCalled();
+			}
+		);
+
+		it('returns safe malformed-key and signer errors', async () => {
+			await expect(service.createPresignedDownloadRedirect('!!!')).rejects.toThrow('Invalid media key.');
+			stroll.publicityFlag = StrollPublicityFlag.PUBLIC;
+			signedUrl.mockRejectedValueOnce(new Error(`Storage failed for ${key}`));
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).rejects.toThrow(ServiceUnavailableException);
+			await expect(service.createPresignedDownloadRedirect(encodedKey)).resolves.toHaveProperty('statusCode', 302);
+		});
 	});
 });
 

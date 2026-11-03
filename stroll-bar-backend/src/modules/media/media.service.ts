@@ -15,11 +15,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Buffer } from 'node:buffer';
 import { randomUUID } from 'node:crypto';
 import { basename } from 'node:path';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
+import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
+import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { StageEntity } from '../stages/entities/stage.entity';
-import { StrollEntity } from '../strolls/entities/stroll.entity';
-import { UserEntity } from '../users/entities/user.entity';
-import { CreatePresignedUploadDto } from './dto/create-presigned-upload.dto';
+import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
+import { UserEntity, UserRole } from '../users/entities/user.entity';
+import { CreatePresignedUploadDto, MediaUploadPurpose } from './dto/create-presigned-upload.dto';
 import { AbortMultipartUploadDto } from './dto/abort-multipart-upload.dto';
 import { CompleteMultipartUploadDto } from './dto/complete-multipart-upload.dto';
 import { MediaAssetEntity, MediaUploadMode, MediaUploadStatus } from './entities/media-asset.entity';
@@ -52,7 +55,9 @@ export class MediaService {
 		@InjectRepository(StageEntity)
 		private readonly stagesRepository: Repository<StageEntity>,
 		@InjectRepository(UserEntity)
-		private readonly usersRepository: Repository<UserEntity>
+		private readonly usersRepository: Repository<UserEntity>,
+		@InjectRepository(AdventureEntity)
+		private readonly adventuresRepository: Repository<AdventureEntity>
 	) {
 		this.bucketName = this.requireConfig('S3_BUCKET_NAME');
 		this.mediaPublicBaseUrl = this.resolveMediaPublicBaseUrl();
@@ -299,24 +304,96 @@ export class MediaService {
 		};
 	}
 
-	async createPresignedDownloadRedirect(encodedKey: string) {
+	async createPresignedDownloadRedirect(encodedKey: string, currentUser?: AuthenticatedUser) {
 		const objectKey = this.decodeObjectKey(encodedKey);
 		const asset = await this.mediaAssetsRepository.findOne({ where: { storageKey: objectKey } });
 
-		if (!asset || asset.uploadStatus === MediaUploadStatus.ABORTED || asset.uploadStatus === MediaUploadStatus.FAILED) {
+		// Single-part uploads have no completion callback and remain pending after a successful PUT.
+		const canDownload = asset && (
+			asset.uploadStatus === MediaUploadStatus.UPLOADED ||
+			(asset.uploadStatus === MediaUploadStatus.PENDING && asset.uploadMode === MediaUploadMode.SINGLE_PART)
+		);
+		if (!canDownload) {
 			throw new NotFoundException('Media asset not found.');
 		}
 
-		const url = await getSignedUrl(
-			this.s3Client,
-			new GetObjectCommand({
-				Bucket: this.bucketName,
-				Key: objectKey
-			}),
-			{ expiresIn: this.uploadExpirySeconds }
-		);
+		await this.assertCanDownload(asset, currentUser);
 
-		return { url, statusCode: 302 };
+		try {
+			const url = await getSignedUrl(
+				this.s3Client,
+				new GetObjectCommand({ Bucket: this.bucketName, Key: asset.storageKey }),
+				{ expiresIn: this.uploadExpirySeconds }
+			);
+			return { url, statusCode: 302 };
+		} catch {
+			this.logger.error({ event: 'media.download.presign_failed', assetId: asset.id });
+			throw new ServiceUnavailableException('Media storage is temporarily unavailable. Please try again.');
+		}
+	}
+
+	private async assertCanDownload(asset: MediaAssetEntity, currentUser?: AuthenticatedUser): Promise<void> {
+		if (asset.purpose === MediaUploadPurpose.PROFILE) {
+			if (!asset.profileUserId || asset.strollId || asset.stageId) {
+				throw new NotFoundException('Media asset not found.');
+			}
+			// Profile-purpose media is deliberately public while its profile remains active.
+			const profile = await this.usersRepository.findOne({
+				where: { id: asset.profileUserId, isActive: true },
+				select: { id: true }
+			});
+			if (!profile) {
+				throw new NotFoundException('Media asset not found.');
+			}
+			return;
+		}
+
+		if (!asset.strollId || asset.profileUserId) {
+			throw new NotFoundException('Media asset not found.');
+		}
+		if (asset.purpose === MediaUploadPurpose.STAGE) {
+			const stage = asset.stageId && await this.stagesRepository.findOne({
+				where: { id: asset.stageId, strollId: asset.strollId },
+				select: { id: true }
+			});
+			if (!stage) {
+				throw new NotFoundException('Media asset not found.');
+			}
+		} else if (asset.purpose !== MediaUploadPurpose.STROLL || asset.stageId) {
+			throw new NotFoundException('Media asset not found.');
+		}
+
+		const stroll = await this.strollsRepository.findOne({ where: { id: asset.strollId } });
+		if (!stroll) {
+			throw new NotFoundException('Media asset not found.');
+		}
+		if (currentUser && (stroll.authorId === currentUser.userId || currentUser.role === UserRole.ADMIN)) {
+			return;
+		}
+		if (stroll.activeStatus === StrollActiveStatus.PUBLISHED) {
+			if (stroll.publicityFlag === StrollPublicityFlag.PUBLIC) {
+				return;
+			}
+			// Browse summaries deliberately expose only the first image of published private strolls.
+			if (
+				stroll.publicityFlag === StrollPublicityFlag.PRIVATE &&
+				asset.purpose === MediaUploadPurpose.STROLL &&
+				asset.contentType.startsWith('image/') &&
+				stroll.mediaUrls?.imageUrls?.[0] === asset.publicUrl
+			) {
+				return;
+			}
+			if (currentUser) {
+				const entitlement = await this.adventuresRepository.findOne({
+					select: { id: true },
+					where: { strollId: stroll.id, ownerUserId: currentUser.userId, progressStatus: In(ACTIVE_ADVENTURE_STATUSES) }
+				});
+				if (entitlement) {
+					return;
+				}
+			}
+		}
+		throw new ForbiddenException('You are not allowed to access this media asset.');
 	}
 
 	async checkStorageConnectivity() {
