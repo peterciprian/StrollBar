@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
-import { In, Repository } from 'typeorm';
+import { EntityManager, In, Repository } from 'typeorm';
 import { AssignAdventureDto } from './dto/assign-adventure.dto';
 import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
 import { SubmitStageAnswerDto } from './dto/submit-stage-answer.dto';
@@ -18,6 +18,14 @@ import { BadgesService } from '../badges/badges.service';
 import { STROLL_PURCHASE_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
 import { AppErrorCode } from '../../common/utils/app-error-code';
 import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
+
+// Completion or abandonment does not revoke a purchase's content entitlement.
+export const ACTIVE_ADVENTURE_STATUSES: readonly AdventureProgressStatus[] = [
+	AdventureProgressStatus.PURCHASED,
+	AdventureProgressStatus.IN_PROGRESS,
+	AdventureProgressStatus.COMPLETED,
+	AdventureProgressStatus.ABANDONED
+];
 
 @Injectable()
 export class AdventuresService {
@@ -124,7 +132,10 @@ export class AdventuresService {
 
 	async list(currentUser: AuthenticatedUser) {
 		const adventures = await this.adventuresRepository.find({
-			where: currentUser.role === UserRole.ADMIN ? {} : { ownerUserId: currentUser.userId },
+			where: currentUser.role === UserRole.ADMIN ? {} : {
+				ownerUserId: currentUser.userId,
+				progressStatus: In(ACTIVE_ADVENTURE_STATUSES)
+			},
 			order: { updatedAt: 'DESC' }
 		});
 
@@ -158,12 +169,11 @@ export class AdventuresService {
 	}
 
 	async start(adventureId: string, currentUser: AuthenticatedUser) {
-		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
-
-		adventure.progressStatus = AdventureProgressStatus.IN_PROGRESS;
-		adventure.startDateTime ??= new Date();
-
-		return this.adventuresRepository.save(adventure);
+		return this.withLockedAdventure(adventureId, currentUser, async (adventure, manager) => {
+			adventure.progressStatus = AdventureProgressStatus.IN_PROGRESS;
+			adventure.startDateTime ??= new Date();
+			return manager.getRepository(AdventureEntity).save(adventure);
+		});
 	}
 
 	async get(adventureId: string, currentUser: AuthenticatedUser) {
@@ -182,141 +192,162 @@ export class AdventuresService {
 	}
 
 	async getResult(adventureId: string, currentUser: AuthenticatedUser) {
-		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
-		const [stroll, stages] = await Promise.all([
-			this.strollsRepository.findOne({ where: { id: adventure.strollId } }),
-			this.stagesRepository.find({ where: { strollId: adventure.strollId }, order: { orderIndex: 'ASC' } })
-		]);
+		const result = await this.withLockedAdventure(adventureId, currentUser, async (adventure, manager) => {
+			const [stroll, stages] = await Promise.all([
+				manager.getRepository(StrollEntity).findOne({ where: { id: adventure.strollId } }),
+				manager.getRepository(StageEntity).find({ where: { strollId: adventure.strollId }, order: { orderIndex: 'ASC' } })
+			]);
 
-		// Viewing the result page (e.g. via the "Finish" shortcut) should reflect completion
-		// even if the adventure was never marked completed through a correct final answer.
-		if (adventure.progressStatus !== AdventureProgressStatus.COMPLETED && adventure.currentStageIndex >= stages.length) {
-			adventure.progressStatus = AdventureProgressStatus.COMPLETED;
-			adventure.completionDateTime ??= new Date();
-			await this.adventuresRepository.save(adventure);
-		}
+			// Support reads of revoked records must not complete them via the "Finish" shortcut.
+			if (
+				ACTIVE_ADVENTURE_STATUSES.includes(adventure.progressStatus) &&
+				adventure.progressStatus !== AdventureProgressStatus.COMPLETED &&
+				adventure.currentStageIndex >= stages.length
+			) {
+				adventure.progressStatus = AdventureProgressStatus.COMPLETED;
+				adventure.completionDateTime ??= new Date();
+				await manager.getRepository(AdventureEntity).save(adventure);
+			}
 
-		const completedAt = adventure.completionDateTime ?? new Date();
-		const elapsedSeconds = adventure.startDateTime
-			? Math.max(0, Math.round((completedAt.getTime() - adventure.startDateTime.getTime()) / 1000))
-			: 0;
-		const completedStageCount =
-			adventure.progressStatus === AdventureProgressStatus.COMPLETED ? stages.length : Math.max(0, adventure.currentStageIndex - 1);
-		const routeLengthKm = stages.slice(1).reduce((total, stage, index) => total + this.distanceInKm(stages[index], stage), 0);
+			const completedAt = adventure.completionDateTime ?? new Date();
+			const elapsedSeconds = adventure.startDateTime
+				? Math.max(0, Math.round((completedAt.getTime() - adventure.startDateTime.getTime()) / 1000))
+				: 0;
+			const completedStageCount =
+				adventure.progressStatus === AdventureProgressStatus.COMPLETED ? stages.length : Math.max(0, adventure.currentStageIndex - 1);
+			const routeLengthKm = stages.slice(1).reduce((total, stage, index) => total + this.distanceInKm(stages[index], stage), 0);
 
-		const attempts = await this.stageAttemptsRepository.find({ where: { adventureId: adventure.id } });
-		// A stage can be attempted more than once; count each riddle as correctly answered at most once.
-		const correctStageIds = new Set(attempts.filter((attempt) => attempt.isCorrect).map((attempt) => attempt.stageId));
-		const correctAnswerCount = correctStageIds.size;
-		const totalStageCount = stages.length;
+			const attempts = await manager.getRepository(StageAttemptEntity).find({ where: { adventureId: adventure.id } });
+			// A stage can be attempted more than once; count each riddle as correctly answered at most once.
+			const correctStageIds = new Set(attempts.filter((attempt) => attempt.isCorrect).map((attempt) => attempt.stageId));
+			const correctAnswerCount = correctStageIds.size;
+			const totalStageCount = stages.length;
 
-		if (adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
-			await this.adventureResultsService.recordCompletion({
-				userId: adventure.ownerUserId,
-				strollId: adventure.strollId,
-				adventureId: adventure.id,
+			if (adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
+				await this.adventureResultsService.recordCompletion({
+					userId: adventure.ownerUserId,
+					strollId: adventure.strollId,
+					adventureId: adventure.id,
+					completedStageCount,
+					elapsedSeconds,
+					routeLengthKm,
+					completedAt
+				});
+			}
+
+			return {
+				adventure,
+				stroll,
 				completedStageCount,
 				elapsedSeconds,
 				routeLengthKm,
-				completedAt
-			});
-			await this.badgesService.evaluateAndAward(adventure.ownerUserId).catch(() => undefined);
-		}
+				correctAnswerCount,
+				totalStageCount
+			};
+		}, true);
 
-		return {
-			adventure,
-			stroll,
-			completedStageCount,
-			elapsedSeconds,
-			routeLengthKm,
-			correctAnswerCount,
-			totalStageCount
-		};
+		// Badge queries use their own connection and must see committed completion state.
+		if (result.adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
+			await this.badgesService.evaluateAndAward(result.adventure.ownerUserId).catch(() => undefined);
+		}
+		return result;
 	}
 
 	async submitAnswer(adventureId: string, stageId: string, dto: SubmitStageAnswerDto, currentUser: AuthenticatedUser) {
-		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
-		const stage = await this.stagesRepository.findOne({
-			where: {
-				id: stageId,
-				strollId: adventure.strollId
+		return this.withLockedAdventure(adventureId, currentUser, async (adventure, manager) => {
+			const stage = await manager.getRepository(StageEntity).findOne({
+				where: {
+					id: stageId,
+					strollId: adventure.strollId
+				}
+			});
+
+			if (!stage) {
+				throw new NotFoundException(`Stage ${stageId} was not found for this adventure.`);
 			}
+
+			const normalizedAnswer = dto.answer.trim().toLowerCase();
+			const expectedAnswer = stage.riddleAnswer?.trim().toLowerCase();
+			const isCorrect = !expectedAnswer || normalizedAnswer === expectedAnswer;
+
+			const attemptsRepository = manager.getRepository(StageAttemptEntity);
+			await attemptsRepository.save(
+				attemptsRepository.create({
+					adventureId,
+					stageId,
+					providedAnswer: dto.answer,
+					isCorrect
+				})
+			);
+
+			if (isCorrect) {
+				const stageCount = await manager.getRepository(StageEntity).count({ where: { strollId: adventure.strollId } });
+
+				if (adventure.currentStageIndex >= stageCount) {
+					adventure.progressStatus = AdventureProgressStatus.COMPLETED;
+					adventure.completionDateTime = new Date();
+				} else {
+					adventure.progressStatus = AdventureProgressStatus.IN_PROGRESS;
+					adventure.currentStageIndex += 1;
+				}
+
+				await manager.getRepository(AdventureEntity).save(adventure);
+			}
+
+			return {
+				isCorrect,
+				adventure,
+				stageId
+			};
 		});
-
-		if (!stage) {
-			throw new NotFoundException(`Stage ${stageId} was not found for this adventure.`);
-		}
-
-		const normalizedAnswer = dto.answer.trim().toLowerCase();
-		const expectedAnswer = stage.riddleAnswer?.trim().toLowerCase();
-		const isCorrect = !expectedAnswer || normalizedAnswer === expectedAnswer;
-
-		await this.stageAttemptsRepository.save(
-			this.stageAttemptsRepository.create({
-				adventureId,
-				stageId,
-				providedAnswer: dto.answer,
-				isCorrect
-			})
-		);
-
-		if (isCorrect) {
-			const stageCount = await this.stagesRepository.count({ where: { strollId: adventure.strollId } });
-
-			if (adventure.currentStageIndex >= stageCount) {
-				adventure.progressStatus = AdventureProgressStatus.COMPLETED;
-				adventure.completionDateTime = new Date();
-			} else {
-				adventure.progressStatus = AdventureProgressStatus.IN_PROGRESS;
-				adventure.currentStageIndex += 1;
-			}
-
-			await this.adventuresRepository.save(adventure);
-		}
-
-		return {
-			isCorrect,
-			adventure,
-			stageId
-		};
 	}
 
 	async navigate(adventureId: string, dto: NavigateAdventureDto, currentUser: AuthenticatedUser) {
-		const adventure = await this.getAdventureOrThrow(adventureId, currentUser);
-		const stageCount = await this.stagesRepository.count({ where: { strollId: adventure.strollId } });
+		return this.withLockedAdventure(adventureId, currentUser, async (adventure, manager) => {
+			const stageCount = await manager.getRepository(StageEntity).count({ where: { strollId: adventure.strollId } });
 
-		if (dto.direction === 'next') {
-			adventure.currentStageIndex = Math.min(adventure.currentStageIndex + 1, Math.max(stageCount, 1));
-		} else {
-			adventure.currentStageIndex = Math.max(adventure.currentStageIndex - 1, 1);
-		}
+			if (dto.direction === 'next') {
+				adventure.currentStageIndex = Math.min(adventure.currentStageIndex + 1, Math.max(stageCount, 1));
+			} else {
+				adventure.currentStageIndex = Math.max(adventure.currentStageIndex - 1, 1);
+			}
 
-		if (adventure.progressStatus === AdventureProgressStatus.PURCHASED) {
-			adventure.progressStatus = AdventureProgressStatus.IN_PROGRESS;
-			adventure.startDateTime ??= new Date();
-		}
+			if (adventure.progressStatus === AdventureProgressStatus.PURCHASED) {
+				adventure.progressStatus = AdventureProgressStatus.IN_PROGRESS;
+				adventure.startDateTime ??= new Date();
+			}
 
-		await this.adventuresRepository.save(adventure);
+			await manager.getRepository(AdventureEntity).save(adventure);
 
-		const { stroll, currentStage } = await this.getStrollAndCurrentStage(
-			adventure.strollId,
-			adventure.currentStageIndex,
-			currentUser.role === UserRole.ADMIN
-		);
+			const { stroll, currentStage } = await this.getStrollAndCurrentStage(
+				adventure.strollId,
+				adventure.currentStageIndex,
+				currentUser.role === UserRole.ADMIN,
+				manager
+			);
 
-		return {
-			adventure,
-			stroll,
-			currentStage
-		};
+			return {
+				adventure,
+				stroll,
+				currentStage
+			};
+		});
 	}
 
-	private async getAdventureOrThrow(adventureId: string, currentUser: AuthenticatedUser): Promise<AdventureEntity> {
+	private async getAdventureOrThrow(
+		adventureId: string,
+		currentUser: AuthenticatedUser,
+		repository = this.adventuresRepository,
+		lock = false
+	): Promise<AdventureEntity> {
 		if (!isUUID(adventureId)) {
 			throw new NotFoundException(`Adventure ${adventureId} was not found.`);
 		}
 
-		const adventure = await this.adventuresRepository.findOne({ where: { id: adventureId } });
+		const adventure = await repository.findOne({
+			where: { id: adventureId },
+			...(lock ? { lock: { mode: 'pessimistic_write' as const } } : {})
+		});
 
 		if (!adventure) {
 			throw new NotFoundException(`Adventure ${adventureId} was not found.`);
@@ -326,7 +357,27 @@ export class AdventuresService {
 			throw new ForbiddenException('You are not allowed to access this adventure.');
 		}
 
+		if (!ACTIVE_ADVENTURE_STATUSES.includes(adventure.progressStatus) && currentUser.role !== UserRole.ADMIN) {
+			throw new ForbiddenException('This adventure has been revoked.');
+		}
+
 		return adventure;
+	}
+
+	private async withLockedAdventure<T>(
+		adventureId: string,
+		currentUser: AuthenticatedUser,
+		operation: (adventure: AdventureEntity, manager: EntityManager) => Promise<T>,
+		allowRevoked = false
+	): Promise<T> {
+		return this.adventuresRepository.manager.transaction(async (manager) => {
+			const adventure = await this.getAdventureOrThrow(adventureId, currentUser, manager.getRepository(AdventureEntity), true);
+			// Admin support access is not permission to progress a revoked adventure.
+			if (!allowRevoked && !ACTIVE_ADVENTURE_STATUSES.includes(adventure.progressStatus)) {
+				throw new ForbiddenException('This adventure has been revoked.');
+			}
+			return operation(adventure, manager);
+		});
 	}
 
 	private distanceInKm(first: StageEntity, second: StageEntity): number {
@@ -358,11 +409,12 @@ export class AdventuresService {
 	private async getStrollAndCurrentStage(
 		strollId: string,
 		stageIndex: number,
-		isAdmin = false
+		isAdmin = false,
+		manager?: EntityManager
 	): Promise<{ stroll: StrollEntity | null; currentStage: StageEntity | Omit<StageEntity, 'riddleAnswer'> | null }> {
 		const [stroll, stages] = await Promise.all([
-			this.strollsRepository.findOne({ where: { id: strollId } }),
-			this.stagesRepository.find({ where: { strollId }, order: { orderIndex: 'ASC' } })
+			(manager?.getRepository(StrollEntity) ?? this.strollsRepository).findOne({ where: { id: strollId } }),
+			(manager?.getRepository(StageEntity) ?? this.stagesRepository).find({ where: { strollId }, order: { orderIndex: 'ASC' } })
 		]);
 
 		// stageIndex is a 1-based ordinal position, not the raw orderIndex column value,
@@ -443,17 +495,10 @@ export class AdventuresService {
 	async revokeAdventure(adventureId: string, currentUser: AuthenticatedUser) {
 		this.assertAdmin(currentUser);
 
-		if (!isUUID(adventureId)) {
-			throw new NotFoundException(`Adventure ${adventureId} was not found.`);
-		}
-
-		const adventure = await this.adventuresRepository.findOne({ where: { id: adventureId } });
-		if (!adventure) {
-			throw new NotFoundException(`Adventure ${adventureId} was not found.`);
-		}
-
-		adventure.progressStatus = AdventureProgressStatus.REVOKED;
-		return this.adventuresRepository.save(adventure);
+		return this.withLockedAdventure(adventureId, currentUser, async (adventure, manager) => {
+			adventure.progressStatus = AdventureProgressStatus.REVOKED;
+			return manager.getRepository(AdventureEntity).save(adventure);
+		}, true);
 	}
 
 	private assertAdmin(currentUser: AuthenticatedUser): void {

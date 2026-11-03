@@ -1,7 +1,9 @@
 import { ConflictException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { QueryFailedError } from 'typeorm';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
+import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
+import { In } from 'typeorm';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { StrollCategory } from '../strolls/dto/stroll-category.enum';
 import { UserRole } from '../users/entities/user.entity';
@@ -75,9 +77,34 @@ describe('StagesService', () => {
 
 		expect(adventuresRepository.findOne).toHaveBeenCalledWith({
 			select: { id: true },
-			where: { strollId: 'stroll-1', ownerUserId: otherUser.userId }
+			where: { strollId: 'stroll-1', ownerUserId: otherUser.userId, progressStatus: In(ACTIVE_ADVENTURE_STATUSES) }
 		});
 		expect(result[0]).toEqual(expect.not.objectContaining({ riddleAnswer: expect.anything() }));
+	});
+
+	it.each(ACTIVE_ADVENTURE_STATUSES)('removes private stage and media access when a %s purchase is revoked', async (progressStatus) => {
+		strollsRepository.findOne.mockResolvedValue(buildStroll({ publicityFlag: StrollPublicityFlag.PRIVATE }));
+		const purchase = { id: 'purchase-1', progressStatus };
+		adventuresRepository.findOne.mockImplementation(async ({ where }: any) =>
+			where.progressStatus.value.includes(purchase.progressStatus) ? purchase : null
+		);
+		stagesRepository.find.mockResolvedValue([buildStage({ imageUrls: ['https://example.com/protected-stage.jpg'] })]);
+		await expect(service.list('stroll-1', otherUser)).resolves.toHaveLength(1);
+
+		purchase.progressStatus = AdventureProgressStatus.REVOKED;
+		stagesRepository.find.mockClear();
+
+		await expect(service.list('stroll-1', otherUser)).rejects.toThrow(ForbiddenException);
+		expect(stagesRepository.find).not.toHaveBeenCalled();
+	});
+
+	it('preserves admin support access to private stages without treating revoked purchases as entitlement', async () => {
+		strollsRepository.findOne.mockResolvedValue(buildStroll({ publicityFlag: StrollPublicityFlag.PRIVATE }));
+		stagesRepository.find.mockResolvedValue([buildStage({ riddleAnswer: 'support-answer' })]);
+		await expect(service.list('stroll-1', { ...otherUser, role: UserRole.ADMIN })).resolves.toMatchObject([
+			{ riddleAnswer: 'support-answer' }
+		]);
+		expect(adventuresRepository.findOne).not.toHaveBeenCalled();
 	});
 
 	it('rejects stage mutations from users who do not own the stroll', async () => {

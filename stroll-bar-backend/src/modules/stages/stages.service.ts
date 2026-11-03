@@ -1,12 +1,13 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QueryFailedError, Repository } from 'typeorm';
+import { In, QueryFailedError, Repository } from 'typeorm';
 import { CreateStageDto } from './dto/create-stage.dto';
 import { ReorderStagesDto } from './dto/reorder-stages.dto';
 import { UpdateStageDto } from './dto/update-stage.dto';
 import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { StageEntity } from './entities/stage.entity';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { StrollActiveStatus, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserRole } from '../users/entities/user.entity';
@@ -184,7 +185,7 @@ export class StagesService {
 		if (currentUser && stroll.activeStatus === StrollActiveStatus.PUBLISHED) {
 			const purchase = await this.adventuresRepository.findOne({
 				select: { id: true },
-				where: { strollId: stroll.id, ownerUserId: currentUser.userId }
+				where: { strollId: stroll.id, ownerUserId: currentUser.userId, progressStatus: In(ACTIVE_ADVENTURE_STATUSES) }
 			});
 
 			if (purchase) {

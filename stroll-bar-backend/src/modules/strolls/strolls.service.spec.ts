@@ -1,6 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { AdventureEntity } from '../adventures/entities/adventure.entity';
+import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
+import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { UserRole } from '../users/entities/user.entity';
@@ -154,6 +155,34 @@ describe('StrollsService authorization', () => {
 		adventuresRepository.findOne.mockResolvedValue({ id: 'purchase-id' });
 		stagesRepository.find.mockResolvedValue([]);
 		await expect(service.findOne(privateStroll.id, simpleUser)).resolves.toEqual({ stroll: privateStroll, stages: [] });
+	});
+
+	it.each(ACTIVE_ADVENTURE_STATUSES)('removes private stroll and media access when a %s purchase is revoked', async (progressStatus) => {
+		const stroll = buildStroll({
+			publicityFlag: StrollPublicityFlag.PRIVATE,
+			mediaUrls: { imageUrls: ['https://example.com/protected-stroll.jpg'], videoUrls: [] }
+		});
+		const purchase = { id: 'purchase-1', progressStatus };
+		strollsRepository.findOne.mockResolvedValue(stroll);
+		adventuresRepository.findOne.mockImplementation(async ({ where }: any) =>
+			where.progressStatus.value.includes(purchase.progressStatus) ? purchase : null
+		);
+		stagesRepository.find.mockResolvedValue([]);
+		await expect(service.findOne(stroll.id, simpleUser)).resolves.toMatchObject({ stroll });
+
+		purchase.progressStatus = AdventureProgressStatus.REVOKED;
+		stagesRepository.find.mockClear();
+
+		await expect(service.findOne(stroll.id, simpleUser)).rejects.toThrow(ForbiddenException);
+		expect(stagesRepository.find).not.toHaveBeenCalled();
+	});
+
+	it('preserves admin support access to private stroll content without a purchase', async () => {
+		const stroll = buildStroll({ publicityFlag: StrollPublicityFlag.PRIVATE });
+		strollsRepository.findOne.mockResolvedValue(stroll);
+		stagesRepository.find.mockResolvedValue([]);
+		await expect(service.findOne(stroll.id, { ...simpleUser, role: UserRole.ADMIN })).resolves.toEqual({ stroll, stages: [] });
+		expect(adventuresRepository.findOne).not.toHaveBeenCalled();
 	});
 
 	it('returns the full description for every browsable stroll', async () => {

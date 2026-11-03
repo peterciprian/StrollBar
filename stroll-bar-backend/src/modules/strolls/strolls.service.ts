@@ -10,6 +10,7 @@ import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entitie
 import { StrollCategory } from './dto/stroll-category.enum';
 import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
+import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { EmailService } from '../email/email.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
@@ -416,7 +417,7 @@ export class StrollsService {
 		if (currentUser && stroll.activeStatus === StrollActiveStatus.PUBLISHED) {
 			const purchase = await this.adventuresRepository.findOne({
 				select: { id: true },
-				where: { strollId: stroll.id, ownerUserId: currentUser.userId }
+				where: { strollId: stroll.id, ownerUserId: currentUser.userId, progressStatus: In(ACTIVE_ADVENTURE_STATUSES) }
 			});
 
 			if (purchase) {
