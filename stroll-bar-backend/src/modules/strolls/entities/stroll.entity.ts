@@ -82,7 +82,7 @@ export class StrollEntity {
 	@Column({
 		type: 'varchar',
 		enum: StrollPublicityFlag,
-		default: StrollPublicityFlag.PRIVATE
+		default: StrollPublicityFlag.PUBLIC
 	})
 	publicityFlag!: StrollPublicityFlag;
 

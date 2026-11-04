@@ -15,6 +15,7 @@ import { calculateRouteLengthKm } from '../strolls/route-length.util';
 import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
 import { getStrollReadinessIssues } from '../strolls/stroll-readiness.util';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
+import { assertCreationQuota } from '../strolls/creation-quota';
 
 @Injectable()
 export class StagesService {
@@ -49,6 +50,7 @@ export class StagesService {
 
 	async create(strollId: string, dto: CreateStageDto, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		await assertCreationQuota(this.strollsRepository, stroll.authorId, currentUser.role, stroll.publicityFlag, stroll.publicityFlag);
 
 		const stage = this.stagesRepository.create({
 			strollId,
@@ -85,7 +87,8 @@ export class StagesService {
 	}
 
 	async reorder(strollId: string, dto: ReorderStagesDto, currentUser: AuthenticatedUser) {
-		await this.getOwnedStrollOrThrow(strollId, currentUser);
+		const ownedStroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		await assertCreationQuota(this.strollsRepository, ownedStroll.authorId, currentUser.role, ownedStroll.publicityFlag, ownedStroll.publicityFlag);
 		const stages = await this.stagesRepository.find({ where: { strollId } });
 		const stagesById = new Map(stages.map((stage) => [stage.id, stage]));
 
@@ -113,7 +116,8 @@ export class StagesService {
 	}
 
 	async update(strollId: string, stageId: string, dto: UpdateStageDto, currentUser: AuthenticatedUser) {
-		await this.getOwnedStrollOrThrow(strollId, currentUser);
+		const ownedStroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		await assertCreationQuota(this.strollsRepository, ownedStroll.authorId, currentUser.role, ownedStroll.publicityFlag, ownedStroll.publicityFlag);
 		const stage = await this.stagesRepository.findOne({ where: { id: stageId, strollId } });
 
 		if (!stage) {

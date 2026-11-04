@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import {
 	ApiBearerAuth,
@@ -19,11 +19,14 @@ import { PublicUserProfileResponseDto } from './dto/public-user-profile-response
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
 import { UpdateUserRoleDto } from './dto/update-user-role.dto';
+import { CreatePaidGrantDto } from './dto/create-paid-grant.dto';
+import { RoleAssignmentsService } from './role-assignments.service';
+import { RevokePaidGrantDto } from './dto/revoke-paid-grant.dto';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-	constructor(private readonly usersService: UsersService) {}
+	constructor(private readonly usersService: UsersService, private readonly roleAssignments: RoleAssignmentsService) {}
 
 	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'List all users (admin only)' })
@@ -47,7 +50,7 @@ export class UsersController {
 	}
 
 	@ApiBearerAuth('bearer')
-	@ApiOperation({ summary: 'Assign a user role (admin only)' })
+	@ApiOperation({ summary: 'Assign/remove independent, non-expiring ADMIN privilege (admin only; paid roles require grants)' })
 	@ApiOkResponse({ type: UserResponseDto, description: 'Updated user role.' })
 	@ApiForbiddenResponse({ description: 'Administrator access required.', type: ErrorResponseDto })
 	@ApiNotFoundResponse({ description: 'User not found.', type: ErrorResponseDto })
@@ -55,6 +58,22 @@ export class UsersController {
 	@Patch(':userId/role')
 	updateRole(@Param('userId') userId: string, @Body() dto: UpdateUserRoleDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
 		return this.usersService.updateRole(userId, dto.role, user, request.ip);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Record an expiring paid grant (admin only; effective authorization is delivered by ROLE-02)' })
+	@UseGuards(JwtAuthGuard)
+	@Post(':userId/paid-grants')
+	createPaidGrant(@Param('userId') userId: string, @Body() dto: CreatePaidGrantDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+		return this.roleAssignments.createGrant(userId, dto, user, request.ip);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Revoke one paid grant without changing ADMIN or other grants (admin only)' })
+	@UseGuards(JwtAuthGuard)
+	@Post(':userId/paid-grants/:grantId/revoke')
+	revokePaidGrant(@Param('userId') userId: string, @Param('grantId') grantId: string, @Body() dto: RevokePaidGrantDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+		return this.roleAssignments.revokeGrant(userId, grantId, dto.reason, user, request.ip);
 	}
 
 	@ApiOperation({ summary: 'Get a public user profile' })

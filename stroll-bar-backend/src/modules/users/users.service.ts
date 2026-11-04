@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AdventureProgressStatus, AdventureEntity } from '../adventures/entities/adventure.entity';
@@ -6,8 +6,7 @@ import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../stroll
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
-import { AuditAction } from '../../common/audit.entity';
-import { AuditService } from '../../common/audit.service';
+import { RoleAssignmentsService } from './role-assignments.service';
 
 @Injectable()
 export class UsersService {
@@ -18,7 +17,7 @@ export class UsersService {
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(AdventureEntity)
 		private readonly adventuresRepository: Repository<AdventureEntity>,
-		@Optional() private readonly auditService?: AuditService
+		private readonly roleAssignments: RoleAssignmentsService
 	) {}
 
 	async getPublicProfile(userId: string) {
@@ -106,27 +105,7 @@ export class UsersService {
 	}
 
 	async updateRole(userId: string, role: UserRole, currentUser: AuthenticatedUser, ipAddress?: string) {
-		this.assertAdmin(currentUser);
-
-		const user = await this.usersRepository.findOne({ where: { id: userId } });
-
-		if (!user) {
-			throw new NotFoundException(`User ${userId} was not found.`);
-		}
-
-		user.role = role;
-		const savedChanges = await this.usersRepository.save({ id: user.id, role });
-		const savedUser = Object.assign(user, savedChanges);
-		await this.auditService?.record({
-			action: AuditAction.ROLE_CHANGE,
-			userId: savedUser.id,
-			actorUserId: currentUser.userId,
-			success: true,
-			ipAddress,
-			metadata: { role }
-		});
-
-		return this.toUserResponse(savedUser);
+		return this.toUserResponse(await this.roleAssignments.assignAdmin(userId, role, currentUser, ipAddress));
 	}
 
 	private assertAdmin(currentUser: AuthenticatedUser): void {

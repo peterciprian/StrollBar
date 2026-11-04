@@ -13,8 +13,12 @@ import { UserEntity } from '../modules/users/entities/user.entity';
 import { UserBadgeEntity } from '../modules/badges/entities/user-badge.entity';
 import { BadgeDefinitionEntity } from '../modules/badges/entities/badge-definition.entity';
 import { AuditEventEntity } from '../common/audit.entity';
+import { PaidGrantEntity } from '../modules/users/entities/paid-grant.entity';
+import { LegacyRoleCutoverEntity } from '../modules/users/entities/legacy-role-cutover.entity';
 
 export const DATABASE_ENTITIES = [
+	PaidGrantEntity,
+	LegacyRoleCutoverEntity,
 	SocialTransactionEntity,
 	AchievementEntity,
 	AdventureResultEntity,

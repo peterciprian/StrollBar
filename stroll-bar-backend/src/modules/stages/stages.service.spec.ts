@@ -40,6 +40,7 @@ describe('StagesService', () => {
 			save: jest.fn(async (value) => value)
 		};
 		strollsRepository = {
+			count: jest.fn().mockResolvedValue(0),
 			findOne: jest.fn(),
 			save: jest.fn(async (value) => value)
 		};

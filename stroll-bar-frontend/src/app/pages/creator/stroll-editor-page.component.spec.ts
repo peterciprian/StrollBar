@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, provideRouter } from '@angular/router';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { StrollsFeatureService } from '../../features/strolls/strolls-feature.service';
@@ -63,6 +63,18 @@ describe('StrollEditorPageComponent publication readiness', () => {
 			]
 		})
 			.compileComponents();
+	});
+
+	it('defaults a new draft to PUBLIC rather than consuming private quota', async () => {
+		TestBed.inject(ActivatedRoute).snapshot.paramMap.get = () => null;
+		jest.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
+		const fixture = TestBed.createComponent(StrollEditorPageComponent);
+		fixture.detectChanges();
+		await fixture.whenStable();
+		const component = fixture.componentInstance as any;
+		expect(component.stroll.publicity).toBe('public');
+		await expect(component.saveChanges()).resolves.toBe(true);
+		expect(feature.create).toHaveBeenCalledWith(expect.objectContaining({ activeStatus: 'draft', publicityFlag: 'public' }));
 	});
 
 	it('saves a draft first, saves stages, and only then requests publication', async () => {

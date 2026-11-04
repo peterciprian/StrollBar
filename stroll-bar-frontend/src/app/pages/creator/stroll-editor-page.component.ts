@@ -394,7 +394,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 			labelsText: '',
 			category: StrollCategory.ENTERTAINMENT,
 			status: 'draft',
-			publicity: 'private',
+			publicity: 'public',
 			priceAmount: null,
 			priceCurrency: 'HUF',
 			imageUrls: [],

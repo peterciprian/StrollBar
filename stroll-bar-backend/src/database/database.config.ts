@@ -4,6 +4,7 @@ import { X509Certificate } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { checkServerIdentity, ConnectionOptions } from 'node:tls';
 import { DATABASE_ENTITIES } from './entities';
+import { PaidGrants1754300000000 } from './migrations/1754300000000-paid-grants';
 import { InitialSchema1752864000000 } from './migrations/1752864000000-initial-schema';
 import { AuthTokensAndPasswordReset1752885000000 } from './migrations/1752885000000-auth-tokens-and-password-reset';
 import { MediaAssets1752896000000 } from './migrations/1752896000000-media-assets';
@@ -121,7 +122,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			RiddleBadges1753900000000,
 			UserPreferredLanguage1754000000000,
 			UserAuthVersion1754100000000,
-			SocialTransactions1754200000000
+			SocialTransactions1754200000000,
+			PaidGrants1754300000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

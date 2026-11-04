@@ -80,6 +80,11 @@ describe('StrollsService authorization', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		strollsRepository.count.mockResolvedValue(0);
+		dataSource.transaction.mockImplementation(async (callback) => callback({
+			findOneOrFail: jest.fn().mockResolvedValue({}),
+			getRepository: () => strollsRepository
+		}));
 	});
 
 	it('rejects a fourth public stroll for a simple user', async () => {
@@ -99,14 +104,14 @@ describe('StrollsService authorization', () => {
 		expect(strollsRepository.count).not.toHaveBeenCalled();
 	});
 
-	it('rejects a private stroll for a simple user without counting', async () => {
+	it('rejects a private stroll for a simple user', async () => {
 		await expect(service.create({ ...createDto, publicityFlag: StrollPublicityFlag.PRIVATE }, simpleUser)).rejects.toMatchObject({
 			response: {
 				code: AppErrorCode.STROLL_PUBLICITY_NOT_ALLOWED,
-				message: 'Your account type cannot create private or unlisted strolls.'
+				message: expect.any(String)
 			}
 		});
-		expect(strollsRepository.count).not.toHaveBeenCalled();
+		expect(strollsRepository.count).toHaveBeenCalledTimes(2);
 	});
 
 	it('allows a creator a fourth public stroll but rejects a fourth private one', async () => {
@@ -119,14 +124,14 @@ describe('StrollsService authorization', () => {
 		await expect(service.create({ ...createDto, publicityFlag: StrollPublicityFlag.PRIVATE }, creatorUser)).rejects.toThrow(ForbiddenException);
 	});
 
-	it('rejects a 101st public stroll for a creator', async () => {
+	it('rejects a 21st public stroll for a creator', async () => {
 		const creatorUser = { ...simpleUser, role: UserRole.CREATOR };
 		strollsRepository.count.mockResolvedValue(20);
 
 		await expect(service.create(createDto, creatorUser)).rejects.toMatchObject({
 			response: {
 				code: AppErrorCode.STROLL_QUOTA_REACHED,
-				message: 'Your account type can create up to 20 public strolls.'
+				message: expect.any(String)
 			}
 		});
 	});

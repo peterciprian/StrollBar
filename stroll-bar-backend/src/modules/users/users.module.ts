@@ -5,11 +5,12 @@ import { UsersService } from './users.service';
 import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { UserEntity } from './entities/user.entity';
+import { RoleAssignmentsService } from './role-assignments.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, StrollEntity, AdventureEntity])],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, RoleAssignmentsService],
   exports: [UsersService],
 })
 export class UsersModule {}

@@ -17,8 +17,7 @@ import { EmailService } from '../email/email.service';
 import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { calculateRouteLengthKm } from './route-length.util';
 import { BadgesService } from '../badges/badges.service';
-import { STROLL_CREATION_QUOTAS, resolveQuota } from '../../common/utils/user-quotas';
-import { AppErrorCode } from '../../common/utils/app-error-code';
+import { assertCreationQuota } from './creation-quota';
 import { stripRiddleAnswer } from '../../common/utils/stage-sanitizer.util';
 import { getStrollReadinessIssues, throwIfStrollNotReady } from './stroll-readiness.util';
 
@@ -174,26 +173,29 @@ export class StrollsService {
 		if (dto.activeStatus === StrollActiveStatus.PUBLISHED) {
 			throwIfStrollNotReady(dto.name, dto.description, []);
 		}
-		await this.assertCanCreateWithPublicity(currentUser, publicityFlag);
-		const stroll = this.strollsRepository.create({
-			name: dto.name,
-			authorId: currentUser.userId,
-			activeStatus: dto.activeStatus ?? StrollActiveStatus.DRAFT,
-			labels: (dto.labels ?? []).map((label) => label.trim().toLowerCase()),
-			category: dto.category ?? StrollCategory.ENTERTAINMENT,
-			description: dto.description,
-			proposerText: dto.proposerText ?? null,
-			mediaUrls: {
-				imageUrls: dto.imageUrls ?? [],
-				videoUrls: dto.videoUrls ?? []
-			},
-			price: publicityFlag === StrollPublicityFlag.PRIVATE ? (dto.price ?? null) : null,
-			length: 0,
-			publicityFlag,
-			stageCount: 0
+		const saved = await this.dataSource.transaction(async (manager) => {
+			await manager.findOneOrFail(UserEntity, { where: { id: currentUser.userId }, lock: { mode: 'pessimistic_write' } });
+			const repository = manager.getRepository(StrollEntity);
+			await assertCreationQuota(repository, currentUser.userId, currentUser.role, publicityFlag);
+			const stroll = repository.create({
+				name: dto.name,
+				authorId: currentUser.userId,
+				activeStatus: dto.activeStatus ?? StrollActiveStatus.DRAFT,
+				labels: (dto.labels ?? []).map((label) => label.trim().toLowerCase()),
+				category: dto.category ?? StrollCategory.ENTERTAINMENT,
+				description: dto.description,
+				proposerText: dto.proposerText ?? null,
+				mediaUrls: {
+					imageUrls: dto.imageUrls ?? [],
+					videoUrls: dto.videoUrls ?? []
+				},
+				price: publicityFlag === StrollPublicityFlag.PRIVATE ? (dto.price ?? null) : null,
+				length: 0,
+				publicityFlag,
+				stageCount: 0
+			});
+			return repository.save(stroll);
 		});
-
-		const saved = await this.strollsRepository.save(stroll);
 		await this.cache.deleteByPrefix('strolls:list:');
 		await this.badgesService.evaluateAndAward(currentUser.userId).catch(() => undefined);
 		await this.notifyAuthorOfCreation(saved).catch(() => undefined);
@@ -287,7 +289,19 @@ export class StrollsService {
 	}
 
 	async update(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser) {
-		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		const result = await this.dataSource.transaction(async (manager) => {
+			await manager.findOneOrFail(UserEntity, { where: { id: currentUser.userId }, lock: { mode: 'pessimistic_write' } });
+			return this.updateWithinQuota(strollId, dto, currentUser, manager.getRepository(StrollEntity));
+		});
+		await this.cache.deleteByPrefix('strolls:list:');
+		if (result.saved.activeStatus !== result.previousActiveStatus) {
+			await this.notifyAuthorOfStatusChange(result.saved);
+		}
+		return result.automaticallyUnpublished ? { ...result.saved, automaticallyUnpublished: true } : result.saved;
+	}
+
+	private async updateWithinQuota(strollId: string, dto: UpdateStrollDto, currentUser: AuthenticatedUser, repository: Repository<StrollEntity>) {
+		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser, repository);
 		const previousActiveStatus = stroll.activeStatus;
 		const isExplicitPublish = dto.activeStatus === StrollActiveStatus.PUBLISHED && previousActiveStatus !== StrollActiveStatus.PUBLISHED;
 		const isSuspensionChange = dto.activeStatus === StrollActiveStatus.SUSPENDED || previousActiveStatus === StrollActiveStatus.SUSPENDED;
@@ -300,9 +314,7 @@ export class StrollsService {
 			stroll.price = null;
 		}
 
-		if (dto.publicityFlag !== undefined && dto.publicityFlag !== stroll.publicityFlag) {
-			await this.assertCanCreateWithPublicity(currentUser, dto.publicityFlag);
-		}
+		await assertCreationQuota(repository, stroll.authorId, currentUser.role, nextPublicity, stroll.publicityFlag);
 
 		if (dto.name !== undefined) {
 			stroll.name = dto.name;
@@ -353,14 +365,8 @@ export class StrollsService {
 			}
 		}
 
-		const saved = await this.strollsRepository.save(stroll);
-		await this.cache.deleteByPrefix('strolls:list:');
-
-		if (saved.activeStatus !== previousActiveStatus) {
-			await this.notifyAuthorOfStatusChange(saved);
-		}
-
-		return automaticallyUnpublished ? { ...saved, automaticallyUnpublished: true } : saved;
+		const saved = await repository.save(stroll);
+		return { saved, previousActiveStatus, automaticallyUnpublished };
 	}
 
 	private async notifyAuthorOfStatusChange(stroll: StrollEntity): Promise<void> {
@@ -393,8 +399,8 @@ export class StrollsService {
 		return { id: strollId, deleted: true };
 	}
 
-	private async getOwnedStrollOrThrow(strollId: string, currentUser: AuthenticatedUser): Promise<StrollEntity> {
-		const stroll = await this.strollsRepository.findOne({ where: { id: strollId } });
+	private async getOwnedStrollOrThrow(strollId: string, currentUser: AuthenticatedUser, repository = this.strollsRepository): Promise<StrollEntity> {
+		const stroll = await repository.findOne({ where: { id: strollId } });
 
 		if (!stroll) {
 			throw new NotFoundException(`Stroll ${strollId} was not found.`);
@@ -405,37 +411,6 @@ export class StrollsService {
 		}
 
 		return stroll;
-	}
-
-	private async assertCanCreateWithPublicity(currentUser: AuthenticatedUser, publicityFlag: StrollPublicityFlag): Promise<void> {
-		const quota = resolveQuota(STROLL_CREATION_QUOTAS, currentUser.role);
-		const isPublic = publicityFlag === StrollPublicityFlag.PUBLIC;
-		const limit = isPublic ? quota.public : quota.private;
-
-		if (limit === Number.POSITIVE_INFINITY) {
-			return;
-		}
-
-		if (limit === 0) {
-			throw new ForbiddenException({
-				code: AppErrorCode.STROLL_PUBLICITY_NOT_ALLOWED,
-				message: 'Your account type cannot create private or unlisted strolls.'
-			});
-		}
-
-		const existingCount = await this.strollsRepository.count({
-			where: {
-				authorId: currentUser.userId,
-				publicityFlag: isPublic ? StrollPublicityFlag.PUBLIC : In([StrollPublicityFlag.PRIVATE, StrollPublicityFlag.UNLISTED])
-			}
-		});
-
-		if (existingCount >= limit) {
-			throw new ForbiddenException({
-				code: AppErrorCode.STROLL_QUOTA_REACHED,
-				message: `Your account type can create up to ${limit} ${isPublic ? 'public' : 'private'} strolls.`
-			});
-		}
 	}
 
 	private assertPriceAllowed(publicityFlag: StrollPublicityFlag, price?: { amount: number; currency: string } | null): void {
