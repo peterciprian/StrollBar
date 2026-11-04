@@ -108,6 +108,7 @@ describe('AuthService token validation', () => {
 			oauthProviderService,
 			socialUserService,
 			transactions,
+			{ resolve: jest.fn(async (user: UserEntity) => user.role === UserRole.ADMIN ? UserRole.ADMIN : UserRole.SIMPLE) } as any,
 			auditService
 		);
 	});
@@ -140,8 +141,11 @@ describe('AuthService token validation', () => {
 			})
 		);
 		expect(emailService.sendVerificationEmail).toHaveBeenCalledWith('walker@example.com', 'walker', expect.any(String), PreferredLanguage.EN);
-		expect(result.accessToken).toBe('signed-user-1-simple');
-		expect(result.refreshToken).toBe('signed-user-1-simple');
+		expect(result.accessToken).toBe('signed-user-1-undefined');
+		expect(result.refreshToken).toBe('signed-user-1-undefined');
+		for (const [payload] of jwtService.sign.mock.calls) {
+			expect(payload).not.toHaveProperty('role');
+		}
 		expect(result.user).toEqual(expect.not.objectContaining({ passwordHash: expect.anything(), refreshTokenHash: expect.anything() }));
 	});
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Header, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { Request } from 'express';
 import {
 	ApiBearerAuth,
@@ -34,6 +34,7 @@ export class UsersController {
 	@ApiForbiddenResponse({ description: 'Administrator access required.', type: ErrorResponseDto })
 	@UseGuards(JwtAuthGuard)
 	@Get()
+	@Header('Cache-Control', 'no-store')
 	listUsers(@CurrentUser() user: AuthenticatedUser) {
 		return this.usersService.listAll(user);
 	}
@@ -45,6 +46,7 @@ export class UsersController {
 	@ApiConflictResponse({ description: 'Username is already taken.', type: ErrorResponseDto })
 	@UseGuards(JwtAuthGuard)
 	@Patch('me')
+	@Header('Cache-Control', 'no-store')
 	updateMe(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateUserDto) {
 		return this.usersService.updateMe(user.userId, dto);
 	}
@@ -56,12 +58,13 @@ export class UsersController {
 	@ApiNotFoundResponse({ description: 'User not found.', type: ErrorResponseDto })
 	@UseGuards(JwtAuthGuard)
 	@Patch(':userId/role')
+	@Header('Cache-Control', 'no-store')
 	updateRole(@Param('userId') userId: string, @Body() dto: UpdateUserRoleDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
 		return this.usersService.updateRole(userId, dto.role, user, request.ip);
 	}
 
 	@ApiBearerAuth('bearer')
-	@ApiOperation({ summary: 'Record an expiring paid grant (admin only; effective authorization is delivered by ROLE-02)' })
+	@ApiOperation({ summary: 'Record an expiring paid grant (admin only; evaluated on subsequent requests)' })
 	@UseGuards(JwtAuthGuard)
 	@Post(':userId/paid-grants')
 	createPaidGrant(@Param('userId') userId: string, @Body() dto: CreatePaidGrantDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {

@@ -52,6 +52,7 @@ export class AuthController {
 	@UseGuards(RecaptchaGuard)
 	@RecaptchaAction('register')
 	@Post('register')
+	@Header('Cache-Control', 'no-store')
 	register(@Body() dto: RegisterDto) {
 		return this.authService.register(dto);
 	}
@@ -62,6 +63,7 @@ export class AuthController {
 	@ApiUnauthorizedResponse({ description: 'Invalid credentials.' })
 	@Throttle({ default: { limit: 5, ttl: 60_000 } })
 	@Post('login')
+	@Header('Cache-Control', 'no-store')
 	login(@Body() dto: LoginDto, @Req() request: Request) {
 		return this.authService.login(dto, request.ip);
 	}
@@ -149,6 +151,7 @@ export class AuthController {
 	@ApiUnauthorizedResponse({ description: 'Invalid refresh token.' })
 	@Throttle({ default: { limit: 5, ttl: 60_000 } })
 	@Post('refresh')
+	@Header('Cache-Control', 'no-store')
 	refresh(@Body() dto: RefreshTokenDto) {
 		return this.authService.refresh(dto.refreshToken);
 	}
@@ -212,6 +215,7 @@ export class AuthController {
 	@ApiNotFoundResponse({ description: 'No active user found.', type: ErrorResponseDto })
 	@UseGuards(JwtAuthGuard)
 	@Get('me')
+	@Header('Cache-Control', 'no-store')
 	me(@CurrentUser() user: AuthenticatedUser) {
 		return this.authService.me(user.userId);
 	}

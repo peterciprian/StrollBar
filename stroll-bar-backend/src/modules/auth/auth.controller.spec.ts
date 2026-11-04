@@ -10,6 +10,7 @@ import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EffectiveRoleService } from '../users/effective-role.service';
 
 describe('Social account action HTTP boundary', () => {
 	let app: INestApplication;
@@ -39,6 +40,7 @@ describe('Social account action HTTP boundary', () => {
 			providers: [
 				{ provide: AuthService, useValue: auth },
 				JwtStrategy,
+				{ provide: EffectiveRoleService, useValue: new EffectiveRoleService({ find: async () => [] } as never) },
 				{ provide: ConfigService, useValue: { getOrThrow: () => secret } },
 				{ provide: getRepositoryToken(UserEntity), useValue: { findOne: jest.fn().mockResolvedValue(user) } }
 			]

@@ -7,6 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { RoleAssignmentsService } from './role-assignments.service';
+import { EffectiveRoleService } from './effective-role.service';
 
 @Injectable()
 export class UsersService {
@@ -17,7 +18,8 @@ export class UsersService {
 		private readonly strollsRepository: Repository<StrollEntity>,
 		@InjectRepository(AdventureEntity)
 		private readonly adventuresRepository: Repository<AdventureEntity>,
-		private readonly roleAssignments: RoleAssignmentsService
+		private readonly roleAssignments: RoleAssignmentsService,
+		private readonly effectiveRoles: EffectiveRoleService
 	) {}
 
 	async getPublicProfile(userId: string) {
@@ -67,7 +69,7 @@ export class UsersService {
 
 		const users = await this.usersRepository.find({ order: { createdAt: 'DESC' } });
 
-		return users.map((user) => this.toUserResponse(user));
+		return Promise.all(users.map((user) => this.toUserResponse(user)));
 	}
 
 	async updateMe(userId: string, dto: UpdateUserDto) {
@@ -114,14 +116,14 @@ export class UsersService {
 		}
 	}
 
-	private toUserResponse(user: UserEntity) {
+	private async toUserResponse(user: UserEntity) {
 		return {
 			id: user.id,
 			username: user.username,
 			email: user.email,
 			profileImageUrl: user.profileImageUrl ?? null,
 			isActive: user.isActive,
-			role: user.role,
+			role: await this.effectiveRoles.resolve(user),
 			preferredLanguage: user.preferredLanguage,
 			emailVerified: user.emailVerified,
 			createdAt: user.createdAt,

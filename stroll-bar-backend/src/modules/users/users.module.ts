@@ -6,9 +6,10 @@ import { AdventureEntity } from '../adventures/entities/adventure.entity';
 import { StrollEntity } from '../strolls/entities/stroll.entity';
 import { UserEntity } from './entities/user.entity';
 import { RoleAssignmentsService } from './role-assignments.service';
+import { EffectiveRoleModule } from './effective-role.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, StrollEntity, AdventureEntity])],
+  imports: [EffectiveRoleModule, TypeOrmModule.forFeature([UserEntity, StrollEntity, AdventureEntity])],
   controllers: [UsersController],
   providers: [UsersService, RoleAssignmentsService],
   exports: [UsersService],

@@ -18,9 +18,11 @@ import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialUserService } from './services/social-user.service';
 import { RecaptchaService } from '../../common/services/recaptcha.service';
 import { RecaptchaGuard } from '../../common/guards/recaptcha.guard';
+import { EffectiveRoleModule } from '../users/effective-role.module';
 
 @Module({
 	imports: [
+		EffectiveRoleModule,
 		TypeOrmModule.forFeature([UserEntity, SocialIdentityEntity, SocialTransactionEntity]),
 		EmailModule,
 		PassportModule.register({ defaultStrategy: 'jwt' }),

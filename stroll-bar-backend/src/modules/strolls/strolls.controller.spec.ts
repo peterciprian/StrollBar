@@ -23,6 +23,7 @@ import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
 import { StrollsController } from './strolls.controller';
 import { StrollsService } from './strolls.service';
+import { EffectiveRoleService } from '../users/effective-role.service';
 
 describe('StrollsController browse query contract (PROD-04)', () => {
 	let app: INestApplication;
@@ -112,6 +113,7 @@ describe('StrollsController detail serialization (SEC-04)', () => {
 			controllers: [StrollsController],
 			providers: [
 				StrollsService, JwtStrategy, JwtAuthGuard, OptionalJwtAuthGuard,
+				{ provide: EffectiveRoleService, useValue: new EffectiveRoleService({ find: async () => [] } as never) },
 				{ provide: ConfigService, useValue: new ConfigService({ JWT_SECRET: secret }) },
 				{ provide: getRepositoryToken(StrollEntity), useValue: { findOne: jest.fn(async () => stroll) } },
 				{ provide: getRepositoryToken(StageEntity), useValue: stagesRepository },

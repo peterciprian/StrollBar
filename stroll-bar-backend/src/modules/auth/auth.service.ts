@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { SocialAuthProvider, SocialIdentityEntity } from './entities/social-identity.entity';
 import { PreferredLanguage, UserEntity, UserRole } from '../users/entities/user.entity';
+import { EffectiveRoleService } from '../users/effective-role.service';
 import { EmailService } from '../email/email.service';
 import { OAuthProviderService } from './services/oauth-provider.service';
 import { SocialAccountAction, SocialUserService } from './services/social-user.service';
@@ -46,6 +47,7 @@ export class AuthService {
 		private readonly socialUserService: SocialUserService,
 		@InjectRepository(SocialTransactionEntity)
 		private readonly socialTransactionsRepository: Repository<SocialTransactionEntity>,
+		private readonly effectiveRoles: EffectiveRoleService,
 		@Optional() private readonly auditService?: AuditService
 	) {}
 
@@ -78,7 +80,7 @@ export class AuthService {
 		return {
 			accessToken: tokens.accessToken,
 			refreshToken: tokens.refreshToken,
-			user: this.sanitizeUser(savedUser),
+			user: await this.sanitizeUser(savedUser),
 			...(shouldExposeVerificationToken ? { verificationToken } : {})
 		};
 	}
@@ -103,7 +105,7 @@ export class AuthService {
 		return {
 			accessToken: tokens.accessToken,
 			refreshToken: tokens.refreshToken,
-			user: this.sanitizeUser(user)
+			user: await this.sanitizeUser(user)
 		};
 	}
 
@@ -212,7 +214,7 @@ export class AuthService {
 		return this.socialUserService.findOrCreateUserFromProfile(profile, async (user) => {
 			const tokens = await this.issueTokens(user);
 			this.logger.log({ event: 'social_handoff_consumed', provider: profile.provider });
-			return { ...tokens, user: this.sanitizeUser(user) };
+			return { ...tokens, user: await this.sanitizeUser(user) };
 		}, transaction.accountAction);
 	}
 
@@ -231,7 +233,7 @@ export class AuthService {
 		return {
 			accessToken: tokens.accessToken,
 			refreshToken: tokens.refreshToken,
-			user: this.sanitizeUser(user)
+			user: await this.sanitizeUser(user)
 		};
 	}
 
@@ -487,7 +489,6 @@ export class AuthService {
 			sub: user.id,
 			email: user.email,
 			username: user.username,
-			role: user.role,
 			authVersion: user.authVersion ?? 0
 		});
 	}
@@ -498,7 +499,6 @@ export class AuthService {
 				sub: user.id,
 				email: user.email,
 				username: user.username,
-				role: user.role,
 				authVersion: user.authVersion ?? 0,
 				jti: randomBytes(16).toString('hex')
 			},
@@ -541,7 +541,7 @@ export class AuthService {
 		return verificationToken;
 	}
 
-	private sanitizeUser(user: UserEntity): SafeUser {
+	private async sanitizeUser(user: UserEntity): Promise<SafeUser> {
 		const {
 			passwordHash: _passwordHash,
 			refreshTokenHash: _refreshTokenHash,
@@ -552,6 +552,6 @@ export class AuthService {
 			emailVerificationExpiresAt: _emailVerificationExpiresAt,
 			...safeUser
 		} = user;
-		return safeUser;
+		return { ...safeUser, role: await this.effectiveRoles.resolve(user) };
 	}
 }

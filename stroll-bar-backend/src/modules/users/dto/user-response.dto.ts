@@ -17,7 +17,7 @@ export class UserResponseDto {
 	@ApiProperty({ example: true })
 	isActive!: boolean;
 
-	@ApiProperty({ enum: UserRole, example: UserRole.SIMPLE })
+	@ApiProperty({ enum: UserRole, example: UserRole.SIMPLE, description: 'Server-evaluated effective role at response time; not a permanent paid assignment or an authorization credential.' })
 	role!: UserRole;
 
 	@ApiProperty({ enum: PreferredLanguage, example: PreferredLanguage.HU })

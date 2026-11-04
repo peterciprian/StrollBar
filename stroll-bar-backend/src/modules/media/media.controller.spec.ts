@@ -12,6 +12,7 @@ import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtStrategy } from '../auth/strategies/jwt.strategy';
+import { EffectiveRoleService } from '../users/effective-role.service';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from '../strolls/entities/stroll.entity';
 import { UserEntity, UserRole } from '../users/entities/user.entity';
@@ -54,6 +55,7 @@ describe('MediaController download API', () => {
 			controllers: [MediaController],
 			providers: [
 				MediaService, JwtStrategy, OptionalJwtAuthGuard, JwtAuthGuard,
+				{ provide: EffectiveRoleService, useValue: new EffectiveRoleService({ find: async () => [] } as never) },
 				{ provide: ConfigService, useValue: config },
 				{ provide: getRepositoryToken(MediaAssetEntity), useValue: { findOne: jest.fn(async () => asset) } },
 				{ provide: getRepositoryToken(StrollEntity), useValue: { findOne: jest.fn(async () => stroll) } },

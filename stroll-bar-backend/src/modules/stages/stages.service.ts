@@ -147,6 +147,7 @@ export class StagesService {
 
 	async remove(strollId: string, stageId: string, currentUser: AuthenticatedUser) {
 		const stroll = await this.getOwnedStrollOrThrow(strollId, currentUser);
+		await assertCreationQuota(this.strollsRepository, stroll.authorId, currentUser.role, stroll.publicityFlag, stroll.publicityFlag);
 		const stage = await this.stagesRepository.findOne({ where: { id: stageId, strollId } });
 
 		if (!stage) {

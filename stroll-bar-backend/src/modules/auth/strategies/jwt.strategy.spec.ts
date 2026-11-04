@@ -3,12 +3,14 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UserEntity, UserRole } from '../../users/entities/user.entity';
 import { JwtStrategy } from './jwt.strategy';
+import { EffectiveRoleService } from '../../users/effective-role.service';
 
 describe('JWT session invalidation', () => {
 	const findOne = jest.fn();
 	const strategy = new JwtStrategy(
 		{ getOrThrow: () => 'test-secret' } as unknown as ConfigService,
-		{ findOne } as unknown as Repository<UserEntity>
+		{ findOne } as unknown as Repository<UserEntity>,
+		new EffectiveRoleService({ find: jest.fn().mockResolvedValue([]) } as never)
 	);
 	beforeEach(() => findOne.mockReset());
 

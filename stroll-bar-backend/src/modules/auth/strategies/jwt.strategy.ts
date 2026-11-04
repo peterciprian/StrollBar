@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthenticatedUser } from '../interfaces/authenticated-user.interface';
 import { UserEntity, UserRole } from '../../users/entities/user.entity';
+import { EffectiveRoleService } from '../../users/effective-role.service';
 
 interface JwtPayload {
 	sub: string;
@@ -17,7 +18,11 @@ interface JwtPayload {
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-	constructor(configService: ConfigService, @InjectRepository(UserEntity) private readonly usersRepository: Repository<UserEntity>) {
+	constructor(
+		configService: ConfigService,
+		@InjectRepository(UserEntity) private readonly usersRepository: Repository<UserEntity>,
+		private readonly effectiveRoles: EffectiveRoleService
+	) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
 			ignoreExpiration: false,
@@ -39,7 +44,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 			userId: payload.sub,
 			email: user.email,
 			username: user.username,
-			role: user.role
+			role: await this.effectiveRoles.resolve(user)
 		};
 	}
 }
