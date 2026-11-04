@@ -86,7 +86,7 @@ export class AdventureScreenComponent implements OnInit {
 	}
 
 	protected submitAnswer(): void {
-		if (!this.currentStage || !this.answer.trim()) {
+		if (!this.currentStage?.hasRiddle || !this.answer.trim()) {
 			return;
 		}
 

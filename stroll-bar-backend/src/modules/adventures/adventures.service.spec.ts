@@ -1,4 +1,4 @@
-import { ForbiddenException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import request = require('supertest');
 import { AppErrorCode } from '../../common/utils/app-error-code';
@@ -138,8 +138,10 @@ describe('AdventuresService', () => {
 
 	it('records incorrect answers without advancing the adventure', async () => {
 		const adventure = buildAdventure({ currentStageIndex: 1, progressStatus: AdventureProgressStatus.IN_PROGRESS });
+		const stage = buildStage({ id: 'stage-1', riddleAnswer: 'neo-gothic' });
 		adventuresRepository.findOne.mockResolvedValue(adventure);
-		stagesRepository.findOne.mockResolvedValue(buildStage({ id: 'stage-1', riddleAnswer: 'neo-gothic' }));
+		stagesRepository.findOne.mockResolvedValue(stage);
+		stagesRepository.find.mockResolvedValue([stage]);
 
 		const result = await service.submitAnswer(adventure.id, 'stage-1', { answer: 'baroque' }, simpleUser);
 
@@ -153,8 +155,10 @@ describe('AdventuresService', () => {
 
 	it('advances to the next stage after a correct answer', async () => {
 		const adventure = buildAdventure({ currentStageIndex: 1, progressStatus: AdventureProgressStatus.PURCHASED });
+		const firstStage = buildStage({ id: 'stage-1', orderIndex: 1, riddleAnswer: 'Neo-Gothic' });
 		adventuresRepository.findOne.mockResolvedValue(adventure);
-		stagesRepository.findOne.mockResolvedValue(buildStage({ id: 'stage-1', riddleAnswer: 'Neo-Gothic' }));
+		stagesRepository.findOne.mockResolvedValue(firstStage);
+		stagesRepository.find.mockResolvedValue([firstStage, buildStage({ id: 'stage-2', orderIndex: 2 })]);
 		stagesRepository.count.mockResolvedValue(2);
 
 		const result = await service.submitAnswer(adventure.id, 'stage-1', { answer: ' neo-gothic ' }, simpleUser);
@@ -167,13 +171,51 @@ describe('AdventuresService', () => {
 
 	it('completes the adventure after a correct answer on the final stage', async () => {
 		const adventure = buildAdventure({ currentStageIndex: 2, progressStatus: AdventureProgressStatus.IN_PROGRESS });
+		const finalStage = buildStage({ id: 'stage-2', orderIndex: 2, riddleAnswer: 'finish' });
 		adventuresRepository.findOne.mockResolvedValue(adventure);
-		stagesRepository.findOne.mockResolvedValue(buildStage({ id: 'stage-2', riddleAnswer: 'finish' }));
+		stagesRepository.findOne.mockResolvedValue(finalStage);
+		stagesRepository.find.mockResolvedValue([buildStage({ id: 'stage-1', orderIndex: 1 }), finalStage]);
 		stagesRepository.count.mockResolvedValue(2);
 
 		await expect(service.submitAnswer(adventure.id, 'stage-2', { answer: 'finish' }, simpleUser)).resolves.toMatchObject({ isCorrect: true });
 		expect(adventure.progressStatus).toBe(AdventureProgressStatus.COMPLETED);
 		expect(adventure.completionDateTime).toBeInstanceOf(Date);
+	});
+
+	it('rejects answers for a stage without a riddle without recording an attempt or advancing', async () => {
+		const adventure = buildAdventure({ currentStageIndex: 1, progressStatus: AdventureProgressStatus.IN_PROGRESS });
+		const stageWithoutRiddle = buildStage({ id: 'stage-1', riddleAnswer: null });
+		adventuresRepository.findOne.mockResolvedValue(adventure);
+		stagesRepository.findOne.mockResolvedValue(stageWithoutRiddle);
+		stagesRepository.find.mockResolvedValue([stageWithoutRiddle]);
+
+		await expect(service.submitAnswer(adventure.id, 'stage-1', { answer: 'anything' }, simpleUser)).rejects.toThrow(BadRequestException);
+
+		expect(stageAttemptsRepository.save).not.toHaveBeenCalled();
+		expect(adventuresRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('rejects answers for a riddle stage other than the current stage', async () => {
+		const adventure = buildAdventure({ currentStageIndex: 1, progressStatus: AdventureProgressStatus.IN_PROGRESS });
+		const laterStage = buildStage({ id: 'stage-2', orderIndex: 2, riddleAnswer: 'later' });
+		adventuresRepository.findOne.mockResolvedValue(adventure);
+		stagesRepository.findOne.mockResolvedValue(laterStage);
+		stagesRepository.find.mockResolvedValue([buildStage({ id: 'stage-1', orderIndex: 1 }), laterStage]);
+
+		await expect(service.submitAnswer(adventure.id, 'stage-2', { answer: 'later' }, simpleUser)).rejects.toThrow(BadRequestException);
+
+		expect(stageAttemptsRepository.save).not.toHaveBeenCalled();
+		expect(adventuresRepository.save).not.toHaveBeenCalled();
+	});
+
+	it('rejects answer submissions after completion to keep the result stable', async () => {
+		const adventure = buildAdventure({ progressStatus: AdventureProgressStatus.COMPLETED });
+		adventuresRepository.findOne.mockResolvedValue(adventure);
+
+		await expect(service.submitAnswer(adventure.id, 'stage-1', { answer: 'answer' }, simpleUser)).rejects.toThrow(BadRequestException);
+
+		expect(stagesRepository.findOne).not.toHaveBeenCalled();
+		expect(stageAttemptsRepository.save).not.toHaveBeenCalled();
 	});
 
 	it('sanitizes riddle answers for non-admin adventure detail reads', async () => {
@@ -184,6 +226,7 @@ describe('AdventuresService', () => {
 
 		const result = await service.get(adventure.id, simpleUser);
 
+		expect(result.currentStage).toMatchObject({ hasRiddle: true });
 		expect(result.currentStage).toEqual(expect.not.objectContaining({ riddleAnswer: expect.anything() }));
 	});
 
@@ -199,29 +242,89 @@ describe('AdventuresService', () => {
 		adventuresRepository.findOne.mockResolvedValue(adventure);
 		strollsRepository.findOne.mockResolvedValue(buildStroll());
 		stagesRepository.find.mockResolvedValue([
-			buildStage({ id: 'stage-1', latitude: 47.4979, longitude: 19.0402 }),
-			buildStage({ id: 'stage-2', latitude: 47.5, longitude: 19.05 })
+			buildStage({ id: 'stage-1', orderIndex: 1, latitude: 47.4979, longitude: 19.0402, riddleAnswer: 'first' }),
+			buildStage({ id: 'stage-2', orderIndex: 2, latitude: 47.5, longitude: 19.05, riddleAnswer: null }),
+			buildStage({ id: 'stage-3', orderIndex: 3, latitude: 47.51, longitude: 19.06, riddleAnswer: 'third' })
 		]);
 		stageAttemptsRepository.find.mockResolvedValue([
 			{ stageId: 'stage-1', isCorrect: true },
 			{ stageId: 'stage-1', isCorrect: true },
-			{ stageId: 'stage-2', isCorrect: false }
+			{ stageId: 'stage-2', isCorrect: true },
+			{ stageId: 'stage-3', isCorrect: false }
 		]);
 
 		const result = await service.getResult(adventure.id, simpleUser);
 
-		expect(result).toMatchObject({ completedStageCount: 2, elapsedSeconds: 1800, correctAnswerCount: 1, totalStageCount: 2 });
+		expect(result).toMatchObject({
+			completedStageCount: 3,
+			elapsedSeconds: 1800,
+			correctAnswerCount: 1,
+			totalStageCount: 3,
+			solvedRiddleCount: 1,
+			totalRiddleCount: 2,
+			unresolvedRiddleCount: 1
+		});
 		expect(adventureResultsService.recordCompletion).toHaveBeenCalledWith(
 			expect.objectContaining({
 				userId: simpleUser.userId,
 				strollId: adventure.strollId,
 				adventureId: adventure.id,
-				completedStageCount: 2,
+				completedStageCount: 3,
 				elapsedSeconds: 1800,
 				completedAt: completionDateTime
 			})
 		);
 		expect(badgesService.evaluateAndAward).toHaveBeenCalledWith(simpleUser.userId);
+	});
+
+	it('allows stage navigation without answers and completes once the final stage result is requested', async () => {
+		const adventure = buildAdventure({ currentStageIndex: 1, progressStatus: AdventureProgressStatus.PURCHASED });
+		const stages = [
+			buildStage({ id: 'stage-1', orderIndex: 1, riddleAnswer: 'first' }),
+			buildStage({ id: 'stage-2', orderIndex: 2, riddleAnswer: null })
+		];
+		adventuresRepository.findOne.mockResolvedValue(adventure);
+		stagesRepository.find.mockResolvedValue(stages);
+		stagesRepository.count.mockResolvedValue(2);
+		strollsRepository.findOne.mockResolvedValue(buildStroll());
+		stageAttemptsRepository.find.mockResolvedValue([]);
+
+		await service.navigate(adventure.id, { direction: 'next' }, simpleUser);
+		expect(adventure.currentStageIndex).toBe(2);
+		expect(adventure.progressStatus).toBe(AdventureProgressStatus.IN_PROGRESS);
+
+		await service.navigate(adventure.id, { direction: 'previous' }, simpleUser);
+		expect(adventure.currentStageIndex).toBe(1);
+		await service.navigate(adventure.id, { direction: 'next' }, simpleUser);
+		const firstResult = await service.getResult(adventure.id, simpleUser);
+		const completionDateTime = adventure.completionDateTime;
+		const secondResult = await service.getResult(adventure.id, simpleUser);
+
+		expect(adventure.progressStatus).toBe(AdventureProgressStatus.COMPLETED);
+		expect(completionDateTime).toBeInstanceOf(Date);
+		expect(adventure.completionDateTime).toBe(completionDateTime);
+		expect(firstResult).toMatchObject({
+			solvedRiddleCount: 0,
+			totalRiddleCount: 1,
+			unresolvedRiddleCount: 1
+		});
+		expect(secondResult.adventure.completionDateTime).toBe(completionDateTime);
+		expect(adventureResultsService.recordCompletion).toHaveBeenCalledTimes(2);
+	});
+
+	it('reports 0 of 0 solved and unresolved riddles when every stage has no riddle', async () => {
+		const adventure = buildAdventure({ progressStatus: AdventureProgressStatus.COMPLETED, currentStageIndex: 1 });
+		adventuresRepository.findOne.mockResolvedValue(adventure);
+		strollsRepository.findOne.mockResolvedValue(buildStroll());
+		stagesRepository.find.mockResolvedValue([buildStage({ id: 'stage-1', riddleAnswer: '   ' })]);
+		stageAttemptsRepository.find.mockResolvedValue([]);
+
+		await expect(service.getResult(adventure.id, simpleUser)).resolves.toMatchObject({
+			correctAnswerCount: 0,
+			solvedRiddleCount: 0,
+			totalRiddleCount: 0,
+			unresolvedRiddleCount: 0
+		});
 	});
 
 	it('rejects access to another user adventure', async () => {

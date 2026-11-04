@@ -369,10 +369,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/AdventureDetailResponse'
 
+  /adventures/{adventureId}/navigate:
+    post:
+      tags: [Adventures]
+      summary: Move to the next or previous stage without submitting an answer
+      description: Riddles are optional; reaching the final stage allows completion through the result endpoint without solving remaining riddles.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AdventureId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NavigateAdventureRequest'
+      responses:
+        '200':
+          description: Adventure stage updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdventureDetailResponse'
+
   /adventures/{adventureId}/stages/{stageId}/answer:
     post:
       tags: [Adventures]
-      summary: Submit riddle answer and progress if correct
+      summary: Submit an answer for the current riddle stage
+      description: Answers for non-current stages, stages without riddles, and completed adventures are rejected. Submitting an answer is not required to navigate or finish.
       security:
         - bearerAuth: []
       parameters:
@@ -391,6 +415,25 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubmitStageAnswerResponse'
+        '400':
+          description: Stage is not the current riddle stage, or adventure is already completed
+
+  /adventures/{adventureId}/result:
+    get:
+      tags: [Adventures]
+      summary: Get adventure completion and riddle results
+      description: If the user has navigated to the final stage, this request completes the adventure. Completion and its timestamp remain stable on repeated requests.
+      security:
+        - bearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/AdventureId'
+      responses:
+        '200':
+          description: Completion metrics and counts excluding stages without riddles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdventureResultResponse'
 
 components:
   securitySchemes:
@@ -586,6 +629,9 @@ components:
           type: string
         description:
           type: string
+        hasRiddle:
+          type: boolean
+          description: Whether the stage has a riddle; the expected answer is never returned to players.
         notes:
           type: string
           nullable: true
@@ -879,12 +925,23 @@ components:
 
     SubmitStageAnswerResponse:
       type: object
-      required: [isCorrect, adventure]
+      required: [isCorrect, adventure, stageId]
       properties:
         isCorrect:
           type: boolean
         adventure:
           $ref: '#/components/schemas/Adventure'
+        stageId:
+          type: string
+          format: uuid
+
+    NavigateAdventureRequest:
+      type: object
+      required: [direction]
+      properties:
+        direction:
+          type: string
+          enum: [next, previous]
 
     AdventureDetailResponse:
       type: object
@@ -895,3 +952,40 @@ components:
           $ref: '#/components/schemas/Stroll'
         currentStage:
           $ref: '#/components/schemas/Stage'
+
+    AdventureResultResponse:
+      type: object
+      required:
+        - adventure
+        - completedStageCount
+        - elapsedSeconds
+        - routeLengthKm
+        - correctAnswerCount
+        - totalStageCount
+        - solvedRiddleCount
+        - totalRiddleCount
+        - unresolvedRiddleCount
+      properties:
+        adventure:
+          $ref: '#/components/schemas/Adventure'
+        stroll:
+          $ref: '#/components/schemas/Stroll'
+          nullable: true
+        completedStageCount:
+          type: integer
+        elapsedSeconds:
+          type: integer
+        routeLengthKm:
+          type: number
+        correctAnswerCount:
+          type: integer
+          description: Compatibility alias for solvedRiddleCount.
+        totalStageCount:
+          type: integer
+          description: Compatibility count of all stages in the stroll.
+        solvedRiddleCount:
+          type: integer
+        totalRiddleCount:
+          type: integer
+        unresolvedRiddleCount:
+          type: integer

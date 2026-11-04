@@ -16,6 +16,9 @@ export class StageResponseDto {
   @ApiProperty({ example: 'Solve the riddle to continue.' })
   description!: string;
 
+  @ApiPropertyOptional({ example: true, description: 'Whether this stage contains a riddle. The answer is never returned.' })
+  hasRiddle?: boolean;
+
   @ApiPropertyOptional({ example: 'Best visited at sunset.', nullable: true })
   notes?: string | null;
 

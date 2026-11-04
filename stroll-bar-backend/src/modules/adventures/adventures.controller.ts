@@ -16,6 +16,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AdventureDetailResponseDto } from './dto/adventure-detail-response.dto';
+import { AdventureResultResponseDto } from './dto/adventure-result-response.dto';
 import { AdventureResponseDto } from './dto/adventure-response.dto';
 import { AssignAdventureDto } from './dto/assign-adventure.dto';
 import { NavigateAdventureDto } from './dto/navigate-adventure.dto';
@@ -109,7 +110,10 @@ export class AdventuresController {
 	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'Get a completed adventure result' })
 	@ApiParam({ name: 'adventureId' })
-	@ApiOkResponse({ description: 'Adventure completion metrics.' })
+	@ApiOkResponse({
+		type: AdventureResultResponseDto,
+		description: 'Adventure completion metrics, including solved and unresolved riddles.'
+	})
 	@UseGuards(JwtAuthGuard)
 	@Get(':adventureId/result')
 	getResult(@Param('adventureId') adventureId: string, @CurrentUser() user: AuthenticatedUser) {
@@ -117,11 +121,14 @@ export class AdventuresController {
 	}
 
 	@ApiBearerAuth('bearer')
-	@ApiOperation({ summary: 'Submit a stage answer and advance progress if correct' })
+	@ApiOperation({ summary: 'Submit an answer for the current stage when it contains a riddle' })
 	@ApiParam({ name: 'adventureId' })
 	@ApiParam({ name: 'stageId' })
 	@ApiCreatedResponse({ type: SubmitStageAnswerResponseDto, description: 'Stage answer processed successfully.' })
-	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Validation failed.' })
+	@ApiBadRequestResponse({
+		type: ErrorResponseDto,
+		description: 'The stage is not the current riddle stage, or the adventure is already completed.'
+	})
 	@ApiForbiddenResponse({ type: ErrorResponseDto, description: 'You are not allowed to access this adventure.' })
 	@ApiNotFoundResponse({ type: ErrorResponseDto, description: 'Adventure or stage not found.' })
 	@UseGuards(JwtAuthGuard)

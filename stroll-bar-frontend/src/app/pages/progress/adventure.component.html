@@ -43,24 +43,26 @@
 
 				<div class="adventure__task">
 					<h2><sb-icon name="flag" size="md" />{{ 'SCREENS.ADVENTURE.YOUR_TASK' | translate | uppercase }}</h2>
-					<sb-input
-						class="adventure__answer-field"
-						[(ngModel)]="answer"
-						[label]="'SCREENS.ADVENTURE.ANSWER_LABEL' | translate"
-						[placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate"
-					/>
-					<sb-button
-						class="adventure__submit-btn"
-						icon="send"
-						[label]="'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase"
-						[disabled]="!answer"
-						(clicked)="submitAnswer()"
-					/>
-					@if (submitted) {
-						<p class="adventure__feedback" [class.adventure__feedback--incorrect]="!feedbackCorrect">
-							<sb-icon [name]="feedbackCorrect ? 'check_circle' : 'error_outline'" size="sm" />
-							{{ (feedbackCorrect ? 'SCREENS.ADVENTURE.FEEDBACK' : 'SCREENS.ADVENTURE.FEEDBACK_INCORRECT') | translate }}
-						</p>
+					@if (currentStage?.hasRiddle) {
+						<sb-input
+							class="adventure__answer-field"
+							[(ngModel)]="answer"
+							[label]="'SCREENS.ADVENTURE.ANSWER_LABEL' | translate"
+							[placeholder]="'SCREENS.ADVENTURE.ANSWER_PLACEHOLDER' | translate"
+						/>
+						<sb-button
+							class="adventure__submit-btn"
+							icon="send"
+							[label]="'SCREENS.ADVENTURE.SUBMIT' | translate | uppercase"
+							[disabled]="!answer"
+							(clicked)="submitAnswer()"
+						/>
+						@if (submitted) {
+							<p class="adventure__feedback" [class.adventure__feedback--incorrect]="!feedbackCorrect">
+								<sb-icon [name]="feedbackCorrect ? 'check_circle' : 'error_outline'" size="sm" />
+								{{ (feedbackCorrect ? 'SCREENS.ADVENTURE.FEEDBACK' : 'SCREENS.ADVENTURE.FEEDBACK_INCORRECT') | translate }}
+							</p>
+						}
 					}
 
 					<div class="adventure__report-row">

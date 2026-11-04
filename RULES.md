@@ -159,8 +159,11 @@ Publish validation minimum:
 - Authenticated user can unlock a stroll
 - Unlock creates a personal Adventure
 - User starts at stage 1 and advances in order
-- If stage has riddle, user submits answer to proceed
-- Backend validates answer and updates progress atomically
+- Users can move next or previous in the ordered stroll without solving a riddle; riddles are optional interactions, not completion gates.
+- Answer submission is valid only for the current stage when it has a riddle. Stages without riddles are never answer attempts or solved riddles.
+- Finishing the final stage completes the adventure even if one or more riddles remain unsolved. Riddle results report uniquely solved riddle stages / total riddle stages and unresolved riddle stages; stages without riddles are excluded.
+- Unsolved riddles do not add a score penalty, restrict completion, or exclude completion badges.
+- Backend validates submitted answers and updates progress atomically; users may navigate backward.
 
 #### 5.6 Social Foundation (MVP-light)
 - Creator profile with published strolls

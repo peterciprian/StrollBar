@@ -23,8 +23,12 @@
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.DISTANCE' | translate }}</span>
 			</div>
 			<div>
-				<sb-icon name="psychology" size="md" /><strong>{{ result.correctAnswerCount }}/{{ result.totalStageCount }}</strong
+				<sb-icon name="psychology" size="md" /><strong>{{ result.solvedRiddleCount }}/{{ result.totalRiddleCount }}</strong
 				><span>{{ 'SCREENS.ADVENTURE_RESULT.RIDDLES' | translate }}</span>
+			</div>
+			<div>
+				<sb-icon name="help_outline" size="md" /><strong>{{ result.unresolvedRiddleCount }}</strong
+				><span>{{ 'SCREENS.ADVENTURE_RESULT.UNRESOLVED_RIDDLES' | translate }}</span>
 			</div>
 		</div>
 		@if (canReview) {

@@ -7,7 +7,7 @@
 
 StrollBar already implements meaningful user journeys: account registration, login and recovery; stroll browsing; creator editing; adventure progress; reviews; achievements; user reporting; and admin functions. The backlog therefore focuses on verified defects and incomplete or underspecified journeys, rather than restating implemented features as missing.
 
-The original audit identified high-severity authorization/account-integrity issues (social account linking and revoked adventure access), protected-data exposure, authentication/session handling issues, and production PostgreSQL TLS without certificate verification. SEC-01 through SEC-06 have since been implemented; these are historical, remediated findings rather than current open backlog items. Focused validation was performed for several changes, while some integration, browser, and live-provider checks remain outstanding as noted in the tickets and linked implementation notes. Separately, the paid-stroll screen uses mock checkout and can unlock without verified payment. Creator publication and riddle progression do not enforce documented readiness/progression rules. Search filters do not match their advertised contract.
+The original audit identified high-severity authorization/account-integrity issues (social account linking and revoked adventure access), protected-data exposure, authentication/session handling issues, and production PostgreSQL TLS without certificate verification. SEC-01 through SEC-06 have since been implemented; these are historical, remediated findings rather than current open backlog items. Focused validation was performed for several changes, while some integration, browser, and live-provider checks remain outstanding as noted in the tickets and linked implementation notes. Separately, the paid-stroll screen uses mock checkout and can unlock without verified payment. Creator publication readiness remains follow-up work; PROD-03 is implemented with optional, skippable riddles and transparent solved/total/unresolved result counts. Search filters do not match their advertised contract.
 
 After immediate correctness and security work, settle remaining product policies before implementing time-bound paid roles. ROLE-00 decisions establish CREATOR and PREMIUM as paid roles, their current quota mapping, SIMPLE fallback, cancellation through paid-through expiry, treatment of over-limit owned strolls, quota counting, verified chargeback outcomes, and initial user/admin surface requirements. ROLE-00 remains partially approved / not fully approved because payment/provider choices and other operational details remain open. Keep ADMIN independently managed and protected from payment and chargeback events. Distinguish recurring paid-role entitlements from individual stroll purchases. Optimize discovery only after measuring it, and treat account closure/export as a policy and reviewed-surface assessment—not as a proven global absence or a compliance finding.
 
@@ -45,7 +45,7 @@ Effort is a relative planning estimate, not a commitment: **S** small, **M** med
 | PROD-01 | P0 | Product / individual stroll purchase | XL | — |
 | ROLE-00 | P1 | Product decision / paid-role specification | M | — |
 | PROD-02 — Completed | P1 | Product / creator publishing | M | — |
-| PROD-03 | P1 | Product / adventure progression | M | — |
+| PROD-03 — Completed | P1 | Product / adventure progression | M | — |
 | PROD-04 | P1 | Product / browse search contract | M | — |
 | ROLE-01 | P1 | Paid roles / entitlement model and migration | L | ROLE-00 |
 | ROLE-02 | P1 | Paid roles / effective authorization and expiry | L | ROLE-01 |
@@ -254,23 +254,24 @@ On downgrade, preserve owned strolls. Permit corrective edits that move an over-
 - Documentation checks: English/Hungarian translation JSON and `docs/openapi/mvp.yaml` parsed successfully with Node (`JSON.parse` and `js-yaml`). `git diff --cached --check -- . ':(exclude)docs/DEVELOPMENT_BACKLOG.md'` passes; the already-untracked backlog contains unrelated trailing spaces in existing sections, which were preserved rather than rewriting PROD-03/PROD-04 or other unrelated content.
 - Remaining validation: no readiness-specific HTTP/controller integration test against the API or browser E2E was run; service tests use repository mocks and the editor behavior is covered at component level. The existing stroll controller HTTP suite was included but exercises detail serialization, not publishing. No live deployment validation was performed.
 
-#### PROD-03 — Enforce riddle progression in the adventure service
+#### PROD-03 — Optional riddles and accurate adventure results — Completed
 
 **Priority / effort:** P1 / M  
-**Evidence:** The UI exposes next-stage navigation independently of answer submission: [`adventure.component.html`](../stroll-bar-frontend/src/app/pages/progress/adventure.component.html). Backend `navigate` increments the stage index without checking solved state: [`adventures.service.ts`](../stroll-bar-backend/src/modules/adventures/adventures.service.ts#L284-L299). Ordered progression is documented in [`RULES.md`](../RULES.md#L129-L131).
+**Evidence:** The adventure UI and service expose independent navigation, answer submission, and result endpoints: [`adventure.component.html`](../stroll-bar-frontend/src/app/pages/progress/adventure.component.html), [`adventures.service.ts`](../stroll-bar-backend/src/modules/adventures/adventures.service.ts), and [`adventures.controller.ts`](../stroll-bar-backend/src/modules/adventures/adventures.controller.ts).
 
-**Current behavior and impact:** A traveller can bypass a riddle through direct API navigation and, currently, through the UI’s Next action. This contradicts the documented sequence and undermines answer checking.
+**Approved product policy:** Users may proceed through every stage and finish without solving riddles. Results report solved riddle stages / total riddle stages and unresolved riddle stages; stages without riddles are excluded. There is no extra score penalty, completion restriction, or badge exclusion for unresolved riddles. Backward navigation remains available.
 
-**Scope:** Enforce progression rules server-side, based on authoritative answer/progress state. Define forward movement for stages without riddles and preserve backward navigation if allowed. Update UI controls to reflect server rules, but do not treat UI hiding as the security boundary.
+**Implementation:** Navigation remains available independently of answer submission. The answer endpoint now accepts only the current stage when it has a nonblank riddle answer and rejects submissions after completion. Safe `hasRiddle` metadata is returned without exposing the answer to players, and the progress page only displays its answer form for riddle stages. Result counts deduplicate correct attempts by riddle stage, exclude no-riddle stages, preserve the legacy `correctAnswerCount` and `totalStageCount` fields, and add solved/total/unresolved riddle counts. Reaching the final stage and requesting the result completes the adventure; completion timestamps are preserved across repeated result requests. English/Hungarian UI strings, product rules, and the OpenAPI contract were updated.
 
 **Dependencies:** None.
 
-**Acceptance criteria / validation:**
-- A riddle-bearing stage cannot be left forward before a correct answer; incorrect, missing, and malformed answers do not unlock it.
-- Previous-stage navigation remains available according to policy.
-- Stages without riddles follow an explicitly recorded product decision and are tested.
-- Direct API requests and UI actions produce consistent outcomes; retries/concurrent requests cannot skip an unsolved stage.
-- Relevant surfaces: `adventures.service.spec.ts`, adventure controller/API tests, and progress-page component/E2E tests. Product decision required for non-riddle advancement semantics.
+**Completion / validation:**
+- Backend service tests cover no-riddle and non-current answer rejection, deduplicated solved counts, exclusion of no-riddle stages, zero-riddle results, next/previous navigation, finishing with an unresolved riddle, and stable repeated result reads. Existing owner/revocation, lock, and answer-sanitization tests remain part of the targeted suite.
+- Backend targeted command: `Set-Location stroll-bar-backend; npx jest --runInBand --runTestsByPath src/modules/adventures/adventures.service.spec.ts` — **1 suite, 32 tests passed**. Related adventure/stage/stroll command: `Set-Location stroll-bar-backend; npx jest --runInBand --runTestsByPath src/modules/adventures/adventures.service.spec.ts src/modules/stages/stages.service.spec.ts src/modules/strolls/strolls.service.spec.ts` — **3 suites, 81 tests passed**.
+- Frontend targeted command: `npm --workspace stroll-bar-frontend test -- --runInBand --runTestsByPath src/app/pages/progress/adventure.component.spec.ts src/app/pages/progress/adventure-result-page.component.spec.ts` — **2 suites, 3 tests passed**. `npm --workspace stroll-bar-frontend run test:types` — **passed**.
+- Builds: `npm run build:backend` and `npm run build:frontend` — **passed**.
+- Documentation/localization syntax: Node `js-yaml` parse of `docs/openapi/mvp.yaml` and `JSON.parse` of English and Hungarian translation files — **passed**.
+- Remaining validation: no browser E2E, live database/API integration, deployment check, or full repository test suite was run. Backend service tests use repository mocks; the UI behavior is covered by targeted component tests.
 
 #### PROD-04 — Make browse search and filters match a documented contract
 

@@ -278,6 +278,7 @@ export interface Stage {
 	orderIndex: number;
 	name: string;
 	description: string;
+	hasRiddle?: boolean;
 	notes?: string | null;
 	imageUrls?: string[];
 	videoUrls?: string[];
@@ -427,6 +428,9 @@ export interface AdventureResultResponse {
 	routeLengthKm: number;
 	correctAnswerCount: number;
 	totalStageCount: number;
+	solvedRiddleCount: number;
+	totalRiddleCount: number;
+	unresolvedRiddleCount: number;
 }
 
 export type AdventureNavigateDirection = 'next' | 'previous';

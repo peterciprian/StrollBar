@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isUUID } from 'class-validator';
 import { EntityManager, In, Repository } from 'typeorm';
@@ -163,7 +163,11 @@ export class AdventuresService {
 				adventure,
 				stroll: strollsById.get(adventure.strollId) ?? null,
 				// currentStageIndex is a 1-based ordinal position, not the raw orderIndex column value.
-				currentStage: currentStage ? (isAdmin ? currentStage : stripRiddleAnswer(currentStage)) : null
+				currentStage: currentStage
+					? isAdmin
+						? Object.assign(currentStage, { hasRiddle: Boolean(currentStage.riddleAnswer?.trim()) })
+						: stripRiddleAnswer(currentStage)
+					: null
 			};
 		});
 	}
@@ -219,8 +223,13 @@ export class AdventuresService {
 
 			const attempts = await manager.getRepository(StageAttemptEntity).find({ where: { adventureId: adventure.id } });
 			// A stage can be attempted more than once; count each riddle as correctly answered at most once.
-			const correctStageIds = new Set(attempts.filter((attempt) => attempt.isCorrect).map((attempt) => attempt.stageId));
-			const correctAnswerCount = correctStageIds.size;
+			const riddleStageIds = new Set(stages.filter((stage) => Boolean(stage.riddleAnswer?.trim())).map((stage) => stage.id));
+			const correctStageIds = new Set(
+				attempts.filter((attempt) => attempt.isCorrect && riddleStageIds.has(attempt.stageId)).map((attempt) => attempt.stageId)
+			);
+			const solvedRiddleCount = correctStageIds.size;
+			const totalRiddleCount = riddleStageIds.size;
+			const unresolvedRiddleCount = totalRiddleCount - solvedRiddleCount;
 			const totalStageCount = stages.length;
 
 			if (adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
@@ -241,8 +250,11 @@ export class AdventuresService {
 				completedStageCount,
 				elapsedSeconds,
 				routeLengthKm,
-				correctAnswerCount,
-				totalStageCount
+				correctAnswerCount: solvedRiddleCount,
+				totalStageCount,
+				solvedRiddleCount,
+				totalRiddleCount,
+				unresolvedRiddleCount
 			};
 		}, true);
 
@@ -255,6 +267,10 @@ export class AdventuresService {
 
 	async submitAnswer(adventureId: string, stageId: string, dto: SubmitStageAnswerDto, currentUser: AuthenticatedUser) {
 		return this.withLockedAdventure(adventureId, currentUser, async (adventure, manager) => {
+			if (adventure.progressStatus === AdventureProgressStatus.COMPLETED) {
+				throw new BadRequestException('Answers cannot be submitted after the adventure is completed.');
+			}
+
 			const stage = await manager.getRepository(StageEntity).findOne({
 				where: {
 					id: stageId,
@@ -266,9 +282,22 @@ export class AdventuresService {
 				throw new NotFoundException(`Stage ${stageId} was not found for this adventure.`);
 			}
 
-			const normalizedAnswer = dto.answer.trim().toLowerCase();
+			const orderedStages = await manager.getRepository(StageEntity).find({
+				where: { strollId: adventure.strollId },
+				order: { orderIndex: 'ASC' }
+			});
+			const currentStage = orderedStages[adventure.currentStageIndex - 1];
+			if (!currentStage || currentStage.id !== stage.id) {
+				throw new BadRequestException('Answers can only be submitted for the current stage.');
+			}
+
 			const expectedAnswer = stage.riddleAnswer?.trim().toLowerCase();
-			const isCorrect = !expectedAnswer || normalizedAnswer === expectedAnswer;
+			if (!expectedAnswer) {
+				throw new BadRequestException('This stage does not have a riddle to answer.');
+			}
+
+			const normalizedAnswer = dto.answer.trim().toLowerCase();
+			const isCorrect = normalizedAnswer === expectedAnswer;
 
 			const attemptsRepository = manager.getRepository(StageAttemptEntity);
 			await attemptsRepository.save(
@@ -411,7 +440,10 @@ export class AdventuresService {
 		stageIndex: number,
 		isAdmin = false,
 		manager?: EntityManager
-	): Promise<{ stroll: StrollEntity | null; currentStage: StageEntity | Omit<StageEntity, 'riddleAnswer'> | null }> {
+	): Promise<{
+		stroll: StrollEntity | null;
+		currentStage: StageEntity | (Omit<StageEntity, 'riddleAnswer'> & { hasRiddle: boolean }) | null;
+	}> {
 		const [stroll, stages] = await Promise.all([
 			(manager?.getRepository(StrollEntity) ?? this.strollsRepository).findOne({ where: { id: strollId } }),
 			(manager?.getRepository(StageEntity) ?? this.stagesRepository).find({ where: { strollId }, order: { orderIndex: 'ASC' } })
@@ -421,7 +453,14 @@ export class AdventuresService {
 		// which may start at 0 or 1 depending on how the stroll's stages were created.
 		const currentStage = stages[stageIndex - 1] ?? null;
 		// Never send the riddle answer to a non-admin player; admins may inspect it (e.g. for support/moderation).
-		return { stroll, currentStage: currentStage ? (isAdmin ? currentStage : stripRiddleAnswer(currentStage)) : null };
+		return {
+			stroll,
+			currentStage: currentStage
+				? isAdmin
+					? Object.assign(currentStage, { hasRiddle: Boolean(currentStage.riddleAnswer?.trim()) })
+					: stripRiddleAnswer(currentStage)
+				: null
+		};
 	}
 
 	async listAllForAdmin(currentUser: AuthenticatedUser) {
