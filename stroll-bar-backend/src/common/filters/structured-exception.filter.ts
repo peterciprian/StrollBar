@@ -20,17 +20,21 @@ export class StructuredExceptionFilter implements ExceptionFilter {
 		const requestId = response.getHeader('x-request-id') ?? request.header('x-request-id') ?? 'unknown';
 		const isV2 = request.header('accept')?.includes('application/vnd.strollbar.v2+json');
 
-		this.logger.error(
-			JSON.stringify({
-				event: 'http_error',
-				requestId,
-				method: request.method,
-				path: request.originalUrl,
-				statusCode,
-				message,
-				stack: exception instanceof Error ? exception.stack : String(exception)
-			})
-		);
+		const logRecord = {
+			event: 'http_error',
+			requestId,
+			method: request.method,
+			path: request.originalUrl,
+			statusCode,
+			message
+		};
+		if (exception instanceof HttpException && statusCode >= 400 && statusCode < 500) {
+			this.logger.warn(JSON.stringify(logRecord));
+		} else {
+			this.logger.error(
+				JSON.stringify({ ...logRecord, stack: exception instanceof Error ? exception.stack : String(exception) })
+			);
+		}
 
 		if (!response.headersSent) {
 			response.status(statusCode).json(

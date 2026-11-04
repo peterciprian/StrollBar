@@ -1884,7 +1884,7 @@
 								"schema": {
 									"type": "array",
 									"items": {
-										"$ref": "#/components/schemas/AdventureResultResponseDto"
+										"$ref": "#/components/schemas/AchievementAdventureResultResponseDto"
 									}
 								}
 							}
@@ -2287,7 +2287,14 @@
 				],
 				"responses": {
 					"200": {
-						"description": "Adventure completion metrics."
+						"description": "Adventure completion metrics, including solved and unresolved riddles.",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AdventureResultResponseDto"
+								}
+							}
+						}
 					}
 				},
 				"security": [
@@ -4362,7 +4369,7 @@
 				},
 				"required": ["id", "userId", "strollId", "score", "timeSeconds", "hintsUsed", "completed", "createdAt", "updatedAt"]
 			},
-			"AdventureResultResponseDto": {
+			"CompletedAdventureResultDto": {
 				"type": "object",
 				"properties": {
 					"id": {
@@ -4405,6 +4412,78 @@
 					"routeLengthKm",
 					"completedAt",
 					"createdAt"
+				]
+			},
+			"AchievementAdventureResultResponseDto": {
+				"type": "object",
+				"properties": {
+					"result": {
+						"$ref": "#/components/schemas/CompletedAdventureResultDto"
+					},
+					"stroll": {
+						"nullable": true,
+						"type": "object",
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/StrollResponseDto"
+							}
+						]
+					}
+				},
+				"required": ["result", "stroll"]
+			},
+			"AdventureResultResponseDto": {
+				"type": "object",
+				"properties": {
+					"adventure": {
+						"$ref": "#/components/schemas/AdventureResponseDto"
+					},
+					"stroll": {
+						"nullable": true,
+						"type": "object",
+						"allOf": [
+							{
+								"$ref": "#/components/schemas/StrollResponseDto"
+							}
+						]
+					},
+					"completedStageCount": {
+						"type": "number"
+					},
+					"elapsedSeconds": {
+						"type": "number"
+					},
+					"routeLengthKm": {
+						"type": "number"
+					},
+					"correctAnswerCount": {
+						"type": "number",
+						"description": "Compatibility alias for solvedRiddleCount."
+					},
+					"totalStageCount": {
+						"type": "number",
+						"description": "Compatibility count of all stages in the stroll."
+					},
+					"solvedRiddleCount": {
+						"type": "number"
+					},
+					"totalRiddleCount": {
+						"type": "number"
+					},
+					"unresolvedRiddleCount": {
+						"type": "number"
+					}
+				},
+				"required": [
+					"adventure",
+					"completedStageCount",
+					"elapsedSeconds",
+					"routeLengthKm",
+					"correctAnswerCount",
+					"totalStageCount",
+					"solvedRiddleCount",
+					"totalRiddleCount",
+					"unresolvedRiddleCount"
 				]
 			},
 			"AdventureResponseDto": {

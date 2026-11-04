@@ -31,6 +31,8 @@ monorepo with two apps:
   PostgreSQL requires verified TLS and the genuine Aiven service CA mounted as a
   Render secret file before deployment. See [SEC-06 database TLS setup](docs/SEC-06_DATABASE_TLS.md).
   Once deployed, Swagger UI is at `https://stroll-bar-n5zc.onrender.com/v1/docs`.
+  The build runs `npm ci --include=dev && npm run build` so the Nest CLI and TypeScript
+  build tools are installed even with `NODE_ENV=production`.
 - **CI**: [.github/workflows/backend-ci.yml](.github/workflows/backend-ci.yml) builds the
   backend and runs its unit + e2e tests (against a throwaway Postgres service container)
   on every push to `master`.
@@ -57,6 +59,21 @@ npm run start:backend
 
 Backend starts on http://localhost:3000 with API prefix /v1.
 Health endpoint: http://localhost:3000/v1/health
+
+There is no root endpoint: `GET /` and `HEAD /` return 404. Request logging covers
+the `/v1` boundary and nested API routes, returns an `x-request-id` header (reusing
+one supplied by the client), and emits a structured `http_request` completion record.
+The exception filter emits `http_error` warnings without stacks for expected HTTP
+400–499 exceptions; server and non-HTTP errors remain error-level diagnostic records
+with stacks. This does not change legacy error bodies or opt-in v2 envelopes.
+
+`GET /v1/achievements/results` returns an array of `{ result, stroll }` entries:
+`result` is the persisted completion record and `stroll` is nullable. OpenAPI names
+these `AchievementAdventureResultResponseDto` and `CompletedAdventureResultDto`.
+This differs from `GET /v1/adventures/:adventureId/result`, whose
+`AdventureResultResponseDto` contains `adventure`, optional/nullable `stroll`, and
+top-level metrics, including the compatibility fields `correctAnswerCount` and
+`totalStageCount`. These are documentation identities, not payload changes.
 
 The general API rate limit is 100 requests per minute per client by default and can be
 changed with `API_RATE_LIMIT`. Authentication endpoints use stricter route-specific limits.

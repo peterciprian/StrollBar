@@ -5,7 +5,7 @@ import { ErrorResponseDto } from '../../common/dto/error-response.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { AchievementResponseDto } from './dto/achievement-response.dto';
-import { AdventureResultResponseDto } from './dto/adventure-result-response.dto';
+import { AchievementAdventureResultResponseDto } from './dto/adventure-result-response.dto';
 import { CreateAchievementDto } from './dto/create-achievement.dto';
 import { AchievementsService } from './achievements.service';
 import { AdventureResultsService } from './adventure-results.service';
@@ -35,7 +35,7 @@ export class AchievementsController {
 	}
 
 	@ApiOperation({ summary: 'List all completed-adventure results for the current user, grouped by stroll' })
-	@ApiOkResponse({ type: AdventureResultResponseDto, isArray: true, description: 'User adventure result list.' })
+	@ApiOkResponse({ type: AchievementAdventureResultResponseDto, isArray: true, description: 'User adventure result list.' })
 	@Get('results')
 	findAllResults(@CurrentUser() user: AuthenticatedUser) {
 		return this.adventureResultsService.findAllForUser(user.userId);

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { StrollResponseDto } from '../../strolls/dto/stroll-response.dto';
 
-export class AdventureResultResponseDto {
+export class CompletedAdventureResultDto {
 	@ApiProperty()
 	id!: string;
 
@@ -27,4 +28,12 @@ export class AdventureResultResponseDto {
 
 	@ApiProperty()
 	createdAt!: Date;
+}
+
+export class AchievementAdventureResultResponseDto {
+	@ApiProperty({ type: CompletedAdventureResultDto })
+	result!: CompletedAdventureResultDto;
+
+	@ApiProperty({ type: StrollResponseDto, nullable: true })
+	stroll!: StrollResponseDto | null;
 }

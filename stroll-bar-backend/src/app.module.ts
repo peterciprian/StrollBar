@@ -62,6 +62,7 @@ import { AuditModule } from './common/audit.module';
 })
 export class AppModule {
 	configure(consumer: MiddlewareConsumer): void {
-		consumer.apply(RequestLoggingMiddleware).forRoutes('*');
+		// The slash must also be optional to match the global prefix itself.
+		consumer.apply(RequestLoggingMiddleware).forRoutes('{/*path}');
 	}
 }
