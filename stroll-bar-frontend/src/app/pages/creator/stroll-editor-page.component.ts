@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
@@ -47,6 +47,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 	private readonly router = inject(Router);
 	private readonly strollsFeature = inject(StrollsFeatureService);
 	private readonly dialog = inject(MatDialog);
+	private readonly changeDetector = inject(ChangeDetectorRef);
 	protected readonly activeStatuses: StrollActiveStatus[] = ['draft', 'published', 'archived'];
 	protected readonly publicityFlags: StrollPublicityFlag[] = ['private', 'unlisted', 'public'];
 	protected readonly categories = Object.values(StrollCategory);
@@ -201,7 +202,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 			const detail = this.strollId ? await firstValueFrom(this.strollsFeature.getOwnedDetail(this.strollId)) : null;
 			const actualStatus = detail?.stroll.activeStatus ?? saveStatus;
 			this.persistedStatus = actualStatus;
-			this.stroll.status = actualStatus;
+			this.stroll = { ...this.stroll, status: actualStatus };
 			this.autoUnpublished = wasPublished && requestedStatus === 'published' && actualStatus !== 'published';
 			this.saved = true;
 			this.markPristine();
@@ -209,7 +210,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 		} catch (error) {
 			if (extractErrorCode(error) === AppErrorCode.STROLL_NOT_READY) {
 				this.validationErrors = this.readinessErrorKeys(error);
-				this.stroll.status = 'draft';
+				this.stroll = { ...this.stroll, status: 'draft' };
 				this.persistedStatus = 'draft';
 				this.autoUnpublished = wasPublished && requestedStatus === 'published';
 				this.saved = wasPublished;
@@ -221,6 +222,7 @@ export class StrollEditorPageComponent implements OnInit, CanComponentDeactivate
 			return false;
 		} finally {
 			this.saving = false;
+			this.changeDetector.markForCheck();
 		}
 	}
 

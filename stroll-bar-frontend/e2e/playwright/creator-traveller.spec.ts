@@ -15,7 +15,7 @@ type AdventureDetail = {
 async function createAccount(request: APIRequestContext): Promise<TestAccount> {
 	const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 	const account = { email: `creator-traveller-${suffix}@example.test`, password };
-	const response = await request.post(`${harnessOrigin}/__e2e/account`, { data: account });
+	const response = await request.post(`${harnessOrigin}/__e2e/account`, { data: { ...account, language: 'en' } });
 	expect(response.status()).toBe(201);
 	return account;
 }
@@ -35,6 +35,23 @@ test.describe('QA-01 free creator-to-traveller journey', () => {
 		await page.addInitScript(() => localStorage.setItem('strollbar-language', 'en'));
 
 		await page.goto('auth/login');
+		const consentDialog = page.getByRole('dialog', { name: 'Your privacy choices', exact: true });
+		await expect(consentDialog).toBeVisible();
+		await consentDialog.getByRole('button', { name: 'Reject optional', exact: true }).click();
+		await expect(consentDialog).toBeHidden();
+		await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('strollbar_cookie_consent') ?? 'null'))).toEqual({
+			necessary: true,
+			preferences: false,
+			analytics: false,
+			updatedAt: expect.any(String)
+		});
+		const consentCookie = (await page.context().cookies()).find((cookie) => cookie.name === 'strollbar_cookie_consent');
+		expect(consentCookie).toBeDefined();
+		expect(JSON.parse(decodeURIComponent(consentCookie!.value))).toMatchObject({
+			necessary: true,
+			preferences: false,
+			analytics: false
+		});
 		await page.locator('input[autocomplete="email"]').fill(account.email);
 		await page.locator('input[autocomplete="current-password"]').fill(account.password);
 		await page.locator('form button[type="submit"]').click();
@@ -44,12 +61,29 @@ test.describe('QA-01 free creator-to-traveller journey', () => {
 
 		const strollName = `QA-01 Walk ${Date.now()}`;
 		await page.goto('creator/strolls/new');
+		await expect(consentDialog).toBeHidden();
 		await page.getByLabel('Stroll Name').fill(strollName);
 		await page.getByLabel('Description').fill('A free browser journey with two answerable stages.');
 		await selectOption(page, 'Visibility', 'Public');
-		await selectOption(page, 'Status', 'Published');
 		await page.getByRole('button', { name: 'Create stroll' }).click();
-		await expect(page.getByRole('alert')).toContainText('Add at least one stage.');
+		await expect(page).toHaveURL(/\/creator\/strolls\/(?!new$)[^/?]+$/);
+		await expect(page.getByLabel('Stroll Name')).toHaveValue(strollName);
+		await expect(page.getByLabel('Status')).toContainText('Draft');
+		await selectOption(page, 'Status', 'Published');
+		const [publishResponse] = await Promise.all([
+			page.waitForResponse((response) =>
+				response.request().method() === 'PATCH' &&
+				/\/v1\/strolls\/[^/?]+$/.test(new URL(response.url()).pathname) &&
+				response.request().postDataJSON().activeStatus === 'published'
+			),
+			page.locator('.stroll-editor-page__feedback').getByRole('button', { name: 'Save changes' }).click()
+		]);
+		expect(publishResponse.status()).toBe(400);
+		expect(await publishResponse.json()).toMatchObject({ error: { code: 'STROLL_NOT_READY' } });
+		await expect(page.getByRole('alert')).toContainText('Add at least one stage.', { timeout: 15_000 });
+		await expect(page.getByLabel('Status')).toContainText('Draft');
+		await expect(page.locator('.stroll-editor-page__feedback').getByRole('button', { name: 'Save changes' })).toBeEnabled();
+		await expect(page.locator('app-stage-list-editor').getByRole('button', { name: 'Save changes' })).toBeEnabled();
 
 		await page.getByRole('button', { name: 'Add new stage' }).click();
 		await page.getByLabel('Stage Title').fill('First riddle stop');
@@ -85,7 +119,7 @@ test.describe('QA-01 free creator-to-traveller journey', () => {
 		const adventureId = page.url().match(/\/adventure\/([^/]+)$/)?.[1];
 		expect(adventureId).toBeTruthy();
 
-		const headers = { Authorization: `Bearer ${accessToken}` };
+		const headers = { Authorization: `Bearer ${accessToken}`, Accept: 'application/vnd.strollbar.v2+json' };
 		const nextStage = await request.post(`${apiOrigin}/v1/adventures/${adventureId}/navigate`, {
 			headers,
 			data: { direction: 'next' }
