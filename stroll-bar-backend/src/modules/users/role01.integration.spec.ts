@@ -12,6 +12,7 @@ import { StrollActiveStatus, StrollEntity, StrollPublicityFlag as Publicity } fr
 import { StrollsService } from '../strolls/strolls.service';
 import { LegacyRoleCutoverEntity } from './entities/legacy-role-cutover.entity';
 import { PaidGrantEntity, PaidGrantStatus, PaidPlan } from './entities/paid-grant.entity';
+import { RoleLifecycleOutboxEntity, RoleLifecycleEventType } from './entities/role-lifecycle-outbox.entity';
 import { UserEntity, UserRole } from './entities/user.entity';
 import { earliestCutover, LegacyRoleCutover } from './legacy-role-cutover';
 import { RoleAssignmentsService } from './role-assignments.service';
@@ -70,7 +71,7 @@ integration('ROLE-01 disposable PostgreSQL integration', () => {
 	});
 
 	beforeEach(async () => {
-		await ds.query('TRUNCATE "audit_events", "paid_grants", "legacy_role_cutovers", "users", "strolls", "adventures" CASCADE');
+		await ds.query('TRUNCATE "audit_events", "role_lifecycle_outbox", "paid_grants", "legacy_role_cutovers", "users", "strolls", "adventures" CASCADE');
 		users = {} as Record<UserRole, UserEntity>;
 		for (const role of Object.values(UserRole)) {
 			users[role] = await ds.getRepository(UserEntity).save(ds.getRepository(UserEntity).create({
@@ -108,6 +109,7 @@ integration('ROLE-01 disposable PostgreSQL integration', () => {
 		const owned = await seedStroll(users[UserRole.CREATOR], Publicity.PRIVATE, StrollActiveStatus.ARCHIVED);
 		const before = await ds.getRepository(UserEntity).find({ order: { id: 'ASC' } });
 		await ds.undoLastMigration();
+		await ds.undoLastMigration();
 		await ds.runMigrations();
 		expect(await ds.getRepository(UserEntity).find({ order: { id: 'ASC' } })).toEqual(before);
 		expect(await ds.getRepository(StrollEntity).findOneByOrFail({ id: owned.id })).toMatchObject(owned);
@@ -121,6 +123,12 @@ integration('ROLE-01 disposable PostgreSQL integration', () => {
 		const second = await assignments.createGrant(user.id, grant(PaidPlan.PREMIUM), actor);
 		expect(first.id).not.toBe(second.id);
 		expect(await ds.getRepository(PaidGrantEntity).countBy({ userId: user.id })).toBe(2);
+		expect(await ds.getRepository(RoleLifecycleOutboxEntity).countBy({
+			userId: user.id,
+			eventType: RoleLifecycleEventType.PAID_GRANT_EXPIRY
+		})).toBe(2);
+		expect(await assignments.listGrants(user.id, actor)).toHaveLength(2);
+		await expect(assignments.listGrants(user.id, asUser(user))).rejects.toThrow();
 		expect((await ds.getRepository(UserEntity).findOneByOrFail({ id: user.id })).role).toBe(UserRole.SIMPLE);
 		await assignments.createGrant(actor.userId, grant(), actor);
 		expect((await ds.getRepository(UserEntity).findOneByOrFail({ id: actor.userId })).role).toBe(UserRole.ADMIN);
@@ -128,7 +136,7 @@ integration('ROLE-01 disposable PostgreSQL integration', () => {
 		await expect(ds.query(`UPDATE "paid_grants" SET "plan" = 'admin' WHERE "id" = $1`, [first.id])).rejects.toThrow();
 		await expect(ds.query(`UPDATE "paid_grants" SET "expiresAt" = 'infinity' WHERE "id" = $1`, [first.id])).rejects.toThrow();
 		await expect(assignments.createGrant(user.id, { ...grant(), expiresAt: grant().startsAt }, actor)).rejects.toThrow();
-		await expect(ds.undoLastMigration()).rejects.toThrow('history');
+		await expect(ds.undoLastMigration()).rejects.toThrow('durable event history');
 	});
 
 	it('rejects permanent paid role writes and stale/non-admin actors', async () => {
@@ -163,6 +171,7 @@ integration('ROLE-01 disposable PostgreSQL integration', () => {
 			await expect(assignments.createGrant(users[UserRole.SIMPLE].id, grant(), actor)).rejects.toThrow();
 			expect((await ds.getRepository(UserEntity).findOneByOrFail({ id: users[UserRole.SIMPLE].id })).role).toBe(UserRole.SIMPLE);
 			expect(await ds.getRepository(PaidGrantEntity).count()).toBe(0);
+			expect(await ds.getRepository(RoleLifecycleOutboxEntity).count()).toBe(0);
 		} finally {
 			await ds.query(`ALTER TABLE "audit_events" DROP CONSTRAINT "role01_test_audit_failure"`);
 		}

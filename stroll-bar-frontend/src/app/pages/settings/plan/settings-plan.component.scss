@@ -1,0 +1,37 @@
+:host {
+	display: block;
+}
+
+.plan-summary,
+.quota-section {
+	margin-top: var(--sb-space-5);
+}
+
+.plan-summary {
+	padding: var(--sb-space-4);
+	border: 1px solid var(--sb-color-border);
+	border-radius: var(--sb-radius-lg);
+	background: var(--sb-color-surface-subtle);
+}
+
+.plan-summary h2,
+.quota-section h3 {
+	margin: 0 0 var(--sb-space-2);
+}
+
+.plan-summary p,
+.quota-card p {
+	margin: var(--sb-space-1) 0 0;
+}
+
+.quota-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: var(--sb-space-3);
+}
+
+.quota-card {
+	padding: var(--sb-space-4);
+	border: 1px solid var(--sb-color-border);
+	border-radius: var(--sb-radius-md);
+}

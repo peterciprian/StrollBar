@@ -22,11 +22,27 @@ import { UpdateUserRoleDto } from './dto/update-user-role.dto';
 import { CreatePaidGrantDto } from './dto/create-paid-grant.dto';
 import { RoleAssignmentsService } from './role-assignments.service';
 import { RevokePaidGrantDto } from './dto/revoke-paid-grant.dto';
+import { UserEntitlementService } from './user-entitlement.service';
+import { UserEntitlementResponseDto } from './dto/user-entitlement-response.dto';
 
 @ApiTags('Users')
 @Controller('users')
 export class UsersController {
-	constructor(private readonly usersService: UsersService, private readonly roleAssignments: RoleAssignmentsService) {}
+	constructor(
+		private readonly usersService: UsersService,
+		private readonly roleAssignments: RoleAssignmentsService,
+		private readonly entitlements: UserEntitlementService
+	) {}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Get the authenticated user’s effective plan and quota usage' })
+	@ApiOkResponse({ type: UserEntitlementResponseDto, description: 'Current plan, quota usage and paid-through fallback date.' })
+	@UseGuards(JwtAuthGuard)
+	@Get('me/entitlement')
+	@Header('Cache-Control', 'no-store')
+	getMyEntitlement(@CurrentUser() user: AuthenticatedUser) {
+		return this.entitlements.getForUser(user.userId);
+	}
 
 	@ApiBearerAuth('bearer')
 	@ApiOperation({ summary: 'List all users (admin only)' })
@@ -69,6 +85,16 @@ export class UsersController {
 	@Post(':userId/paid-grants')
 	createPaidGrant(@Param('userId') userId: string, @Body() dto: CreatePaidGrantDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
 		return this.roleAssignments.createGrant(userId, dto, user, request.ip);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'List paid grants for one user (admin only)' })
+	@ApiOkResponse({ description: 'Paid-grant history for the selected user.' })
+	@UseGuards(JwtAuthGuard)
+	@Get(':userId/paid-grants')
+	@Header('Cache-Control', 'no-store')
+	listPaidGrants(@Param('userId') userId: string, @CurrentUser() user: AuthenticatedUser) {
+		return this.roleAssignments.listGrants(userId, user);
 	}
 
 	@ApiBearerAuth('bearer')

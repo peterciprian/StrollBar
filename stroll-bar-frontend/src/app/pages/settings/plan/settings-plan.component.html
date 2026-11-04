@@ -1,0 +1,76 @@
+<sb-page-header [title]="'SETTINGS.PLAN_TITLE' | translate" [subtitle]="'SETTINGS.PLAN_SUBTITLE' | translate" />
+
+@if (loading()) {
+	<p role="status">{{ 'SETTINGS.PLAN_LOADING' | translate }}</p>
+} @else if (loadError()) {
+	<sb-alert tone="danger" [message]="'SETTINGS.PLAN_ERROR' | translate" />
+} @else if (entitlement(); as plan) {
+	<section class="plan-summary" aria-labelledby="plan-name">
+		<h2 id="plan-name">{{ 'SCREENS.ADMIN_USER_LIST.ROLE_' + plan.plan.toUpperCase() | translate }}</h2>
+		@if (plan.plan !== userRole.ADMIN && plan.paidThroughAt) {
+			<p>
+				{{ 'SETTINGS.PAID_THROUGH' | translate: { date: (plan.paidThroughAt | date: 'medium') } }}
+			</p>
+		} @else if (plan.plan !== userRole.ADMIN) {
+			<p>{{ 'SETTINGS.SIMPLE_FALLBACK' | translate }}</p>
+}
+	</section>
+
+	<section class="quota-section" aria-labelledby="creation-quota">
+		<h3 id="creation-quota">{{ 'SETTINGS.CREATION_QUOTA_TITLE' | translate }}</h3>
+		<div class="quota-grid">
+			<div class="quota-card">
+				<strong>{{ 'SETTINGS.PUBLIC_STROLLS' | translate }}</strong>
+				<p>{{ 'SETTINGS.QUOTA_USAGE' | translate: { used: plan.creationUsage.public } }}</p>
+				<p>
+					@if (plan.creationLimits.public === null) {
+						{{ 'SETTINGS.UNLIMITED' | translate }}
+					} @else {
+						{{ 'SETTINGS.QUOTA_LIMIT' | translate: { limit: plan.creationLimits.public } }}
+					}
+				</p>
+			</div>
+			<div class="quota-card">
+				<strong>{{ 'SETTINGS.PRIVATE_STROLLS' | translate }}</strong>
+				<p>{{ 'SETTINGS.QUOTA_USAGE' | translate: { used: plan.creationUsage.private } }}</p>
+				<p>
+					@if (plan.creationLimits.private === null) {
+						{{ 'SETTINGS.UNLIMITED' | translate }}
+					} @else {
+						{{ 'SETTINGS.QUOTA_LIMIT' | translate: { limit: plan.creationLimits.private } }}
+					}
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<section class="quota-section" aria-labelledby="purchase-quota">
+		<h3 id="purchase-quota">{{ 'SETTINGS.PURCHASE_QUOTA_TITLE' | translate }}</h3>
+		<div class="quota-grid">
+			<div class="quota-card">
+				<strong>{{ 'SETTINGS.PUBLIC_STROLLS' | translate }}</strong>
+				<p>{{ 'SETTINGS.QUOTA_USAGE' | translate: { used: plan.purchaseUsage.public } }}</p>
+				<p>
+					@if (plan.purchaseLimits.public === null) {
+						{{ 'SETTINGS.UNLIMITED' | translate }}
+					} @else {
+						{{ 'SETTINGS.QUOTA_LIMIT' | translate: { limit: plan.purchaseLimits.public } }}
+					}
+				</p>
+			</div>
+			<div class="quota-card">
+				<strong>{{ 'SETTINGS.PRIVATE_STROLLS' | translate }}</strong>
+				<p>{{ 'SETTINGS.QUOTA_USAGE' | translate: { used: plan.purchaseUsage.private } }}</p>
+				<p>
+					@if (plan.purchaseLimits.private === null) {
+						{{ 'SETTINGS.UNLIMITED' | translate }}
+					} @else {
+						{{ 'SETTINGS.QUOTA_LIMIT' | translate: { limit: plan.purchaseLimits.private } }}
+					}
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<sb-button [label]="'SCREENS.ADMIN_USER_LIST.PLANS_LINK' | translate" [routerLink]="['/plans']" variant="tertiary" />
+	}

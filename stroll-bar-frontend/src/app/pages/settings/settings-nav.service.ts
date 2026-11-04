@@ -1,4 +1,4 @@
-export type SettingsSectionId = 'profile' | 'achievements' | 'analytics' | 'reviews' | 'settings' | 'user-list' | 'adventures' | 'badges' | 'issues';
+export type SettingsSectionId = 'profile' | 'plan' | 'achievements' | 'analytics' | 'reviews' | 'settings' | 'user-list' | 'adventures' | 'badges' | 'issues';
 
 export interface SettingsSectionDef {
 	id: SettingsSectionId;
@@ -10,6 +10,7 @@ export interface SettingsSectionDef {
 
 export const SETTINGS_SECTIONS: SettingsSectionDef[] = [
 	{ id: 'profile', labelKey: 'SETTINGS.SECTION_PROFILE', icon: 'account_circle', kind: 'settings', route: ['/settings/profile'] },
+	{ id: 'plan', labelKey: 'SETTINGS.SECTION_PLAN', icon: 'workspace_premium', kind: 'settings', route: ['/settings/plan'] },
 	{ id: 'achievements', labelKey: 'SETTINGS.SECTION_ACHIEVEMENTS', icon: 'emoji_events', kind: 'settings', route: ['/settings/achievements'] },
 	{ id: 'analytics', labelKey: 'SETTINGS.SECTION_ANALYTICS', icon: 'insights', kind: 'settings', route: ['/settings/analytics'] },
 	{ id: 'reviews', labelKey: 'SETTINGS.SECTION_REVIEWS', icon: 'rate_review', kind: 'settings', route: ['/settings/reviews'] },

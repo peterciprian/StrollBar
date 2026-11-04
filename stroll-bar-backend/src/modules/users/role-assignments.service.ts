@@ -5,6 +5,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { CreatePaidGrantDto } from './dto/create-paid-grant.dto';
 import { PaidGrantEntity, PaidGrantStatus, PaidPlan } from './entities/paid-grant.entity';
 import { UserEntity, UserRole } from './entities/user.entity';
+import { RoleLifecycleEventType, RoleLifecycleOutboxEntity } from './entities/role-lifecycle-outbox.entity';
 
 export async function lockAdmin(manager: EntityManager, actorUserId: string): Promise<void> {
 	const actor = await manager.findOne(UserEntity, {
@@ -53,6 +54,7 @@ export class RoleAssignmentsService {
 			!Number.isFinite(expiresAt.getTime()) || expiresAt <= startsAt || !dto.reason?.trim()) {
 			throw new BadRequestException('A paid plan, finite increasing UTC grant period and reason are required.');
 		}
+
 		return this.dataSource.transaction(async (manager) => {
 			await lockAdmin(manager, actor.userId);
 			const user = await manager.findOne(UserEntity, { where: { id: userId }, lock: { mode: 'pessimistic_write' } });
@@ -61,6 +63,12 @@ export class RoleAssignmentsService {
 				userId, plan: dto.plan, startsAt, expiresAt, status: PaidGrantStatus.ACTIVE,
 				source: 'manual', actorUserId: actor.userId, reason: dto.reason.trim()
 			}));
+			await manager.save(RoleLifecycleOutboxEntity, manager.create(RoleLifecycleOutboxEntity, {
+				eventType: RoleLifecycleEventType.PAID_GRANT_EXPIRY,
+				userId,
+				grantId: grant.id,
+				availableAt: expiresAt
+			}));
 			await manager.save(AuditEventEntity, {
 				action: AuditAction.ROLE_CHANGE, userId, actorUserId: actor.userId,
 				success: true, ipAddress: ipAddress ?? null,
@@ -68,6 +76,15 @@ export class RoleAssignmentsService {
 					startsAt: startsAt.toISOString(), expiresAt: expiresAt.toISOString(), reason: grant.reason }
 			});
 			return grant;
+		});
+	}
+
+	async listGrants(userId: string, actor: AuthenticatedUser) {
+		return this.dataSource.transaction(async (manager) => {
+			await lockAdmin(manager, actor.userId);
+			const user = await manager.findOne(UserEntity, { where: { id: userId } });
+			if (!user) throw new NotFoundException('User not found.');
+			return manager.find(PaidGrantEntity, { where: { userId }, order: { createdAt: 'DESC' } });
 		});
 	}
 

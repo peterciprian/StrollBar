@@ -7,8 +7,7 @@ import { SbDialogShellComponent } from '../../../components/atoms/sb-dialog-shel
 
 export interface RoleChangeConfirmDialogData {
 	username: string;
-	currentRoleLabelKey: string;
-	nextRoleLabelKey: string;
+	actionLabelKey: string;
 }
 
 @Component({
@@ -20,12 +19,11 @@ export interface RoleChangeConfirmDialogData {
 		<sb-dialog-shell icon="admin_panel_settings" [title]="'SCREENS.ADMIN_USER_LIST.CONFIRM_TITLE' | translate">
 			<p>
 				{{
-					'SCREENS.ADMIN_USER_LIST.CONFIRM_MESSAGE'
+					'SCREENS.ADMIN_USER_LIST.ADMIN_CONFIRM_MESSAGE'
 						| translate
 							: {
 									username: data.username,
-									currentRole: data.currentRoleLabelKey | translate,
-									nextRole: data.nextRoleLabelKey | translate
+									action: data.actionLabelKey | translate
 							  }
 				}}
 			</p>

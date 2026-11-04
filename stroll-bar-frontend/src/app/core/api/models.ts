@@ -43,6 +43,35 @@ export interface User {
 	updatedAt: string;
 }
 
+export interface UserEntitlement {
+	plan: UserRole;
+	paidThroughAt: string | null;
+	creationLimits: { public: number | null; private: number | null };
+	creationUsage: { public: number; private: number };
+	purchaseLimits: { public: number | null; private: number | null };
+	purchaseUsage: { public: number; private: number };
+}
+
+export interface PaidGrant {
+	id: string;
+	plan: 'creator' | 'premium';
+	status: 'active' | 'cancelled' | 'suspended' | 'revoked';
+	startsAt: string;
+	expiresAt: string;
+	reason: string;
+}
+
+export interface CreatePaidGrantRequest {
+	plan: 'creator' | 'premium';
+	startsAt: string;
+	expiresAt: string;
+	reason: string;
+}
+
+export interface RevokePaidGrantRequest {
+	reason: string;
+}
+
 export interface UpdateUserRequest {
 	username?: string;
 	profileImageUrl?: string;

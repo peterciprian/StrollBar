@@ -15,10 +15,12 @@ import { BadgeDefinitionEntity } from '../modules/badges/entities/badge-definiti
 import { AuditEventEntity } from '../common/audit.entity';
 import { PaidGrantEntity } from '../modules/users/entities/paid-grant.entity';
 import { LegacyRoleCutoverEntity } from '../modules/users/entities/legacy-role-cutover.entity';
+import { RoleLifecycleOutboxEntity } from '../modules/users/entities/role-lifecycle-outbox.entity';
 
 export const DATABASE_ENTITIES = [
 	PaidGrantEntity,
 	LegacyRoleCutoverEntity,
+	RoleLifecycleOutboxEntity,
 	SocialTransactionEntity,
 	AchievementEntity,
 	AdventureResultEntity,

@@ -1,0 +1,19 @@
+<main class="plans-page">
+	<sb-page-header [title]="'PLANS.TITLE' | translate" [subtitle]="'PLANS.SUBTITLE' | translate" />
+	<section class="plans-grid" [attr.aria-label]="'PLANS.TITLE' | translate">
+		<article class="plan-card">
+			<h2>{{ 'SCREENS.ADMIN_USER_LIST.ROLE_SIMPLE' | translate }}</h2>
+			<p>{{ 'PLANS.SIMPLE_DESCRIPTION' | translate }}</p>
+		</article>
+		<article class="plan-card">
+			<h2>{{ 'SCREENS.ADMIN_USER_LIST.ROLE_CREATOR' | translate }}</h2>
+			<p>{{ 'PLANS.CREATOR_DESCRIPTION' | translate }}</p>
+		</article>
+		<article class="plan-card">
+			<h2>{{ 'SCREENS.ADMIN_USER_LIST.ROLE_PREMIUM' | translate }}</h2>
+			<p>{{ 'PLANS.PREMIUM_DESCRIPTION' | translate }}</p>
+		</article>
+	</section>
+	<p class="plans-note">{{ 'PLANS.QUOTA_NOTE' | translate }}</p>
+	<sb-button [label]="'PLANS.UPGRADE_COMING_SOON' | translate" [disabled]="true" />
+</main>

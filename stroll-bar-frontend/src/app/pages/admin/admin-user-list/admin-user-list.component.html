@@ -54,14 +54,26 @@
 		</ng-template>
 
 		<ng-template sbCell="role" let-user>
-			<sb-select
-				class="admin-user-list__role-select"
-				[attr.aria-label]="'SCREENS.ADMIN_USER_LIST.ROLE_SELECT_ARIA' | translate"
-				[options]="roleSelectOptions()"
-				[disabled]="savingUserId() === user.id"
-				[ngModel]="roleFor(user)"
-				(ngModelChange)="changeRole(user, $event)"
-			/>
+			<div class="admin-user-list__role-actions">
+				<sb-badge
+					[tone]="user.role === 'admin' ? 'warning' : user.role === 'simple' ? 'neutral' : 'info'"
+					[label]="('SCREENS.ADMIN_USER_LIST.ROLE_' + user.role.toUpperCase()) | translate"
+				/>
+				<sb-button
+					variant="tertiary"
+					size="sm"
+					[label]="'SCREENS.ADMIN_USER_LIST.MANAGE_PAID_GRANTS' | translate"
+					[disabled]="savingUserId() === user.id"
+					(clicked)="managePaidGrants(user)"
+				/>
+				<sb-button
+					variant="tertiary"
+					size="sm"
+					[label]="adminActionLabelKey(user) | translate"
+					[disabled]="savingUserId() === user.id"
+					(clicked)="changeAdminAssignment(user)"
+				/>
+			</div>
 		</ng-template>
 	</sb-table>
 </div>

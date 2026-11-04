@@ -46,8 +46,9 @@
 	}
 }
 
-.admin-user-list__role-select {
-	display: block;
-	width: 100%;
-	max-width: 168px;
+.admin-user-list__role-actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: var(--sb-space-2);
 }

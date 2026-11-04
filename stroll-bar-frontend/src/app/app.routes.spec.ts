@@ -29,6 +29,14 @@ describe('app routes', () => {
 		expect(routes.findIndex((route) => route.path === 'auth/reset-password')).toBeLessThan(wildcardIndex);
 	});
 
+	it('exposes Plans and the authenticated Settings plan/quota view', () => {
+		const plansRoute = findRoute('plans');
+		const settingsRoute = findRoute('settings');
+
+		expect(plansRoute?.component).toBeDefined();
+		expect(settingsRoute?.children?.some((route) => route.path === 'plan')).toBe(true);
+	});
+
 	it('keeps the password reset pages client-rendered so reset tokens never reach the SSR server', () => {
 		const explicitPaths = serverRoutes.map((route) => route.path);
 

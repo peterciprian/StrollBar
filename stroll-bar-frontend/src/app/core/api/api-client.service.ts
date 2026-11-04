@@ -64,6 +64,10 @@ import {
 	UpdateStrollRequest,
 	UpdateUserRequest,
 	UpdateUserRoleRequest,
+	UserEntitlement,
+	PaidGrant,
+	CreatePaidGrantRequest,
+	RevokePaidGrantRequest,
 	User,
 	VerifyEmailRequest,
 	Adventure
@@ -131,12 +135,28 @@ export class ApiClientService {
 		return this.http.get<User[]>(`${this.baseUrl}/users`);
 	}
 
+	getMyEntitlement() {
+		return this.http.get<UserEntitlement>(`${this.baseUrl}/users/me/entitlement`);
+	}
+
 	updateMe(body: UpdateUserRequest) {
 		return this.http.patch<User>(`${this.baseUrl}/users/me`, body);
 	}
 
 	updateUserRole(userId: string, body: UpdateUserRoleRequest) {
 		return this.http.patch<User>(`${this.baseUrl}/users/${userId}/role`, body);
+	}
+
+	listPaidGrants(userId: string) {
+		return this.http.get<PaidGrant[]>(`${this.baseUrl}/users/${userId}/paid-grants`);
+	}
+
+	createPaidGrant(userId: string, body: CreatePaidGrantRequest) {
+		return this.http.post<PaidGrant>(`${this.baseUrl}/users/${userId}/paid-grants`, body);
+	}
+
+	revokePaidGrant(userId: string, grantId: string, body: RevokePaidGrantRequest) {
+		return this.http.post<PaidGrant>(`${this.baseUrl}/users/${userId}/paid-grants/${grantId}/revoke`, body);
 	}
 
 	getPublicProfile(userId: string) {

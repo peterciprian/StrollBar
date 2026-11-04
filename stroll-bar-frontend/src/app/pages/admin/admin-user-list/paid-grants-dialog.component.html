@@ -1,0 +1,69 @@
+<sb-dialog-shell icon="workspace_premium" [title]="'SCREENS.ADMIN_USER_LIST.GRANT_DIALOG_TITLE' | translate: { username: data.username }">
+	<h3>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_HISTORY' | translate }}</h3>
+	@if (data.grants.length === 0) {
+		<p>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_EMPTY' | translate }}</p>
+	} @else {
+		<ul class="grant-list">
+			@for (grant of data.grants; track grant.id) {
+				<li>
+					<div>
+						<strong>{{ ('SCREENS.ADMIN_USER_LIST.ROLE_' + grant.plan.toUpperCase()) | translate }}</strong>
+						<span>{{ ('SCREENS.ADMIN_USER_LIST.GRANT_STATUS_' + grant.status.toUpperCase()) | translate }}</span>
+						<small>{{ grant.startsAt | date: 'medium' }} – {{ grant.expiresAt | date: 'medium' }}</small>
+					</div>
+					@if (canRevoke(grant)) {
+						<sb-button
+							variant="tertiary"
+							[label]="'SCREENS.ADMIN_USER_LIST.GRANT_REVOKE' | translate"
+							(clicked)="revokeGrant(grant)"
+						/>
+					}
+				</li>
+			}
+		</ul>
+	}
+
+	<h3>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_CREATE' | translate }}</h3>
+	<form #paidGrantForm="ngForm" (ngSubmit)="createGrant()">
+		<label>
+			{{ 'SCREENS.ADMIN_USER_LIST.GRANT_PLAN_LABEL' | translate }}
+			<select name="plan" [(ngModel)]="grantInput.plan">
+				<option value="creator">{{ 'SCREENS.ADMIN_USER_LIST.ROLE_CREATOR' | translate }}</option>
+				<option value="premium">{{ 'SCREENS.ADMIN_USER_LIST.ROLE_PREMIUM' | translate }}</option>
+			</select>
+		</label>
+		<label>
+			{{ 'SCREENS.ADMIN_USER_LIST.GRANT_STARTS_AT' | translate }}
+			<input name="startsAt" type="datetime-local" required [(ngModel)]="grantInput.startsAt" />
+		</label>
+		<label>
+			{{ 'SCREENS.ADMIN_USER_LIST.GRANT_EXPIRES_AT' | translate }}
+			<input name="expiresAt" type="datetime-local" required [(ngModel)]="grantInput.expiresAt" />
+		</label>
+		<label>
+			{{ 'SCREENS.ADMIN_USER_LIST.GRANT_REASON' | translate }}
+			<textarea name="reason" required maxlength="2000" [(ngModel)]="grantInput.reason"></textarea>
+		</label>
+		<sb-button
+			type="submit"
+			[label]="'SCREENS.ADMIN_USER_LIST.GRANT_CREATE' | translate"
+			[disabled]="paidGrantForm.invalid ?? true"
+		/>
+	</form>
+
+	@if (hasRevocableGrant()) {
+		<label class="revoke-reason">
+			{{ 'SCREENS.ADMIN_USER_LIST.GRANT_REVOKE_REASON' | translate }}
+			<textarea
+				name="revokeReason"
+				required
+				maxlength="2000"
+				[(ngModel)]="grantInput.revokeReason"
+				[ngModelOptions]="{ standalone: true }"
+			></textarea>
+		</label>
+	}
+	<ng-container sbDialogActions>
+		<sb-button variant="tertiary" [label]="'SCREENS.ADMIN_USER_LIST.GRANT_DIALOG_CLOSE' | translate" mat-dialog-close />
+	</ng-container>
+</sb-dialog-shell>
