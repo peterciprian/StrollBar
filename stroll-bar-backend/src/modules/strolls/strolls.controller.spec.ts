@@ -1,4 +1,5 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -12,6 +13,7 @@ import { RedisCacheService } from '../../common/services/redis-cache.service';
 import { ACTIVE_ADVENTURE_STATUSES } from '../adventures/adventures.service';
 import { AdventureEntity, AdventureProgressStatus } from '../adventures/entities/adventure.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { EmailVerifiedGuard } from '../auth/guards/email-verified.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { JwtStrategy } from '../auth/strategies/jwt.strategy';
 import { BadgesService } from '../badges/badges.service';
@@ -21,6 +23,72 @@ import { UserEntity, UserRole } from '../users/entities/user.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
 import { StrollsController } from './strolls.controller';
 import { StrollsService } from './strolls.service';
+
+describe('StrollsController browse query contract (PROD-04)', () => {
+	let app: INestApplication;
+	const service = { list: jest.fn(), listOwned: jest.fn() };
+
+	beforeAll(async () => {
+		const moduleRef = await Test.createTestingModule({
+			controllers: [StrollsController],
+			providers: [{ provide: StrollsService, useValue: service }]
+		})
+			.overrideGuard(OptionalJwtAuthGuard).useValue({ canActivate: () => true })
+			.overrideGuard(JwtAuthGuard).useValue({ canActivate: () => true })
+			.overrideGuard(EmailVerifiedGuard).useValue({ canActivate: () => true })
+			.compile();
+		app = moduleRef.createNestApplication({ logger: false });
+		app.setGlobalPrefix('v1');
+		app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true }));
+		app.useGlobalInterceptors(new VersionedResponseInterceptor());
+		await app.init();
+	});
+
+	afterAll(async () => { await app?.close(); });
+	beforeEach(() => {
+		jest.clearAllMocks();
+		service.list.mockImplementation(async (query) => ({ items: [], page: query.page, limit: query.limit, total: 45 }));
+		service.listOwned.mockResolvedValue({ items: [], page: 1, limit: 20, total: 0 });
+	});
+
+	it.each(['application/json', 'application/vnd.strollbar.v2+json'])('returns page metadata for %s', async (accept) => {
+		const response = await request(app.getHttpServer()).get('/v1/strolls')
+			.query({ search: '  Mixed %_!  ', city: '  Budapest ', page: 3, limit: 20, sortBy: 'top_rated' }).set('Accept', accept);
+		expect(response.status).toBe(200);
+		expect(service.list).toHaveBeenCalledWith(expect.objectContaining({
+			search: 'Mixed %_!', city: 'Budapest', page: 3, limit: 20, sortBy: 'top_rated'
+		}));
+		expect(accept === 'application/json' ? response.body : response.body.data)
+			.toEqual({ items: [], page: 3, limit: 20, total: 45 });
+	});
+
+	it.each([
+		{ sortBy: 'most_used' }, { page: 0 }, { page: 1.5 }, { limit: 101 }, { limit: 0 },
+		{ userLatitude: 91 }, { userLongitude: -181 }, { category: 'HISTORY' }, { unknown: 'value' }
+	])('rejects invalid/unsupported query %j before reaching the service', async (query) => {
+		await request(app.getHttpServer()).get('/v1/strolls').query(query).expect(400);
+		expect(service.list).not.toHaveBeenCalled();
+	});
+
+	it('keeps owner listing query transformations and sort acceptance unchanged', async () => {
+		await request(app.getHttpServer()).get('/v1/strolls/mine').query({ search: ' A ', sortBy: 'legacy' }).expect(200);
+		expect(service.listOwned).toHaveBeenCalledWith(expect.objectContaining({ search: ' A ', sortBy: 'legacy' }), undefined);
+	});
+
+	it('documents search fields, the sort enum, query bounds and pagination response', () => {
+		const doc = SwaggerModule.createDocument(app, new DocumentBuilder().build());
+		const operation = doc.paths['/v1/strolls'].get!;
+		const parameters = operation.parameters as unknown as { name: string; description?: string; schema: Record<string, unknown> }[];
+		expect(parameters.find((param) => param.name === 'search')?.description).toContain('name, description OR any stage address');
+		expect(parameters.find((param) => param.name === 'city')?.description).toContain('ANDed with search');
+		expect(parameters.find((param) => param.name === 'sortBy')?.schema.enum).toEqual(['newest', 'most_popular', 'top_rated', 'nearest']);
+		expect(parameters.find((param) => param.name === 'page')?.schema).toMatchObject({ minimum: 1, default: 1 });
+		expect(parameters.find((param) => param.name === 'limit')?.schema).toMatchObject({ minimum: 1, maximum: 100, default: 20 });
+		expect(doc.components?.schemas?.BrowseStrollsResponseDto).toMatchObject({
+			properties: { total: { description: expect.stringContaining('before pagination') } }
+		});
+	});
+});
 
 describe('StrollsController detail serialization (SEC-04)', () => {
 	let app: INestApplication;

@@ -8,7 +8,7 @@
 					[debounce]="150"
 					[label]="'SCREENS.STROLL_BROWSER.SEARCH_LABEL' | translate"
 					[placeholder]="'SCREENS.STROLL_BROWSER.SEARCH_PLACEHOLDER' | translate"
-					(searched)="searchTerm = $event"
+					(searched)="changeSearch($event)"
 				/>
 
 				<sb-select
@@ -45,7 +45,13 @@
 			</div>
 		</section>
 
-		<div class="stroll-browser__list">
+		@if (loading()) {
+			<p class="stroll-browser__hint" role="status">{{ 'SCREENS.STROLL_BROWSER.LOADING' | translate }}</p>
+		}
+		@if (browseError()) {
+			<sb-alert tone="danger">{{ 'SCREENS.STROLL_BROWSER.LOAD_ERROR' | translate }}</sb-alert>
+		}
+		<div class="stroll-browser__list" [attr.aria-busy]="loading()">
 			@for (stroll of filteredStrolls; track stroll.id) {
 				<app-stroll-card
 					[stroll]="stroll"
@@ -53,10 +59,43 @@
 					(cardClick)="selectStrollCard(stroll)"
 				></app-stroll-card>
 			}
-			@if (!filteredStrolls.length) {
+			@if (!loading() && !browseError() && !filteredStrolls.length) {
 				<p class="stroll-browser__empty">{{ 'SCREENS.STROLL_BROWSER.EMPTY_STATE' | translate }}</p>
 			}
 		</div>
+		@if (!browseError()) {
+			<nav class="stroll-browser__pagination" [attr.aria-label]="'SCREENS.STROLL_BROWSER.PAGINATION_ARIA' | translate">
+				<p class="stroll-browser__page-summary" role="status">
+					{{ 'SCREENS.STROLL_BROWSER.PAGE_SUMMARY' | translate: { page: page(), pages: pageCount(), total: total() } }}
+				</p>
+				<sb-button
+					variant="ghost"
+					[label]="'SCREENS.STROLL_BROWSER.PREVIOUS' | translate"
+					[disabled]="loading() || page() <= 1"
+					(clicked)="changePage(page() - 1)"
+				/>
+				@for (number of pageNumbers(); track $index) {
+					@if (number !== null) {
+						<button
+							type="button"
+							class="stroll-browser__page"
+							[attr.aria-current]="number === page() ? 'page' : null"
+							[attr.aria-label]="'SCREENS.STROLL_BROWSER.PAGE_ARIA' | translate: { page: number }"
+							[disabled]="loading()"
+							(click)="changePage(number)"
+						>{{ number }}</button>
+					} @else {
+						<span aria-hidden="true">…</span>
+					}
+				}
+				<sb-button
+					variant="ghost"
+					[label]="'SCREENS.STROLL_BROWSER.NEXT' | translate"
+					[disabled]="loading() || page() >= pageCount()"
+					(clicked)="changePage(page() + 1)"
+				/>
+			</nav>
+		}
 	</div>
 
 	@if (selectedStroll; as stroll) {

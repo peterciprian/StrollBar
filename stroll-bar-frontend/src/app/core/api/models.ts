@@ -225,9 +225,11 @@ export interface CreateStrollReviewRequest {
 export type StrollSortOption = 'newest' | 'most_popular' | 'top_rated' | 'nearest';
 
 export interface ListStrollsQuery {
+	/** Browse: literal case-insensitive substring across name, description OR stage addresses. */
 	search?: string;
 	labels?: string;
 	authorId?: string;
+	/** Browse: independent address substring restriction, ANDed with search. */
 	city?: string;
 	sortBy?: StrollSortOption;
 	userLatitude?: number;
@@ -247,6 +249,7 @@ export interface BrowseStrollsResponse {
 	items: StrollSummary[];
 	page: number;
 	limit: number;
+	/** Server matches before pagination; excludes page-local category filtering. */
 	total: number;
 }
 

@@ -20,6 +20,7 @@ import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interfa
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
 import { ListStrollsQueryDto, STROLL_SORT_OPTIONS } from './dto/list-strolls-query.dto';
+import { ListOwnedStrollsQueryDto } from './dto/list-owned-strolls-query.dto';
 import { StrollDetailResponseDto } from './dto/stroll-detail-response.dto';
 import { StrollListResponseDto } from './dto/stroll-list-response.dto';
 import { StrollResponseDto } from './dto/stroll-response.dto';
@@ -33,15 +34,16 @@ export class StrollsController {
 	constructor(private readonly strollsService: StrollsService) {}
 
 	@ApiOperation({ summary: 'Browse published public and private stroll summaries' })
-	@ApiQuery({ name: 'search', required: false })
+	@ApiQuery({ name: 'search', required: false, description: 'Case-insensitive literal substring across name, description OR any stage address; trimmed, empty ignored.' })
 	@ApiQuery({ name: 'labels', required: false })
 	@ApiQuery({ name: 'authorId', required: false })
-	@ApiQuery({ name: 'city', required: false })
-	@ApiQuery({ name: 'sortBy', required: false, enum: STROLL_SORT_OPTIONS })
+	@ApiQuery({ name: 'city', required: false, description: 'Case-insensitive literal stage-address substring, ANDed with search; trimmed, empty ignored. No accent normalization.' })
+	@ApiQuery({ name: 'sortBy', required: false, enum: STROLL_SORT_OPTIONS, description: 'Defaults to newest; nearest falls back to newest without both coordinates.' })
 	@ApiQuery({ name: 'userLatitude', required: false, type: Number })
 	@ApiQuery({ name: 'userLongitude', required: false, type: Number })
-	@ApiQuery({ name: 'page', required: false, type: Number })
-	@ApiQuery({ name: 'limit', required: false, type: Number })
+	@ApiQuery({ name: 'page', required: false, schema: { type: 'integer', minimum: 1, default: 1 } })
+	@ApiQuery({ name: 'limit', required: false, schema: { type: 'integer', minimum: 1, maximum: 100, default: 20 } })
+	@ApiBadRequestResponse({ type: ErrorResponseDto, description: 'Invalid query, sort option, coordinates or pagination bounds.' })
 	@ApiOkResponse({ type: BrowseStrollsResponseDto, description: 'Paginated product-preview summaries.' })
 	@UseGuards(OptionalJwtAuthGuard)
 	@Get()
@@ -57,7 +59,7 @@ export class StrollsController {
 	})
 	@UseGuards(JwtAuthGuard)
 	@Get('mine')
-	listOwned(@Query() query: ListStrollsQueryDto, @CurrentUser() user: AuthenticatedUser) {
+	listOwned(@Query() query: ListOwnedStrollsQueryDto, @CurrentUser() user: AuthenticatedUser) {
 		return this.strollsService.listOwned(query, user);
 	}
 

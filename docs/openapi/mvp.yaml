@@ -81,17 +81,19 @@ paths:
   /strolls:
     get:
       tags: [Strolls]
-      summary: Browse public strolls
+      summary: Browse published public and private stroll summaries
+      description: Server filters apply before pagination/counting, with no duplicates for multiple matching stages. Existing visibility and labels behavior is preserved. Category is a page-local browser filter, not an API parameter. No accent normalization is promised.
       parameters:
         - in: query
           name: search
+          description: Trimmed, case-insensitive literal substring of name, description OR any stage address. Empty text is ignored; SQL wildcard characters are literal.
           schema:
             type: string
         - in: query
           name: labels
           schema:
             type: string
-          description: Comma-separated labels
+          description: Existing case-insensitive prefix match against serialized labels; not a category filter.
         - in: query
           name: authorId
           schema:
@@ -99,13 +101,28 @@ paths:
             format: uuid
         - in: query
           name: city
+          description: Independent trimmed, case-insensitive literal substring restriction on any stage address, ANDed with search. No separate city field; empty text is ignored. Search and city may match different stages.
           schema:
             type: string
         - in: query
           name: sortBy
           schema:
             type: string
-            enum: [newest, most_used, best_rated]
+            enum: [newest, most_popular, top_rated, nearest]
+            default: newest
+          description: Nearest falls back to newest without both user coordinates.
+        - in: query
+          name: userLatitude
+          schema:
+            type: number
+            minimum: -90
+            maximum: 90
+        - in: query
+          name: userLongitude
+          schema:
+            type: number
+            minimum: -180
+            maximum: 180
         - in: query
           name: page
           schema:
@@ -121,11 +138,13 @@ paths:
             default: 20
       responses:
         '200':
-          description: Paginated stroll list
+          description: Paginated preview summaries with items, page, limit and total after server filtering but before pagination or local category filtering. Out-of-range pages return empty items.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StrollListResponse'
+                $ref: '#/components/schemas/BrowseStrollsResponse'
+        '400':
+          description: Invalid query parameter, sort enum, coordinate or pagination bounds.
 
     post:
       tags: [Strolls]
@@ -829,6 +848,71 @@ components:
         code:
           type: string
           example: STAGE_LOCATION_REQUIRED
+
+    BrowseStrollSummary:
+      type: object
+      required: [id, name, authorId, labels, category, description, length, publicityFlag, stageCount, ratingAverage, ratingCount]
+      description: Safe product preview. No proposer text, stage answers or protected media; only the first cover image and no videos.
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        authorId:
+          type: string
+          format: uuid
+        labels:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum: [ARCHITECTURE, ART, CONTEMPORARY, HISTORICAL, GASTRO, BUILDING, SIGHTSEEING, SCIENCE, LANDSCAPE, URBANISM, RELIGION, SHOPPING, ENTERTAINMENT, SPORTS]
+        description:
+          type: string
+        mediaUrls:
+          $ref: '#/components/schemas/MediaUrls'
+        price:
+          type: object
+          nullable: true
+          properties:
+            amount:
+              type: number
+            currency:
+              type: string
+        length:
+          type: number
+        publicityFlag:
+          type: string
+          enum: [public, unlisted, private]
+        stageCount:
+          type: integer
+        ratingAverage:
+          type: number
+        ratingCount:
+          type: integer
+
+    BrowseStrollsResponse:
+      type: object
+      required: [items, page, limit, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/BrowseStrollSummary'
+        page:
+          type: integer
+          minimum: 1
+          description: Requested one-based page; out-of-range pages return empty items.
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+        total:
+          type: integer
+          minimum: 0
+          description: Matching strolls after server filters, before pagination and page-local category filtering.
 
     StrollListResponse:
       type: object

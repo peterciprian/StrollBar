@@ -225,6 +225,87 @@ describe('StrollsService authorization', () => {
 		expect(extract).toMatchObject({ id: publicStroll.id, name: publicStroll.name, stageCount: publicStroll.stageCount });
 	});
 
+	it('combines literal OR search and independent address restriction before paginating and counting', async () => {
+		listQueryBuilder.getManyAndCount.mockResolvedValue([[buildStroll()], 41]);
+		const result = await service.list({ search: '  MiX%_!\\  ', city: '  Buda%_!  ', page: 2, limit: 20 });
+
+		const [searchSql, searchParams] = listQueryBuilder.andWhere.mock.calls[1];
+		expect(searchSql).toContain("stroll.name ILIKE :search ESCAPE '!'");
+		expect(searchSql).toContain("OR stroll.description ILIKE :search ESCAPE '!'");
+		expect(searchSql).toContain('OR EXISTS (SELECT 1 FROM stages stage');
+		expect(searchSql).toContain('stage."strollId" = stroll.id');
+		expect(searchSql).toContain("stage.address ILIKE :search ESCAPE '!'");
+		expect(searchParams).toEqual({ search: '%MiX!%!_!!\\%' });
+		expect(listQueryBuilder.andWhere.mock.calls[2]).toEqual([
+			expect.stringContaining('EXISTS (SELECT 1 FROM stages city_stage'),
+			{ city: '%Buda!%!_!!%' }
+		]);
+		expect(listQueryBuilder.skip).toHaveBeenCalledWith(20);
+		expect(listQueryBuilder.take).toHaveBeenCalledWith(20);
+		expect(result).toMatchObject({ page: 2, limit: 20, total: 41 });
+		expect(listQueryBuilder.andWhere.mock.invocationCallOrder[2]).toBeLessThan(listQueryBuilder.skip.mock.invocationCallOrder[0]);
+		expect(listQueryBuilder.addOrderBy).toHaveBeenCalledWith('stroll.id', 'ASC');
+	});
+
+	it('ignores blank search/city while preserving labels, author and browse visibility', async () => {
+		listQueryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+		await service.list({ search: '  ', city: ' ', labels: 'CiTy', authorId: 'owner' });
+		expect(listQueryBuilder.where).toHaveBeenCalledWith('stroll.activeStatus = :activeStatus', { activeStatus: 'published' });
+		expect(listQueryBuilder.andWhere.mock.calls).toEqual([
+			['stroll.publicityFlag IN (:...publicityFlags)', { publicityFlags: ['public', 'private'] }],
+			['stroll.authorId = :authorId', { authorId: 'owner' }],
+			['LOWER(stroll.labels) LIKE :labels', { labels: 'city%' }]
+		]);
+		expect(cache.get).not.toHaveBeenCalled();
+		expect(cache.set).not.toHaveBeenCalled();
+	});
+
+	it('uses defaults and returns matching total for an empty out-of-range page', async () => {
+		listQueryBuilder.getManyAndCount.mockResolvedValue([[], 21]);
+		expect(await service.list({ page: 3 })).toEqual({ items: [], page: 3, limit: 20, total: 21 });
+		expect(listQueryBuilder.skip).toHaveBeenCalledWith(40);
+		expect(listQueryBuilder.take).toHaveBeenCalledWith(20);
+	});
+
+	it('versions cache keys, retains TTL and separates search/city/page', async () => {
+		listQueryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+		const queries = [{}, { search: 'a' }, { search: 'a', city: 'b' }, { search: 'a', city: 'b', page: 2 }];
+		for (const query of queries) await service.list(query);
+		expect(cache.get.mock.calls.map(([key]) => key)).toEqual(queries.map((query) => `strolls:list:v2:${JSON.stringify(query)}`));
+		expect(cache.set).toHaveBeenCalledWith('strolls:list:v2:{}', { items: [], page: 1, limit: 20, total: 0 }, 600);
+		const cached = { items: [], page: 1, limit: 20, total: 5 };
+		cache.get.mockResolvedValueOnce(cached);
+		strollsRepository.createQueryBuilder.mockClear();
+		expect(await service.list({})).toBe(cached);
+		expect(strollsRepository.createQueryBuilder).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		['newest', undefined, 'stroll.createdAt'],
+		['top_rated', undefined, 'stroll.ratingAverage'],
+		['most_popular', undefined, '(SELECT COUNT(*) FROM adventures'],
+		['nearest', undefined, 'stroll.createdAt'],
+		['nearest', { userLatitude: 47, userLongitude: 19 }, 'COALESCE']
+	] as const)('preserves %s sorting and nearest fallback (%j)', async (sortBy, coordinates, sql) => {
+		listQueryBuilder.getManyAndCount.mockResolvedValue([[], 0]);
+		await service.list({ sortBy, ...coordinates });
+		expect(listQueryBuilder.orderBy.mock.calls[0][0]).toContain(sql);
+		if (sortBy === 'nearest') {
+			expect(cache.get).not.toHaveBeenCalled();
+			expect(cache.set).not.toHaveBeenCalled();
+		}
+	});
+
+	it('keeps owner name-prefix search, labels, and owner restriction unchanged', async () => {
+		strollsRepository.findAndCount.mockResolvedValue([[], 0]);
+		await service.listOwned({ search: 'Walk', city: 'ignored', labels: 'CiTy', page: 2, limit: 12 }, simpleUser);
+		const options = strollsRepository.findAndCount.mock.calls[0][0];
+		expect(options).toMatchObject({ where: { authorId: simpleUser.userId }, skip: 12, take: 12, order: { createdAt: 'DESC' } });
+		expect(options.where.name.value).toBe('Walk%');
+		expect(options.where.labels.value).toBe('city%');
+		expect(options.where).not.toHaveProperty('city');
+	});
+
 	it("allows an admin to update another user's stroll", async () => {
 		const stroll = buildStroll({ authorId: 'another-user' });
 		const adminUser = { ...simpleUser, role: UserRole.ADMIN };

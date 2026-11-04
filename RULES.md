@@ -134,7 +134,9 @@ Rules:
 
 #### 5.2 Browse and Discovery
 - List public strolls with pagination
-- Search by name/description
+- Search server-side by a single trimmed, case-insensitive literal substring across name, description, or any stage address (OR). City means stage addresses; there is no separate city field and no accent-insensitivity promise.
+- A direct `city` query is an independent case-insensitive address substring restriction (AND with search). Filters precede pagination/counting; multiple matching stages never duplicate strolls.
+- Browser pagination has Previous/Next and numbered selection, using one-based pages (default 1) and the existing 20-item default / 100-item maximum. Search/category/sort changes reset the page. Category chips remain page-local UI filtering and do not change server totals.
 - Filter by labels, city/address text, and author
 - Sort by newest, most used, and best rated (rating can be future)
 

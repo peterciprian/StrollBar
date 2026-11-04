@@ -1,10 +1,10 @@
-import { Component, ChangeDetectorRef, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectorRef, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, UpperCasePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { catchError, firstValueFrom, map, of } from 'rxjs';
+import { Subscription, catchError, firstValueFrom, of } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { StrollCardComponent } from '../../components/stroll-card/stroll-card.component';
@@ -65,6 +65,24 @@ export class StrollBrowserScreenComponent implements OnInit {
 	protected readonly categories: CategoryFilter[] = ['ALL', ...Object.values(StrollCategory)];
 	protected readonly sortOptions: StrollSortOption[] = ['newest', 'most_popular', 'top_rated', 'nearest'];
 	protected strolls: StrollSummary[] = [];
+	protected readonly loading = signal(false);
+	protected readonly browseError = signal(false);
+	protected readonly page = signal(1);
+	protected readonly limit = signal(20);
+	protected readonly total = signal(0);
+	protected readonly pageCount = computed(() => Math.max(1, Math.ceil(this.total() / this.limit())));
+	protected readonly pageNumbers = computed(() => {
+		const last = this.pageCount();
+		const numbers = new Set([1, last]);
+		for (let page = Math.max(1, this.page() - 2); page <= Math.min(last, this.page() + 2); page++) numbers.add(page);
+		const result: (number | null)[] = [];
+		for (const page of [...numbers].sort((a, b) => a - b)) {
+			const previous = result[result.length - 1];
+			if (previous != null && page > previous + 1) result.push(null);
+			result.push(page);
+		}
+		return result;
+	});
 
 	protected searchTerm = '';
 	protected activeCategory: CategoryFilter = 'ALL';
@@ -78,26 +96,42 @@ export class StrollBrowserScreenComponent implements OnInit {
 	protected showAllReviews = false;
 	private userLocation: { latitude: number; longitude: number } | null = null;
 	private requestedStrollId: string | null = null;
-	private readonly requestedDetailIds = new Set<string>();
+	private requestedDetailId: string | null = null;
+	private browseSubscription?: Subscription;
 
 	ngOnInit(): void {
 		this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
 			this.requestedStrollId = params.get('strollId');
-			if (this.strolls.length) this.syncSelectionFromUrl();
+			this.syncSelectionFromUrl();
 		});
 		this.loadStrolls();
 	}
 
 	protected get filteredStrolls(): StrollSummary[] {
-		return this.strolls.filter((stroll) => {
-			const matchesCategory = this.activeCategory === 'ALL' || stroll.category === this.activeCategory;
-			const matchesSearch = stroll.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase());
-			return matchesCategory && matchesSearch;
-		});
+		return this.strolls.filter((stroll) => this.activeCategory === 'ALL' || stroll.category === this.activeCategory);
+	}
+
+	protected changeSearch(search: string): void {
+		const term = search.trim();
+		if (term === this.searchTerm) return;
+		this.searchTerm = term;
+		this.page.set(1);
+		this.loadStrolls();
+	}
+
+	protected changePage(page: number): void {
+		if (this.loading() || page === this.page() || page < 1 || page > this.pageCount()) return;
+		this.page.set(page);
+		this.loadStrolls();
 	}
 
 	protected selectCategory(category: CategoryFilter): void {
+		if (category === this.activeCategory) return;
 		this.activeCategory = category;
+		if (this.page() !== 1) {
+			this.page.set(1);
+			this.loadStrolls();
+		}
 	}
 
 	protected categoryLabelKey(category: CategoryFilter): string {
@@ -114,6 +148,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 
 	protected async changeSort(sort: StrollSortOption): Promise<void> {
 		this.sortBy = sort;
+		this.page.set(1);
 		this.locationError.set(false);
 
 		if (sort === 'nearest' && !this.userLocation) {
@@ -194,6 +229,7 @@ export class StrollBrowserScreenComponent implements OnInit {
 				catchError(() => of({ items: [] as StrollReview[], ratingAverage: 0, ratingCount: 0 }))
 			)
 			.subscribe((response) => {
+				if (this.selectedStroll?.id !== strollId) return;
 				this.reviews = response.items;
 				this.cdr.detectChanges();
 			});
@@ -268,36 +304,45 @@ export class StrollBrowserScreenComponent implements OnInit {
 	}
 
 	private loadStrolls(): void {
-		// Calls the real strolls list endpoint.
-		this.strollsFeature
+		this.browseSubscription?.unsubscribe();
+		this.loading.set(true);
+		this.browseError.set(false);
+		this.browseSubscription = this.strollsFeature
 			.browse({
+				search: this.searchTerm || undefined,
+				page: this.page(),
+				limit: this.limit(),
 				sortBy: this.sortBy,
 				...(this.sortBy === 'nearest' && this.userLocation
 					? { userLatitude: this.userLocation.latitude, userLongitude: this.userLocation.longitude }
 					: {})
 			})
-			.pipe(
-				takeUntilDestroyed(this.destroyRef),
-				map((response) => response?.items ?? []),
-				catchError(() => of([] as StrollSummary[]))
-			)
-			.subscribe((strolls) => {
-				const requestedStroll = this.requestedStrollId
-					? (strolls.find((stroll) => stroll.id === this.requestedStrollId) ??
-						(this.selectedStroll?.id === this.requestedStrollId ? this.selectedStroll : null))
-					: null;
-				this.strolls =
-					requestedStroll && !strolls.some((stroll) => stroll.id === requestedStroll.id) ? [requestedStroll, ...strolls] : strolls;
-				if (requestedStroll) {
-					this.applySelectedStroll(requestedStroll);
-				} else if (this.requestedStrollId) {
-					this.applySelectedStroll(null);
-					this.loadRequestedStroll(this.requestedStrollId);
-				} else {
-					this.applySelectedStroll(this.strolls[0] ?? null);
+			.pipe(takeUntilDestroyed(this.destroyRef))
+			.subscribe({
+				next: (response) => {
+					this.total.set(response.total);
+					this.limit.set(response.limit);
+					this.page.set(response.page);
+					if (this.page() > this.pageCount()) {
+						this.page.set(this.pageCount());
+						this.loadStrolls();
+						return;
+					}
+					this.strolls = response.items;
+					this.loading.set(false);
+					this.syncSelectionFromUrl();
+					// HTTP callbacks may run outside Angular's zone.
+					this.cdr.detectChanges();
+				},
+				error: () => {
+					this.strolls = [];
+					this.total.set(0);
+					this.page.set(1);
+					this.loading.set(false);
+					this.browseError.set(true);
+					if (!this.requestedStrollId) this.applySelectedStroll(null);
+					this.cdr.detectChanges();
 				}
-				// HTTP subscribe callbacks in this app don't reliably re-enter Angular's zone, so force a refresh.
-				this.cdr.detectChanges();
 			});
 	}
 
@@ -312,25 +357,27 @@ export class StrollBrowserScreenComponent implements OnInit {
 			this.applySelectedStroll(requestedStroll);
 			return;
 		}
+		if (this.selectedStroll?.id === this.requestedStrollId) return;
 
 		this.applySelectedStroll(null);
 		this.loadRequestedStroll(this.requestedStrollId);
 	}
 
 	private loadRequestedStroll(strollId: string): void {
-		if (this.requestedDetailIds.has(strollId)) return;
-		this.requestedDetailIds.add(strollId);
+		if (this.requestedDetailId === strollId) return;
+		this.requestedDetailId = strollId;
 		this.strollsFeature
 			.getDetail(strollId)
 			.pipe(takeUntilDestroyed(this.destroyRef))
 			.subscribe({
 				next: (response) => {
+					if (this.requestedDetailId === strollId) this.requestedDetailId = null;
 					const stroll = response.stroll;
-					if (!this.strolls.some((item) => item.id === strollId)) this.strolls = [stroll, ...this.strolls];
 					if (this.requestedStrollId === strollId) this.applySelectedStroll(stroll);
 					this.cdr.detectChanges();
 				},
 				error: () => {
+					if (this.requestedDetailId === strollId) this.requestedDetailId = null;
 					if (this.requestedStrollId === strollId) {
 						this.requestedStrollId = null;
 						this.applySelectedStroll(this.strolls[0] ?? null);

@@ -23,7 +23,7 @@ test.describe('critical browser flows', () => {
 
 	test('public stroll browser renders and supports search', async ({ page }) => {
 		await page.goto('explore');
-		const search = page.getByRole('textbox', { name: /túrák és kerületek keresése/i });
+		const search = page.getByRole('textbox', { name: /keresés név, leírás és város alapján/i });
 		await expect(search).toBeVisible();
 		await search.fill('Budapest');
 		await expect(search).toHaveValue('Budapest');

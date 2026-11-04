@@ -211,8 +211,32 @@ password-reset request 3/minute, and verification resend 3/minute. Responses exp
 Existing `v1` clients retain their current response shapes. Clients that send
 `Accept: application/vnd.strollbar.v2+json` receive the versioned envelope
 `{ status, data, meta }` for success and `{ status, error, meta }` for failures; the Angular
-client requests and unwraps this format centrally. Prefix searches use `term%` semantics for
-index-friendly database queries.
+client requests and unwraps this format centrally.
+
+### Browse search and pagination
+
+`GET /v1/strolls` applies a trimmed, case-insensitive **literal substring** `search`
+to stroll name, description, **or any stage address**. City search means stage
+addresses: there is no separate stroll city field. An optional direct `city` query
+independently restricts results to strolls with a matching address; it combines with
+`search` using AND (the matching addresses may be on different stages). Blank search/city
+values are ignored. `%`, `_`, and the SQL escape character are literal input, not
+wildcards. No accent-insensitivity or accent normalization is promised.
+
+All server filters apply before pagination and counting; multiple matching stages do
+not duplicate strolls. `page` is one-based (default 1), `limit` is 1–100 (default 20),
+and responses contain `items`, `page`, `limit`, and pre-pagination `total`. Pages beyond
+the last return empty `items` with the matching total. Sort options are `newest`
+(default), `most_popular`, `top_rated`, and `nearest`; nearest falls back to newest
+without both valid user coordinates. Labels retain their existing case-insensitive
+serialized-label prefix matching; author and visibility rules are unchanged.
+
+The browser searches on the server, requests the selected page, and offers Previous,
+Next, and numbered pages. Search, category, and sort changes reset to page 1.
+Category chips remain **local filtering of the current page**, not an API parameter;
+page numbers and totals describe server matches before that local filter.
+Deep-linked selected details do not become extra page results. `/strolls/mine`
+retains its existing name-prefix search and owner-list behavior.
 
 For local development without SMTP, keep delivery disabled and set `AUTH_EXPOSE_VERIFICATION_TOKEN=true`. Never expose verification tokens in production.
 

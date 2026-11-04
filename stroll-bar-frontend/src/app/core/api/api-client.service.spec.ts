@@ -89,4 +89,24 @@ describe('ApiClientService', () => {
 		expect(request.request.body).toEqual({ name: 'Updated stage' });
 		request.flush({ id: 'stage-2', name: 'Updated stage' });
 	});
+
+	it('preserves literal search/city text and typed pagination metadata without a category parameter', () => {
+		const response = { items: [], page: 3, limit: 20, total: 45 };
+		let actual: unknown;
+		api.listStrolls({
+			search: 'a%_! & café', city: 'Buda Pest', labels: 'city', authorId: 'owner',
+			sortBy: 'nearest', userLatitude: 47.5, userLongitude: 19, page: 3, limit: 20
+		}).subscribe((value) => { actual = value; });
+		const request = http.expectOne((candidate) => candidate.url === '/v1/strolls');
+		expect(request.request.params.get('search')).toBe('a%_! & café');
+		expect(request.request.params.get('city')).toBe('Buda Pest');
+		expect(request.request.params.get('sortBy')).toBe('nearest');
+		expect(request.request.params.get('userLatitude')).toBe('47.5');
+		expect(request.request.params.get('userLongitude')).toBe('19');
+		expect(request.request.params.get('page')).toBe('3');
+		expect(request.request.params.get('limit')).toBe('20');
+		expect(request.request.params.has('category')).toBe(false);
+		request.flush(response);
+		expect(actual).toEqual(response);
+	});
 });

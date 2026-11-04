@@ -4,6 +4,7 @@ import { DataSource, ILike, In, Repository, SelectQueryBuilder } from 'typeorm';
 import { BulkImportStrollDto } from './dto/bulk-import-stroll.dto';
 import { CreateStrollDto } from './dto/create-stroll.dto';
 import { ListStrollsQueryDto } from './dto/list-strolls-query.dto';
+import { ListOwnedStrollsQueryDto } from './dto/list-owned-strolls-query.dto';
 import { UpdateStrollDto } from './dto/update-stroll.dto';
 import { StageEntity } from '../stages/entities/stage.entity';
 import { StrollActiveStatus, StrollEntity, StrollPublicityFlag } from './entities/stroll.entity';
@@ -45,7 +46,7 @@ export class StrollsService {
 	async list(query: ListStrollsQueryDto) {
 		const page = query.page ?? 1;
 		const limit = query.limit ?? 20;
-		const cacheKey = `strolls:list:${JSON.stringify(query)}`;
+		const cacheKey = `strolls:list:v2:${JSON.stringify(query)}`;
 		const cacheable = !query.authorId && query.sortBy !== 'nearest';
 		if (cacheable) {
 			const cached = await this.cache.get<StrollListResponse>(cacheKey);
@@ -59,8 +60,22 @@ export class StrollsService {
 				publicityFlags: [StrollPublicityFlag.PUBLIC, StrollPublicityFlag.PRIVATE]
 			});
 
-		if (query.search) {
-			builder.andWhere('LOWER(stroll.name) LIKE :search', { search: `${query.search.toLowerCase()}%` });
+		const search = query.search?.trim();
+		const city = query.city?.trim();
+		const substringPattern = (value: string) => `%${value.replace(/[!%_]/g, '!$&')}%`;
+		if (search) {
+			builder.andWhere(
+				`(stroll.name ILIKE :search ESCAPE '!' OR stroll.description ILIKE :search ESCAPE '!'
+					OR EXISTS (SELECT 1 FROM stages stage WHERE stage."strollId" = stroll.id AND stage.address ILIKE :search ESCAPE '!'))`,
+				{ search: substringPattern(search) }
+			);
+		}
+
+		if (city) {
+			builder.andWhere(
+				`EXISTS (SELECT 1 FROM stages city_stage WHERE city_stage."strollId" = stroll.id AND city_stage.address ILIKE :city ESCAPE '!')`,
+				{ city: substringPattern(city) }
+			);
 		}
 
 		if (query.authorId) {
@@ -72,6 +87,7 @@ export class StrollsService {
 		}
 
 		this.applyListSorting(builder, query);
+		builder.addOrderBy('stroll.id', 'ASC');
 
 		const [items, total] = await builder
 			.skip((page - 1) * limit)
@@ -120,7 +136,7 @@ export class StrollsService {
 		builder.orderBy('stroll.createdAt', 'DESC');
 	}
 
-	async listOwned(query: ListStrollsQueryDto, currentUser: AuthenticatedUser) {
+	async listOwned(query: ListOwnedStrollsQueryDto, currentUser: AuthenticatedUser) {
 		const page = query.page ?? 1;
 		const limit = query.limit ?? 20;
 		const where: Record<string, unknown> = currentUser.role === UserRole.ADMIN ? {} : { authorId: currentUser.userId };
