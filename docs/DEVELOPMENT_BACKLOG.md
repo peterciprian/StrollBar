@@ -441,15 +441,19 @@ On downgrade, preserve owned strolls. Permit corrective edits that move an over-
 
 **Current behavior and impact:** The audited browser tests do not cover the complete creator draft → stages → publish → discover → unlock → progress/complete journey. Critical server/UI boundaries can regress independently without a user-visible flow test.
 
-**Scope:** Extend the existing isolated E2E harness for free/core journey: create a draft, add stages, verify failed publish validation, publish, discover, unlock, progress through a riddle without bypass, and complete. Add paid purchase and paid-role E2E only after PROD-01 and ROLE-04 semantics/provider are implemented.
+**Scope:** Extend the existing isolated E2E harness for free/core journey: create a draft, add stages, verify failed publish validation, publish, discover, unlock, navigate past an unsolved riddle, return to exercise riddle answers, and complete. Riddles remain optional under the approved PROD-03 policy. Add paid purchase and paid-role E2E only after PROD-01 and ROLE-04 semantics/provider are implemented.
 
 **Dependencies:** PROD-02 and PROD-03 for their corrected behavior. Other steps can be developed incrementally, but the end-to-end acceptance flow depends on both.
 
+**Status:** Blocked only by the Docker browser-stack issue; the browser journey is drafted, but QA-01 is not complete.
+
 **Acceptance criteria / validation:**
 - A browser test exercises creator through traveller completion using isolated test data and deterministic cleanup.
-- Failed publish is visible and recoverable; direct API progression cannot bypass an unsolved riddle.
+- Failed publish is visible and recoverable; direct API navigation advances past an unsolved riddle and can return to it for the UI answer flow, consistent with PROD-03.
 - Test assertions verify observable API/UI behavior, not implementation details or timing assumptions.
 - Existing E2E scenarios remain separately identifiable; execute through the project’s documented Playwright test surface when available.
+
+**Completion / validation:** Added [`creator-traveller.spec.ts`](../stroll-bar-frontend/e2e/playwright/creator-traveller.spec.ts) for the free creator, publish-readiness, discover, unlock, optional-riddle navigation, answer, and completion journey. The direct API assertion verifies allowed navigation past an unsolved riddle, then navigates back and reloads the UI before testing incorrect and correct answers; backend navigation behavior is intentional and unchanged. Playwright lists the focused test, frontend `test:types` passes, and a direct spec TypeScript check passes. The previous `npm --workspace stroll-bar-frontend run test:e2e -- e2e/playwright/creator-traveller.spec.ts` attempt built the frontend but could not start the disposable PostgreSQL stack because Docker Desktop's `dockerDesktopLinuxEngine` pipe is unavailable, so the browser assertions did not run. This Docker browser-stack issue is the only current verification blocker. QA-01 remains incomplete and unverified pending a successful browser run; no completion is claimed.
 
 #### DX-01 — Reconcile route/product documentation and API contracts
 
