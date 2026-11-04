@@ -95,7 +95,7 @@ export class AdminUserListScreenComponent implements OnInit {
 		this.savingUserId.set(user.id);
 		try {
 			const grants = await firstValueFrom(this.usersFeature.listPaidGrants(user.id));
-			const result = await firstValueFrom(
+			const result = (await firstValueFrom(
 				this.dialog
 					.open(PaidGrantsDialogComponent, {
 						data: { username: user.username, grants },
@@ -103,7 +103,7 @@ export class AdminUserListScreenComponent implements OnInit {
 						width: '520px'
 					})
 					.afterClosed()
-			) as PaidGrantsDialogResult | undefined;
+			)) as PaidGrantsDialogResult | undefined;
 
 			if (!result) return;
 			await this.applyGrantAction(user.id, result);
@@ -146,14 +146,15 @@ export class AdminUserListScreenComponent implements OnInit {
 	}
 
 	protected adminActionLabelKey(user: User): string {
-		return user.role === UserRole.ADMIN
-			? 'SCREENS.ADMIN_USER_LIST.ADMIN_REMOVE'
-			: 'SCREENS.ADMIN_USER_LIST.ADMIN_ASSIGN';
+		return user.role === UserRole.ADMIN ? 'SCREENS.ADMIN_USER_LIST.ADMIN_REMOVE' : 'SCREENS.ADMIN_USER_LIST.ADMIN_ASSIGN';
 	}
 
-	private async applyGrantAction(userId: string, result: PaidGrantsDialogResult): Promise<PaidGrant> {
+	private async applyGrantAction(userId: string, result: PaidGrantsDialogResult): Promise<Omit<PaidGrant, 'reason'>> {
 		if (result.action === 'create') {
 			return firstValueFrom(this.usersFeature.createPaidGrant(userId, result.request));
+		}
+		if (result.action === 'cancel') {
+			return firstValueFrom(this.usersFeature.cancelPaidGrant(userId, result.grantId, { reason: result.reason }));
 		}
 		return firstValueFrom(this.usersFeature.revokePaidGrant(userId, result.grantId, { reason: result.reason }));
 	}

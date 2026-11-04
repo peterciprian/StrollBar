@@ -80,4 +80,18 @@ describe('PaidGrantsDialogComponent', () => {
 			reason: 'Incorrect grant'
 		});
 	});
+
+	it('emits paid-through cancellation distinctly from immediate revoke', () => {
+		const button = Array.from(host.querySelectorAll<HTMLButtonElement>('sb-button button')).find((item) =>
+			item.textContent?.includes('SCREENS.ADMIN_USER_LIST.GRANT_CANCEL')
+		)!;
+		expect(button.disabled).toBe(true);
+		const reason = host.querySelector<HTMLTextAreaElement>('textarea[name="revokeReason"]')!;
+		reason.value = 'Customer request';
+		reason.dispatchEvent(new Event('input'));
+		fixture.detectChanges();
+		button.click();
+		expect(dialogRef.close).toHaveBeenCalledWith({ action: 'cancel', grantId: 'grant-1', reason: 'Customer request' });
+		expect(host.textContent).toContain('SCREENS.ADMIN_USER_LIST.GRANT_CANCEL_HELP');
+	});
 });

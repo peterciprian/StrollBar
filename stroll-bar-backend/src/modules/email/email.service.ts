@@ -85,18 +85,23 @@ export class EmailService {
 		const message = copy.resetMessage.replace('{{minutes}}', String(ttlMinutes));
 		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
 		await this.deliver(
-			() => this.getBrevoClient().transactionalEmails.sendTransacEmail({
-				sender,
-				to: [{ email: recipient }],
-				subject: copy.resetSubject,
-				textContent: [`${copy.verificationGreeting} ${username},`, '', message, url, '', copy.resetFooter].join('\n'),
-				htmlContent: this.wrapHtml(copy.resetPreheader, [
-					`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${this.escapeHtml(username)}!</p>`,
-					`<p style="margin:0 0 20px;">${this.escapeHtml(message)}</p>`,
-					this.button(this.escapeHtml(url), copy.resetButton),
-					`<p style="margin:24px 0 0;color:#64748b;font-size:13px;">${copy.resetFooter}</p>`
-				].join(''), copy.accountFooter)
-			}),
+			() =>
+				this.getBrevoClient().transactionalEmails.sendTransacEmail({
+					sender,
+					to: [{ email: recipient }],
+					subject: copy.resetSubject,
+					textContent: [`${copy.verificationGreeting} ${username},`, '', message, url, '', copy.resetFooter].join('\n'),
+					htmlContent: this.wrapHtml(
+						copy.resetPreheader,
+						[
+							`<p style="margin:0 0 16px;">${copy.verificationGreeting} ${this.escapeHtml(username)}!</p>`,
+							`<p style="margin:0 0 20px;">${this.escapeHtml(message)}</p>`,
+							this.button(this.escapeHtml(url), copy.resetButton),
+							`<p style="margin:24px 0 0;color:#64748b;font-size:13px;">${copy.resetFooter}</p>`
+						].join(''),
+						copy.accountFooter
+					)
+				}),
 			'The password reset email could not be delivered.'
 		);
 	}
@@ -360,6 +365,30 @@ export class EmailService {
 			statusCopy: locale.statusCopy as Record<StrollActiveStatus, string>,
 			statusLabels: locale.statusLabels as Record<StrollActiveStatus, string>
 		};
+	}
+
+	async sendRoleLifecycleMessage(
+		message: { recipient: string; subject: string; textContent: string; htmlContent: string },
+		idempotencyKey: string
+	): Promise<void> {
+		// Disabled delivery is not a receipt. The durable job must retry after configuration is restored.
+		if (!this.isDeliveryEnabled()) throw new ServiceUnavailableException('Lifecycle email delivery is disabled.');
+		const sender = this.parseSender(this.getRequiredConfig('EMAIL_FROM'));
+		try {
+			await this.getBrevoClient().transactionalEmails.sendTransacEmail({
+				sender,
+				to: [{ email: message.recipient }],
+				subject: message.subject,
+				textContent: message.textContent,
+				htmlContent: message.htmlContent,
+				headers: { idempotencyKey }
+			});
+		} catch (error) {
+			const providerError = error as { statusCode?: number; body?: { code?: string } };
+			// Brevo documents this response when the same key was already accepted within its 30-minute TTL.
+			if (providerError.statusCode === 400 && providerError.body?.code === 'duplicate_parameter') return;
+			throw error;
+		}
 	}
 
 	private statusBadge(safeStatus: string): string {

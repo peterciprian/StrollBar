@@ -7,13 +7,27 @@ import { UserEntity, UserRole } from './entities/user.entity';
 export function effectiveRole(role: UserRole, grants: PaidGrantEntity[], now: Date): UserRole {
 	// ADMIN is an independent assignment; legacy paid user.role values are not entitlements.
 	if (role === UserRole.ADMIN) return UserRole.ADMIN;
-	const active = grants.filter((grant) =>
-		(grant.status === PaidGrantStatus.ACTIVE || grant.status === PaidGrantStatus.CANCELLED) &&
-		grant.startsAt.getTime() <= now.getTime() && now.getTime() < grant.expiresAt.getTime()
+	const active = grants.filter(
+		(grant) =>
+			(grant.status === PaidGrantStatus.ACTIVE || grant.status === PaidGrantStatus.CANCELLED) &&
+			grant.startsAt.getTime() <= now.getTime() &&
+			now.getTime() < grant.expiresAt.getTime()
 	);
 	if (active.some((grant) => grant.plan === PaidPlan.PREMIUM)) return UserRole.PREMIUM;
 	if (active.some((grant) => grant.plan === PaidPlan.CREATOR)) return UserRole.CREATOR;
 	return UserRole.SIMPLE;
+}
+
+export function nextPlanTransition(role: UserRole, grants: PaidGrantEntity[], now: Date) {
+	const plan = effectiveRole(role, grants, now);
+	const boundaries = [...new Set(grants.flatMap((grant) => [grant.startsAt.getTime(), grant.expiresAt.getTime()]))]
+		.filter((time) => time > now.getTime())
+		.sort((a, b) => a - b);
+	for (const time of boundaries) {
+		const nextPlan = effectiveRole(role, grants, new Date(time));
+		if (nextPlan !== plan) return { plan, at: new Date(time), nextPlan };
+	}
+	return { plan, at: null, nextPlan: null };
 }
 
 @Injectable()

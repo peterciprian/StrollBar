@@ -23,8 +23,30 @@ export class SettingsPlanComponent implements OnInit {
 	protected readonly loading = signal(true);
 	protected readonly loadError = signal(false);
 	protected readonly userRole = UserRole;
+	protected readonly cancelling = signal<string | null>(null);
+	protected readonly cancelError = signal(false);
 
 	ngOnInit(): void {
+		this.loadEntitlement();
+	}
+
+	protected cancelGrant(grantId: string): void {
+		if (this.cancelling()) return;
+		this.cancelError.set(false);
+		this.cancelling.set(grantId);
+		this.api.cancelMyPaidGrant(grantId).subscribe({
+			next: () => {
+				this.cancelling.set(null);
+				this.loadEntitlement();
+			},
+			error: () => {
+				this.cancelError.set(true);
+				this.cancelling.set(null);
+			}
+		});
+	}
+
+	private loadEntitlement(): void {
 		this.api.getMyEntitlement().subscribe({
 			next: (entitlement) => {
 				this.entitlement.set(entitlement);

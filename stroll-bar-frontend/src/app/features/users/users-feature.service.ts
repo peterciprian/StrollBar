@@ -30,4 +30,8 @@ export class UsersFeatureService {
 	revokePaidGrant(userId: string, grantId: string, request: RevokePaidGrantRequest) {
 		return this.api.revokePaidGrant(userId, grantId, request);
 	}
+
+	cancelPaidGrant(userId: string, grantId: string, request: RevokePaidGrantRequest) {
+		return this.api.cancelPaidGrant(userId, grantId, request);
+	}
 }

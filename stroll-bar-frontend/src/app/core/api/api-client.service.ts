@@ -159,6 +159,14 @@ export class ApiClientService {
 		return this.http.post<PaidGrant>(`${this.baseUrl}/users/${userId}/paid-grants/${grantId}/revoke`, body);
 	}
 
+	cancelMyPaidGrant(grantId: string) {
+		return this.http.post<Omit<PaidGrant, 'reason'>>(`${this.baseUrl}/users/me/paid-grants/${grantId}/cancel`, {});
+	}
+
+	cancelPaidGrant(userId: string, grantId: string, body: RevokePaidGrantRequest) {
+		return this.http.post<Omit<PaidGrant, 'reason'>>(`${this.baseUrl}/users/${userId}/paid-grants/${grantId}/cancel`, body);
+	}
+
 	getPublicProfile(userId: string) {
 		return this.http.get<PublicUserProfile>(`${this.baseUrl}/users/${userId}`);
 	}

@@ -1,14 +1,16 @@
 import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 export enum RoleLifecycleEventType {
-	PAID_GRANT_EXPIRY = 'paid_grant_expiry'
+	PAID_GRANT_EXPIRY = 'paid_grant_expiry',
+	PAID_GRANT_CANCELLED = 'paid_grant_cancelled'
 }
 
 export enum RoleLifecycleOutboxStatus {
 	PENDING = 'pending',
 	PROCESSING = 'processing',
 	SENT = 'sent',
-	QUARANTINED = 'quarantined'
+	QUARANTINED = 'quarantined',
+	SKIPPED = 'skipped'
 }
 
 @Entity('role_lifecycle_outbox')
@@ -41,6 +43,15 @@ export class RoleLifecycleOutboxEntity {
 
 	@Column('timestamptz', { nullable: true })
 	lastAttemptAt?: Date | null;
+
+	@Column('uuid', { nullable: true })
+	leaseToken?: string | null;
+
+	@Column('timestamptz', { nullable: true })
+	leaseUntil?: Date | null;
+
+	@Column('jsonb', { nullable: true })
+	message?: { recipient: string; subject: string; textContent: string; htmlContent: string } | null;
 
 	@Column('timestamptz', { nullable: true })
 	sentAt?: Date | null;

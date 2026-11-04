@@ -8,7 +8,8 @@ const frontendDirectory = resolve(dirname(fileURLToPath(import.meta.url)), '../.
 const repositoryDirectory = resolve(frontendDirectory, '..');
 const backendDirectory = resolve(repositoryDirectory, 'stroll-bar-backend');
 const containerName = `strollbar-password-reset-e2e-${process.pid}-${randomBytes(3).toString('hex')}`;
-const databaseName = `strollbar_test_password_reset_${process.pid}`;
+const externalDatabase = process.env.E2E_EXTERNAL_TEST_DB === 'true';
+const databaseName = externalDatabase ? process.env.TEST_DB_NAME : `strollbar_test_password_reset_${process.pid}`;
 const children = [];
 let databaseStarted = false;
 
@@ -47,16 +48,30 @@ async function cleanup() {
 		if (child.exitCode === null) child.kill('SIGTERM');
 	}
 	await Promise.race([
-		Promise.all(children.map((child) => new Promise((resolveExit) => {
-			if (child.exitCode !== null) resolveExit();
-			else child.once('exit', () => resolveExit());
-		}))),
+		Promise.all(
+			children.map(
+				(child) =>
+					new Promise((resolveExit) => {
+						if (child.exitCode !== null) resolveExit();
+						else child.once('exit', () => resolveExit());
+					})
+			)
+		),
 		new Promise((resolveExit) => setTimeout(resolveExit, 10_000))
 	]);
 	if (databaseStarted) runDocker(['rm', '--force', containerName]);
 }
 
 export async function startLocalStack() {
+	if (
+		externalDatabase &&
+		(!['127.0.0.1', 'localhost', '::1'].includes(process.env.TEST_DB_HOST) ||
+			!/^strollbar_test_[a-z0-9_]+$/.test(databaseName ?? '') ||
+			!process.env.TEST_DB_PORT ||
+			!process.env.TEST_DB_USERNAME ||
+			!process.env.TEST_DB_PASSWORD)
+	)
+		throw new Error('External E2E database must be explicitly configured, local, and named strollbar_test_<suffix>.');
 	const require = createRequire(import.meta.url);
 	const tsNode = require.resolve('ts-node/dist/bin.js', { paths: [backendDirectory] });
 	const serverScript = resolve(frontendDirectory, 'e2e/playwright/serve-frontend.mjs');
@@ -67,10 +82,10 @@ export async function startLocalStack() {
 	Object.assign(backendEnvironment, {
 		NODE_ENV: 'test',
 		PORT: '3001',
-		TEST_DB_HOST: '127.0.0.1',
-		TEST_DB_PORT: '55439',
-		TEST_DB_USERNAME: 'postgres',
-		TEST_DB_PASSWORD: 'password-reset-e2e-only',
+		TEST_DB_HOST: externalDatabase ? process.env.TEST_DB_HOST : '127.0.0.1',
+		TEST_DB_PORT: externalDatabase ? process.env.TEST_DB_PORT : '55439',
+		TEST_DB_USERNAME: externalDatabase ? process.env.TEST_DB_USERNAME : 'postgres',
+		TEST_DB_PASSWORD: externalDatabase ? process.env.TEST_DB_PASSWORD : 'password-reset-e2e-only',
 		TEST_DB_NAME: databaseName,
 		DB_MIGRATIONS_RUN: 'true',
 		JWT_SECRET: 'local-password-reset-e2e-access-secret',
@@ -91,24 +106,38 @@ export async function startLocalStack() {
 	});
 
 	try {
-		console.log(`Starting disposable PostgreSQL 17 container with database ${databaseName}.`);
-		databaseStarted = true;
-		runDocker([
-			'run', '--detach', '--rm', '--name', containerName,
-			'-p', '127.0.0.1:55439:5432',
-			'-e', 'POSTGRES_USER=postgres',
-			'-e', 'POSTGRES_PASSWORD=password-reset-e2e-only',
-			'-e', `POSTGRES_DB=${databaseName}`,
-			'postgres:17'
-		]);
-		databaseStarted = true;
-		await waitUntil(`PostgreSQL database ${databaseName}`, async () => {
-			const result = spawnSync('docker', ['exec', containerName, 'pg_isready', '-U', 'postgres', '-d', databaseName], {
-				encoding: 'utf8',
-				windowsHide: true
-			});
-			return result.status === 0;
-		}, 240_000);
+		if (!externalDatabase) {
+			console.log(`Starting disposable PostgreSQL 17 container with database ${databaseName}.`);
+			databaseStarted = true;
+			runDocker([
+				'run',
+				'--detach',
+				'--rm',
+				'--name',
+				containerName,
+				'-p',
+				'127.0.0.1:55439:5432',
+				'-e',
+				'POSTGRES_USER=postgres',
+				'-e',
+				'POSTGRES_PASSWORD=password-reset-e2e-only',
+				'-e',
+				`POSTGRES_DB=${databaseName}`,
+				'postgres:17'
+			]);
+			databaseStarted = true;
+			await waitUntil(
+				`PostgreSQL database ${databaseName}`,
+				async () => {
+					const result = spawnSync('docker', ['exec', containerName, 'pg_isready', '-U', 'postgres', '-d', databaseName], {
+						encoding: 'utf8',
+						windowsHide: true
+					});
+					return result.status === 0;
+				},
+				240_000
+			);
+		}
 
 		console.log('Starting the real Nest API against the isolated database; email delivery is captured locally.');
 		start(process.execPath, [tsNode, '--project', 'tsconfig.spec.json', 'test/password-reset-e2e-server.ts'], {
@@ -121,18 +150,18 @@ export async function startLocalStack() {
 		});
 
 		console.log('Starting the Angular SSR handler used by the Vercel function.');
-		start(process.execPath, [
-			'--require',
-			resolve(frontendDirectory, 'e2e/playwright/local-only-ssr-api.cjs'),
-			'dist/strollbar-frontend/server/server.mjs'
-		], {
-			cwd: frontendDirectory,
-			env: {
-				...process.env,
-				PORT: '4201',
-				NG_ALLOWED_HOSTS: '127.0.0.1,localhost,strollbar.app,www.strollbar.app,stroll-bar.vercel.app'
+		start(
+			process.execPath,
+			['--require', resolve(frontendDirectory, 'e2e/playwright/local-only-ssr-api.cjs'), 'dist/strollbar-frontend/server/server.mjs'],
+			{
+				cwd: frontendDirectory,
+				env: {
+					...process.env,
+					PORT: '4201',
+					NG_ALLOWED_HOSTS: '127.0.0.1,localhost,strollbar.app,www.strollbar.app,stroll-bar.vercel.app'
+				}
 			}
-		});
+		);
 		await waitUntil('local Angular app shell', async () => {
 			const response = await fetch('http://127.0.0.1:4201/', { signal: AbortSignal.timeout(2000) });
 			return response.ok;

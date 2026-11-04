@@ -1,5 +1,6 @@
 <sb-dialog-shell icon="workspace_premium" [title]="'SCREENS.ADMIN_USER_LIST.GRANT_DIALOG_TITLE' | translate: { username: data.username }">
 	<h3>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_HISTORY' | translate }}</h3>
+	<p>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_CANCEL_HELP' | translate }}</p>
 	@if (data.grants.length === 0) {
 		<p>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_EMPTY' | translate }}</p>
 	} @else {
@@ -7,15 +8,24 @@
 			@for (grant of data.grants; track grant.id) {
 				<li>
 					<div>
-						<strong>{{ ('SCREENS.ADMIN_USER_LIST.ROLE_' + grant.plan.toUpperCase()) | translate }}</strong>
-						<span>{{ ('SCREENS.ADMIN_USER_LIST.GRANT_STATUS_' + grant.status.toUpperCase()) | translate }}</span>
+						<strong>{{ 'SCREENS.ADMIN_USER_LIST.ROLE_' + grant.plan.toUpperCase() | translate }}</strong>
+						<span>{{ 'SCREENS.ADMIN_USER_LIST.GRANT_STATUS_' + grant.status.toUpperCase() | translate }}</span>
 						<small>{{ grant.startsAt | date: 'medium' }} – {{ grant.expiresAt | date: 'medium' }}</small>
 					</div>
 					@if (canRevoke(grant)) {
 						<sb-button
 							variant="tertiary"
 							[label]="'SCREENS.ADMIN_USER_LIST.GRANT_REVOKE' | translate"
+							[disabled]="!grantInput.revokeReason.trim()"
 							(clicked)="revokeGrant(grant)"
+						/>
+					}
+					@if (canCancel(grant)) {
+						<sb-button
+							variant="tertiary"
+							[label]="'SCREENS.ADMIN_USER_LIST.GRANT_CANCEL' | translate"
+							[disabled]="!grantInput.revokeReason.trim()"
+							(clicked)="cancelGrant(grant)"
 						/>
 					}
 				</li>
@@ -44,11 +54,7 @@
 			{{ 'SCREENS.ADMIN_USER_LIST.GRANT_REASON' | translate }}
 			<textarea name="reason" required maxlength="2000" [(ngModel)]="grantInput.reason"></textarea>
 		</label>
-		<sb-button
-			type="submit"
-			[label]="'SCREENS.ADMIN_USER_LIST.GRANT_CREATE' | translate"
-			[disabled]="paidGrantForm.invalid ?? true"
-		/>
+		<sb-button type="submit" [label]="'SCREENS.ADMIN_USER_LIST.GRANT_CREATE' | translate" [disabled]="paidGrantForm.invalid ?? true" />
 	</form>
 
 	@if (hasRevocableGrant()) {

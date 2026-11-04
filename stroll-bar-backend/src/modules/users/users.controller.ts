@@ -24,6 +24,7 @@ import { RoleAssignmentsService } from './role-assignments.service';
 import { RevokePaidGrantDto } from './dto/revoke-paid-grant.dto';
 import { UserEntitlementService } from './user-entitlement.service';
 import { UserEntitlementResponseDto } from './dto/user-entitlement-response.dto';
+import { ownPaidGrantSummary } from './paid-grant-summary';
 
 @ApiTags('Users')
 @Controller('users')
@@ -42,6 +43,15 @@ export class UsersController {
 	@Header('Cache-Control', 'no-store')
 	getMyEntitlement(@CurrentUser() user: AuthenticatedUser) {
 		return this.entitlements.getForUser(user.userId);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Cancel an owned paid grant; access remains until its exact expiry' })
+	@UseGuards(JwtAuthGuard)
+	@Post('me/paid-grants/:grantId/cancel')
+	async cancelMyPaidGrant(@Param('grantId') grantId: string, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+		const grant = await this.roleAssignments.cancelGrant(user.userId, grantId, 'Account cancellation', user, request.ip);
+		return ownPaidGrantSummary(grant);
 	}
 
 	@ApiBearerAuth('bearer')
@@ -83,7 +93,12 @@ export class UsersController {
 	@ApiOperation({ summary: 'Record an expiring paid grant (admin only; evaluated on subsequent requests)' })
 	@UseGuards(JwtAuthGuard)
 	@Post(':userId/paid-grants')
-	createPaidGrant(@Param('userId') userId: string, @Body() dto: CreatePaidGrantDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+	createPaidGrant(
+		@Param('userId') userId: string,
+		@Body() dto: CreatePaidGrantDto,
+		@CurrentUser() user: AuthenticatedUser,
+		@Req() request: Request
+	) {
 		return this.roleAssignments.createGrant(userId, dto, user, request.ip);
 	}
 
@@ -101,8 +116,28 @@ export class UsersController {
 	@ApiOperation({ summary: 'Revoke one paid grant without changing ADMIN or other grants (admin only)' })
 	@UseGuards(JwtAuthGuard)
 	@Post(':userId/paid-grants/:grantId/revoke')
-	revokePaidGrant(@Param('userId') userId: string, @Param('grantId') grantId: string, @Body() dto: RevokePaidGrantDto, @CurrentUser() user: AuthenticatedUser, @Req() request: Request) {
+	revokePaidGrant(
+		@Param('userId') userId: string,
+		@Param('grantId') grantId: string,
+		@Body() dto: RevokePaidGrantDto,
+		@CurrentUser() user: AuthenticatedUser,
+		@Req() request: Request
+	) {
 		return this.roleAssignments.revokeGrant(userId, grantId, dto.reason, user, request.ip);
+	}
+
+	@ApiBearerAuth('bearer')
+	@ApiOperation({ summary: 'Cancel one paid grant through expiry, distinct from immediate admin revoke' })
+	@UseGuards(JwtAuthGuard)
+	@Post(':userId/paid-grants/:grantId/cancel')
+	cancelPaidGrant(
+		@Param('userId') userId: string,
+		@Param('grantId') grantId: string,
+		@Body() dto: RevokePaidGrantDto,
+		@CurrentUser() user: AuthenticatedUser,
+		@Req() request: Request
+	) {
+		return this.roleAssignments.cancelGrant(userId, grantId, dto.reason, user, request.ip).then(ownPaidGrantSummary);
 	}
 
 	@ApiOperation({ summary: 'Get a public user profile' })

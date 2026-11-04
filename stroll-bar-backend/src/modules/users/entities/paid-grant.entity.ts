@@ -45,6 +45,9 @@ export class PaidGrantEntity {
 	@Column('text')
 	reason!: string;
 
+	@Column('timestamptz', { nullable: true })
+	cancelledAt?: Date | null;
+
 	@CreateDateColumn({ type: 'timestamptz' })
 	createdAt!: Date;
 }

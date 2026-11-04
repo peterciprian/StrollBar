@@ -124,3 +124,43 @@ services:
             value: '5242880'
           - key: MEDIA_MULTIPART_MAX_PARTS
             value: '1000'
+
+    # Independent of the sleeping free web service; runs in UTC every ten minutes.
+    - type: cron
+      name: strollbar-role-lifecycle
+      runtime: node
+      plan: starter
+      rootDir: stroll-bar-backend
+      schedule: '*/10 * * * *'
+      buildCommand: npm ci --include=dev && npm run build
+      startCommand: npm run roles:dispatch
+      envVars:
+          - key: NODE_ENV
+            value: production
+          - key: DB_MIGRATIONS_RUN
+            value: 'false'
+          - key: DB_SSL
+            value: verify-full
+          # Upload the Aiven CA secret file to this cron service too, before enabling it.
+          - key: DB_SSL_CA_FILE
+            value: /etc/secrets/aiven-ca.pem
+          - key: DB_HOST
+            fromService: { type: web, name: strollbar-backend, envVarKey: DB_HOST }
+          - key: DB_PORT
+            fromService: { type: web, name: strollbar-backend, envVarKey: DB_PORT }
+          - key: DB_USERNAME
+            fromService: { type: web, name: strollbar-backend, envVarKey: DB_USERNAME }
+          - key: DB_PASSWORD
+            fromService: { type: web, name: strollbar-backend, envVarKey: DB_PASSWORD }
+          - key: DB_NAME
+            fromService: { type: web, name: strollbar-backend, envVarKey: DB_NAME }
+          - key: DB_POOL_MAX
+            value: '12'
+          - key: DB_POOL_MIN
+            value: '0'
+          - key: EMAIL_DELIVERY_ENABLED
+            fromService: { type: web, name: strollbar-backend, envVarKey: EMAIL_DELIVERY_ENABLED }
+          - key: BREVO_API_KEY
+            fromService: { type: web, name: strollbar-backend, envVarKey: BREVO_API_KEY }
+          - key: EMAIL_FROM
+            fromService: { type: web, name: strollbar-backend, envVarKey: EMAIL_FROM }

@@ -8,7 +8,10 @@ import { StructuredExceptionFilter } from '../src/common/filters/structured-exce
 import { VersionedResponseInterceptor } from '../src/common/interceptors/versioned-response.interceptor';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { EmailService } from '../src/modules/email/email.service';
-import { PreferredLanguage, UserEntity } from '../src/modules/users/entities/user.entity';
+import { PreferredLanguage, UserEntity, UserRole } from '../src/modules/users/entities/user.entity';
+import { PaidGrantEntity } from '../src/modules/users/entities/paid-grant.entity';
+import { RoleLifecycleEventType, RoleLifecycleOutboxEntity } from '../src/modules/users/entities/role-lifecycle-outbox.entity';
+import { RoleLifecycleDispatcher } from '../src/modules/users/role-lifecycle-dispatcher.service';
 import { configureIsolatedTestDatabase } from './isolated-test-database';
 import { randomBytes } from 'node:crypto';
 import { OAuthProviderService, SocialProfile } from '../src/modules/auth/services/oauth-provider.service';
@@ -99,9 +102,14 @@ async function main(): Promise<void> {
 				}
 				const code = randomBytes(32).toString('hex');
 				providerProofs.set(code, {
-					provider: 'google', providerUserId: code, email: `social-${code}@example.test`, emailVerified: true
+					provider: 'google',
+					providerUserId: code,
+					email: `social-${code}@example.test`,
+					emailVerified: true
 				});
-				response.writeHead(302, { location: `http://127.0.0.1:3001/v1/auth/social/google/callback?code=${code}&state=${encodeURIComponent(state)}` });
+				response.writeHead(302, {
+					location: `http://127.0.0.1:3001/v1/auth/social/google/callback?code=${code}&state=${encodeURIComponent(state)}`
+				});
 				response.end();
 				return;
 			}
@@ -111,9 +119,10 @@ async function main(): Promise<void> {
 					sendJson(response, 400, { error: 'A transaction identifier is required.' });
 					return;
 				}
-				await app.get(DataSource).getRepository(SocialTransactionEntity).update(
-					{ id: input.transactionId }, { handoffExpiresAt: new Date(Date.now() - 1000) }
-				);
+				await app
+					.get(DataSource)
+					.getRepository(SocialTransactionEntity)
+					.update({ id: input.transactionId }, { handoffExpiresAt: new Date(Date.now() - 1000) });
 				sendJson(response, 200, { status: 'expired' });
 				return;
 			}
@@ -136,15 +145,48 @@ async function main(): Promise<void> {
 					username: `pwreset-e2e-${Date.now().toString(36)}-${++accountSequence}`,
 					preferredLanguage: PreferredLanguage.HU
 				});
-				await users.update({ id: registration.user.id }, { emailVerified: true });
-				sendJson(response, 201, { email, password });
+				await users.update(
+					{ id: registration.user.id },
+					{
+						emailVerified: true,
+						role: input.role === 'admin' ? UserRole.ADMIN : UserRole.SIMPLE,
+						preferredLanguage: input.language === 'en' ? PreferredLanguage.EN : PreferredLanguage.HU
+					}
+				);
+				sendJson(response, 201, { email, password, id: registration.user.id });
+				return;
+			}
+			if (request.method === 'POST' && url.pathname === '/__e2e/roles/expire') {
+				const input = await readJson(request);
+				if (typeof input.grantId !== 'string') {
+					sendJson(response, 400, { error: 'A grant ID is required.' });
+					return;
+				}
+				const at = new Date(Date.now() - 1);
+				const ds = app.get(DataSource);
+				await ds.transaction(async (manager) => {
+					await manager.update(PaidGrantEntity, input.grantId as string, { expiresAt: at });
+					await manager.update(
+						RoleLifecycleOutboxEntity,
+						{
+							grantId: input.grantId as string,
+							eventType: RoleLifecycleEventType.PAID_GRANT_EXPIRY
+						},
+						{ availableAt: at }
+					);
+				});
+				sendJson(response, 200, await app.get(RoleLifecycleDispatcher).drain());
 				return;
 			}
 			if (request.method === 'GET' && url.pathname === '/__e2e/mailbox') {
 				const email = url.searchParams.get('email');
 				const matches = mailbox
 					.filter((item) => item.to?.some((recipient) => recipient.email === email))
-					.filter((item) => /password|jelszó/i.test(item.subject ?? ''));
+					.filter((item) =>
+						url.searchParams.get('kind') === 'role'
+							? /cancelled|expired|lemondva|lejárt/i.test(item.subject ?? '')
+							: /password|jelszó/i.test(item.subject ?? '')
+					);
 				const message = matches[matches.length - 1];
 				if (!message) {
 					sendJson(response, 404, { error: 'No captured password reset email for this test account.' });

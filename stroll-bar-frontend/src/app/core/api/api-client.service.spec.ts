@@ -30,6 +30,19 @@ describe('ApiClientService', () => {
 		request.flush({ accessToken: 'access-token', refreshToken: 'refresh-token', user: {} });
 	});
 
+	it('keeps self cancellation, admin cancellation and immediate revoke on distinct endpoints', () => {
+		api.cancelMyPaidGrant('grant').subscribe();
+		const self = http.expectOne('/v1/users/me/paid-grants/grant/cancel');
+		expect(self.request.method).toBe('POST');
+		self.flush({});
+		api.cancelPaidGrant('user', 'grant', { reason: 'Requested' }).subscribe();
+		const cancel = http.expectOne('/v1/users/user/paid-grants/grant/cancel');
+		expect(cancel.request.body).toEqual({ reason: 'Requested' });
+		cancel.flush({});
+		api.revokePaidGrant('user', 'grant', { reason: 'Immediate removal' }).subscribe();
+		http.expectOne('/v1/users/user/paid-grants/grant/revoke').flush({});
+	});
+
 	it('sends the browser challenge at social initiation, not the secret verifier', () => {
 		api.getSocialAuthStartUrl('google', 'http://localhost/#/auth/social/callback', 'challenge').subscribe();
 		const request = http.expectOne((candidate) => candidate.url === '/v1/auth/social/google/start-url');
@@ -94,9 +107,18 @@ describe('ApiClientService', () => {
 		const response = { items: [], page: 3, limit: 20, total: 45 };
 		let actual: unknown;
 		api.listStrolls({
-			search: 'a%_! & café', city: 'Buda Pest', labels: 'city', authorId: 'owner',
-			sortBy: 'nearest', userLatitude: 47.5, userLongitude: 19, page: 3, limit: 20
-		}).subscribe((value) => { actual = value; });
+			search: 'a%_! & café',
+			city: 'Buda Pest',
+			labels: 'city',
+			authorId: 'owner',
+			sortBy: 'nearest',
+			userLatitude: 47.5,
+			userLongitude: 19,
+			page: 3,
+			limit: 20
+		}).subscribe((value) => {
+			actual = value;
+		});
 		const request = http.expectOne((candidate) => candidate.url === '/v1/strolls');
 		expect(request.request.params.get('search')).toBe('a%_! & café');
 		expect(request.request.params.get('city')).toBe('Buda Pest');

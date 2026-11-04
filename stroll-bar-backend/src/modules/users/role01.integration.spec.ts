@@ -52,7 +52,7 @@ integration('ROLE-01 disposable PostgreSQL integration', () => {
 		} as any);
 		await ds.initialize();
 		await ds.runMigrations();
-		assignments = new RoleAssignmentsService(ds);
+		assignments = new RoleAssignmentsService(ds, { dispatchOne: jest.fn() } as never);
 		cutover = new LegacyRoleCutover(ds);
 		strolls = new StrollsService(
 			ds.getRepository(StrollEntity), ds.getRepository(StageEntity), ds.getRepository(AdventureEntity),

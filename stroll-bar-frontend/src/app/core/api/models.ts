@@ -46,6 +46,8 @@ export interface User {
 export interface UserEntitlement {
 	plan: UserRole;
 	paidThroughAt: string | null;
+	fallbackPlan: UserRole | null;
+	paidGrants: Omit<PaidGrant, 'reason'>[];
 	creationLimits: { public: number | null; private: number | null };
 	creationUsage: { public: number; private: number };
 	purchaseLimits: { public: number | null; private: number | null };
@@ -59,6 +61,7 @@ export interface PaidGrant {
 	startsAt: string;
 	expiresAt: string;
 	reason: string;
+	cancelledAt?: string | null;
 }
 
 export interface CreatePaidGrantRequest {

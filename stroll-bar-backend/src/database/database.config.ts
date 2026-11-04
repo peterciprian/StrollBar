@@ -24,6 +24,7 @@ import { UserPreferredLanguage1754000000000 } from './migrations/1754000000000-u
 import { UserAuthVersion1754100000000 } from './migrations/1754100000000-user-auth-version';
 import { SocialTransactions1754200000000 } from './migrations/1754200000000-social-transactions';
 import { RoleLifecycleOutbox1754400000000 } from './migrations/1754400000000-role-lifecycle-outbox';
+import { RoleLifecycleDelivery1754500000000 } from './migrations/1754500000000-role-lifecycle-delivery';
 
 function getBoolean(value: string | undefined, fallback: boolean): boolean {
 	if (value === undefined) {
@@ -125,7 +126,8 @@ export function buildDatabaseOptions(): TypeOrmModuleOptions {
 			UserAuthVersion1754100000000,
 			SocialTransactions1754200000000,
 			PaidGrants1754300000000,
-			RoleLifecycleOutbox1754400000000
+			RoleLifecycleOutbox1754400000000,
+			RoleLifecycleDelivery1754500000000
 		],
 		migrationsRun: getBoolean(process.env.DB_MIGRATIONS_RUN, false),
 		synchronize: false,

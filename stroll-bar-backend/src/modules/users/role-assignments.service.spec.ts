@@ -21,19 +21,23 @@ describe('RoleAssignmentsService', () => {
 				.mockResolvedValueOnce({ id: actor.userId, role: UserRole.ADMIN, isActive: true })
 				.mockResolvedValueOnce({ id: userId, role: UserRole.SIMPLE, isActive: true }),
 			create: jest.fn((_entity, values) => values),
-			save: jest.fn(async (entity, values) => entity === PaidGrantEntity ? { ...values, id: 'grant-1' } : values)
+			save: jest.fn(async (entity, values) => (entity === PaidGrantEntity ? { ...values, id: 'grant-1' } : values))
 		};
 		const dataSource = {
 			transaction: jest.fn(async (operation: (value: typeof manager) => unknown) => operation(manager))
 		};
-		const service = new RoleAssignmentsService(dataSource as never);
+		const service = new RoleAssignmentsService(dataSource as never, {} as never);
 
-		await service.createGrant(userId, {
-			plan: PaidPlan.CREATOR,
-			startsAt: '2026-01-01T00:00:00.000Z',
-			expiresAt,
-			reason: 'Approved support grant'
-		}, actor);
+		await service.createGrant(
+			userId,
+			{
+				plan: PaidPlan.CREATOR,
+				startsAt: '2026-01-01T00:00:00.000Z',
+				expiresAt,
+				reason: 'Approved support grant'
+			},
+			actor
+		);
 
 		expect(dataSource.transaction).toHaveBeenCalledTimes(1);
 		expect(manager.save).toHaveBeenCalledWith(
@@ -45,10 +49,7 @@ describe('RoleAssignmentsService', () => {
 				availableAt: new Date(expiresAt)
 			})
 		);
-		expect(manager.save).toHaveBeenCalledWith(
-			AuditEventEntity,
-			expect.objectContaining({ userId, actorUserId: actor.userId })
-		);
+		expect(manager.save).toHaveBeenCalledWith(AuditEventEntity, expect.objectContaining({ userId, actorUserId: actor.userId }));
 	});
 
 	it('keeps new grants active and does not send lifecycle mail in the request transaction', async () => {
@@ -64,18 +65,25 @@ describe('RoleAssignmentsService', () => {
 				.mockResolvedValueOnce({ id: actor.userId, role: UserRole.ADMIN, isActive: true })
 				.mockResolvedValueOnce({ id: 'target', role: UserRole.SIMPLE, isActive: true }),
 			create: jest.fn((_entity, values) => values),
-			save: jest.fn(async (entity, values) => entity === PaidGrantEntity ? { ...values, id: 'grant-2' } : values)
+			save: jest.fn(async (entity, values) => (entity === PaidGrantEntity ? { ...values, id: 'grant-2' } : values))
 		};
-		const service = new RoleAssignmentsService({
-			transaction: jest.fn(async (operation: (value: typeof manager) => unknown) => operation(manager))
-		} as never);
+		const service = new RoleAssignmentsService(
+			{
+				transaction: jest.fn(async (operation: (value: typeof manager) => unknown) => operation(manager))
+			} as never,
+			{} as never
+		);
 
-		const grant = await service.createGrant('target', {
-			plan: PaidPlan.PREMIUM,
-			startsAt: '2026-01-01T00:00:00.000Z',
-			expiresAt: '2027-01-01T00:00:00.000Z',
-			reason: 'Approved support grant'
-		}, actor);
+		const grant = await service.createGrant(
+			'target',
+			{
+				plan: PaidPlan.PREMIUM,
+				startsAt: '2026-01-01T00:00:00.000Z',
+				expiresAt: '2027-01-01T00:00:00.000Z',
+				reason: 'Approved support grant'
+			},
+			actor
+		);
 
 		expect(grant).toMatchObject({ id: 'grant-2', status: PaidGrantStatus.ACTIVE });
 		expect(manager.save).toHaveBeenCalledTimes(3);

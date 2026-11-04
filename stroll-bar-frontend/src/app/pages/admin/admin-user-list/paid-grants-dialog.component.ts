@@ -13,8 +13,7 @@ export interface PaidGrantsDialogData {
 }
 
 export type PaidGrantsDialogResult =
-	| { action: 'create'; request: CreatePaidGrantRequest }
-	| { action: 'revoke'; grantId: string; reason: string };
+	{ action: 'create'; request: CreatePaidGrantRequest } | { action: 'revoke' | 'cancel'; grantId: string; reason: string };
 
 function localDateTime(date: Date): string {
 	const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
@@ -63,6 +62,16 @@ export class PaidGrantsDialogComponent {
 
 	protected canRevoke(grant: PaidGrant): boolean {
 		return (grant.status === 'active' || grant.status === 'cancelled') && new Date(grant.expiresAt).getTime() > Date.now();
+	}
+
+	protected cancelGrant(grant: PaidGrant): void {
+		const reason = this.grantInput.revokeReason.trim();
+		if (!reason || !this.canCancel(grant)) return;
+		this.dialogRef.close({ action: 'cancel', grantId: grant.id, reason });
+	}
+
+	protected canCancel(grant: PaidGrant): boolean {
+		return grant.status === 'active' && new Date(grant.expiresAt).getTime() > Date.now();
 	}
 
 	protected hasRevocableGrant(): boolean {

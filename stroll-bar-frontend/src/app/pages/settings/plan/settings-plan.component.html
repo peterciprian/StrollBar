@@ -9,12 +9,38 @@
 		<h2 id="plan-name">{{ 'SCREENS.ADMIN_USER_LIST.ROLE_' + plan.plan.toUpperCase() | translate }}</h2>
 		@if (plan.plan !== userRole.ADMIN && plan.paidThroughAt) {
 			<p>
-				{{ 'SETTINGS.PAID_THROUGH' | translate: { date: (plan.paidThroughAt | date: 'medium') } }}
+				{{ 'SETTINGS.PAID_THROUGH' | translate: { date: (plan.paidThroughAt | date: 'medium'), plan: plan.fallbackPlan?.toUpperCase() } }}
 			</p>
 		} @else if (plan.plan !== userRole.ADMIN) {
 			<p>{{ 'SETTINGS.SIMPLE_FALLBACK' | translate }}</p>
-}
+		}
 	</section>
+
+	@if (cancelError()) {
+		<sb-alert tone="danger" [message]="'SETTINGS.CANCEL_ERROR' | translate" />
+	}
+	@if (plan.paidGrants.length) {
+		<section class="quota-section">
+			<h3>{{ 'SETTINGS.PAID_GRANTS' | translate }}</h3>
+			<p>{{ 'SETTINGS.CANCEL_HELP' | translate }}</p>
+			@for (grant of plan.paidGrants; track grant.id) {
+				<p>
+					{{ 'SCREENS.ADMIN_USER_LIST.ROLE_' + grant.plan.toUpperCase() | translate }}
+					— {{ grant.expiresAt | date: 'medium' }}
+					@if (grant.status === 'cancelled') {
+						{{ 'SETTINGS.CANCELLED_THROUGH' | translate }}
+					} @else if (grant.status === 'active') {
+						<sb-button
+							variant="tertiary"
+							[label]="'SETTINGS.CANCEL_GRANT' | translate"
+							[disabled]="cancelling() !== null"
+							(clicked)="cancelGrant(grant.id)"
+						/>
+					}
+				</p>
+			}
+		</section>
+	}
 
 	<section class="quota-section" aria-labelledby="creation-quota">
 		<h3 id="creation-quota">{{ 'SETTINGS.CREATION_QUOTA_TITLE' | translate }}</h3>
@@ -73,4 +99,4 @@
 	</section>
 
 	<sb-button [label]="'SCREENS.ADMIN_USER_LIST.PLANS_LINK' | translate" [routerLink]="['/plans']" variant="tertiary" />
-	}
+}

@@ -33,24 +33,53 @@ describe('EmailService', () => {
 		[PreferredLanguage.EN, 'https://example.com/auth/reset-password', 'Reset your StrollBar password']
 	])('sends a localized %s reset email with trusted link, expiry and escaped HTML', async (language, url, subject) => {
 		const service = createService({
-			EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'test-key', EMAIL_FROM: 'StrollBar <no-reply@example.com>', PASSWORD_RESET_URL: url
+			EMAIL_DELIVERY_ENABLED: 'true',
+			BREVO_API_KEY: 'test-key',
+			EMAIL_FROM: 'StrollBar <no-reply@example.com>',
+			PASSWORD_RESET_URL: url
 		});
 		await service.sendPasswordResetEmail('walker@example.com', 'Walker <Admin>', validToken, 15, language as PreferredLanguage);
-		expect(sendTransacEmail).toHaveBeenCalledWith(expect.objectContaining({
-			subject,
-			textContent: expect.stringContaining(`${url}?token=${validToken}`),
-			htmlContent: expect.stringContaining('Walker &lt;Admin&gt;')
-		}));
+		expect(sendTransacEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				subject,
+				textContent: expect.stringContaining(`${url}?token=${validToken}`),
+				htmlContent: expect.stringContaining('Walker &lt;Admin&gt;')
+			})
+		);
 		expect(sendTransacEmail.mock.calls[0][0].textContent).toContain('15');
 	});
 
 	it('fails explicitly when recovery email is disabled', async () => {
-		await expect(createService({ EMAIL_DELIVERY_ENABLED: 'false' }).sendPasswordResetEmail('walker@example.com', 'Walker', validToken, 15)).rejects.toThrow(ServiceUnavailableException);
+		await expect(
+			createService({ EMAIL_DELIVERY_ENABLED: 'false' }).sendPasswordResetEmail('walker@example.com', 'Walker', validToken, 15)
+		).rejects.toThrow(ServiceUnavailableException);
+	});
+
+	it('sends lifecycle messages with a stable provider dedupe key and leaves retries to the durable job', async () => {
+		const service = createService({ EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'test-key', EMAIL_FROM: 'no-reply@example.com' });
+		const message = { recipient: 'walker@example.com', subject: 'PREMIUM expired', textContent: 'Retained', htmlContent: '<p>Retained</p>' };
+		const key = '00000000-0000-4000-8000-000000000001';
+		await service.sendRoleLifecycleMessage(message, key);
+		expect(sendTransacEmail).toHaveBeenCalledWith(
+			expect.objectContaining({
+				headers: { idempotencyKey: key },
+				subject: message.subject
+			})
+		);
+		sendTransacEmail.mockRejectedValue(new Error('ambiguous'));
+		await expect(service.sendRoleLifecycleMessage(message, key)).rejects.toThrow('ambiguous');
+		expect(sendTransacEmail).toHaveBeenCalledTimes(2);
+		sendTransacEmail.mockRejectedValueOnce({ statusCode: 400, body: { code: 'duplicate_parameter' } });
+		await expect(service.sendRoleLifecycleMessage(message, key)).resolves.toBeUndefined();
+		await expect(createService({ EMAIL_DELIVERY_ENABLED: 'false' }).sendRoleLifecycleMessage(message, 'same')).rejects.toThrow('disabled');
 	});
 
 	it('reports reset delivery failure', async () => {
 		const service = createService({
-			EMAIL_DELIVERY_ENABLED: 'true', BREVO_API_KEY: 'test-key', EMAIL_FROM: 'no-reply@example.com', PASSWORD_RESET_URL: 'https://example.com/#/auth/reset-password'
+			EMAIL_DELIVERY_ENABLED: 'true',
+			BREVO_API_KEY: 'test-key',
+			EMAIL_FROM: 'no-reply@example.com',
+			PASSWORD_RESET_URL: 'https://example.com/#/auth/reset-password'
 		});
 		sendTransacEmail.mockRejectedValue(new Error('provider unavailable'));
 		await expect(service.sendPasswordResetEmail('walker@example.com', 'Walker', validToken, 15)).rejects.toThrow(ServiceUnavailableException);

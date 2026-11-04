@@ -10,11 +10,16 @@ import { EffectiveRoleModule } from './effective-role.module';
 import { PaidGrantEntity } from './entities/paid-grant.entity';
 import { UserEntitlementService } from './user-entitlement.service';
 import { RoleLifecycleOutboxEntity } from './entities/role-lifecycle-outbox.entity';
+import { RoleLifecycleModule } from './role-lifecycle.module';
 
 @Module({
-  imports: [EffectiveRoleModule, TypeOrmModule.forFeature([UserEntity, PaidGrantEntity, RoleLifecycleOutboxEntity, StrollEntity, AdventureEntity])],
-  controllers: [UsersController],
-  providers: [UsersService, RoleAssignmentsService, UserEntitlementService],
-  exports: [UsersService],
+	imports: [
+		EffectiveRoleModule,
+		RoleLifecycleModule,
+		TypeOrmModule.forFeature([UserEntity, PaidGrantEntity, RoleLifecycleOutboxEntity, StrollEntity, AdventureEntity])
+	],
+	controllers: [UsersController],
+	providers: [UsersService, RoleAssignmentsService, UserEntitlementService],
+	exports: [UsersService]
 })
 export class UsersModule {}
