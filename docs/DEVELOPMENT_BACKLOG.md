@@ -49,7 +49,7 @@ Effort is a relative planning estimate, not a commitment: **S** small, **M** med
 | PROD-04 — Completed | P1 | Product / browse search contract | M | — |
 | ROLE-01 | P1 | Paid roles / entitlement model and migration | L | ROLE-00 |
 | ROLE-02 — Completed | P1 | Paid roles / effective authorization and expiry | L | ROLE-01 |
-| ROLE-03 | P1 | Paid roles / provider billing and events | XL | ROLE-00, ROLE-01 |
+| ROLE-03 — Deferred (not implemented) | P1 | Paid roles / provider billing and events | XL | ROLE-00, ROLE-01 |
 | ROLE-04 | P1 | Paid roles / account/admin UI and lifecycle tests | L | ROLE-02, ROLE-03 |
 | QA-01 | P1 | Quality / creator-to-traveller E2E | L | PROD-02, PROD-03 |
 | PERF-01 | P2 | Performance / discovery and profile queries | M | — |
@@ -352,11 +352,12 @@ On downgrade, preserve owned strolls. Permit corrective edits that reduce at lea
 #### ROLE-03 — Integrate provider-confirmed subscription lifecycle and idempotent event processing
 
 **Priority / effort:** P1 / XL  
+**User-confirmed status (2026-11-04):** ROLE-03 remains deferred and has not been implemented; it must not be treated or reported as complete. No payment provider, checkout, webhook, provider-specific schema, or provider-event processing may be implemented until separate explicit future approval.
 **Evidence:** No subscription processor, entitlement lifecycle, webhook, expiry, or billing-management journey was found; current manual assignment is documented in [`users.service.ts`](../stroll-bar-backend/src/modules/users/users.service.ts#L108-L130). No provider is selected in the audited codebase.
 
 **Current behavior and impact:** There is no verified recurring payment lifecycle from which paid-role grants can safely be issued or expired.
 
-**Scope:** Deferred. No payment/provider work is approved now, and no provider, prices, or billing cadence are specified. Revisit only after explicit future approval of a provider and the remaining lifecycle policies, plus the ROLE-01 data model. If approved later, integrate verified subscription checkout and signed events; renew only from provider-confirmed periods; process duplicate, reordered, delayed, and concurrent events transactionally/idempotently; reconcile provider/local drift; and keep secrets out of source/logs. Implement recorded lifecycle decisions: cancellation remains active through paid-through expiry; failed renewal falls back to SIMPLE at period end with no grace; on a verified chargeback suspend only the disputed grant while pending, restore it if the user wins, and revoke it if upheld. ADMIN and unrelated purchases must remain unaffected. This ticket concerns subscriptions only, not individual stroll purchases (PROD-01).
+**Scope:** Deferred. No payment/provider work is approved now, and no provider, prices, or billing cadence are specified. Revisit only after separate explicit future approval of provider/payment work and the remaining lifecycle policies, plus the ROLE-01 data model. Until that approval, do not implement a payment provider, checkout, webhook, provider-specific schema, or event processing. If approved later, integrate verified subscription checkout and signed events; renew only from provider-confirmed periods; process duplicate, reordered, delayed, and concurrent events transactionally/idempotently; reconcile provider/local drift; and keep secrets out of source/logs. Implement recorded lifecycle decisions: cancellation remains active through paid-through expiry; failed renewal falls back to SIMPLE at period end with no grace; on a verified chargeback suspend only the disputed grant while pending, restore it if the user wins, and revoke it if upheld. ADMIN and unrelated purchases must remain unaffected. This ticket concerns subscriptions only, not individual stroll purchases (PROD-01).
 
 **Dependencies:** Future explicit ROLE-00 approval of provider/payment work and lifecycle policies; ROLE-01 schema. Not authorized by the current partial decisions.
 
